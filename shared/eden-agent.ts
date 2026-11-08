@@ -174,6 +174,10 @@ export function reduceEdenAgentInput(raw: unknown, context: EdenAgentContext, pe
   if(navigation){const pages:Record<string,EdenPublicDestination>={'give support':'give','for organizations':'organizations',organizations:'organizations','about':'about','about our ground':'about',privacy:'privacy','privacy policy':'privacy',home:'home',homepage:'home','find support':'support',support:'support'};return{status:'supported',intent:{goal:'navigate-public',page:pages[navigation[1]]}};}
   if(/^(?:show(?: me)?|focus|select) (?:that|this|the selected) (?:resource|place|listing|one) on (?:the )?map$/.test(normalized))return safe.selectedIndex?{status:'supported',intent:{goal:'inspect-resource',ordinal:safe.selectedIndex,view:'map'}}:{status:'clarify',message:'Select a current resource or name its result number first.'};
   if(/^(?:is|check if) (?:(?:this|that|the selected) (?:resource|place|listing)|it) open (?:right )?now$/.test(normalized))return safe.selectedIndex?{status:'supported',intent:{goal:'check-open-now',ordinal:safe.selectedIndex}}:{status:'clarify',message:'Which current result should I check?'};
+  if (/^what are (?:this|that|the selected) (?:clinic|listing|resource)(?:['’]s)? hours[?]?$/.test(normalized)) {
+    return safe.selectedIndex ? {status:'supported',intent:{goal:'check-open-now',ordinal:safe.selectedIndex}}
+      : {status:'clarify',message:'Select the clinic you want to check first.'};
+  }
   const statewide=/^(?:find|show(?: me)?|search(?: for)?) (food(?: resources?| support| assistance)?|health ?care(?: resources?| support)?|medical clinics?) (?:in|across|throughout) pennsylvania$/.exec(normalized);
   if(statewide)return{status:'supported',intent:{goal:'clarify-search',missing:'city',category:/^(?:health|medical)/.test(statewide[1])?'healthcare':'food'}};
   if (/^(?:find|show(?: me)?|search(?: for)?) (?:places|resources|support) (?:in|across|throughout) pennsylvania$/.test(normalized)) {

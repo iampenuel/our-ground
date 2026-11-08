@@ -142,7 +142,7 @@ function confirmDirectoryAction(action:EdenAction,before:EdenAgentContext,after:
     after.cityId !== query.cityId || after.category !== query.category || after.radius !== query.radius)) return reject();
   if (action.type === 'details' || action.type === 'select' || action.type === 'read-hours') {
     if (!ids[action.index-1] || before.resourceIds[action.index-1] !== ids[action.index-1]) return reject();
-    if (action.type !== 'read-hours' && after.selectedIndex !== action.index) return reject();
+    if ((action.type !== 'read-hours' || before.selectedIndex !== undefined) && after.selectedIndex !== action.index) return reject();
     if (action.type === 'details' && after.page !== 'resource') return reject();
   }
 }
@@ -276,6 +276,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
     async prepareLiveAction(value: unknown, contextValue: unknown) {
       if (!status().available) throw new EdenProviderError('EDEN_DISABLED', 403);
       const action = validateEdenAction(value), context = validateEdenAgentContext(contextValue);
+      if (action?.type === 'read-hours' && context?.selectedIndex !== undefined && action.index !== context.selectedIndex) throw new EdenProviderError('EDEN_AGENT_CONTEXT_CHANGED',409);
       if (!action || !context || !modeMatches(context) || (action.type === 'search' && (!action.city || !action.radius))
         || (['radius', 'refine', 'details', 'select', 'read-results', 'clear-filters','read-hours'].includes(action.type) && !displayedQuery(context))
         || ((action.type === 'details' || action.type === 'select'||action.type==='read-hours') && action.index > context.resultCount)) throw new EdenProviderError('EDEN_LIVE_INVALID_ACTION', 422);
@@ -389,6 +390,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       else if(!failed&&orientation)requirements.requiredFactIds.push('platform-purpose','platform-actions');
       else if (!failed && (item.action.type==='read-page'||item.action.type==='navigate-public')) requirements.requiredFactIds.push('page-'+confirmedContext.page+'-1');
       if (!failed && item.action.type==='read-hours') requirements.requiredFactIds.push('hours-unverified');
+      if (!failed && directory && item.action.type==='read-hours') requirements.requiredFactIds.push(`resource-${item.action.index}-hours`);
       if (!failed && (item.action.type === 'search' || item.action.type === 'radius')) requirements.requiredFactIds.push('result-count');
       if (!failed && item.action.type === 'radius') requirements.requiredFactIds.push('search-radius');
       if (!failed && item.action.type === 'details') {

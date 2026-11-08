@@ -231,7 +231,7 @@ async function readProfileLayers(): Promise<ProfileLayers> {
   const loading = new AbortController(), signal = AbortSignal.any([loading.signal, AbortSignal.timeout(30_000)]);
   try {
     return new Map(await Promise.all(ASSETS.map(async name => {
-      const response = await fetch(`/assets/eden/approved-profile/layers/${name}.png`, { signal, credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'force-cache' });
+      const response = await fetch(`/assets/eden/approved-profile/layers/${name}.png`, { signal, credentials: 'same-origin', referrerPolicy: 'no-referrer', cache: 'force-cache' });
       if (!response.ok) throw new Error('Portrait unavailable.');
       const blob = await response.blob(); signal.throwIfAborted();
       if (blob.size > 1024 * 1024) throw new Error('Portrait unavailable.');

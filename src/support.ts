@@ -15,7 +15,7 @@ if (localReview) {
   root.innerHTML = `<div class="page-shell">${header('support')}<main id="main" class="support-main og-container" tabindex="-1"><p role="status">Loading resource search…</p></main>${footer()}</div>`;
   try {
     const status = await apiRequest<{ agentAvailable?: boolean; evaluationData?: string }>('eden/status', {
-      signal: AbortSignal.timeout(5000), cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer',
+      signal: AbortSignal.timeout(5000), cache: 'no-store', credentials: 'same-origin', referrerPolicy: 'no-referrer',
     });
     evaluationData = status.agentAvailable === true && status.evaluationData === 'fictional_demo';
   } catch { /* Ordinary resource discovery remains available. */ }

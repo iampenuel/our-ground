@@ -22,7 +22,7 @@ import { searchSupport, directorySearch } from './support-search';
 import type { SearchCenter, SupportRequest } from './support-search';
 import type { SupportMap } from './maplibre-support-map';
 import { createSearchReveal, revealResultInPanel } from './support-scroll';
-import {fetchPublicResource,resourceUsefulFacts} from './support-resource-context';
+import {fetchPublicResource,mountCorrectionReports,resourceUsefulFacts} from './support-resource-context';
 import {supportSummary, sourceAvailability} from './support-summary';
 import type {MappedStatus} from './support-summary';
 import {registerEdenPage,publishEdenApplication} from './eden/application-bridge';
@@ -84,7 +84,7 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
       <p id="resultsCount" class="discovery-status" role="status" aria-live="polite" tabindex="-1">Enter a U.S. address, city, ZIP code or landmark to begin.</p>
       <div id="locationInterpretation" class="support-interpretation" hidden><p id="interpretationText"></p><button type="button" id="changeInterpretedLocation">Change location</button></div><div id="expandSearch" class="support-expand" hidden><button type="button" class="secondary-button" id="expandSearchRadius"></button></div><p id="sourceState" class="support-source-state" hidden></p><details id="resultSourceDetails" class="support-source-details" hidden><summary>Source &amp; location limitations</summary><p id="locationScope" class="discovery-note" hidden></p><div id="searchNotices" class="support-notices"></div><p class="discovery-note" id="resultEvidence">Mapped categories are leads, not verified services. Directory imports are not independently verified. Confirm availability, costs, eligibility and hours directly. Missing contact links do not mean a service is unavailable. Source records with similar names remain separate.</p><div id="locationAttribution" hidden>${geoAttribution}</div></details><div class="support-retries"><button id="retrySearch" type="button" class="secondary-button" hidden>Retry search</button><button id="directoryOnly" type="button" class="secondary-button" hidden>Try sourced directory records only</button></div>
       <div id="locationChoices" class="discovery-choice" role="group" aria-label="Choose a location"></div>
-      <p id="resourceStatus" class="support-resource-message" role="status" aria-live="polite"></p><button type="button" id="closeLinkedResource" class="support-resource-close" hidden>Close shared resource</button>
+      <p id="resourceStatus" class="support-resource-message" role="status" aria-live="polite"></p><button type="button" id="closeLinkedResource" class="support-resource-close" hidden>Close shared resource</button><div id="reportDraftNotice" class="support-draft-notice" hidden></div>
       <section id="supportResults" aria-label="Matching resources" hidden>
         <div class="results-toolbar"><label class="support-local-filter">Filter these results<input type="search" id="keywordInput" maxlength="100" value="${esc(state.keyword)}" placeholder="Name, address, or keyword" aria-describedby="filterNote" /></label><button id="searchDirectoryKeyword" type="button" class="secondary-button">Search nearby directory</button><button id="showSupportMap" type="button" class="secondary-button" aria-expanded="${state.view==='map'}" aria-controls="supportMapFrame">${state.view==='map'?'Hide map':'Show map'}</button></div>
         <p id="filterNote" class="discovery-note">Filter loaded results as you type, or press Enter to search the nearby directory.</p>
@@ -101,6 +101,13 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
   initializePhotographs();
   const el=<T extends HTMLElement=HTMLElement>(id:string)=>root.querySelector<T>('#'+id)!;
   const results=el('resourceResults'), listScroll=el('supportListScroll'), count=el('resultsCount'), mapButton=el<HTMLButtonElement>('showSupportMap');
+  const reports=mountCorrectionReports(listScroll,request,showDraftNotice);
+  function showDraftNotice(){
+    const drafts=reports.drafts.unsaved(),notice=el('reportDraftNotice'),expanded=notice.querySelector<HTMLDetailsElement>('[data-draft-recovery]')?.open??false;
+    const reading=new Set(Array.from(notice.querySelectorAll<HTMLDetailsElement>('[data-read-draft]')).filter(section=>section.open).map(section=>section.dataset.readDraft));notice.hidden=!drafts.length;
+    if(!drafts.length){notice.replaceChildren();return;}
+    notice.innerHTML='<p class="discovery-note" role="status">'+drafts.length+' unsaved correction '+(drafts.length===1?'draft remains':'drafts remain')+' on this page. Leaving or reloading can discard drafts.</p><details data-draft-recovery'+(expanded?' open':'')+'><summary>Review drafts</summary>'+drafts.map(({id,draft},index)=>'<section class="support-draft-item"><h3>'+esc(draft.label??'Correction draft '+(index+1))+'</h3><div class="support-card-actions"><button type="button" data-resume-report="'+id+'">Resume draft</button><button type="button" data-discard-saved-report="'+id+'"'+(draft.pending?' disabled':'')+'>Discard draft</button></div><details data-read-draft="'+id+'"'+(reading.has(id)?' open':'')+'><summary>Read or copy draft</summary><p class="discovery-note">Issue: '+esc(draft.reason.replace(/_/g,' '))+'</p><label>Saved report text<textarea rows="3" readonly data-saved-draft-text="'+id+'">'+esc(draft.description)+'</textarea></label><button type="button" data-copy-draft="'+id+'">Copy draft text</button><p data-draft-copy-status="'+id+'" class="discovery-note" role="status"></p><p class="discovery-note">Your text stays in this page’s memory. Resume checks whether the listing is still public before showing its report form.</p></details></section>').join('')+'</details>';
+  }
   const currentFilters=()=>searchFilters({...state,location:el<HTMLInputElement>('locationInput').value,radius:Number(el<HTMLSelectElement>('radiusInput').value),term:el<HTMLSelectElement>('supportTerm').value as SupportState['term'],keyword:el<HTMLInputElement>('keywordInput').value});
   const currentOutcome=()=>forControls(outcome,currentFilters());
   const readResults=()=>describeResults(currentOutcome(),visible.map(item=>item.kind==='directory'?item.record.title:item.record.name),visible.filter(item=>item.kind==='directory').length,visible.filter(item=>item.kind!=='directory').length);
@@ -147,7 +154,7 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
     const status=el('resourceStatus');status.textContent=resourceMessage;el('closeLinkedResource').hidden=!state.resource&&!state.invalidResource;
     const linked=el('supportLinkedResource');linked.replaceChildren();
     // The isolated demo can show synthetic facts without adding public links,
-    // directions or contact actions to fictional directory cards.
+    // reports, directions or contact actions to fictional directory cards.
     listScroll.querySelectorAll('[data-eden-synthetic-facts]').forEach(slot=>slot.remove());
     if(options.syntheticDemo&&activeResource?.data_kind==='fictional_demo'&&state.resource===activeResource.id){
       const card=Array.from(listScroll.querySelectorAll<HTMLElement>('[data-card-key]')).find(item=>item.dataset.cardKey==='directory:'+activeResource!.id);
@@ -158,6 +165,7 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
     }
     listScroll.querySelectorAll<HTMLElement>('[data-resource-content]').forEach(slot=>{const active=slot.dataset.resourceContent===state.resource;slot.hidden=!active;if(!active){slot.replaceChildren();return;}const facts=activeResource?resourceUsefulFacts(activeResource):'';slot.innerHTML=resourceLoading?'<p role="status">Loading additional information…</p>':activeResource?'<div class="support-resource-notice"><p>Selected resource</p><button type="button" class="support-resource-close" data-resource-close>Close</button></div>'+facts:resourceMessage?'<p>'+esc(resourceMessage)+'</p><button type="button" class="support-resource-close" data-resource-close>Close</button>':'';});
     listScroll.querySelectorAll<HTMLAnchorElement>('[data-resource-open]').forEach(button=>button.setAttribute('aria-expanded',String(button.dataset.resourceOpen===state.resource)));
+    reports.restore();showDraftNotice();
     if(activeResource)el('supportResults').hidden=false;
   }
   function focusResource(id:string|null){const candidates=listScroll.querySelectorAll<HTMLElement>('[data-resource-open],[data-result-key]');const button=Array.from(candidates).find(button=>button.dataset.resourceOpen===id||button.dataset.resultKey==='directory:'+id);if(button)button.focus({preventScroll:true});else if(!el('supportResults').hidden)listScroll.focus({preventScroll:true});else el<HTMLInputElement>('locationInput').focus({preventScroll:true});}
@@ -407,6 +415,12 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
     }
     const legacy=(event.target as Element).closest<HTMLButtonElement>('[data-location-id]');if(legacy?.dataset.locationId)void search(legacy.dataset.locationId);
   });
+  el('reportDraftNotice').addEventListener('click',event=>{
+    const target=event.target as Element,resume=target.closest<HTMLElement>('[data-resume-report]'),discard=target.closest<HTMLElement>('[data-discard-saved-report]'),copy=target.closest<HTMLElement>('[data-copy-draft]');
+    if(resume){const id=resume.dataset.resumeReport!;reports.drafts.update(id,{open:true});void openResource(id,true).then(()=>{if(disposed||state.resource!==id)return;if(activeResource?.id===id){const section=listScroll.querySelector<HTMLDetailsElement>('[data-resource-report="'+id+'"]');section?.querySelector<HTMLElement>('textarea:not(:disabled),summary')?.focus({preventScroll:true});}else{const notice=el('reportDraftNotice');const recovery=notice.querySelector<HTMLDetailsElement>('[data-draft-recovery]');if(!recovery)return;recovery.open=true;const read=notice.querySelector<HTMLDetailsElement>('[data-read-draft="'+id+'"]');if(read){read.open=true;read.querySelector<HTMLElement>('summary')?.focus({preventScroll:true});}}});return;}
+    if(discard){reports.drafts.discard(discard.dataset.discardSavedReport!);reports.restore();showDraftNotice();if(!el('supportResults').hidden)listScroll.focus({preventScroll:true});else el<HTMLInputElement>('locationInput').focus({preventScroll:true});return;}
+    if(copy){const id=copy.dataset.copyDraft!,input=el('reportDraftNotice').querySelector<HTMLTextAreaElement>('[data-saved-draft-text="'+id+'"]')!,status=el('reportDraftNotice').querySelector<HTMLElement>('[data-draft-copy-status="'+id+'"]')!;const fallback=()=>{input.focus({preventScroll:true});input.select();status.textContent='Draft text selected. Use your device’s Copy command.';};if(navigator.clipboard)void navigator.clipboard.writeText(input.value).then(()=>{status.textContent='Draft text copied.';}).catch(fallback);else fallback();}
+  });
   el('closeLinkedResource').addEventListener('click',()=>closeResource());
   listScroll.addEventListener('click',event=>{
     const target=event.target as Element,open=target.closest<HTMLAnchorElement>('[data-resource-open]');
@@ -527,7 +541,7 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
   el('locationForm').addEventListener('input',()=>publishEdenApplication());
   el('locationForm').addEventListener('change',()=>publishEdenApplication());
   if(options.syntheticDemo)el<HTMLInputElement>('demoMode').disabled=true;
-  const dispose=()=>{if(disposed)return;disposed=true;unregisterEden();resourceReveal.cancel();resourceLoads.cancel();resolutions.cancel();if(submitTimer!==undefined)window.clearTimeout(submitTimer);searchReveal.cancel();locationControl.destroy();window.removeEventListener('popstate',restoreUrlState);window.removeEventListener('pagehide',dispose);searches.cancel();pages.cancel();map?.destroy();mobile.removeEventListener('change',changeLayout);};
+  const dispose=()=>{if(disposed)return;disposed=true;unregisterEden();resourceReveal.cancel();resourceLoads.cancel();reports.destroy();resolutions.cancel();if(submitTimer!==undefined)window.clearTimeout(submitTimer);searchReveal.cancel();locationControl.destroy();window.removeEventListener('popstate',restoreUrlState);window.removeEventListener('pagehide',dispose);searches.cancel();pages.cancel();map?.destroy();mobile.removeEventListener('change',changeLayout);};
   window.addEventListener('pagehide',dispose,{once:true});setPublicPageDisposer(dispose);
   await checkAvailability();
 }

@@ -50,7 +50,7 @@ export interface Dependencies {
   allowDemo: boolean;
 }
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
+const reasons = new Set(['wrong_hours','closed','wrong_contact','wrong_eligibility','wrong_location','other']);
 class ApiError extends Error {
   status: number;
   code: string;
@@ -171,7 +171,14 @@ async function handleApiInternal(request: Request, deps: Dependencies,requestId:
       return json(found);
     }
     if (method === 'POST' && path === '/correction-reports') {
-      fail(403, 'CORRECTIONS_CLOSED', 'Our Ground is not accepting listing corrections.');
+      const input = await body(request);
+      allowedFields(input, ['service_id','reason_code','description']);
+      if (typeof input.service_id !== 'string' || !uuid.test(input.service_id) || typeof input.reason_code !== 'string' || !reasons.has(input.reason_code)) fail(422, 'VALIDATION_ERROR', 'Invalid report target or reason.');
+      if (input.description != null && (typeof input.description !== 'string' || input.description.length > 1000)) fail(422, 'VALIDATION_ERROR', 'Description is too long.');
+      await deps.publicProtection?.admit('report',request);
+      const id = await deps.repo.createReport({ serviceId: input.service_id, reasonCode: input.reason_code, description: (input.description as string | null) ?? null, allowDemo: deps.allowDemo });
+      if (!id) fail(404, 'NOT_FOUND', 'Resource not found.');
+      return json({ id, status: 'open', message: 'Thank you. The report was received.' }, 202);
     }
     if (method === 'GET' && path === '/me') return deps.organizations?.configured?handleOrganization(request,'/org/account',deps.organizations):json(await account(request, deps));
     if (method === 'GET' && path === '/services') {

@@ -33,11 +33,11 @@ test('public rate limits carry Retry-After and prevent repository work',async()=
  let queries=0;const repo=new DemoRepository();repo.search=async()=>{queries++;return{items:[],total:0};};const deps={repo,allowDemo:false,verifyToken:async()=>null,resolvePlace:async()=>null,publicProtection:{admit:async()=>{throw new PublicProtectionError(429,'RATE_LIMITED','Please wait.',125);}}};
  const r=await handleApi(new Request('https://ourground.vercel.app/api/v1/resources?lat=40&lng=-76'),deps);assert.equal(r.status,429);assert.equal(r.headers.get('retry-after'),'125');assert.equal(queries,0);assert(r.headers.get('cache-control').includes('no-store'));
 });
-test('oversized pagination, blank coordinates, cross-origin mutations and disabled correction intake are rejected',async()=>{
+test('oversized pagination, blank coordinates, cross-origin mutations and unknown report fields are rejected',async()=>{
  const deps={repo:new DemoRepository(),allowDemo:false,verifyToken:async()=>null,resolvePlace:async()=>null};
  for(const path of ['resources?lat=40&lng=-76&page=101','resources?lat=&lng=-76','resources?lat=40&lng=-76&page=1.1'])assert.equal((await handleApi(new Request('http://localhost/api/v1/'+path),deps)).status,422);
  const r=await handleApi(new Request('https://ourground.vercel.app/api/v1/correction-reports',{method:'POST',headers:{Origin:'https://evil.invalid','Content-Type':'application/json'},body:'{}'}),deps);assert.equal(r.status,403);
- const m=await handleApi(new Request('http://localhost/api/v1/correction-reports',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service_id:'11111111-1111-4111-8111-111111111111',reason_code:'other',role:'admin'})}),deps);assert.equal(m.status,403);assert.equal((await m.json()).error.code,'CORRECTIONS_CLOSED');
+ const m=await handleApi(new Request('http://localhost/api/v1/correction-reports',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({service_id:'11111111-1111-4111-8111-111111111111',reason_code:'other',role:'admin'})}),deps);assert.equal(m.status,422);
 });
 
 test('slow or aborted request streams are cancelled within their read deadline',async()=>{
