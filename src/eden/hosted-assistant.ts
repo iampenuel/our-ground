@@ -35,7 +35,10 @@ export function mountHostedEden(host:HTMLElement) {
     get<HTMLButtonElement>('[data-send]').disabled=!input.value.trim()||Boolean(pending||accepting||dictation);
     get('[data-send]').hidden=Boolean(turn||playback);
     mic.disabled=Boolean(turn||pending||accepting||playback);
-    mic.setAttribute('aria-pressed',String(Boolean(dictation)));mic.setAttribute('aria-label',dictation?'Cancel dictation':'Dictate a message');
+    mic.setAttribute('aria-pressed',String(Boolean(dictation)));
+    mic.setAttribute('aria-label',dictation?'Cancel dictation':'Dictate a message');
+    mic.title=dictation?'Cancel dictation':'Dictate a message to review before sending';
+    get('[data-dictation-label]').textContent=dictation?'Cancel':'Dictate';
     get('[data-preview]').textContent=playback?'Stop preview':'Preview device voice';
     get('[data-stop]').hidden=!turn&&!playback;get('[data-stop]').setAttribute('aria-label',playback?'Stop speaking':'Stop response');
     get('[data-speak]').hidden=!lastReply||Boolean(turn||playback||dictation||pending);
@@ -111,9 +114,10 @@ export function mountHostedEden(host:HTMLElement) {
     if(correlationId)headers['x-eden-correlation-id']=correlationId;
     const res=await fetch('/api/v1/eden/hosted/'+path,{method:'POST',credentials:'same-origin',cache:'no-store',referrerPolicy:'no-referrer',headers,body:JSON.stringify(data),signal:AbortSignal.any([AbortSignal.timeout(26000),...(signal?[signal]:[])])});
     if(!res.ok){
-      const code=(await res.json().catch(()=>null))?.error?.code;
+      const code=(await (path==='speech'?res.clone():res).json().catch(()=>null))?.error?.code;
       if(res.status===401){session=undefined;expires=0;}
       if(code==='AGE_ACKNOWLEDGMENT_REQUIRED'){eligible=false;privacyAccepted=false;store(noticeKey,'');age.checked=false;privacy.checked=false;}
+      if(path==='speech')return res; // The voice player handles speech limits independently of text/actions.
       if(code==='EDEN_REGION_UNAVAILABLE'||code==='EDEN_DISABLED'||code==='EDEN_SESSION_UNAVAILABLE')navigationOnly=true;
       throw Error(res.status===429?'Gemini is busy. Please wait a moment, then try again.':code==='AGE_ACKNOWLEDGMENT_REQUIRED'?'Adult access expired. Try again to renew it.':navigationOnly?'AI chat is unavailable. You can still use page commands.':'Eden could not complete that request. You can try again or use the page controls.');
     }

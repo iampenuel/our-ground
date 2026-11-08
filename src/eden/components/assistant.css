@@ -148,6 +148,8 @@
 .eden-hosted .eden-composer textarea{flex:1;min-width:0;min-height:44px;max-height:6rem;padding:.65rem .3rem}
 .eden-hosted .eden-composer-actions{flex-shrink:0;gap:.1rem}
 .eden-hosted .eden-composer-actions .eden-text{font-size:.72rem;max-width:4.3rem;margin:0 .2rem}
+.eden-hosted .eden-composer-actions [data-call]{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:.15rem .25rem}
+.eden-hosted [data-dictation-label]{font-size:.72rem;line-height:1.15}
 .eden-hosted .eden-composer-actions [data-call][aria-pressed=true]{color:white;background:var(--og-green)}
 .eden-hosted .eden-composer>p{margin:.4rem .25rem .1rem;font-size:.74rem}
 .eden-hosted .eden-footer{align-items:center;padding:0 1.1rem max(.35rem,env(safe-area-inset-bottom))}

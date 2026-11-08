@@ -150,3 +150,47 @@ test('a verified public identity reply owns a one-use Aoede grant tied to its se
   assert.equal((await say(first)).status,409);
   assert.deepEqual(spoken,[reply]);
 });
+
+test('speech admission and Google 429 responses identify their own attempts and never disable text actions',async()=>{
+  for(const source of ['our-ground','google']){
+    const counters=[],synthesis=[],raw=memory();
+    const handle=createHostedEden(deps,env,{
+      store:async command=>{
+        if(command[0]==='EVAL'&&command[3].includes('speech-')){
+          counters.push(command[3].split(':rate:')[1].split(':')[0]);
+          if(source==='our-ground'&&command[3].includes(':speech-day:'))return 11;
+        }
+        return raw(command);
+      },
+      create:async payload=>{
+        const profile=JSON.parse(payload.input).choices.find(c=>c.key==='identity');
+        return {status:'requires_action',steps:[{type:'function_call',id:'fixture',name:payload.tools[0].name,arguments:{choice:profile.id}}]};
+      },
+      speech:async(text,model,secret,signal)=>{
+        synthesis.push(1);
+        const {synthesizePublicSpeech}=await import('../backend/eden-speech.ts');
+        // This injected SDK transport always throws locally; there is no network.
+        return synthesizePublicSpeech(text,model,secret,signal,{create:async()=>{
+          throw {status:429,error:{code:'too_many_requests',details:[{'@type':'type.googleapis.com/google.rpc.RetryInfo',retryDelay:'8s'}]}};
+        }});
+      },
+    });
+    const headers={cookie:await cookie()};
+    const {sessionToken}=await (await handle(req('session',{noticeVersion,acknowledged:true},{headers}),'session')).json();
+    headers.Authorization='Bearer '+sessionToken;
+    const understand=()=>handle(req('understand',{symbols:['identity'],context:ctx,controls:[],previous:null,noticeVersion},{headers}),'understand');
+    const answer=await (await understand()).json();
+    const speak=()=>handle(req('speech',{speechTicket:answer.speechTicket},{headers}),'speech');
+    const blocked=await speak(),failure=await blocked.json();
+    assert.equal(blocked.status,429);assert.equal(failure.error.quota.source,source);
+    assert.equal(failure.error.quota.model,'gemini-3.8-flash-lite-tts');
+    assert.equal(blocked.headers.get('Retry-After'),String(failure.error.quota.retryAfterSeconds));
+    assert.equal(failure.error.code,source==='google'?'SPEECH_QUOTA_EXHAUSTED':'EDEN_USAGE_LIMIT');
+    if(source==='google')assert.equal(failure.error.quota.providerCode,'too_many_requests');
+    else assert.deepEqual(failure.error.quota.violations,[{quotaId:'speech-day',effectiveLimit:10}]);
+    assert.equal((await speak()).status,409,'replayed grant never consumes another admission');
+    assert.deepEqual(counters,['speech-minute','provider-speech-minute','speech-day']);
+    assert.equal(synthesis.length,source==='google'?1:0);
+    assert.equal((await understand()).status,200,'the same session can still answer text');
+  }
+});

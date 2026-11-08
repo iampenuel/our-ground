@@ -76,7 +76,12 @@ try{
     Object.defineProperty(window,'SpeechSynthesisUtterance',{value:class{constructor(text){this.text=text;}},configurable:true});
   });
   const mic=page.locator('[data-call]'),draft=page.locator('#eden-command');
+  assert.equal(await mic.innerText(),'Dictate');
+  assert(await page.getByRole('button',{name:'Dictate a message',exact:true}).isVisible());
+  assert.match(await mic.getAttribute('title'),/review before sending/);
   await mic.click();await page.waitForFunction(()=>window.testSpeech.starts===1);
+  assert.equal(await mic.innerText(),'Cancel');assert.equal(await mic.getAttribute('aria-pressed'),'true');
+  assert(await page.getByRole('button',{name:'Cancel dictation',exact:true}).isVisible());
   await page.evaluate(()=>window.testSpeech.last.onresult({resultIndex:0,results:[{isFinal:false,0:{transcript:'scroll'}}]}));
   assert.equal(await draft.inputValue(),'');assert.equal(sessions,0);
   await page.evaluate(()=>window.testSpeech.last.onresult({resultIndex:0,results:[{isFinal:true,0:{transcript:'scroll up'}}]}));
@@ -88,7 +93,17 @@ try{
   await mic.click();await page.waitForFunction(()=>window.testSpeech.starts===3);
   await page.evaluate(()=>window.testSpeech.last.onerror({error:'no-speech'}));
   await waitText('.eden-state','No speech');assert.equal(providerCalls,0);
+  await page.setViewportSize({width:320,height:740});
+  const geometry=await page.evaluate(()=>{
+    const box=s=>document.querySelector(s).getBoundingClientRect();
+    const mic=box('[data-call]'),composer=box('.eden-composer');
+    return {target:mic.width>=44&&mic.height>=44,inputInside:box('#eden-command').right<=mic.left+1,
+      readInside:box('[data-speak]').right<=composer.right,overflow:document.documentElement.scrollWidth>innerWidth};
+  });
+  assert.deepEqual(geometry,{target:true,inputInside:true,readInside:true,overflow:false});
   await page.locator('[data-settings]').click();await page.locator('.eden-settings').waitFor();
+  const help=await page.locator('.eden-settings').innerText();
+  assert.match(help,/Dictate uses on-device English recognition.*draft/s);assert.match(help,/Read reply reads an eligible answer aloud with Google’s Aoede voice/);
   await page.evaluate(()=>{
     window.voiceList=[{name:'Device Voice',localService:true,lang:'en-US',voiceURI:'device'}];
     window.speechSynthesis.dispatchEvent(new Event('voiceschanged'));

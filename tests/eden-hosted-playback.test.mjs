@@ -69,3 +69,35 @@ test('an interrupted acquisition cannot start audio after the request returns',a
   controller.abort();release(wav(answer.reply));
   await assert.rejects(reading,{name:'AbortError'});
 });
+
+test('one-time voice tickets deduplicate in-flight HTTP attempts and retain the actionable Google quota message',async()=>{
+  const signal=new AbortController().signal,first={reply:'Public information.',speechTicket:'ticket-a'};
+  let count=0,finish;
+  const request=()=>{count++;return new Promise(resolve=>{finish=resolve;});};
+  const read=answer=>readHostedReply(answer,'',request,signal,noop,noop,noop);
+  const a=read(first),b=read(first);assert.equal(count,1);
+  finish(Response.json({error:{code:'SPEECH_QUOTA_EXHAUSTED',quota:{source:'google',category:'daily'}}},{status:429}));
+  await assert.rejects(a,/Google has reached a daily voice limit/);await assert.rejects(b,/daily voice limit/);
+  await assert.rejects(read(first),/daily voice limit/);
+  await assert.rejects(read({reply:'A second answer.',speechTicket:'ticket-b'}),/daily voice limit/);
+  assert.equal(count,1,'later clicks cannot repeatedly synthesize or retry while the quota is blocked');
+});
+
+test('a tiny retry hint cannot erase daily or already-longer voice backoff',async t=>{
+  const {readHostedReply:read}=await import('../src/eden/hosted-playback.ts?quota-window');
+  const base=Date.now();let offset=0,count=0;
+  t.mock.method(Date,'now',()=>base+offset);
+  const pending=[];
+  const request=()=>{count++;return new Promise(resolve=>pending.push(resolve));};
+  const tryRead=label=>read({reply:label,speechTicket:label},'',request,new AbortController().signal,noop,noop,noop);
+  const first=tryRead('a'),second=tryRead('b');
+  const quota=(category,retryAfterSeconds)=>Response.json({error:{code:'SPEECH_QUOTA_EXHAUSTED',quota:{source:'google',category,retryAfterSeconds}}},{status:429});
+  pending[0](quota('short-window',1900));await assert.rejects(first,/1900 seconds/);
+  pending[1](quota('daily',1));await assert.rejects(second,/daily voice limit/);
+  offset=1000000;
+  await assert.rejects(tryRead('c'),/1900 seconds/);assert.equal(count,2);
+  const separate=await import('../src/eden/hosted-playback.ts?daily-minimum');
+  const daily=label=>separate.readHostedReply({reply:label,speechTicket:label},'',request,new AbortController().signal,noop,noop,noop);
+  const third=daily('d');pending[2](quota('daily',1));await assert.rejects(third,/daily voice limit/);
+  offset+=3000;await assert.rejects(daily('e'),/daily voice limit/);assert.equal(count,3);
+});

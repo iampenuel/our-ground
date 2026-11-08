@@ -6,6 +6,7 @@ import {redis} from './hosted-store.ts';
 import {createEdenAgent, type EdenHostedTurnStore, type EdenAgentOptions} from './eden-agent.ts';
 import {EDEN_TEXT_MODELS,EdenProviderError} from './eden-provider.ts';
 import {EDEN_TTS_MODELS,EdenSpeechError,synthesizePublicSpeech} from './eden-speech.ts';
+import {hostedSpeechQuota} from './eden-speech-quota.ts';
 import {boundedJsonObject,RequestInputError} from './request-safety.ts';
 import {EDEN_NOTICE_VERSION} from '../shared/eden-assistant.ts';
 import {EDEN_SPEECH_VOICE} from '../shared/eden-speech.ts';
@@ -25,10 +26,13 @@ function fields(body:Record<string,unknown>,allowed:string[]){
   if(Object.keys(body).length!==allowed.length || !allowed.every(field=>Object.hasOwn(body,field))) reject(422,'EDEN_INVALID_REQUEST','Use a supported directory command.');
 }
 /** Apply shared counters across serverless instances. The service has no paid failover. */
-async function admit(store:Store,id:string,bucket:string,limit:number,ttl:number){
+async function admit(store:Store,id:string,bucket:string,limit:number,ttl:number,speech?:{model:string;now:number}){
   const count=await store(['EVAL',"local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],ARGV[1]) end; return n",'1','og:adult:eden:v1:rate:'+bucket+':'+id,String(ttl)]);
   if(typeof count!=='number'||count<1)reject(503,'EDEN_LIMITER_UNAVAILABLE','The assistant is temporarily unavailable.');
-  if((count as number)>limit)reject(429,'EDEN_USAGE_LIMIT','The assistant has reached its free usage limit.');
+  if((count as number)>limit){
+    if(speech)throw new EdenSpeechError('EDEN_USAGE_LIMIT',429,hostedSpeechQuota(speech.model,bucket,limit,speech.now));
+    reject(429,'EDEN_USAGE_LIMIT','The assistant has reached its free usage limit.');
+  }
 }
 
 export function createHostedEden(deps:Dependencies,env:Environment,options:Options={}){
@@ -86,9 +90,10 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
       if(path==='end'){fields(body,[]);await store(['DEL',sessionKey]);return response({ended:true});}
       const now=new Date(), day=now.toISOString().slice(0,10), minute=Math.floor(now.getTime()/60000);
       async function capacity(tts:boolean){
-        await admit(store,session+':'+minute,tts?'speech-minute':'text-minute',tts?2:8,65);
-        await admit(store,String(minute),tts?'provider-speech-minute':'provider-text-minute',tts?3:12,65);
-        await admit(store,day,tts?'speech-day':'text-day',tts?10:150,86460);
+        const speech=tts&&speechModel?{model:speechModel,now:now.getTime()}:undefined;
+        await admit(store,session+':'+minute,tts?'speech-minute':'text-minute',tts?2:8,65,speech);
+        await admit(store,String(minute),tts?'provider-speech-minute':'provider-text-minute',tts?3:12,65,speech);
+        await admit(store,day,tts?'speech-day':'text-day',tts?10:150,86460,speech);
       }
       // Only validated server output may acquire a one-time speech ticket. The
       // speech endpoint accepts no transcript, text, resource IDs or audio.
@@ -146,6 +151,13 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         console.warn('eden.provider',JSON.stringify({code:error.code,model:textModel,status:error.status,correlationId}));
         const result=response({error:{code:error.code,message:error.status===429?'Gemini is temporarily busy. Try again in a moment.':'Gemini could not complete this request. The public page controls are available.'}},error.status);
         if(error.status===429) result.headers.set('Retry-After','30');
+        return result;
+      }
+      if(error instanceof EdenSpeechError&&error.quota){
+        const quota=error.quota;
+        console.warn('eden.speech.quota',JSON.stringify({code:error.code,correlationId,...quota}));
+        const result=response({error:{code:error.code,message:error.message,quota}},error.status);
+        if(quota.retryAfterSeconds!==undefined)result.headers.set('Retry-After',String(quota.retryAfterSeconds));
         return result;
       }
       if(error instanceof EdenSpeechError || error instanceof RequestInputError) return response({error:{code:error.code,message:error.message}},error.status);

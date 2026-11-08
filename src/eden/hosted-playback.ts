@@ -7,28 +7,69 @@ export type EdenRequest=(path:string,body:unknown,signal?:AbortSignal)=>Promise<
 type Reply={reply:string;speechTicket?:string};
 export class HostedVoiceError extends Error {}
 
-/** Weak keys keep only the current on-screen answer replayable. New chat and
- * replacement replies drop that reference; audio never enters browser storage. */
-const clips=new WeakMap<Reply,Uint8Array>();
-
+/** One in-flight request or settled clip per displayed answer. A failed or
+ * canceled one-use grant is never retried. New chat drops its weak reference. */
+const attempts=new WeakMap<Reply,Promise<Uint8Array>>();
+let cooldown:{until:number;message:string}|undefined;
+const optionalVoice='You can keep using text or choose an installed device voice in Privacy & voice.';
+function retrySeconds(value:unknown){
+  return typeof value==='number' && Number.isSafeInteger(value) && value>=0 && value<=31*86400?value:undefined;
+}
+async function speechFailure(res:Response){
+  const info=(await res.json().catch(()=>null))?.error;
+  const code=info?.code;
+  if(res.status===429){
+    const q=info?.quota;
+    const app=code==='EDEN_USAGE_LIMIT',google=code==='SPEECH_QUOTA_EXHAUSTED';
+    const source=app?'Our Ground':google?'Google':'The voice service';
+    const category=(app&&q?.source==='our-ground'||google&&q?.source==='google')?q.category:undefined;
+    const header=res.headers.get('Retry-After');
+    const delay=retrySeconds(header!==null&&/^\d{1,7}$/.test(header)?Number(header):undefined)??retrySeconds(q?.retryAfterSeconds);
+    let message:string;
+    if(category==='zero-allowance')message=source+' currently has no allowance for Aoede on this project.';
+    else if(category==='daily')message=source+' has reached a daily voice limit. Wait until that quota resets.';
+    else if(delay!==undefined)message=source+' is limiting voice requests. Wait at least '+delay+' seconds before requesting another voice reply.';
+    else message=source+' is limiting voice requests. Voice will not retry automatically.';
+    message+=' '+optionalVoice;
+    // Retry-After is a lower bound, never a timer that triggers synthesis.
+    // Unknown/zero daily availability must not prompt a loop of immediate retries.
+    const dailyOrZero=category==='daily'||category==='zero-allowance';
+    const minimum=dailyOrZero?(app&&delay!==undefined?0:900):30;
+    const until=Date.now()+1000*Math.max(delay??0,minimum);
+    if(!cooldown || until>=cooldown.until)cooldown={until,message};
+    return new HostedVoiceError(message);
+  }
+  if(code==='EDEN_SPEECH_EXPIRED')return new HostedVoiceError('The voice ticket for this reply has expired. '+optionalVoice);
+  if(res.status===401||res.status===403)return new HostedVoiceError('Aoede is unavailable in this session. '+optionalVoice);
+  if(code==='SPEECH_INVALID_AUDIO')return new HostedVoiceError('Google returned audio Eden could not play. '+optionalVoice);
+  return new HostedVoiceError('Aoede could not generate this reply. '+optionalVoice);
+}
+async function requestClip(answer:Reply,request:EdenRequest,signal:AbortSignal){
+  const res=await request('speech',{speechTicket:answer.speechTicket},signal);
+  if(!res.ok)throw await speechFailure(res);
+  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(answer.reply));
+  signal.throwIfAborted();
+  const sha=Array.from(new Uint8Array(digest),v=>v.toString(16).padStart(2,'0')).join('');
+  if(res.headers.get('X-Eden-Speech-Voice')!==EDEN_SPEECH_VOICE || res.headers.get('X-Eden-Speech-Text-SHA256')!==sha){
+    await res.body?.cancel().catch(()=>{});
+    throw new Error('Voice response does not match this reply');
+  }
+  const bytes=await readEdenSpeechResponse(res,signal);
+  signal.throwIfAborted();return bytes;
+}
 async function verifiedClip(answer:Reply,request:EdenRequest,signal:AbortSignal){
-  const cached=clips.get(answer);
-  if(cached)return cached;
-  if(!answer.speechTicket)throw new HostedVoiceError('Aoede is unavailable for this reply. You can choose an installed device voice in Privacy & voice.');
-  try {
-    const res=await request('speech',{speechTicket:answer.speechTicket},signal);
-    const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(answer.reply));
+  let attempt=attempts.get(answer);
+  if(!attempt){
+    if(!answer.speechTicket)throw new HostedVoiceError('Aoede is unavailable for this reply. '+optionalVoice);
+    if(cooldown&&Date.now()<cooldown.until)throw new HostedVoiceError(cooldown.message);
+    attempt=requestClip(answer,request,signal);
+    attempts.set(answer,attempt);
+  }
+  try {return await attempt;}
+  catch(error){
     signal.throwIfAborted();
-    const sha=Array.from(new Uint8Array(digest),v=>v.toString(16).padStart(2,'0')).join('');
-    if(res.headers.get('X-Eden-Speech-Voice')!==EDEN_SPEECH_VOICE || res.headers.get('X-Eden-Speech-Text-SHA256')!==sha){
-      await res.body?.cancel().catch(()=>{});
-      throw new Error('Voice response does not match this reply');
-    }
-    const bytes=await readEdenSpeechResponse(res,signal);
-    signal.throwIfAborted();clips.set(answer,bytes);return bytes;
-  }catch {
-    signal.throwIfAborted();
-    throw new HostedVoiceError('Aoede could not generate this reply. Ask again for fresh audio, or choose an installed device voice in Privacy & voice.');
+    if(error instanceof HostedVoiceError)throw error;
+    throw new HostedVoiceError('Aoede could not generate this reply. '+optionalVoice);
   }
 }
 

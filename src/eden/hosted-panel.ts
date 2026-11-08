@@ -21,7 +21,8 @@ export function renderHostedPanel(panel: HTMLElement) {
       <section class="eden-settings" id="eden-settings" aria-labelledby="eden-settings-title" hidden>
         <h3 id="eden-settings-title" tabindex="-1">Privacy &amp; voice</h3>
         <p>Google processes approved requests and may use them for product improvement and human review. Keep personal, medical and financial details out of chat.</p>
-        <p>Dictation requires on-device English recognition. Review the words in your draft before sending. Our Ground does not record or store microphone audio. Read reply uses Aoede for eligible public answers. To use a device voice instead, select it below.</p>
+        <p><strong>Dictate</strong> uses on-device English recognition to put your words in a draft. Edit the draft and press Send when you’re ready. Our Ground does not record or store microphone audio.</p>
+        <p><strong>Read reply</strong> reads an eligible answer aloud with Google’s Aoede voice. To use an installed device voice, choose one below.</p>
         <p>Chat history stays in this page’s memory. New chat clears it. <a href="/privacy#edenPrivacyTitle">Full privacy details</a></p>
         <label for="eden-read-voice">Read replies with</label><select id="eden-read-voice"></select>
         <button type="button" class="eden-text" data-preview>Preview device voice</button>
@@ -30,8 +31,8 @@ export function renderHostedPanel(panel: HTMLElement) {
     <p class="eden-state" role="status" aria-live="polite" aria-atomic="true" hidden></p>
     <form class="eden-composer"><label class="eden-sr-only" for="eden-command">Message Eden</label>
       <div class="eden-input"><textarea id="eden-command" rows="1" maxlength="${EDEN_MAX_COMMAND_LENGTH}" placeholder="Message Eden…" aria-describedby="eden-input-help"></textarea>
-        <div class="eden-composer-actions"><button type="button" class="eden-icon" data-call aria-label="Dictate a message" aria-pressed="false"><svg width="19" height="19" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0m-7 7v4m-3 0h6"/></svg></button>
-          <button type="button" class="eden-text" data-speak hidden>Read reply</button>
+        <div class="eden-composer-actions"><button type="button" class="eden-icon" data-call aria-label="Dictate a message" title="Dictate a message to review before sending" aria-pressed="false"><svg width="19" height="19" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0m-7 7v4m-3 0h6"/></svg><span data-dictation-label>Dictate</span></button>
+          <button type="button" class="eden-text" data-speak title="Read Eden’s reply aloud" hidden>Read reply</button>
           <button type="button" class="eden-text" data-retry hidden>Try again</button>
           <button type="submit" class="eden-send" data-send aria-label="Send request">↑</button>
           <button type="button" class="eden-send eden-stop" data-stop hidden aria-label="Stop response">■</button>
