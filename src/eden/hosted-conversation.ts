@@ -66,9 +66,10 @@ export function createHostedConversation(){
     const local=directControl(text);
     if(local){onStatus('Using the page control…');return {reply:await applyPageControl(local,signal)};}
     const reduced=reduceEdenAgentInput(text,before,previous?.goal==='clarify-search'?previous:undefined);
+    if(reduced.status==='clarify' && reduced.localOnly)return {reply:reduced.message};
     let intent=reduced.status==='supported'?reduced.intent:undefined;
     const uncertain=suggestedCity(text);
-    if(uncertain && !symbols.includes(uncertain.id)){
+    if(uncertain && intent?.goal!=='find-resources' && !symbols.includes(uncertain.id)){
       correction={city:uncertain.query,category:symbols.includes('food')?'food':symbols.includes('healthcare')?'healthcare':before.category};
       return {reply:'Did you mean '+uncertain.label+'? Reply yes or enter the city and state.'};
     }

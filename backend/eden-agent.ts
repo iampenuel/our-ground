@@ -294,10 +294,17 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       const {resourceIds:_ids,...publicContext}=context;
       const keys=choices.map((_,index)=>'choice-'+index);
       const args=object(await invoke({signals:symbols, previous_public_intent:previous, page:publicContext, available_controls:controls, social_words:socialWords, choices:choices.map((choice,i)=>({id:keys[i],...choice}))},
-        'You are Eden, the Our Ground guide. Interpret the visitor’s ordered public concepts in context. A correction replaces the old city: use the named intended city, not a city following negation. Respect map versus list and scroll versus opening a listing. Prefer a conversational greeting or thanks for small talk. For joining as an organization, choose the organizations page. Choose clarify when intent or city is ambiguous. Do not invent facts. Choose exactly one listed id. This is only a proposal. The app validates and executes actions and confirms their result. When choosing a greet, thanks, or clarify message, write a short friendly greeting or question in social_text (max 220 characters). Use only social_words and plain punctuation, e.g. Hi there! How can I help you today? Do not describe a service as available or promise anything. For every other choice omit social_text.',
+        'You are Eden, the Our Ground guide. Interpret the visitor’s ordered public concepts in context. A correction replaces the old city: use the named intended city, not a city following negation. Respect map versus list and scroll versus opening a listing. Prefer a conversational greeting or thanks for small talk. For joining as an organization, choose the organizations page. Choose clarify when intent or city is ambiguous. Do not invent facts. Choose exactly one listed id. This is only a proposal. The app validates and executes actions and confirms their result. When choosing a greet or thanks message, write a short friendly greeting or reply in social_text (max 220 characters). Use only social_words and plain punctuation, e.g. Hi there! How can I help you today? Do not describe a service as available or promise anything. The clarify choice opens an application-owned clarifying question. For every other choice omit social_text.',
         'choose_public_step',{type:'object',properties:{choice:{type:'string',enum:keys},social_text:{type:'string'}},additionalProperties:false,required:['choice']},signal));
       if(!args || Object.keys(args).some(k=>k!=='choice'&&k!=='social_text') || typeof args.choice!=='string' || !keys.includes(args.choice))throw new EdenProviderError('EDEN_INVALID_AGENT_ACTION',502);
       const choice=choices[keys.indexOf(args.choice)];
+      if(choice.kind==='message'&&choice.key==='clarify'){
+        // Gemini selected the clarification tool. Its question comes from the UI's
+        // public vocabulary; arbitrary tool prose cannot disclose text or make claims.
+        const reply=symbols.includes('correction')||previous?.goal==='clarify-search'&&previous.missing==='city'
+          ? 'Which city would you like to search?' : 'Would you like to find support, give support, or learn about organizations?';
+        return {engine:'gemini' as const,choice,reply};
+      }
       if(choice.kind==='message'&&choice.key!=='boundary'){
         if(!validSocialText(args.social_text))throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT',502);
         return {engine:'gemini' as const,choice,reply:args.social_text};

@@ -1,3 +1,4 @@
+import {protectRecoveryOrigin} from './recovery-origin.mjs';
 // Browser verification on a real local server or a single protected preview.
 // Attach trusted headers only to that origin; never send them to maps or outbound links.
 import assert from 'node:assert/strict';
@@ -12,7 +13,7 @@ const browser=await chromium.launch({channel:'chrome'});
 try{
  for(const [label,width,height] of [['desktop',1440,900],['tablet',768,1024],['mobile',390,844],['narrow',320,740],['zoom',720,450]]){
   const ctx=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,reducedMotion:'reduce',hasTouch:width<=768});
-  if(process.env.VERCEL_OIDC_TOKEN&&base.startsWith('https://'))await ctx.route(base+'/**',route=>route.continue({headers:{...route.request().headers(),'x-vercel-trusted-oidc-idp-token':process.env.VERCEL_OIDC_TOKEN}}));
+  if(process.env.VERCEL_OIDC_TOKEN&&base.startsWith('https://'))await protectRecoveryOrigin(ctx,base,process.env.VERCEL_OIDC_TOKEN);
   const p=await ctx.newPage();
   p.on('pageerror',e=>receipt.unexpected.push(e.name+': '+e.message.slice(0,180)));
   async function shot(name){await p.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].filter(i=>i.getBoundingClientRect().top<innerHeight&&i.getBoundingClientRect().bottom>0).map(i=>i.decode().catch(()=>{})));await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));});await p.screenshot({path:out+'/'+name+'.jpg',type:'jpeg',quality:82,animations:'disabled'});}

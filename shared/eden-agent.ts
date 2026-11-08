@@ -162,10 +162,33 @@ export function validateEdenAgentActionResponse(value: unknown, intent: EdenAgen
   return action ? { engine: 'gemini', turnToken: input.turnToken, action } : null;
 }
 
+type CityCorrection = {status:'supported'; intent:EdenAgentIntent} | {status:'clarify'; message:string; localOnly:true};
+function cityCorrection(text:string, category:EdenCategory|undefined, radius:EdenRadius|undefined):CityCorrection|undefined {
+  // Recognize which clause affirms the city before removing unknown words.
+  // "Berkley, not Harrisburg" must never turn into a Harrisburg search.
+  const clarify:CityCorrection={status:'clarify',localOnly:true,message:'Which city and state should I search? Please enter just the place you want.'};
+  const prefix=/^(?:no[, ]+)?i (?:mean|meant)\s+/;
+  const cityKey=(phrase:string)=>phrase.toLowerCase().replace(/[.,]/g,' ').replace(/\s+/g,' ').trim();
+  const known=(phrase:string)=>EDEN_CITIES.find(city=>[city.label,city.query,...city.aliases].some(alias=>cityKey(alias)===cityKey(phrase)));
+  if(!prefix.test(text)){
+    // A lone negation or a reversed correction is not a request for the
+    // recognized city. Ask for one affirmative choice.
+    if(/^no[, ]+not\s+/.test(text) || /^(?:no[, ]+)?not\s+/.test(text) && (/\bi (?:mean|meant)\b/.test(text)||known(text.replace(/^(?:no[, ]+)?not\s+/,''))))return clarify;
+    return;
+  }
+  const [affirmed,excluded,...extra]=text.replace(prefix,'').split(/(?:,?\s+|,)not\s+/);
+  const city=known(affirmed);
+  if(!city || extra.length || (excluded!==undefined && (
+    !/^[a-z]+(?:[ -][a-z]+){0,2}$/.test(cityKey(excluded)) ||
+    /\b(?:and|or|but|not)\b/.test(excluded)||known(excluded)?.id===city.id)))return clarify;
+  return category?{status:'supported',intent:{goal:'find-resources',cityId:city.id,category,...(radius?{radius}:{})}}
+    :{status:'supported',intent:{goal:'clarify-search',missing:'category',cityId:city.id}};
+}
+
 /** Local parsing is solely a privacy reducer. It returns a semantic request for
  * real model inference, never an assistant answer or an executed action.
  */
-export function reduceEdenAgentInput(raw: unknown, context: EdenAgentContext, pending?: EdenAgentIntent): { status: 'supported'; intent: EdenAgentIntent } | { status: 'sensitive' | 'unsupported' | 'clarify'; message: string } {
+export function reduceEdenAgentInput(raw: unknown, context: EdenAgentContext, pending?: EdenAgentIntent): { status: 'supported'; intent: EdenAgentIntent } | { status: 'sensitive' | 'unsupported' | 'clarify'; message: string; localOnly?:true } {
   const safe = validateEdenAgentContext(context);
   if (!safe || typeof raw !== 'string' || raw.length > EDEN_MAX_COMMAND_LENGTH || /[\u0000-\u001f\u007f\p{Cf}]/u.test(raw)) return { status: 'unsupported', message: 'This request cannot be processed safely. Please use a resource category, city, distance or numbered result.' };
   const checkedPending = pending === undefined ? undefined : validateEdenAgentIntent(pending);
@@ -181,6 +204,8 @@ export function reduceEdenAgentInput(raw: unknown, context: EdenAgentContext, pe
   const interpreted = interpretEdenCommand(raw, page);
   if (interpreted.status === 'sensitive') return interpreted;
   const normalized = raw.normalize('NFC').replace(/’/g, "'").trim().toLowerCase().replace(/\s+/g, ' ').replace(/^(?:hey )?eden(?:,|:)?\s+/, '').replace(/^please\s+/, '').replace(/[.!?]$/, '').trim();
+  const correction=cityCorrection(normalized,reduction.category,safe.radius);
+  if(correction)return correction;
   if(/^(?:i want to give(?: support)?|i(?:'d| would) like to give(?: support)?|how can i give(?: support)?)$/.test(normalized))return{status:'supported',intent:{goal:'giving-guidance'}};
   if(/^(?:what is our ground about|what does our ground do)$/.test(normalized))return{status:'supported',intent:{goal:'platform-guidance'}};
   if(/^(?:(?:(?:i'm|i am) confused[.!?] )?what can i do here|what can i do (?:on|with) (?:this|the current) page|(?:can you )?explain (?:this|the current) page|what is this page(?: for)?|where am i)$/.test(normalized))return{status:'supported',intent:{goal:'explain-page'}};

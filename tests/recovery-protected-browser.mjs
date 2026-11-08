@@ -1,3 +1,4 @@
+import {protectRecoveryOrigin} from './recovery-origin.mjs';
 // No intercepted API responses: verify an immutable preview and its real directory.
 // The optional Vercel OIDC credential is attached only on requests to that deployment.
 import assert from 'node:assert/strict';
@@ -13,7 +14,7 @@ const browser=await chromium.launch({channel:'chrome'});
 try{
  await mkdir(out,{recursive:true});
  const context=await browser.newContext({viewport:{width:1440,height:900},reducedMotion:'reduce'});
- await context.route(origin+'/**',route=>route.continue({headers:{...route.request().headers(),'x-vercel-trusted-oidc-idp-token':token}}));
+ await protectRecoveryOrigin(context,origin,token);
  const page=await context.newPage();page.setDefaultTimeout(25000);
  page.on('pageerror',e=>report.issues.push(e.name+': '+e.message.slice(0,120)));
  const anon=await fetch(origin,{redirect:'manual'});assert([401,403,302,307].includes(anon.status));report.checks.protection=anon.status;

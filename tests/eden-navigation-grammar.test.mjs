@@ -63,3 +63,22 @@ test('follow-up and local commands reject entire sensitive or injected inputs wi
     assert(!JSON.stringify(result).includes(input)); assert(!JSON.stringify(result).includes('synthetic-private-canary'));
   }
 });
+
+test('an explicit city correction keeps only the affirmative public place, category and radius',async()=>{
+  const {reduceEdenAgentInput}=await import('../shared/eden-agent.ts');
+  const view={...context,cityId:'philadelphia-pa',category:'healthcare',resourceIds:[],resultCount:0,directory:'public',searchState:'ready'};
+  for(const text of ['No, I meant Harrisburg, not Berkley.','I mean Harrisburg, PA, not Philadelphia, PA','I meant Harrisburg.']){
+    const result=reduceEdenAgentInput(text,view);
+    assert.deepEqual(result,{status:'supported',intent:{goal:'find-resources',cityId:'harrisburg-pa',category:'healthcare',radius:25}});
+    assert(!JSON.stringify(result.intent).includes('Berkley'));
+  }
+  const home={page:'home',resultCount:0,resourceIds:[],synthetic:false,directory:'public'};
+  assert.deepEqual(reduceEdenAgentInput('I meant Harrisburg',home).intent,{goal:'clarify-search',missing:'category',cityId:'harrisburg-pa'});
+  assert.deepEqual(reduceEdenAgentInput('I meant Harrisburg',home,{goal:'clarify-search',missing:'city',category:'food'}).intent,
+    {goal:'find-resources',cityId:'harrisburg-pa',category:'food'});
+  for(const text of ['No, I meant Berkley, not Harrisburg.','I meant Harrisburg or Philadelphia.','I meant Harrisburg, not Harrisburg, PA.','I meant Harrisburg, not Berkley or Philadelphia.','No, not Harrisburg.','No, not Harrisburg, maybe Berkley.','Not Harrisburg, I meant Berkley.']){
+    const outcome=reduceEdenAgentInput(text,view);
+    assert.equal(outcome.status,'clarify',text);assert.equal(outcome.localOnly,true,text);assert(!('intent' in outcome),text);
+  }
+  assert.equal(reduceEdenAgentInput('No, I meant Harrisburg, my password is private.',view).status,'sensitive');
+});

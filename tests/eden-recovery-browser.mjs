@@ -26,14 +26,17 @@ try{
  await page.locator('.eden-launch').click();
  const draft=page.locator('#eden-command'),answers=page.locator('.eden-message[aria-label="Eden"]');
  async function send(command){
-   const count=await answers.count();
+   const previous=await answers.count()?await answers.last().elementHandle():null;
    await draft.fill(command);await draft.press('Enter');
    if(await page.locator('.eden-consent').isVisible()){
      for(const c of await page.locator('.eden-consent input:visible').all())await c.check();
      await page.locator('[data-continue]').click();
    }
-   await answers.nth(count).waitFor({timeout:12000});
-   return answers.nth(count).innerText();
+   await page.waitForFunction(prior=>{
+     const rows=document.querySelectorAll('.eden-message[aria-label="Eden"]');
+     return rows.length && rows[rows.length-1]!==prior;
+   },previous,{timeout:12000});
+   await previous?.dispose();return answers.last().innerText();
  }
  assert.match(await send('Take me to Give Support'),/page is open/i);
  assert.equal(new URL(page.url()).pathname,'/give');
@@ -53,6 +56,12 @@ try{
  assert.equal(await page.locator('#showSupportMap').getAttribute('aria-expanded'),'true');
  assert.match(await send('Show the list instead of the map'),/results list/i);
  assert.equal(await page.locator('#showSupportMap').getAttribute('aria-expanded'),'false');
+ const beforeCorrection=searches.length;
+ assert.match(await send('No, I meant Harrisburg, not Berkley.'),/search completed|matching|directory/i);
+ assert(searches.length>beforeCorrection);assert.equal(searches.at(-1).category,'healthcare');assert.equal(searches.at(-1).radius_miles,25);
+ const beforeAmbiguous=searches.length;
+ assert.match(await send('No, I meant Berkley, not Harrisburg.'),/which city and state/i);
+ assert.equal(searches.length,beforeAmbiguous);
  assert.deepEqual(unexpected,[]);
  console.log('PASS: donor, organization, food → healthcare, radius, scroll/focus, map/list via actual widget (directory transport fixture; Gemini unavailable).');
 }finally{await browser.close();}

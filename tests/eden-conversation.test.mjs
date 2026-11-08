@@ -32,11 +32,12 @@ test('greeting and unknown questions use a real SDK-shaped function request; app
   const agent=createEdenAgent(development,{repository:new DemoRepository(),create:async payload=>{
     requests.push(payload);const input=JSON.parse(payload.input);
     const chosen=input.choices.find(c=>c.key===(input.signals.includes('greet')?'greet':'clarify'));
-    return {status:'requires_action',steps:[{type:'function_call',name:'choose_public_step',arguments:{choice:chosen.id,social_text:'Hi! Would you like help finding support nearby?'}}]};
+    return {status:'requires_action',steps:[{type:'function_call',name:'choose_public_step',arguments:{choice:chosen.id,social_text:chosen.key==='greet'?'Hi! Would you like help finding support nearby?':'synthetic-private-canary'}}]};
   }});
   for(const text of ['Hii','unknown harmless wording']){
     const reply=await agent.understand(projectPublicRequest(text),home,[],null,signal());
-    assert.equal(reply.reply,'Hi! Would you like help finding support nearby?');
+    assert.equal(reply.reply,text==='Hii'?'Hi! Would you like help finding support nearby?':'Would you like to find support, give support, or learn about organizations?');
+    assert(validSocialText(reply.reply));
     assert(!requests.at(-1).input.includes(text));
   }
   assert.equal(requests.length,2);
