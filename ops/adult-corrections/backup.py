@@ -16,6 +16,7 @@ import subprocess
 import tempfile
 import warnings
 from zoneinfo import ZoneInfo
+from uuid import UUID
 
 WORK = Path("/Users/admin/Documents/Projects/our-ground")
 LAB = WORK / "tmp/production-gates"
@@ -189,7 +190,11 @@ def restore_target():
             safe_run(["pg_ctl","-w","-D",str(cluster),"-m","fast","stop"])
 
 
-def verify_restore(source, encrypted):
+def state_digest(value):
+    return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+
+
+def verify_restore(expected_hash, encrypted, case=None):
     with restore_target() as local:
         unpack(local,DIRECTORY,DIRECTORY_KEY)
         sql(local,"truncate "+", ".join(t for t,_ in TABLES))
@@ -198,13 +203,13 @@ def verify_restore(source, encrypted):
         # Reconstruct suppression from the audit even after an owner releases its hold.
         sql(local,"update app_private.service_locations l set status='hidden' where exists(select 1 from directory_ops.review_events e where e.location_id=l.id and e.action='suppressed')")
         restored=json.loads(sql(local,state_sql()))
-        differences = [k for k in source if source[k] != restored.get(k)]
-        require(not differences, "Restore disagrees with source fields "+", ".join(differences)+". Intake remains closed.")
-        fixture=PROOF/"synthetic-review.json"
-        if fixture.exists():
-            reviewed=json.loads(fixture.read_text())
-            uid=reviewed["report_id"]
-            require(re.fullmatch(r"[a-f0-9-]{36}",uid),"Unexpected synthetic receipt identifier.")
+        require(state_digest(restored)==expected_hash, "The recovered private rows, holds, permissions or published identities differ from the snapshot.")
+        for table in ("app_private.resource_privacy_events","directory_ops.review_events"):
+            sequence_ok=sql(local,f"select not exists(select 1 from {table}) or coalesce(pg_sequence_last_value(pg_get_serial_sequence('{table}','id')::regclass)>=(select max(id) from {table}),false)")
+            require(sequence_ok=="t","The event sequence did not recover safely.")
+        if case is not None:
+            uid=str(case)
+            require(json.loads((PROOF/"synthetic-review.json").read_text())["report_id"]==uid,"Expected the individually reviewed synthetic report.")
             match=sql(local,"select count(*) from app_private.correction_reports r join directory_ops.review_events e on r.id=e.report_id where r.id='"
                       +uid+"'::uuid and r.status='resolved' and e.actor='ourground_reviewer_penuel' and e.action='confirmed' and e.ticket='ADULT-RC-CHECK'")
             require(match=="1","Named synthetic review missing or duplicated in restored data.")
@@ -214,13 +219,16 @@ def verify_restore(source, encrypted):
 
 def prune():
     daily=sorted((p for p in DEST.iterdir() if re.fullmatch(r"\d{4}-\d\d-\d\d\.dump\.gpg",p.name)),key=lambda p:p.name,reverse=True)
-    for old in daily[30:]:
+    cutoff=dt.datetime.now(EASTERN).date()-dt.timedelta(days=29)
+    for index,old in enumerate(daily):
+        if index<30 and dt.date.fromisoformat(old.name[:10])>=cutoff: continue
         require(old.resolve()==old and old.is_file(),"Unexpected retention path.")
         old.unlink()
-        sidecar = old.with_suffix(old.suffix+".sha256")
-        if sidecar.exists():
-            require(sidecar.resolve()==sidecar and sidecar.is_file(),"Unexpected checksum path.")
-            sidecar.unlink()
+        for suffix in (".sha256",".proof.json"):
+            sidecar=old.with_suffix(old.suffix+suffix)
+            if sidecar.exists():
+                require(sidecar.resolve()==sidecar and sidecar.is_file(),"Unexpected retention sidecar.")
+                sidecar.unlink()
 
 
 def latest():
@@ -230,7 +238,7 @@ def latest():
     return receipt,DEST/name
 
 
-def backup():
+def backup(case=None):
     check_target()
     with open_key(KEY):
         pass
@@ -245,7 +253,8 @@ def backup():
         with snapshot(owner) as (sid,source):
             encrypt(owner,sid,tmp)
         original=digest(tmp)
-        verify_restore(source,tmp)
+        fingerprint=state_digest(source)
+        verify_restore(fingerprint,tmp,case)
         with tmp.open("rb") as f: os.fsync(f.fileno())
         os.replace(tmp,path)
         require(digest(path)==original,"Off-device checksum mismatch after rename.")
@@ -260,9 +269,26 @@ def backup():
                  "sha256":original,"bytes":path.stat().st_size,"counts":{t:source[t][0] for t,_ in TABLES},
                  "published_ids":source["public"][0],"active_source_holds":source["active_source_holds"],
                  "private_rows_match":True,"acl_verified":True,"no_account_rows":True}
+        attestation={"archive_sha256":original,"directory_sha256":BASE_SHA,"restored_state_sha256":fingerprint,
+                     "source_ref":REF,"snapshot_started":receipt["snapshot_started"]}
+        proof_path=path.with_suffix(path.suffix+".proof.json")
+        atomic_json(proof_path,attestation)
+        require(json.loads(proof_path.read_text())==attestation,"Off-device verification receipt mismatch.")
         prune()
         atomic_json(PROOF/"last-verified.json",receipt)
         print("Verified encrypted backup and isolated restore:",path.name)
+
+
+def rehearse(day):
+    check_target()
+    date=dt.date.fromisoformat(day)
+    path=DEST/(date.isoformat()+".dump.gpg")
+    proof=path.with_suffix(path.suffix+".proof.json")
+    require(path.resolve()==path and proof.resolve()==proof,"Invalid restore path.")
+    facts=json.loads(proof.read_text())
+    require(facts["source_ref"]==REF and facts["directory_sha256"]==BASE_SHA and facts["archive_sha256"]==digest(path),"Restore artifact does not match its verified receipt.")
+    verify_restore(facts["restored_state_sha256"],path)
+    print("PASS: isolated replay reproduced the verified private checkpoint",date.isoformat())
 
 
 def verify_value(password,receipt,archive):
@@ -303,17 +329,20 @@ def vault_verify():
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action",choices=("init-key","backup","verify-vault","verify-vault-copy"))
+    parser.add_argument("action",choices=("init-key","backup","rehearse","verify-vault","verify-vault-copy"))
     parser.add_argument("--before-copy",type=int)
+    parser.add_argument("--check-synthetic",type=UUID)
+    parser.add_argument("--day",help="Local ISO date of the private archive to replay")
     args=parser.parse_args()
     action=args.action
+    if action=="rehearse" and not args.day: parser.error("Specify --day YYYY-MM-DD.")
     if action=="verify-vault-copy" and (args.before_copy is None or args.before_copy<0): parser.error("Supply the clipboard counter recorded before Copy Password.")
     os.umask(0o077)
     PROOF.mkdir(mode=0o700,parents=True,exist_ok=True)
     os.chmod(PROOF,0o700)
     with (PROOF/"operations.lock").open("a") as lock:
         fcntl.flock(lock,fcntl.LOCK_EX)
-        {"init-key":init_key,"backup":backup,"verify-vault":vault_verify,"verify-vault-copy":lambda:vault_clipboard(args.before_copy)}[action]()
+        {"init-key":init_key,"backup":lambda:backup(args.check_synthetic),"rehearse":lambda:rehearse(args.day),"verify-vault":vault_verify,"verify-vault-copy":lambda:vault_clipboard(args.before_copy)}[action]()
 
 
 if __name__=="__main__":
