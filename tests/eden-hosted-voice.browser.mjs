@@ -7,10 +7,10 @@ if(!['127.0.0.1','localhost'].includes(new URL(base).hostname))throw Error('Run 
 const nativeOutput=process.env.EDEN_NATIVE_OUTPUT==='1';
 const browser=await chromium.launch({executablePath:process.env.CHROME_PATH??'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:!nativeOutput,args:['--mute-audio']});
 const context=await browser.newContext({viewport:{width:390,height:844}});
-const page=await context.newPage();page.setDefaultTimeout(8000);const errors=[];let eligibility=false,providerCalls=0,sessions=0;
+const page=await context.newPage();page.setDefaultTimeout(8000);const errors=[];let eligibility=false,providerCalls=0,sessions=0,delayConsent;
 page.on('pageerror',e=>errors.push(e.message));
-await page.route('**/eligibility',r=>{
-  if(r.request().method()==='POST'){assert.match(r.request().postData(),/age=19plus/);eligibility=true;}
+await page.route('**/eligibility',async r=>{
+  if(r.request().method()==='POST'){assert.match(r.request().postData(),/age=19plus/);if(delayConsent)await delayConsent;eligibility=true;}
   return r.fulfill({json:{eligible:eligibility,denied:false}});
 });
 await page.route('**/api/v1/eden/hosted/**',r=>{
@@ -27,7 +27,17 @@ try{
   const client=await context.newCDPSession(page);
   const {targetInfo:{browserContextId}}=await client.send('Target.getTargetInfo');
   await client.send('Browser.setPermission',{browserContextId,origin:base,permission:{name:'microphone'},setting:'denied'});
-  await page.locator('[data-call]').click();
+  // A delayed age decision must never start dictation or send after Not now.
+  let release;delayConsent=new Promise(done=>release=done);
+  await page.locator('#eden-command').fill('scroll down');await page.locator('#eden-command').press('Enter');
+  await page.locator('[data-adult]').check();await page.locator('[data-hosted-consent]').check();
+  const sending=page.waitForRequest(r=>new URL(r.url()).pathname==='/eligibility'&&r.method()==='POST');
+  await page.locator('[data-continue]').click();await sending;
+  await page.locator('[data-consent-cancel]').click();const settled=page.waitForResponse(r=>new URL(r.url()).pathname==='/eligibility');
+  release();await settled;delayConsent=undefined;
+  assert.equal(sessions,0);assert.equal(await page.locator('.eden-log').evaluate(e=>e.childElementCount),0);
+  await page.locator('#eden-command').fill('');
+  await page.locator('[data-call]').click();assert(!await page.locator('[data-adult]').isChecked());
   await page.locator('[data-adult]').check();assert(await page.locator('[data-continue]').isDisabled());
   await page.locator('[data-hosted-consent]').check();await page.locator('[data-continue]').click();
   await waitText('.eden-state','denied');

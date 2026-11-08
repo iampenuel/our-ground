@@ -77,6 +77,11 @@ export function mountHostedEden(host:HTMLElement) {
     pending=action;retry=false;notify();controls();consent.scrollIntoView({block:'nearest'});
     (eligible?privacy:age).focus({preventScroll:true});return true;
   }
+  function cancelConsent(){
+    if(!pending&&!accepting)return;
+    generation++;pending=undefined;accepting=false;
+    age.checked=false;privacy.checked=false;controls();
+  }
   async function accept(){
     if(accepting||!pending||get<HTMLButtonElement>('[data-continue]').disabled)return;
     const id=generation,action=pending;accepting=true;controls();
@@ -125,7 +130,7 @@ export function mountHostedEden(host:HTMLElement) {
   function stopPlayback(){playback?.abort();playback=undefined;controls();}
   function stopTurn(){if(turn){turn.abort();turn=undefined;generation++;endSession();}controls();}
   function forget(){
-    clearTimeout(forgetTimer);generation++;eligibilityRevision++;pending=undefined;accepting=false;retry=false;
+    clearTimeout(forgetTimer);generation++;eligibilityRevision++;cancelConsent();retry=false;
     stopDictation();stopPlayback();stopTurn();endSession();conversation.clear();clearEdenRememberedSearch();
     log.replaceChildren();input.value='';lastReply=undefined;get('.eden-unread').hidden=true;notify();controls();
   }
@@ -190,7 +195,7 @@ export function mountHostedEden(host:HTMLElement) {
   function show(open:boolean,focus=true){
     panel.hidden=!open;launch.hidden=open;if(open)get('.eden-unread').hidden=true;launch.setAttribute('aria-expanded',String(open));document.body.classList.toggle('eden-assistant-open',open);
     if(open){touch();void refreshEligibility();context();if(focus)get('[data-expand]').focus({preventScroll:true});}
-    else{stopDictation();stopPlayback();pending=undefined;accepting=false;if(!turn)generation++;notify();if(showingSettings)showSettings(false);launch.focus({preventScroll:true});}
+    else{stopDictation();stopPlayback();cancelConsent();notify();if(showingSettings)showSettings(false);launch.focus({preventScroll:true});}
     layout();controls();
   }
   function keydown(e:KeyboardEvent){
@@ -211,7 +216,7 @@ export function mountHostedEden(host:HTMLElement) {
   get('[data-expand]').addEventListener('click',()=>{expanded=!expanded;host.classList.toggle('eden-expanded',expanded);get('[data-expand]').setAttribute('aria-pressed',String(expanded));get('[data-expand]').setAttribute('aria-label',expanded?'Restore compact chat':'Expand chat');layout();});
   settingsButton.addEventListener('click',()=>showSettings(!showingSettings));
   get('[data-continue]').addEventListener('click',()=>void accept());
-  get('[data-consent-cancel]').addEventListener('click',()=>{pending=undefined;controls();input.focus();});
+  get('[data-consent-cancel]').addEventListener('click',()=>{cancelConsent();input.focus();});
   for(const box of [age,privacy])box.addEventListener('change',controls);
   get('[data-reset]').addEventListener('click',()=>{forget();if(showingSettings)showSettings(false);notify('New chat started.');touch();});
   mic.addEventListener('click',()=>void dictate());get('[data-speak]').addEventListener('click',()=>void read());
