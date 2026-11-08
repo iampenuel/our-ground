@@ -70,8 +70,19 @@ export function createLocationSearch(options:{env:Record<string,string|undefined
   const expected=Buffer.from(sign(match[1])),actual=Buffer.from(match[2]);if(expected.length!==actual.length||!timingSafeEqual(expected,actual))throw invalid();
   try{const p=JSON.parse(Buffer.from(match[1],'base64url').toString('utf8'));const seconds=Math.floor(now()/1000);if(p.v!==1||p.id!==id||p.session!==session||!Number.isInteger(p.expires)||p.expires<=seconds||p.expires>seconds+120||!validPoint(p.location?.latitude,p.location?.longitude))throw invalid();if(query!==undefined&&(!p.submission||p.submission.query!==queryBinding(query)||typeof p.submission.automatic!=='boolean'||typeof p.submission.single!=='boolean'))throw invalid();return p.location;}catch{throw invalid();}
  }
+ async function postalLocation(query:string,signal?:AbortSignal):Promise<SelectedLocation|undefined>{
+  const zip=query.trim();
+  if(!/^\d{5}$/.test(zip)||!options.reference?.findPostalArea||!signingKey)return;
+  let point;try{point=await options.reference.findPostalArea(zip,signal);}catch(error){if(signal?.aborted)throw error;return;}
+  if(!point||!validPoint(point.latitude,point.longitude))return;
+  return {...point,label:zip,publicQuery:zip,country:'US',source:'reference',attribution:'U.S. Census Bureau · 2026 Gazetteer',
+   quality:{kind:'canonical_exact',precision:'postcode',source:'reference',coordinateSource:'reference',sourceName:'U.S. Census Bureau',
+    explanation:'Representative point for this ZIP Code Tabulation Area. It does not confirm a delivery address.',
+    reference:{sourceId:'census-zcta-2026',sourceUrl:'https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.2026.html',vintage:'2026',geographicId:zip,coordinatePrecision:'representative'}}};
+ }
  function canAutomaticallyUse(location:SelectedLocation,context:ReturnType<typeof locationQueryContext>) {
   const q=location.quality;if(!q||!validLocationQuality(q)||!['point','city'].includes(locationSearchScope(location)))return false;
+  if(q.source==='reference' && q.precision==='postcode')return !context.address&&!context.zip4&&context.postcode===location.publicQuery;
   if(q.source==='reference')return !context.address&&!context.postcode&&['canonical_exact','canonical_correction'].includes(q.kind);
   if(q.kind!=='exact'||(q.provider?.confidence??0)<.8)return false;
   if(context.address)return q.precision==='building';
@@ -163,6 +174,8 @@ export function createLocationSearch(options:{env:Record<string,string|undefined
   },
   async forward(query,signal,client){
    signal?.throwIfAborted();
+   const postal=await postalLocation(query,signal);
+   if(postal)return{location:postal,attribution:postal.attribution!};
    const input=locationQueryContext(query);
    if(!input.address&&!input.postcode){for(const[key,entry]of publicAreaResolutions){if(entry.expires<=now()){publicAreaResolutions.delete(key);continue;}if(normalizedName(entry.point.publicQuery??'')===normalizedName(query))return{location:{...entry.point,quality:{...entry.point.quality!,explanation:entry.point.quality?.coordinateSource==='reference'?'Restored the selected Census representative city/state point. It does not confirm a street address and may be far from service clusters.':'Restored coarse city/state area from a recent exact provider resolution. No previous street address or GPS position is stored in this link.'}},attribution:entry.point.attribution??fallbackCredit};}}
    const context=input;
@@ -192,6 +205,11 @@ export function createLocationSearch(options:{env:Record<string,string|undefined
   },
   async suggest(q,session,signal,_origin,client,admitProvider){
    if(!sessionPattern.test(session)||typeof q!=='string'||q.trim().length<2||q.trim().length>256||/[\u0000-\u001f\u007f]/.test(q))throw new LocationSearchError(422,'INVALID_LOCATION_QUERY','Enter an address, ZIP code, city or landmark.');
+   const postal=await postalLocation(q,signal);
+   if(postal){
+    const id='census:2026:zcta:'+postal.publicQuery,choice={id,primary:postal.label,secondary:'ZIP Code Tabulation Area · U.S. Census Bureau',quality:postal.quality,receipt:receipt(id,session,postal)};
+    return {suggestions:submissionSuggestions([choice],q,session,false),attribution:postal.attribution!,providerStatus:'not_needed'};
+   }
    const context=locationQueryContext(q),reference=options.reference;
    // City/state reference matches are sufficient for explicit representative-area
    // choices. Do not reserve a provider allowance or perform enrichment for them.
@@ -242,7 +260,7 @@ export function createLocationSearch(options:{env:Record<string,string|undefined
   },
   async retrieve(id,session,value,signal,_origin,_client,_admitProvider){
    signal?.throwIfAborted();let location=verify(id,session,value);
-   if(location.source==='reference'&&location.publicQuery&&location.quality){
+   if(location.source==='reference'&&location.publicQuery&&location.quality&&location.quality.precision!=='postcode'){
     location={...location,quality:{...location.quality,coordinateSource:'reference',explanation:'Using the official Census representative city/state point. It may be far from service clusters and does not validate a street address.'}};
     // This bounded public-area cache carries only Census city/state evidence,
     // never resident addresses/GPS, and avoids re-geocoding a coarse return URL.

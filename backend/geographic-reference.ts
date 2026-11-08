@@ -10,6 +10,7 @@ export interface GeographicCandidate {
 }
 export interface GeographicReference {
  findCandidates(query:string,state?:USResourceStateCode,limit?:number,signal?:AbortSignal):Promise<GeographicCandidate[]>;
+ findPostalArea?(zip:string,signal?:AbortSignal):Promise<{latitude:number;longitude:number}|undefined>;
  close?():Promise<void>;
 }
 export class GeographicReferenceError extends Error {
@@ -36,6 +37,13 @@ export function createPostgresGeographicReference(env:Record<string,string|undef
     });}catch(error){if(signal?.aborted)throw signal.reason;if(error instanceof GeographicReferenceError)throw error;throw new GeographicReferenceError();}
    });
    queue=pending.then(()=>undefined,()=>undefined);return pending;
+  },
+  async findPostalArea(zip,signal){
+   if(!/^\d{5}$/.test(zip))return;
+   signal?.throwIfAborted();
+   const [row]=await client()<Array<{latitude:number;longitude:number}>>`select * from app_private.postal_reference_find(${zip})`;
+   signal?.throwIfAborted();
+   return row;
   },
   async close(){await queue;await sql?.end();sql=undefined;}
  };

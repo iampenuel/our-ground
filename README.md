@@ -2,6 +2,13 @@
 
 **A student-built Nittany AI Challenge and portfolio platform for finding food, care, and community support.**
 
+## National release candidate
+
+The protected candidate serves 16,417 HRSA healthcare sites, 593 regional food programs and 508 HUD housing counseling agencies. It accepts cities in all 50 states and uses Census representative points for five-digit ZIP areas. Residents can inspect a listing, check its source and report a correction. Donors can contact providers. Organization onboarding is closed. Public Gemini inference is disabled.
+
+See [release handoff and promotion gates](docs/release/README.md), [state coverage](docs/release/coverage.json) and [verification](docs/release/verification.md). Earlier Pennsylvania pilot counts and deployment instructions below describe historical milestones.
+
+
 Our Ground remains the product: the approved courtyard homepage, Find Support, Give Support, organization access, maps, and public resource information. **Eden is its integrated Gemini AI agent.** Only Gemini evaluation is restricted to eligible adults; the public resource website has no Gemini eligibility gate. This is not a commercial startup launch. Competition context belongs in documentation, not the primary product interface.
 
 Manual navigation, search, filters, and maps work independently of Gemini. When Gemini is unavailable, Eden shows a concise unavailable state; she does not become a scripted website-guide chatbot. **The public website is a publication goal; live public Gemini is separately gated.** The [reviewer Preview](https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app) requires Vercel sign-in. It is separate from a public release.

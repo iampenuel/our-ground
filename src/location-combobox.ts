@@ -85,7 +85,7 @@ export function mountLocationCombobox<T extends LocationOption,L extends Selecte
 
     busy:()=>controller.snapshot().busy||pointRequest!==null,
     enabled:()=>enabled,
-    setEnabled(value:boolean,allowCoordinates=true,onlyReference=false){enabled=value;referenceOnly=onlyReference;coordinatesAllowed=allowCoordinates;gps.disabled=!coordinatesAllowed;if(!value){abortPoint();controller.dismiss();}get('locationHelp').textContent=value?(referenceOnly?'Address lookup is unavailable. Choose a city or state from the geographic reference options. Reference points do not confirm street addresses.':'Type a location and press Search. Suggestions are optional; corrections and uncertain matches are labeled.'):'Location suggestions are unavailable. You can still try a city and state or ZIP code.';render(controller.snapshot());},
+    setEnabled(value:boolean,allowCoordinates=true,onlyReference=false){enabled=value;referenceOnly=onlyReference;coordinatesAllowed=allowCoordinates;gps.disabled=!coordinatesAllowed;if(!value){abortPoint();controller.dismiss();}get('locationHelp').textContent=value?(referenceOnly?'Address lookup is unavailable. Choose a city, state or five-digit ZIP area from the geographic reference options. Reference points do not confirm street addresses.':'Type a location and press Search. Suggestions are optional; corrections and uncertain matches are labeled.'):'Location suggestions are unavailable. You can still try a city and state or ZIP code.';render(controller.snapshot());},
     selectPoint,
     invalidate(){abortPoint();controller.input(input.value,false);},
     showSelectionRequired(){controller.error('Choose a location suggestion to confirm where to search, or use your current location.');input.focus();},

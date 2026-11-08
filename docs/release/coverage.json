@@ -1,8 +1,8 @@
 {
-  "checked_at": "2026-11-08T01:31:05.706Z",
+  "checked_at": "2026-11-08T01:51:27.601Z",
   "db": {
-    "bytes": 120002227,
-    "migrations": 18,
+    "bytes": 122861235,
+    "migrations": 19,
     "holds": 34,
     "stale": 0
   },
@@ -974,15 +974,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 6,
-        "ms": 313
+        "ms": 181
       },
       "food": {
         "total": 0,
-        "ms": 69
+        "ms": 70
       },
       "community": {
         "total": 0,
-        "ms": 141
+        "ms": 66
       }
     },
     {
@@ -990,15 +990,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 92,
-        "ms": 122
+        "ms": 182
       },
       "food": {
         "total": 323,
-        "ms": 92
+        "ms": 147
       },
       "community": {
         "total": 15,
-        "ms": 161
+        "ms": 206
       }
     },
     {
@@ -1006,15 +1006,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 30,
-        "ms": 78
+        "ms": 101
       },
       "food": {
         "total": 0,
-        "ms": 76
+        "ms": 131
       },
       "community": {
         "total": 2,
-        "ms": 82
+        "ms": 77
       }
     },
     {
@@ -1022,15 +1022,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 10,
-        "ms": 76
+        "ms": 74
       },
       "food": {
         "total": 0,
-        "ms": 64
+        "ms": 162
       },
       "community": {
         "total": 1,
-        "ms": 65
+        "ms": 71
       }
     },
     {
@@ -1038,15 +1038,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 274,
-        "ms": 164
+        "ms": 123
       },
       "food": {
         "total": 0,
-        "ms": 77
+        "ms": 138
       },
       "community": {
         "total": 11,
-        "ms": 74
+        "ms": 158
       }
     },
     {
@@ -1054,15 +1054,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 32,
-        "ms": 146
+        "ms": 195
       },
       "food": {
         "total": 0,
-        "ms": 68
+        "ms": 90
       },
       "community": {
         "total": 5,
-        "ms": 74
+        "ms": 138
       }
     },
     {
@@ -1070,15 +1070,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 99,
-        "ms": 72
+        "ms": 174
       },
       "food": {
         "total": 43,
-        "ms": 78
+        "ms": 192
       },
       "community": {
         "total": 12,
-        "ms": 158
+        "ms": 75
       }
     },
     {
@@ -1086,15 +1086,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 102,
-        "ms": 74
+        "ms": 198
       },
       "food": {
         "total": 0,
-        "ms": 67
+        "ms": 165
       },
       "community": {
         "total": 2,
-        "ms": 66
+        "ms": 70
       }
     },
     {
@@ -1102,15 +1102,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 165,
-        "ms": 86
+        "ms": 188
       },
       "food": {
         "total": 0,
-        "ms": 68
+        "ms": 73
       },
       "community": {
         "total": 15,
-        "ms": 69
+        "ms": 107
       }
     },
     {
@@ -1118,15 +1118,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 70,
-        "ms": 72
+        "ms": 207
       },
       "food": {
         "total": 0,
-        "ms": 62
+        "ms": 67
       },
       "community": {
         "total": 7,
-        "ms": 69
+        "ms": 150
       }
     },
     {
@@ -1134,15 +1134,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 26,
-        "ms": 102
+        "ms": 101
       },
       "food": {
         "total": 0,
-        "ms": 161
+        "ms": 68
       },
       "community": {
         "total": 3,
-        "ms": 68
+        "ms": 133
       }
     },
     {
@@ -1150,15 +1150,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 215,
-        "ms": 85
+        "ms": 113
       },
       "food": {
         "total": 0,
-        "ms": 159
+        "ms": 78
       },
       "community": {
         "total": 2,
-        "ms": 65
+        "ms": 144
       }
     },
     {
@@ -1166,71 +1166,7 @@
       "reference_points": 1,
       "healthcare": {
         "total": 26,
-        "ms": 70
-      },
-      "food": {
-        "total": 0,
-        "ms": 66
-      },
-      "community": {
-        "total": 1,
-        "ms": 67
-      }
-    },
-    {
-      "city": "Anchorage, AK",
-      "reference_points": 1,
-      "healthcare": {
-        "total": 0,
-        "ms": 69
-      },
-      "food": {
-        "total": 0,
-        "ms": 68
-      },
-      "community": {
-        "total": 0,
-        "ms": 62
-      }
-    },
-    {
-      "city": "Phoenix, AZ",
-      "reference_points": 1,
-      "healthcare": {
-        "total": 63,
-        "ms": 80
-      },
-      "food": {
-        "total": 0,
-        "ms": 70
-      },
-      "community": {
-        "total": 2,
-        "ms": 68
-      }
-    },
-    {
-      "city": "Little Rock, AR",
-      "reference_points": 1,
-      "healthcare": {
-        "total": 14,
-        "ms": 73
-      },
-      "food": {
-        "total": 0,
-        "ms": 68
-      },
-      "community": {
-        "total": 1,
-        "ms": 65
-      }
-    },
-    {
-      "city": "Sacramento, CA",
-      "reference_points": 1,
-      "healthcare": {
-        "total": 73,
-        "ms": 156
+        "ms": 75
       },
       "food": {
         "total": 0,
@@ -1238,7 +1174,71 @@
       },
       "community": {
         "total": 1,
+        "ms": 156
+      }
+    },
+    {
+      "city": "Anchorage, AK",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 0,
+        "ms": 65
+      },
+      "food": {
+        "total": 0,
         "ms": 69
+      },
+      "community": {
+        "total": 0,
+        "ms": 135
+      }
+    },
+    {
+      "city": "Phoenix, AZ",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 63,
+        "ms": 86
+      },
+      "food": {
+        "total": 0,
+        "ms": 67
+      },
+      "community": {
+        "total": 2,
+        "ms": 146
+      }
+    },
+    {
+      "city": "Little Rock, AR",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 14,
+        "ms": 76
+      },
+      "food": {
+        "total": 0,
+        "ms": 73
+      },
+      "community": {
+        "total": 1,
+        "ms": 177
+      }
+    },
+    {
+      "city": "Sacramento, CA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 73,
+        "ms": 95
+      },
+      "food": {
+        "total": 0,
+        "ms": 69
+      },
+      "community": {
+        "total": 1,
+        "ms": 143
       }
     },
     {
@@ -1246,15 +1246,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 72,
-        "ms": 79
+        "ms": 83
       },
       "food": {
         "total": 0,
-        "ms": 156
+        "ms": 71
       },
       "community": {
         "total": 7,
-        "ms": 72
+        "ms": 156
       }
     },
     {
@@ -1262,15 +1262,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 74,
-        "ms": 78
+        "ms": 75
       },
       "food": {
         "total": 0,
-        "ms": 67
+        "ms": 64
       },
       "community": {
         "total": 3,
-        "ms": 69
+        "ms": 154
       }
     },
     {
@@ -1282,11 +1282,11 @@
       },
       "food": {
         "total": 0,
-        "ms": 65
+        "ms": 143
       },
       "community": {
         "total": 1,
-        "ms": 70
+        "ms": 68
       }
     },
     {
@@ -1294,15 +1294,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 116,
-        "ms": 76
+        "ms": 142
       },
       "food": {
         "total": 0,
-        "ms": 64
+        "ms": 72
       },
       "community": {
         "total": 1,
-        "ms": 74
+        "ms": 157
       }
     },
     {
@@ -1310,15 +1310,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 20,
-        "ms": 70
+        "ms": 153
       },
       "food": {
         "total": 0,
-        "ms": 156
+        "ms": 66
       },
       "community": {
         "total": 0,
-        "ms": 83
+        "ms": 152
       }
     },
     {
@@ -1326,15 +1326,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 23,
-        "ms": 74
+        "ms": 149
       },
       "food": {
         "total": 0,
-        "ms": 64
+        "ms": 67
       },
       "community": {
         "total": 1,
-        "ms": 143
+        "ms": 152
       }
     },
     {
@@ -1342,15 +1342,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 19,
-        "ms": 73
+        "ms": 150
       },
       "food": {
         "total": 0,
-        "ms": 65
+        "ms": 64
       },
       "community": {
         "total": 2,
-        "ms": 66
+        "ms": 155
       }
     },
     {
@@ -1358,15 +1358,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 11,
-        "ms": 68
+        "ms": 139
       },
       "food": {
         "total": 0,
-        "ms": 92
+        "ms": 72
       },
       "community": {
         "total": 1,
-        "ms": 73
+        "ms": 156
       }
     },
     {
@@ -1374,15 +1374,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 96,
-        "ms": 73
+        "ms": 163
       },
       "food": {
         "total": 0,
-        "ms": 66
+        "ms": 83
       },
       "community": {
         "total": 2,
-        "ms": 73
+        "ms": 143
       }
     },
     {
@@ -1390,15 +1390,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 9,
-        "ms": 70
+        "ms": 154
       },
       "food": {
         "total": 0,
-        "ms": 66
+        "ms": 86
       },
       "community": {
         "total": 2,
-        "ms": 68
+        "ms": 127
       }
     },
     {
@@ -1406,15 +1406,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 2,
-        "ms": 64
+        "ms": 166
       },
       "food": {
         "total": 0,
-        "ms": 70
+        "ms": 68
       },
       "community": {
         "total": 0,
-        "ms": 63
+        "ms": 160
       }
     },
     {
@@ -1422,15 +1422,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 6,
-        "ms": 71
+        "ms": 148
       },
       "food": {
         "total": 0,
-        "ms": 72
+        "ms": 64
       },
       "community": {
         "total": 0,
-        "ms": 66
+        "ms": 130
       }
     },
     {
@@ -1438,15 +1438,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 37,
-        "ms": 79
+        "ms": 73
       },
       "food": {
         "total": 0,
-        "ms": 68
+        "ms": 159
       },
       "community": {
         "total": 1,
-        "ms": 73
+        "ms": 161
       }
     },
     {
@@ -1458,11 +1458,11 @@
       },
       "food": {
         "total": 0,
-        "ms": 68
+        "ms": 157
       },
       "community": {
         "total": 0,
-        "ms": 67
+        "ms": 157
       }
     },
     {
@@ -1470,11 +1470,11 @@
       "reference_points": 1,
       "healthcare": {
         "total": 2,
-        "ms": 73
+        "ms": 70
       },
       "food": {
         "total": 0,
-        "ms": 67
+        "ms": 156
       },
       "community": {
         "total": 2,
@@ -1486,15 +1486,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 17,
-        "ms": 67
+        "ms": 72
       },
       "food": {
         "total": 0,
-        "ms": 64
+        "ms": 65
       },
       "community": {
         "total": 1,
-        "ms": 66
+        "ms": 159
       }
     },
     {
@@ -1502,15 +1502,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 10,
-        "ms": 65
+        "ms": 80
       },
       "food": {
         "total": 0,
-        "ms": 65
+        "ms": 72
       },
       "community": {
         "total": 2,
-        "ms": 67
+        "ms": 138
       }
     },
     {
@@ -1518,15 +1518,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 53,
-        "ms": 77
+        "ms": 81
       },
       "food": {
         "total": 0,
-        "ms": 66
+        "ms": 70
       },
       "community": {
         "total": 9,
-        "ms": 71
+        "ms": 161
       }
     },
     {
@@ -1534,15 +1534,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 26,
-        "ms": 67
+        "ms": 72
       },
       "food": {
         "total": 0,
-        "ms": 71
+        "ms": 67
       },
       "community": {
         "total": 3,
-        "ms": 65
+        "ms": 158
       }
     },
     {
@@ -1550,15 +1550,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 1,
-        "ms": 67
+        "ms": 77
       },
       "food": {
         "total": 0,
-        "ms": 64
+        "ms": 80
       },
       "community": {
         "total": 0,
-        "ms": 72
+        "ms": 150
       }
     },
     {
@@ -1570,11 +1570,11 @@
       },
       "food": {
         "total": 0,
-        "ms": 65
+        "ms": 67
       },
       "community": {
         "total": 0,
-        "ms": 64
+        "ms": 129
       }
     },
     {
@@ -1582,15 +1582,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 4,
-        "ms": 68
+        "ms": 67
       },
       "food": {
         "total": 0,
-        "ms": 68
+        "ms": 65
       },
       "community": {
         "total": 1,
-        "ms": 71
+        "ms": 69
       }
     },
     {
@@ -1598,15 +1598,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 27,
-        "ms": 67
+        "ms": 169
       },
       "food": {
         "total": 0,
-        "ms": 63
+        "ms": 68
       },
       "community": {
         "total": 2,
-        "ms": 73
+        "ms": 70
       }
     },
     {
@@ -1614,15 +1614,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 0,
-        "ms": 66
+        "ms": 70
       },
       "food": {
         "total": 0,
-        "ms": 65
+        "ms": 78
       },
       "community": {
         "total": 0,
-        "ms": 64
+        "ms": 70
       }
     },
     {
@@ -1630,15 +1630,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 9,
-        "ms": 71
+        "ms": 72
       },
       "food": {
         "total": 0,
-        "ms": 71
+        "ms": 76
       },
       "community": {
         "total": 1,
-        "ms": 62
+        "ms": 70
       }
     },
     {
@@ -1646,15 +1646,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 21,
-        "ms": 69
+        "ms": 139
       },
       "food": {
         "total": 0,
-        "ms": 69
+        "ms": 68
       },
       "community": {
         "total": 2,
-        "ms": 64
+        "ms": 69
       }
     },
     {
@@ -1662,15 +1662,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 11,
-        "ms": 78
+        "ms": 76
       },
       "food": {
         "total": 0,
-        "ms": 70
+        "ms": 67
       },
       "community": {
         "total": 1,
-        "ms": 65
+        "ms": 149
       }
     },
     {
@@ -1678,15 +1678,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 8,
-        "ms": 77
+        "ms": 74
       },
       "food": {
         "total": 0,
-        "ms": 66
+        "ms": 70
       },
       "community": {
         "total": 1,
-        "ms": 75
+        "ms": 67
       }
     },
     {
@@ -1694,15 +1694,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 2,
-        "ms": 75
+        "ms": 71
       },
       "food": {
         "total": 0,
-        "ms": 73
+        "ms": 65
       },
       "community": {
         "total": 0,
-        "ms": 79
+        "ms": 70
       }
     },
     {
@@ -1710,15 +1710,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 32,
-        "ms": 75
+        "ms": 81
       },
       "food": {
         "total": 0,
-        "ms": 70
+        "ms": 68
       },
       "community": {
         "total": 2,
-        "ms": 67
+        "ms": 65
       }
     },
     {
@@ -1726,7 +1726,7 @@
       "reference_points": 1,
       "healthcare": {
         "total": 18,
-        "ms": 83
+        "ms": 75
       },
       "food": {
         "total": 0,
@@ -1742,15 +1742,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 8,
-        "ms": 78
+        "ms": 85
       },
       "food": {
         "total": 0,
-        "ms": 81
+        "ms": 65
       },
       "community": {
         "total": 0,
-        "ms": 67
+        "ms": 66
       }
     },
     {
@@ -1758,15 +1758,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 12,
-        "ms": 68
+        "ms": 71
       },
       "food": {
         "total": 0,
-        "ms": 66
+        "ms": 67
       },
       "community": {
         "total": 2,
-        "ms": 77
+        "ms": 69
       }
     },
     {
@@ -1774,15 +1774,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 37,
-        "ms": 72
+        "ms": 76
       },
       "food": {
         "total": 0,
-        "ms": 63
+        "ms": 67
       },
       "community": {
         "total": 2,
-        "ms": 67
+        "ms": 73
       }
     },
     {
@@ -1790,15 +1790,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 12,
-        "ms": 69
+        "ms": 79
       },
       "food": {
         "total": 0,
-        "ms": 67
+        "ms": 68
       },
       "community": {
         "total": 0,
-        "ms": 73
+        "ms": 67
       }
     },
     {
@@ -1806,7 +1806,7 @@
       "reference_points": 1,
       "healthcare": {
         "total": 1,
-        "ms": 79
+        "ms": 69
       },
       "food": {
         "total": 0,
@@ -1814,7 +1814,7 @@
       },
       "community": {
         "total": 0,
-        "ms": 66
+        "ms": 71
       }
     },
     {
@@ -1822,15 +1822,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 13,
-        "ms": 69
+        "ms": 84
       },
       "food": {
         "total": 0,
-        "ms": 71
+        "ms": 70
       },
       "community": {
         "total": 2,
-        "ms": 62
+        "ms": 156
       }
     },
     {
@@ -1838,15 +1838,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 42,
-        "ms": 72
+        "ms": 84
       },
       "food": {
         "total": 0,
-        "ms": 67
+        "ms": 165
       },
       "community": {
         "total": 3,
-        "ms": 74
+        "ms": 66
       }
     },
     {
@@ -1854,15 +1854,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 7,
-        "ms": 95
+        "ms": 84
       },
       "food": {
         "total": 0,
-        "ms": 93
+        "ms": 142
       },
       "community": {
         "total": 1,
-        "ms": 67
+        "ms": 72
       }
     },
     {
@@ -1870,15 +1870,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 7,
-        "ms": 68
+        "ms": 93
       },
       "food": {
         "total": 0,
-        "ms": 66
+        "ms": 148
       },
       "community": {
         "total": 0,
-        "ms": 69
+        "ms": 149
       }
     },
     {
@@ -1886,15 +1886,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 16,
-        "ms": 70
+        "ms": 74
       },
       "food": {
         "total": 0,
-        "ms": 64
+        "ms": 153
       },
       "community": {
         "total": 4,
-        "ms": 72
+        "ms": 160
       }
     },
     {
@@ -1902,15 +1902,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 76,
-        "ms": 78
+        "ms": 76
       },
       "food": {
         "total": 101,
-        "ms": 78
+        "ms": 146
       },
       "community": {
         "total": 1,
-        "ms": 65
+        "ms": 152
       }
     },
     {
@@ -1918,15 +1918,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 23,
-        "ms": 75
+        "ms": 72
       },
       "food": {
         "total": 0,
-        "ms": 78
+        "ms": 151
       },
       "community": {
         "total": 1,
-        "ms": 66
+        "ms": 156
       }
     },
     {
@@ -1934,15 +1934,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 7,
-        "ms": 84
+        "ms": 71
       },
       "food": {
         "total": 0,
-        "ms": 63
+        "ms": 155
       },
       "community": {
         "total": 1,
-        "ms": 67
+        "ms": 155
       }
     },
     {
@@ -1950,15 +1950,15 @@
       "reference_points": 1,
       "healthcare": {
         "total": 3,
-        "ms": 88
+        "ms": 68
       },
       "food": {
         "total": 0,
-        "ms": 78
+        "ms": 157
       },
       "community": {
         "total": 0,
-        "ms": 66
+        "ms": 68
       }
     }
   ],

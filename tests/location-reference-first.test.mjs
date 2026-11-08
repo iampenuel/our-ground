@@ -207,3 +207,14 @@ test('a coarse forward reference response arriving after cancellation cannot ret
  await assert.rejects(pending,e=>e.name==='AbortError');
  assert.equal(h.providerCalls.length,0);assert.equal(h.admissions.length,0);
 });
+
+test('a five-digit Census postal area submits once without provider access or a claimed street address',async()=>{
+ const reference={findCandidates:async()=>[],findPostalArea:async zip=>zip==='02108'?{latitude:42.36,longitude:-71.06}:undefined};
+ const p=createLocationSearch({env:{},signingKey:'synthetic-postal-signing-key',reference,fetcher:async()=>{throw Error('unexpected provider request')}});
+ const session='99999999-9999-4999-8999-999999999999';
+ const found=await p.suggest('02108',session);
+ assert.equal(found.suggestions.length,1);const {id,receipt}=found.suggestions[0];
+ const result=await p.resolve('02108',session,[{id,receipt}]);
+ assert.equal(result.status,'resolved');assert.equal(result.location.publicQuery,'02108');assert.equal(result.location.quality.precision,'postcode');
+ assert.equal((await p.retrieve(id,session,receipt)).location.quality.explanation,result.location.quality.explanation);
+});

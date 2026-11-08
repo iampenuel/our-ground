@@ -11,14 +11,17 @@ import {importFood,normalizeFoodSnapshot,validateFoodGeography} from '../backend
 
 import {normalizeHud,importHud} from '../backend/hud-import.mjs';
 
+import {normalizePostalReference,importPostalReference} from '../backend/postal-reference.mjs';
+
 const [folder, target='plan', approval]=process.argv.slice(2);
 assert(folder && ['plan','rehearse','protected-staging'].includes(target));
 const file=name=>readFile(resolve(folder,name),'utf8');
 const hrsa=normalizeHrsaCsv(await file('latest.csv'));
 const food=await Promise.all(['seattle-food-resources','pgc-food-assistance'].map(async id=>normalizeFoodSnapshot(id,await file(id+'.json'))));
 const hud=normalizeHud(await file('hud-response'),(await file('hud-captured.txt')).trim());
-const inputs=[hrsa,...food,hud];
-const fingerprint=sha256(inputs.map(x=>x.checksum).join('\n'));
+const postal=normalizePostalReference(await file('zcta.txt'));
+const inputs=[hrsa,...food,hud,postal];
+const fingerprint=sha256(inputs.map(x=>x.checksum+':'+(x.source_updated_at??'')).join('\n'));
 console.log(JSON.stringify({fingerprint,sources:inputs.map(x=>({source:x.source.id,date:x.source_updated_at,checksum:x.checksum,...x.summary}))}));
 if(target==='plan')process.exit(0);
 assert(approval===fingerprint && !process.env.VERCEL && process.env.NODE_ENV!=='production','Review the exact snapshot fingerprint before applying.');
@@ -35,7 +38,7 @@ const sql=postgres(url,{max:1,ssl,prepare:false,connect_timeout:8,onnotice:()=>{
 try{
   const [before]=await sql`select current_database() db,current_user as owner,pg_database_size(current_database())::int as bytes`;
   assert(before.owner==='postgres' && before.db===(target==='protected-staging'?'postgres':'ourground_rc_drill') && before.bytes<350_000_000);
-  for(const migration of ['017_community_search.sql','018_hud_counselors.sql','019_census_city_aliases.sql']){
+  for(const migration of ['017_community_search.sql','018_hud_counselors.sql','019_census_city_aliases.sql','020_postal_reference.sql']){
   const ddl=await readFile(new URL('../backend/migrations/'+migration,import.meta.url),'utf8');
   await sql.begin(async tx=>{
     await tx`select pg_advisory_xact_lock(hashtext('our-ground-schema-migration'))`;
@@ -52,6 +55,7 @@ try{
     result.push(await importFood(sql,dataset,{apply:true,fullSnapshot:true}));
   }
   result.push(await importHud(sql,hud));
+  result.push(await importPostalReference(sql,postal));
   const [after]=await sql`select pg_database_size(current_database())::int bytes`;
   console.log(JSON.stringify({target,before,after,result}));
 }catch(e){console.error(e?.code??'IMPORT_CHECK_FAILED',e?.routine??'', e?.severity ? String(e.message).slice(0,160) : e?.message?.slice(0,160));process.exitCode=1;}

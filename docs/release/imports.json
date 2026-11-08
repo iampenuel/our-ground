@@ -803,5 +803,242 @@
         "withdrawn": 0
       }
     ]
+  },
+  "postal_stage": {
+    "target": "protected-staging",
+    "before": {
+      "db": "postgres",
+      "owner": "postgres",
+      "bytes": 120002227
+    },
+    "after": {
+      "bytes": 122853043
+    },
+    "result": [
+      {
+        "states": {
+          "AK": 205,
+          "AL": 194,
+          "AR": 266,
+          "AS": 7,
+          "AZ": 231,
+          "CA": 2512,
+          "CO": 247,
+          "CT": 427,
+          "DC": 71,
+          "DE": 11,
+          "FL": 634,
+          "GA": 402,
+          "GU": 3,
+          "HI": 103,
+          "IA": 110,
+          "ID": 224,
+          "IL": 486,
+          "IN": 483,
+          "KS": 161,
+          "KY": 604,
+          "LA": 490,
+          "MA": 239,
+          "MD": 151,
+          "ME": 169,
+          "MI": 435,
+          "MN": 90,
+          "MO": 413,
+          "MP": 3,
+          "MS": 287,
+          "MT": 122,
+          "NC": 727,
+          "ND": 29,
+          "NE": 82,
+          "NH": 65,
+          "NJ": 132,
+          "NM": 226,
+          "NV": 60,
+          "NY": 790,
+          "OH": 587,
+          "OK": 192,
+          "OR": 277,
+          "PA": 475,
+          "PR": 120,
+          "RI": 58,
+          "SC": 267,
+          "SD": 39,
+          "TN": 222,
+          "TX": 714,
+          "UT": 52,
+          "VA": 210,
+          "VI": 5,
+          "VT": 86,
+          "WA": 398,
+          "WI": 308,
+          "WV": 498,
+          "WY": 18
+        },
+        "created": 16376,
+        "updated": 0,
+        "accepted": 16417,
+        "category": "healthcare",
+        "checksum": "304c9236787cbed7869ee07eff750e32db4109fa51fe11b77f74c9ed98655c3c",
+        "excluded": 3152,
+        "source_rows": 19569,
+        "marked_stale": 0,
+        "needs_review": 0,
+        "full_snapshot": true,
+        "exclusion_reasons": {
+          "suppressed": 14,
+          "unsupported_state": 429,
+          "mobile_or_nonfixed": 1408,
+          "invalid_coordinates": 1,
+          "not_service_delivery": 1297,
+          "suppressed_or_missing_address": 3
+        },
+        "source_updated_at": "2026-11-06T00:00:00.000Z",
+        "privacy_withdrawals": 0,
+        "already_imported": true,
+        "run_id": "f3392254-1a91-44cc-9123-1e68af9be5af"
+      },
+      {
+        "states": {
+          "WA": 209
+        },
+        "created": 209,
+        "updated": 0,
+        "accepted": 209,
+        "category": "food",
+        "checksum": "99afdfb5fbcb31db83ee12925faab024fb6d08df777fbbe7f4f09ed18e8d2dd9",
+        "excluded": 60,
+        "source_rows": 269,
+        "marked_stale": 0,
+        "needs_review": 0,
+        "full_snapshot": true,
+        "exclusion_reasons": {
+          "inactive": 40,
+          "missing_public_address": 13,
+          "privacy_withdrawal": 4,
+          "coordinate_conflict": 3
+        },
+        "source_updated_at": "2026-09-26T00:53:05.000Z",
+        "coordinate_quality": {
+          "policy": "regional-food-coordinate-anomalies-v2",
+          "city_anomaly_threshold_miles": 20,
+          "address_point_spread_threshold_miles": 1,
+          "reference_source": "census-gazetteer-2026",
+          "reference_fingerprint": "2657bcfcd115bcf580556918af381b6207066272bc4d803e64ca640736b7f041",
+          "checked_records": 212,
+          "quarantined_records": 3,
+          "quarantine_reasons": {
+            "city_representative_distance_over_20_miles": 2,
+            "same_point_conflicting_addresses": 2
+          },
+          "unmatched_city_records": 4,
+          "ambiguous_city_records": 0,
+          "unmatched_record_ids": [
+            "00000000-0000-0000-8B07-6D72921F7507",
+            "00000000-0000-0000-AF14-4ED7E13C47A1",
+            "00000000-0000-0000-A2BC-70C7BABC13B9",
+            "00000000-0000-0000-E00F-155F94DD77C2"
+          ],
+          "quarantined": [
+            {
+              "record_id": "00000000-0000-0000-1605-C3C60A56C786",
+              "reasons": [
+                "same_point_conflicting_addresses"
+              ]
+            },
+            {
+              "record_id": "00000000-0000-0000-447E-987BDFB057BD",
+              "reasons": [
+                "city_representative_distance_over_20_miles"
+              ]
+            },
+            {
+              "record_id": "00000000-0000-0000-476D-38C226D2EA4E",
+              "reasons": [
+                "city_representative_distance_over_20_miles",
+                "same_point_conflicting_addresses"
+              ]
+            }
+          ]
+        },
+        "privacy_withdrawals": 17,
+        "new_coordinate_quarantines": 0,
+        "already_imported": true,
+        "run_id": "10c40a1d-f3f9-4372-a735-2fda1ccda9d2",
+        "privacy_backfilled": 0,
+        "coordinate_quarantines_backfilled": 0
+      },
+      {
+        "states": {
+          "MD": 60
+        },
+        "created": 60,
+        "updated": 0,
+        "accepted": 60,
+        "category": "food",
+        "checksum": "e02a5f96c0e2dbdd0b4f9cd9ad734b642dbe575da76c12307cf221d99569a7b4",
+        "excluded": 12,
+        "source_rows": 167,
+        "marked_stale": 0,
+        "needs_review": 0,
+        "full_snapshot": true,
+        "program_groups": 72,
+        "exclusion_reasons": {
+          "not_food_assistance": 9,
+          "regional_hub_not_walkin": 2,
+          "invalid_coordinates": 1
+        },
+        "source_updated_at": "2026-11-06T14:33:27.000Z",
+        "coordinate_quality": {
+          "policy": "regional-food-coordinate-anomalies-v2",
+          "city_anomaly_threshold_miles": 20,
+          "address_point_spread_threshold_miles": 1,
+          "reference_source": "census-gazetteer-2026",
+          "reference_fingerprint": "a31c4dfb0602efdb83d64eb8662a28306c6e84a8a8a88410ebedfa64f1161642",
+          "checked_records": 60,
+          "quarantined_records": 0,
+          "quarantine_reasons": {},
+          "unmatched_city_records": 8,
+          "ambiguous_city_records": 0,
+          "unmatched_record_ids": [
+            "PGC-224dd8b0aa8aba3eefb74f1a6ffb62dd",
+            "PGC-2874e112c9f2a506d587822121803757",
+            "PGC-6bd4551da76a02de55432a9a20bbc733",
+            "PGC-e0c75f45762ffc40303b2cdb3ea8c027",
+            "PGC-d78a181eb25a602f831e6f88a0e298fe",
+            "PGC-995dab6dcde53dfc32f1105ce98a5dca",
+            "PGC-76f8dc57735643ad2edddaa8f47aefd6",
+            "PGC-c8cd7139e8aff4b389f521a4fa03acfa"
+          ],
+          "quarantined": []
+        },
+        "privacy_withdrawals": 0,
+        "lineage_review_groups": 0,
+        "lineage_privacy_groups": 0,
+        "schedule_rows_coalesced": 95,
+        "new_coordinate_quarantines": 0,
+        "already_imported": true,
+        "run_id": "ddc60f97-2c3a-471a-bcc3-6ed6a434c964",
+        "privacy_backfilled": 0,
+        "coordinate_quarantines_backfilled": 0
+      },
+      {
+        "held": 0,
+        "accepted": 508,
+        "withdrawn": 0,
+        "source_rows": 1368,
+        "exclusion_reasons": {
+          "inactive_or_unknown": 684,
+          "invalid_coordinates": 18,
+          "no_documented_in_person_counseling": 156
+        },
+        "coordinates_outside_state_reference": 2,
+        "already_imported": true
+      },
+      {
+        "source": "census-zcta-2026",
+        "points": 33791,
+        "checksum": "e85e5d6a3df1d4f0655dae4851383b0e8f68579fb0f3f62ef0f11928b70bbda4"
+      }
+    ]
   }
 }

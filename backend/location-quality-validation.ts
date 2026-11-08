@@ -12,7 +12,7 @@ export function validLocationQuality(v:unknown):v is LocationQuality{
  }
  if(v.provider!==undefined){const p=v.provider;if(!object(p)||!fields(p,['confidence','confidenceCityLevel','confidenceStreetLevel','confidenceBuildingLevel','matchType','resultType']))return false;for(const key of ['confidence','confidenceCityLevel','confidenceStreetLevel','confidenceBuildingLevel'])if(p[key]!==undefined&&(typeof p[key]!=='number'||!Number.isFinite(p[key])||Number(p[key])<0||Number(p[key])>1))return false;for(const key of ['matchType','resultType'])if(p[key]!==undefined&&!string(p[key],80))return false;}
  if(v.local!==undefined){const l=v.local;if(!object(l)||!fields(l,['method','similarity','editDistance'])||!['exact','normalized','fuzzy'].includes(String(l.method))||typeof l.similarity!=='number'||!Number.isFinite(l.similarity)||l.similarity<0||l.similarity>1||!Number.isSafeInteger(l.editDistance)||Number(l.editDistance)<0||Number(l.editDistance)>80)return false;}
- if(v.source==='reference'&&(!v.reference||(v.provider&&v.coordinateSource!=='geoapify')||!['city','state'].includes(String(v.precision))||!['canonical_correction','canonical_exact','city_fallback'].includes(String(v.kind))))return false;
+ if(v.source==='reference'&&(!v.reference||(v.provider&&v.coordinateSource!=='geoapify')||!['city','state','postcode'].includes(String(v.precision))||!['canonical_correction','canonical_exact','city_fallback'].includes(String(v.kind))))return false;
  if(v.source==='geoapify'&&(v.reference||v.local||['canonical_correction','canonical_exact'].includes(String(v.kind))))return false;
  return true;
 }
