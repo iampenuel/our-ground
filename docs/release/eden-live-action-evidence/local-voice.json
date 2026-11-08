@@ -1,0 +1,15 @@
+{
+  "scope": "Local Chrome on macOS, using a frozen build of the site. No Gemini or external speech service was called.",
+  "runner": "tests/eden-hosted-voice.browser.mjs with EDEN_NATIVE_OUTPUT=1",
+  "realBrowserChecks": {
+    "microphonePermissionDenied": "Typing remained available. No speech or model request was made.",
+    "microphonePermissionGranted": true,
+    "onDeviceRecognitionSupported": true,
+    "englishPackAtProbe": "downloadable",
+    "explicitlySelectedOSVoicePreview": "Started, stopped, restarted and completed."
+  },
+  "simulatedRecognitionChecks": ["interim text", "final transcript editable before send", "cancel", "restart", "no speech"],
+  "playbackTests": "tests/eden-hosted-playback.test.mjs",
+  "speechTicketTests": "tests/eden-hosted.test.mjs",
+  "limitations": "Physical microphone dictation of a human utterance and subjective voice quality are not verified by this run."
+}

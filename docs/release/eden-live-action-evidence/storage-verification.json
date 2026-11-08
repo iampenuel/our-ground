@@ -1,0 +1,20 @@
+{
+  "checkedAtUTC": "2026-11-08T19:58:47.104898+00:00",
+  "volume": "/Volumes/Penuel Back",
+  "mounted": true,
+  "filesystem": "exfat",
+  "writableProbe": true,
+  "availableGiB": 1828.21,
+  "configuredTimeMachineDestination": false,
+  "timeMachineRunning": false,
+  "backupLikeRootEntries": [
+    "Our Ground Backups",
+    "._Our Ground Backups"
+  ],
+  "probeModeAfterChmod600": "0o700",
+  "symlinkSupported": true,
+  "symlinkProbeErrno": null,
+  "use": "Public verification artifacts only; source, credentials, dependencies and browser executables remain on the internal filesystem.",
+  "run": "/Volumes/Penuel Back/OurGround-Work/runs/2026-11-08-eden-3fbf44a-3045f215",
+  "artifacts": "/Volumes/Penuel Back/OurGround-Work/runs/2026-11-08-eden-3fbf44a-3045f215/artifacts"
+}

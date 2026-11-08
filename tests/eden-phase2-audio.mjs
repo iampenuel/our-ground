@@ -31,6 +31,12 @@ export async function verifyAndSaveHostedSpeech({page,origin,commit,out,displaye
     const media=await response;
     receipt.audioHTTP=media.status();
     const headers=media.headers();
+    if(receipt.audioHTTP!==200){
+      const failure=await media.json().catch(()=>null);
+      const code=failure?.error?.code;
+      receipt.errorCode=typeof code==='string'&&/^[A-Z][A-Z0-9_]{1,63}$/.test(code)?code:null;
+      receipt.retryAfterSeconds=/^\d{1,6}$/.test(headers['retry-after']??'')?Number(headers['retry-after']):null;
+    }
     assert.equal(receipt.audioHTTP,200);
     assert.equal(headers['content-type'],'audio/wav');
     receipt.requestedModel=headers['x-eden-speech-model'];receipt.providerReportedModel=headers['x-eden-speech-provider-model']??null;

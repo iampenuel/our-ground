@@ -1,0 +1,67 @@
+{
+  "origin": "https://ourground-staging-5q2l94t1e-penuels-projects-aa802b06.vercel.app",
+  "assets": [
+    {
+      "path": "/assets/eden/approved-profile/eden-launcher.riv",
+      "status": 200,
+      "magic": "RIVE",
+      "bytes": 104822,
+      "sha256": "11071cf5d472d46cf176b25d2b57d7aeaff34b059f284e647a63f7adf649d963"
+    },
+    {
+      "path": "/assets/eden/rig/eden.riv",
+      "status": 200,
+      "magic": "RIVE",
+      "bytes": 3095566,
+      "sha256": "88ba1d957250db226a6bbc0df94de7767856053d977e459eeba3939607bbad04"
+    }
+  ],
+  "render": {
+    "active": "svg-profile",
+    "sameInstanceAfterOpen": true,
+    "blink": true,
+    "reducedMotion": "approved PNG visible; frame counter stopped",
+    "motionRestored": true
+  },
+  "events": [
+    "idle",
+    "thinking",
+    "success",
+    "idle",
+    "speaking",
+    "idle",
+    "speaking",
+    "idle",
+    "speaking",
+    "idle",
+    "listening",
+    "idle"
+  ],
+  "playback": "real Aoede response, verified displayed text hash, playhead and PCM-driven mouth; stop, cached replay, minimize, completion",
+  "commit": "3fbf44adf2c638da44b1c26bed97a21f2e854ce3",
+  "listening": "native on-device recognition started, canceled, returned to idle; synthetic microphone",
+  "recording": {
+    "frames": 327,
+    "seconds": 18.67
+  },
+  "invocation": {
+    "workingDirectory": "/Users/admin/Documents/Projects/our-ground",
+    "node": "/Users/admin/.nvm/versions/node/v24.22.1/bin/node",
+    "argv": [
+      "--env-file=tmp/eden-recovery/staging/.vercel/.env.development.local",
+      "/private/tmp/og-stage-avatar-aoede-retry.mjs"
+    ],
+    "reproducibleEntry": "tests/eden-character-browser.mjs",
+    "temporaryEntryNote": "Resolved module imports against this checkout and awaited the effective reduced-motion preference before sampling. The repository entry now includes that same wait.",
+    "environment": {
+      "RECOVERY_BASE": "https://ourground-staging-5q2l94t1e-penuels-projects-aa802b06.vercel.app",
+      "RECOVERY_SHA": "3fbf44adf2c638da44b1c26bed97a21f2e854ce3",
+      "EDEN_HEADLESS": "false",
+      "EDEN_MAC_RECOGNIZER_COMPONENTS": "/Users/admin/Library/Application Support/Google/Chrome",
+      "RECOVERY_IMAGES": "/Volumes/Penuel Back/OurGround-Work/runs/2026-11-08-eden-3fbf44a-3045f215/artifacts/staging-voice",
+      "EDEN_CHARACTER_VIDEO": "/Volumes/Penuel Back/OurGround-Work/runs/2026-11-08-eden-3fbf44a-3045f215/artifacts/staging-voice/staging-character-motion.webm"
+    },
+    "browser": "Chrome 157.0.8103.39, 960 x 640 CSS pixels, muted output, synthetic mic, isolated profile with APFS clones of installed English recognition components",
+    "quota": "Second independent attempt, spaced more than five minutes after the original synthesis HTTP 429. One identity response, one successful synthesis, replay from memory."
+  }
+}

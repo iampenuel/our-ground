@@ -101,6 +101,9 @@ try{
   if(!local){assert(report.events.includes('speaking'));}
   await page.locator('[data-minimize]').click();assert(await watch.evaluate(w=>w.svg===document.querySelector('.eden-launch svg')));
   await page.emulateMedia({reducedMotion:'reduce'});
+  // The preference change event is asynchronous in headful Chrome. Measure
+  // the resting image after the application has applied the new preference.
+  await page.waitForFunction(()=>document.querySelector('#eden-assistant').dataset.edenPortrait==='static-reduced'&&!document.querySelector('.eden-launch-portrait img').hidden);
   const still=await watch.evaluate(w=>({frames:w.svg.dataset.profileFrames,img:document.querySelector('.eden-launch-portrait img').hidden}));
   await page.waitForTimeout(350);assert.equal(await watch.evaluate(w=>w.svg.dataset.profileFrames),still.frames);assert.equal(still.img,false);
   report.render.reducedMotion='approved PNG visible; frame counter stopped';

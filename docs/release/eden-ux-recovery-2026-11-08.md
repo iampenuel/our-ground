@@ -1,5 +1,7 @@
 # Eden recovery candidate · November 8, 2026
 
+**Latest implementation:** [Conversational identity, exact Aoede replies, character lifecycle and real action cursor](eden-live-action-recovery-2026-11-08.md), including external storage and final protected evidence.
+
 **Later authentication follow-through:** [Real Google sign-in, session handling and unassigned authorization verification](eden-auth-recovery-2026-11-08.md). The provider-disabled findings below describe the earlier candidate, before the owner completed OAuth setup.
 
 The working checkout started at `04fbdeb` on `codex/national-release-candidate`. Vercel's production project identified deployment `dpl_5BLDMWteSXZ8ju8VVcfXttiUQBiq`; GitHub PR #2 and the release evidence identify its source as `33574bd`. The recovery branch fast-forwarded to `304036a`, which adds the reviewed About copy on top of that deployed code. The separate `ourground-staging` project has deployment protection. No production cutover is part of this work.
@@ -54,4 +56,4 @@ The protected [staging address](https://ourground-staging-git-eden10-penuels-pro
 
 Staging Google sign-in requires the staging Supabase operator to enable Google, configure its OAuth client, and allow the exact protected staging `/auth/callback` URL. Set the matching `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_PUBLISHABLE_KEY`, enable `VITE_GOOGLE_AUTH_ENABLED` in staging Preview, then rebuild and exercise assigned and unassigned nonproduction accounts. The app's existing account-origin allowlists already include the stable staging address. Supabase's redirect allowlist itself was not observable without provider administration access. Do not paste keys into this report.
 
-[All changed files](eden-recovery-files.txt) · [Review the draft PR](https://github.com/iampenuel/our-ground/pull/3/files). The staging build is the application commit above. Subsequent review evidence and QA harness updates do not alter the served application. The character introduction and cursor animation remain deferred.
+[All changed files](eden-recovery-files.txt) · [Review the draft PR](https://github.com/iampenuel/our-ground/pull/3/files). The staging build is the application commit above. Subsequent review evidence and QA harness updates do not alter the served application. Character and cursor work was deferred in this initial pass; see the latest implementation linked above.

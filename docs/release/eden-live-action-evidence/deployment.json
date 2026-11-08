@@ -1,0 +1,17 @@
+{
+  "base": "https://ourground-staging-5q2l94t1e-penuels-projects-aa802b06.vercel.app",
+  "commit": "3fbf44adf2c638da44b1c26bed97a21f2e854ce3",
+  "checks": [
+    {
+      "path": "/",
+      "anonymous": 302
+    },
+    {
+      "path": "/api/v1/eden/hosted/status",
+      "anonymous": 302
+    }
+  ],
+  "assets": 132,
+  "fixture": false,
+  "browserAuthEnabled": true
+}

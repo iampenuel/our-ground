@@ -1,0 +1,181 @@
+{
+  "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "11718df5b6e2c73cbd3cd802feb895294948a935",
+  "scope": "Real protected app and Gemini; injected Google daily speech denial, no synthesis",
+  "status": "PASS",
+  "turns": [
+    {
+      "name": "identity before controlled speech denial",
+      "trace": {
+        "correlationId": "ee00944e-71f0-4ee5-b507-d8294431d90c",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "identity",
+        "outcome": "confirmed"
+      },
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200,
+          "correlation": "872dfa9b-b44d-487a-a2c2-dfcdf9f1b2a8"
+        },
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "ee00944e-71f0-4ee5-b507-d8294431d90c"
+        }
+      ],
+      "reply": "I’m Eden, Our Ground’s AI assistant. I can find nearby food, healthcare, and community support and help you explore a listing."
+    },
+    {
+      "name": "real search and first listing after speech denial",
+      "trace": {
+        "correlationId": "371be19d-9dcc-4521-8682-ab986bc88812",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "details",
+        "outcome": "confirmed"
+      },
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "371be19d-9dcc-4521-8682-ab986bc88812"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "371be19d-9dcc-4521-8682-ab986bc88812"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "371be19d-9dcc-4521-8682-ab986bc88812"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "371be19d-9dcc-4521-8682-ab986bc88812"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "371be19d-9dcc-4521-8682-ab986bc88812"
+        }
+      ],
+      "reply": "The listing details are open. Here is what the listing says: HHC- South Allison Hill. Also, Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified. These are public directory listings, not independently verified operating services."
+    }
+  ],
+  "errors": [],
+  "dailyMessage": "Google has reached a daily voice limit. Wait until that quota resets. You can keep using text or choose an installed device voice in Privacy & voice.",
+  "cursor": [
+    {
+      "phase": "execute",
+      "operationId": "c8b69291-f693-4be6-833c-3025da87a2ce",
+      "correlationId": "371be19d-9dcc-4521-8682-ab986bc88812",
+      "rect": {
+        "x": 746.125,
+        "y": 18,
+        "width": 79.078125,
+        "height": 44
+      },
+      "tip": {
+        "x": 785.5630799233913,
+        "y": 39.8546317666769
+      },
+      "target": {
+        "page": "support"
+      }
+    },
+    {
+      "phase": "execute",
+      "operationId": "769c8e65-5092-49a5-966a-c8e62c628d74",
+      "correlationId": "371be19d-9dcc-4521-8682-ab986bc88812",
+      "rect": {
+        "x": 188,
+        "y": 494.296875,
+        "width": 985.109375,
+        "height": 44
+      },
+      "tip": {
+        "x": 680.453079712391,
+        "y": 516.1546057045459
+      },
+      "target": "location"
+    },
+    {
+      "phase": "execute",
+      "operationId": "674f9d6b-25be-4908-aef6-e636c9790f4d",
+      "correlationId": "371be19d-9dcc-4521-8682-ab986bc88812",
+      "rect": {
+        "x": 225.5625,
+        "y": 677.984375,
+        "width": 108.171875,
+        "height": 44.390625
+      },
+      "tip": {
+        "x": 279.5530771493912,
+        "y": 700.0346233963967
+      },
+      "target": {
+        "category": "healthcare"
+      }
+    },
+    {
+      "phase": "execute",
+      "operationId": "92aa7387-a5f4-40c5-a19e-3a2897009929",
+      "correlationId": "371be19d-9dcc-4521-8682-ab986bc88812",
+      "rect": {
+        "x": 593.765625,
+        "y": 678.171875,
+        "width": 142,
+        "height": 44
+      },
+      "tip": {
+        "x": 664.6731286406517,
+        "y": 700.0246448457241
+      },
+      "target": "radius"
+    },
+    {
+      "phase": "execute",
+      "operationId": "f9efce64-022e-4757-8735-b54afd05e268",
+      "correlationId": "371be19d-9dcc-4521-8682-ab986bc88812",
+      "rect": {
+        "x": 1198.109375,
+        "y": 492.109375,
+        "width": 94.890625,
+        "height": 48
+      },
+      "tip": {
+        "x": 1245.4531798362732,
+        "y": 515.9646165370941
+      },
+      "target": "submit"
+    },
+    {
+      "phase": "execute",
+      "operationId": "ad0def90-be26-426e-ae1c-129c5019d1a9",
+      "correlationId": "371be19d-9dcc-4521-8682-ab986bc88812",
+      "rect": {
+        "x": 158,
+        "y": 497.96875,
+        "width": 139.859375,
+        "height": 25.59375
+      },
+      "tip": {
+        "x": 227.8330779671669,
+        "y": 510.62463441491127
+      },
+      "target": {
+        "operation": "details",
+        "isFirstVisibleListing": true
+      }
+    }
+  ],
+  "realListingOpened": true,
+  "speechRequests": 1,
+  "deviceFallbackCalls": 0
+}

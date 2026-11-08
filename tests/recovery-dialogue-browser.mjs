@@ -9,10 +9,15 @@ import {recordBrowser} from './browser-screencast.mjs';
 const base=new URL(process.env.RECOVERY_BASE).origin,sha=process.env.RECOVERY_SHA;
 assert(/^[a-f0-9]{40}$/.test(sha));
 const out=process.env.RECOVERY_IMAGES??'docs/release/eden-next-verification';await mkdir(out,{recursive:true});
-const report={base,sha,steps:[],errors:[],status:'FAIL'};
+const captureOnly=process.env.RECOVERY_DIALOGUE_CAPTURE_ONLY==='1',record=process.env.RECOVERY_DIALOGUE_RECORD==='1';
+if(captureOnly)assert(record,'Capture-only requires a real browser recording');
+const receiptName=captureOnly?'dialogue-cursor-capture.json':'dialogue.json';
+const report={base,sha,scope:captureOnly?'compound-recording':'dialogue',steps:[],errors:[],status:'FAIL'};
 const browser=await chromium.launch({channel:'chrome',args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 try{
- const p=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce'});p.setDefaultTimeout(45000);
+ // recordBrowser encodes in an isolated blank page within this explicit context.
+ const context=await browser.newContext({viewport:{width:1440,height:900},reducedMotion:'reduce'});
+ const p=await context.newPage();p.setDefaultTimeout(45000);
  await protectRecoveryOrigin(p,base,process.env.VERCEL_OIDC_TOKEN);
  p.on('pageerror',e=>report.errors.push(e.name));
  const requests=[];
@@ -23,7 +28,7 @@ try{
  await p.goto(base+'/?edenDiagnostics=1');
  const proof=await p.evaluate(async()=>(await(await fetch('/ourground-build-evidence.json')).json()).source_commit);
  assert.equal(proof,sha);
- await p.locator('.eden-launch').click();
+ if(!captureOnly)await p.locator('.eden-launch').click();
  const answers=p.locator('.eden-message[aria-label="Eden"]'),draft=p.locator('#eden-command');
  let started=0;
  async function ask(name,input){
@@ -48,27 +53,28 @@ try{
    assert.match(step.trace.model,/^gemini-[a-z0-9.-]+$/);
    assert(step.requests.filter(r=>r.endpoint!=='session').every(r=>r.status===200&&r.correlation===step.trace.correlationId));
    step.reply=await answers.last().innerText();
-   await writeFile(join(out,'dialogue.json'),JSON.stringify(report,null,2)+'\n');
+   await writeFile(join(out,receiptName),JSON.stringify(report,null,2)+'\n');
    console.log(JSON.stringify({name,provider:step.trace.provider,action:step.trace.proposedAction,outcome:step.trace.outcome}));
    return step;
  }
- for(const [name,input,topic] of [
-   ['identity','Who are you?','identity'],['introduction','Give me an intro of who you are.','identity'],
-   ['correction','I meant introduce yourself, not the donation page.','identity'],['capabilities','What can you actually help me do?','capabilities'],
- ]){
-   const step=await ask(name,input);assert.equal(step.route,'/');assert.equal(step.trace.proposedAction,topic);
-   assert.equal(step.trace.output,'model-approved-facts');assert.match(step.reply,topic==='identity'?/Eden.*Our Ground.*assistant/:/public directory|explore a listing|show results/i);
-   assert(step.requests.some(r=>r.endpoint==='understand')&&!step.requests.some(r=>r.endpoint==='plan'));
+ if(!captureOnly){
+   for(const [name,input,topic] of [
+     ['identity','Who are you?','identity'],['introduction','Give me an intro of who you are.','identity'],
+     ['correction','I meant introduce yourself, not the donation page.','identity'],['capabilities','What can you actually help me do?','capabilities'],
+   ]){
+     const step=await ask(name,input);assert.equal(step.route,'/');assert.equal(step.trace.proposedAction,topic);
+     assert.equal(step.trace.output,'model-approved-facts');assert.match(step.reply,topic==='identity'?/Eden.*Our Ground.*assistant/:/public directory|explore a listing|show results/i);
+     assert(step.requests.some(r=>r.endpoint==='understand')&&!step.requests.some(r=>r.endpoint==='plan'));
+   }
+   const search=await ask('healthcare search','Find healthcare in Harrisburg.');assert.equal(search.route,'/support');
+   assert.equal(await p.locator('#locationInput').inputValue(),'Harrisburg, PA');
+   const first=p.locator('[data-card-key^="directory:"]').first(),title=(await first.locator('.discovery-select > span:not([class])').innerText()).trim();
+   const detail=await ask('first visible result','Show me the first result.');assert.equal(detail.trace.proposedAction,'details');assert(detail.reply.includes(title));
+   assert(await p.locator('[data-resource-content]:visible').count()>0);
+   const back=await ask('return to map','Go back and show the map.');assert.equal(back.trace.proposedAction,'back-to-map');
+   assert.equal(await p.locator('[data-resource-content]:visible').count(),0);
+   assert.equal(await p.locator('#showSupportMap').getAttribute('aria-expanded'),'true');
  }
- const search=await ask('healthcare search','Find healthcare in Harrisburg.');assert.equal(search.route,'/support');
- assert.equal(await p.locator('#locationInput').inputValue(),'Harrisburg, PA');
- const first=p.locator('[data-card-key^="directory:"]').first(),title=(await first.locator('.discovery-select > span:not([class])').innerText()).trim();
- const detail=await ask('first visible result','Show me the first result.');assert.equal(detail.trace.proposedAction,'details');assert(detail.reply.includes(title));
- assert(await p.locator('[data-resource-content]:visible').count()>0);
- const back=await ask('return to map','Go back and show the map.');assert.equal(back.trace.proposedAction,'back-to-map');
- assert.equal(await p.locator('[data-resource-content]:visible').count(),0);
- assert.equal(await p.locator('#showSupportMap').getAttribute('aria-expanded'),'true');
- const record=process.env.RECOVERY_DIALOGUE_RECORD==='1';
  if(process.env.RECOVERY_DIALOGUE_COMPOUND==='1'||record){
    // Start at the actual home document. Consent survives this reload while chat
    // memory, selection and diagnostic are cleared. Only this one compound turn
@@ -98,8 +104,12 @@ try{
      both=await ask('search then open verified row','Find healthcare in Harrisburg and show me the first result.');
    }finally{
      events=await p.evaluate(()=>window.__edenCursorProof);
-     if(capture)recording=await capture.save(join(out,'staging-cursor-search.webm'));
-     await writeFile(join(out,'staging-cursor-search.json'),JSON.stringify({base,sha,recording,events},null,2)+'\n');
+     const tracePath=join(out,'staging-cursor-search.json');
+     await writeFile(tracePath,JSON.stringify({base,sha,events},null,2)+'\n');
+     if(capture){
+       recording=await capture.save(join(out,'staging-cursor-search.webm'));
+       await writeFile(tracePath,JSON.stringify({base,sha,recording,events},null,2)+'\n');
+     }
    }
    assert.equal(both.trace.proposedAction,'details');assert.equal(both.route,'/support');
    const opened=p.locator('[data-card-key^="directory:"]').first();
@@ -120,4 +130,4 @@ try{
  }
  assert.deepEqual(report.errors,[]);report.status='PASS';
 }catch(e){process.exitCode=1;report.failure=String(e?.message??e).slice(0,480);}
-finally{await writeFile(join(out,'dialogue.json'),JSON.stringify(report,null,2)+'\n');await browser.close();console.log(report.failure??'PASS: protected conversational acceptance');}
+finally{await writeFile(join(out,receiptName),JSON.stringify(report,null,2)+'\n');await browser.close();console.log(report.failure??'PASS: protected conversational acceptance');}

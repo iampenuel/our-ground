@@ -1,0 +1,42 @@
+{
+  "origin": "http://127.0.0.1:4291",
+  "assets": [
+    {
+      "path": "/assets/eden/approved-profile/eden-launcher.riv",
+      "status": 200,
+      "magic": "RIVE",
+      "bytes": 104822,
+      "sha256": "11071cf5d472d46cf176b25d2b57d7aeaff34b059f284e647a63f7adf649d963"
+    },
+    {
+      "path": "/assets/eden/rig/eden.riv",
+      "status": 200,
+      "magic": "RIVE",
+      "bytes": 3095566,
+      "sha256": "88ba1d957250db226a6bbc0df94de7767856053d977e459eeba3939607bbad04"
+    }
+  ],
+  "render": {
+    "active": "svg-profile",
+    "sameInstanceAfterOpen": true,
+    "blink": true,
+    "reducedMotion": "approved PNG visible; frame counter stopped",
+    "motionRestored": true
+  },
+  "events": [
+    "idle",
+    "thinking",
+    "searching",
+    "success",
+    "idle",
+    "listening",
+    "idle"
+  ],
+  "playback": "not exercised",
+  "commit": null,
+  "listening": "native on-device recognition started, canceled, returned to idle; synthetic microphone",
+  "recording": {
+    "frames": 97,
+    "seconds": 6.48
+  }
+}

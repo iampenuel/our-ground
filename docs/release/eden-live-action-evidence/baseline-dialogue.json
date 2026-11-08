@@ -1,0 +1,133 @@
+{
+  "base": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "86cd4eece01ba8252c28c151af3e73a8f063dfca",
+  "scope": "Original deployed runtime before conversational fixes",
+  "turns": [
+    {
+      "prompt": "Who are you?",
+      "reply": "Would you like to find support, give support, or learn about organizations?",
+      "state": "",
+      "route": "/",
+      "openDetails": 0,
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200
+        },
+        {
+          "endpoint": "understand",
+          "status": 200
+        }
+      ],
+      "origin": "Gemini conversation selection"
+    },
+    {
+      "prompt": "Give me an intro of who you are.",
+      "reply": "The page is open. Here are the confirmed details: Give Support links to official food bank resources for volunteering, giving goods and financial support.",
+      "state": "",
+      "route": "/give",
+      "openDetails": 0,
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200
+        },
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 200
+        }
+      ],
+      "origin": "Gemini tool plan + verified-result composition"
+    },
+    {
+      "prompt": "I meant introduce yourself, not the donation page.",
+      "reply": "Which city and state should I search? Please enter just the place you want.",
+      "state": "",
+      "route": "/give",
+      "openDetails": 0,
+      "requests": [],
+      "origin": "deterministic application response"
+    },
+    {
+      "prompt": "What can you actually help me do?",
+      "reply": "You can search for resources or ask about listed results.",
+      "state": "",
+      "route": "/give",
+      "openDetails": 0,
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200
+        },
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 200
+        }
+      ],
+      "origin": "Gemini tool plan + verified-result composition"
+    },
+    {
+      "prompt": "Find healthcare in Harrisburg.",
+      "reply": "Your search is ready. 6 matching directory listings within the search distance. These are public directory listings, not independently verified operating services. Also, HHC- South Allison Hill.",
+      "state": "",
+      "route": "/support",
+      "openDetails": 0,
+      "requests": [
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 200
+        }
+      ],
+      "origin": "Gemini tool plan + verified-result composition"
+    },
+    {
+      "prompt": "Show me the first result.",
+      "reply": "The listing details are open. For the selected result, HHC- South Allison Hill. Also, Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified. Also, These are public directory listings, not independently verified operating services.",
+      "state": "",
+      "route": "/support",
+      "openDetails": 1,
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200
+        },
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 200
+        }
+      ],
+      "origin": "Gemini tool plan + verified-result composition"
+    },
+    {
+      "prompt": "Go back and show the map.",
+      "reply": "The map is open.",
+      "state": "",
+      "route": "/support",
+      "openDetails": 1,
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200
+        }
+      ],
+      "origin": "Gemini conversation selection"
+    }
+  ],
+  "errors": []
+}

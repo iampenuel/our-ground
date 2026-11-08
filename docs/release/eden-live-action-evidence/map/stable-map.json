@@ -1,0 +1,30 @@
+{
+  "utc": "2026-11-08T20:01:58.585Z",
+  "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "expected": "3fbf44adf2c638da44b1c26bed97a21f2e854ce3",
+  "commit": "3fbf44adf2c638da44b1c26bed97a21f2e854ce3",
+  "anonymous": {
+    "status": 302,
+    "redirectHost": "vercel.com"
+  },
+  "style": [
+    {
+      "status": 200,
+      "version": 8,
+      "layers": 112,
+      "vectorSources": 1
+    }
+  ],
+  "vectorResponses": {
+    "200": 8
+  },
+  "failedProviderRequests": 0,
+  "search": "6 matching records near Harrisburg, PA.",
+  "markers": 6,
+  "selection": true,
+  "openedDetail": true,
+  "status": "PASS",
+  "proofHTTP": 200,
+  "selectedTitle": "HHC- South Allison Hill",
+  "publicResourceId": "828e4d8a-d5d7-5527-a75c-2a6f10027a56"
+}

@@ -1,0 +1,90 @@
+{
+  "sourceCommit": "11718df5b6e2c73cbd3cd802feb895294948a935",
+  "suite": {
+    "tests": 743,
+    "passed": 743,
+    "failed": 0,
+    "skipped": 0,
+    "logSha256": "680f0dd79e7faebfdcce4417c3b427c591cfcbb2ddb66d7719943257cec408a3"
+  },
+  "typechecks": {
+    "frontend": "PASS",
+    "backend": "PASS"
+  },
+  "build": "PASS",
+  "secretScans": {
+    "stagedChanges": {
+      "files": 12,
+      "status": "PASS"
+    },
+    "cleanCheckoutSource": {
+      "files": 771,
+      "status": "PASS"
+    },
+    "cleanCheckoutSourceAndBundle": {
+      "files": 841,
+      "status": "PASS"
+    },
+    "unrelatedUntrackedFile": "A workspace-wide scan stalled reading an unrelated untracked document. That process was stopped; the file was untouched. Exact staged changes and the clean release checkout were scanned successfully."
+  },
+  "localCursor": {
+    "status": "PASS",
+    "scope": "Local directory fixture; real action engine and installed ReactDrops",
+    "views": [
+      {
+        "view": "desktop",
+        "executed": 6,
+        "singleSearch": true,
+        "coordinateChecks": true,
+        "safety": true,
+        "errors": []
+      },
+      {
+        "view": "mobile",
+        "executed": 6,
+        "singleSearch": true,
+        "coordinateChecks": true,
+        "safety": true,
+        "errors": []
+      },
+      {
+        "view": "narrow-reduced",
+        "executed": 6,
+        "singleSearch": true,
+        "coordinateChecks": false,
+        "safety": true,
+        "errors": []
+      },
+      {
+        "view": "short",
+        "executed": 6,
+        "singleSearch": true,
+        "coordinateChecks": true,
+        "safety": true,
+        "errors": []
+      }
+    ]
+  },
+  "ci": [
+    {
+      "status": "PASS",
+      "url": "https://github.com/iampenuel/our-ground/actions/runs/42520058276"
+    },
+    {
+      "status": "PASS",
+      "url": "https://github.com/iampenuel/our-ground/actions/runs/42520054124"
+    }
+  ],
+  "production": {
+    "deployment": "dpl_5BLDMWteSXZ8ju8VVcfXttiUQBiq",
+    "sourceCommit": "33574bd80666d67a26a0765bf42a72fa5627fc7f",
+    "unchanged": true
+  },
+  "pr": {
+    "number": 3,
+    "state": "OPEN",
+    "draft": true,
+    "mergedAt": null
+  },
+  "noNewProviderSynthesis": true
+}

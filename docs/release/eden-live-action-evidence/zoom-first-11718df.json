@@ -1,0 +1,7 @@
+{
+  "sourceCommit": "11718df5b6e2c73cbd3cd802feb895294948a935",
+  "status": "FAIL",
+  "scope": "Actual 200% Chrome zoom, local directory fixture; no model calls",
+  "observed": "Safe action abort: The interface moved. Please try again. during first listing details after successful search. No clipping acceptance claimed for this attempted run.",
+  "diagnostic": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\npage.evaluate: Error: The interface moved. Please try again.\n    at performEdenVisibleAction (http://127.0.0.1:4297/src/eden/visible-action.ts:120:30)\n    at async Object.execute (http://127.0.0.1:4297/src/support-page.ts:1579:6)\n    at async <anonymous>:381:23\n    at /Users/admin/Documents/Projects/our-ground/tests/eden-actual-zoom.browser.mjs:61:25 {\n  log: []\n}\n\nNode.js v24.22.1\n"
+}
