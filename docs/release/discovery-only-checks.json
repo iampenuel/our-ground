@@ -1,0 +1,118 @@
+{
+  "commit": "568a383f9f1ebf8f5b27d651e6ac6ad70a09f68e",
+  "deployment_id": "dpl_DD7rhry8nJ1onRjgRB7BDr4pYxST",
+  "project": "ourground",
+  "url": "https://ourground-lqsz7qvlk-penuels-projects-aa802b06.vercel.app",
+  "production_aliases": [],
+  "anonymous_candidate_health": 302,
+  "anonymous_public_health": 200,
+  "current_public_and_rollback_id": "dpl_HDGZQZYaJXyu5KK54NyJiNi4nTv4",
+  "manifest_matches_prebuilt": true,
+  "verified_assets": 128,
+  "application": {
+    "source_commit": "568a383f9f1ebf8f5b27d651e6ac6ad70a09f68e",
+    "candidate": "https://ourground-lqsz7qvlk-penuels-projects-aa802b06.vercel.app",
+    "http": [
+      {
+        "path": "/ourground-build-evidence.json",
+        "status": 200,
+        "error": null
+      },
+      {
+        "path": "/api/v1/resources/000957b0-8d1d-575b-8a24-8af7749dd55b",
+        "status": 200,
+        "error": null
+      },
+      {
+        "path": "/api/v1/correction-reports",
+        "status": 403,
+        "error": "CORRECTIONS_CLOSED"
+      },
+      {
+        "path": "/api/index?path=correction-reports",
+        "status": 403,
+        "error": "CORRECTIONS_CLOSED"
+      },
+      {
+        "path": "/api/v1/eden/session",
+        "status": 403,
+        "error": "EDEN_DISABLED"
+      },
+      {
+        "path": "/api/v1/eden/live/token",
+        "status": 403,
+        "error": "EDEN_DISABLED"
+      },
+      {
+        "path": "/api/v1/eden/speech",
+        "status": 403,
+        "error": "EDEN_DISABLED"
+      }
+    ],
+    "before": {
+      "reports": 0,
+      "published_services": 17518,
+      "active_source_holds": 34,
+      "holds_checksum": "14588ffc036c25d655e7c2f4f1aaa32c"
+    },
+    "after": {
+      "reports": 0,
+      "published_services": 17518,
+      "active_source_holds": 34,
+      "holds_checksum": "14588ffc036c25d655e7c2f4f1aaa32c"
+    },
+    "verified_at": "2026-11-08T04:37:59.406837+00:00"
+  },
+  "browser": {
+    "desktop": {
+      "origin": "https://ourground-lqsz7qvlk-penuels-projects-aa802b06.vercel.app",
+      "zip": "96813",
+      "category": "healthcare",
+      "visible_directory_cards": 20,
+      "search": true,
+      "details": true,
+      "map": true,
+      "map_pins": 40,
+      "vector_tile_bytes": 18823,
+      "provider": {
+        "style_200": 1,
+        "asset_200": 3,
+        "tile_200": 11
+      },
+      "public_pages": [
+        "/",
+        "/organizations",
+        "/about",
+        "/privacy"
+      ],
+      "input": "mouse"
+    },
+    "mobile": {
+      "origin": "https://ourground-lqsz7qvlk-penuels-projects-aa802b06.vercel.app",
+      "zip": "19104",
+      "category": "food",
+      "visible_directory_cards": 20,
+      "search": true,
+      "details": true,
+      "map": true,
+      "map_pins": 38,
+      "vector_tile_bytes": 202218,
+      "provider": {
+        "style_200": 1,
+        "asset_200": 3,
+        "tile_200": 4
+      },
+      "public_pages": [
+        "/",
+        "/organizations",
+        "/about",
+        "/privacy"
+      ],
+      "input": "touch"
+    }
+  },
+  "github_workflow": "https://github.com/iampenuel/our-ground/actions/runs/42447321186",
+  "geoapify_candidate_origin": "https://ourground-lqsz7qvlk-penuels-projects-aa802b06.vercel.app",
+  "geoapify_candidate_referer": "https://ourground-lqsz7qvlk-penuels-projects-aa802b06.vercel.app/",
+  "release_authorized": false
+}
