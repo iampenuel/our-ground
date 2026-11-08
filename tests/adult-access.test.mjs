@@ -44,7 +44,7 @@ test('protected staging serves discovery and OAuth independently of Eden; privat
  for(const cfg of [{...stage,VERCEL_ENV:'production'},{...stage,VERCEL_PROJECT_ID:'unknown'}])assert.match(await (await adultGate(req('/support'),cfg)).text(),/For adults 19 and older/);
 });
 test('a conflicting path parameter cannot disguise a private API route',async()=>{
- const {publicApiRoute}=await import('../backend/adult-access.ts');
+ const {publicApiRoute}=await import('../backend/api-route.ts');
  for(const path of ['/api/v1/correction-reports?path=resources/search','/api/index?path=/correction-reports/']) {
   assert.equal(publicApiRoute(new URL(origin+path)),'correction-reports');
   assert.equal((await adultGate(req(path,{method:'POST'}),{...config,localDirectory:true})).status,403);

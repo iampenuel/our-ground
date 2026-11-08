@@ -32,7 +32,11 @@ try{
  if(await open.count()){await open.click();await page.waitForFunction(()=>new URLSearchParams(location.search).has('resource')||location.pathname.startsWith('/resources/'));await page.goBack();await q.waitFor();report.checks.listingHistory=true;}
  await page.locator('.eden-launch').click();
  const draft=page.locator('#eden-command'),answers=page.locator('.eden-message[aria-label="Eden"]');
+ let lastTurn=0;
  async function send(text){
+  // Two model calls can serve one action. Stay within the existing provider budget.
+  if(process.env.RECOVERY_LIVE_AI==='1' && lastTurn)await new Promise(resolve=>setTimeout(resolve,Math.max(0,17000-(Date.now()-lastTurn))));
+  lastTurn=Date.now();
   const count=await answers.count();await draft.fill(text);await draft.press('Enter');
   if(await page.locator('.eden-consent').isVisible()){
    const boxes=page.locator('.eden-consent input:visible');

@@ -1,3 +1,4 @@
+import {publicApiRoute} from './api-route.ts';
 import { EDEN_CITIES } from '../shared/eden-assistant.ts';
 import type { DirectoryCityLookup } from './directory-city.ts';
 import type {createEdenService} from './eden-api.ts';
@@ -89,19 +90,18 @@ async function handleApiInternal(request: Request, deps: Dependencies,requestId:
   try {
     const url = new URL(request.url);
     if(url.href.length>4096)fail(414,'URI_TOO_LONG','The request address is too long.');
-    const edenPath='/' + (url.searchParams.get('path') ?? url.pathname.replace(/^\/api\/v1\/?/, '')).replace(/^\/+|\/+$/g, '');
+    const path='/'+publicApiRoute(url);
     // EDEN applies its own stricter, exact loopback Origin gate. It never uses
     // account credentials or the broader application account Origin allowlist.
-    if(edenPath.startsWith('/eden/')){
-      if(deps.eden)return deps.eden.handle(request,edenPath);
-      const status=edenPath==='/eden/status'&&request.method==='GET';
+    if(path.startsWith('/eden/')){
+      if(deps.eden)return deps.eden.handle(request,path);
+      const status=path==='/eden/status'&&request.method==='GET';
       return new Response(JSON.stringify(status?{mode:'disabled',engine:'local',publicGeminiEnabled:false,configured:false,eligible:false,speechAvailable:false,noticeVersion:EDEN_NOTICE_VERSION,reason:'local-fallback'}:{error:{code:'EDEN_DISABLED',message:'Gemini is unavailable. Continue with the local guide.'}}),{status:status?200:403,headers:{'Content-Type':'application/json','Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
     }
     if(!['GET','HEAD','OPTIONS'].includes(request.method.toUpperCase())){
       const origin=request.headers.get('origin');
       if(origin&&origin!==url.origin&&!deps.allowedOrigins?.has(origin)&&!deps.organizations?.allowedOrigins.has(origin))fail(403,'ORIGIN_DENIED','Use this action from Our Ground.');
     }
-    const path = '/' + (url.searchParams.get('path') ?? url.pathname.replace(/^\/api\/v1\/?/, '')).replace(/^\/+|\/+$/g, '');
     const method = request.method.toUpperCase();
     if(path.startsWith('/locations/'))return await handleLocationSearch(request,path,deps.locations??createLocationSearch({env:{}}),deps.publicProtection);
     if (path.startsWith('/org/')) return handleOrganization(request,path,deps.organizations);

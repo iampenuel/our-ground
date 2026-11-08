@@ -1,6 +1,7 @@
 import {createHostedEden} from '../backend/eden-hosted.ts';
 import {handleApi} from '../backend/app.ts';
-import {adultGate,publicApiRoute} from '../backend/adult-access.ts';
+import {publicApiRoute} from '../backend/api-route.ts';
+import {adultGate} from '../backend/adult-access.ts';
 import {redis} from '../backend/hosted-store.ts';
 import {productionDependencies} from '../backend/runtime.ts';
 const deps=productionDependencies();

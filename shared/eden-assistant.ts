@@ -5,7 +5,7 @@
 import {usStates} from './us-location.ts';
 import {EDEN_PUBLIC_PAGES,isEdenPublicDestination} from './eden-public-pages.ts';
 import type {EdenPublicDestination,EdenPublicPage} from './eden-public-pages.ts';
-export const EDEN_NOTICE_VERSION = 'eden-live-local-2026-11-07';
+export const EDEN_NOTICE_VERSION = 'eden-public-conversation-2026-11-08';
 export const EDEN_MAX_COMMAND_LENGTH = 240;
 export const EDEN_RADII = [5, 10, 25, 50] as const;
 export type EdenRadius = typeof EDEN_RADII[number];

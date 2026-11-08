@@ -1,3 +1,4 @@
+import {publicApiRoute} from './api-route.ts';
 // A host-bound signed session records a self-declared age threshold only.
 const cookieName='__Host-og-audience';
 const maxSeconds=8*3600;
@@ -54,12 +55,6 @@ async function form(request:Request){
   const parts:Uint8Array[]=[];let size=0;
   while(true){const r=await reader.read();if(r.done)break;size+=r.value.length;if(size>2048){await reader.cancel();return null;}parts.push(r.value);}
   return new URLSearchParams(await new Blob(parts as BlobPart[]).text());
-}
-// Resolve API rewrites once for both admission and dispatch. A visitor cannot
-// change a /v1 endpoint by appending a conflicting ?path query parameter.
-export function publicApiRoute(url:URL){
-  const path=/^\/api\/index(?:\.ts)?\/?$/.test(url.pathname)?url.searchParams.get('path')??'':url.pathname.replace(/^\/api\/v1\/?/,'');
-  return path.replace(/^\/+|\/+$/g,'');
 }
 export async function adultGate(request:Request,config:Config):Promise<Response|null>{
   const url=new URL(request.url);
