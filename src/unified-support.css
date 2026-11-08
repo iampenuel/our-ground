@@ -183,3 +183,6 @@
 
 /* Keep the canvas keyboard ring inside its clipped map frame. */
 .unified-support .maplibregl-canvas:focus-visible { outline-offset: -3px; }
+
+.location-selected-quality summary { cursor: pointer; color: var(--forest, #254839); font-weight: 600; padding-block: .35rem; }
+.location-selected-quality .location-quality-body { padding-block: .25rem; }

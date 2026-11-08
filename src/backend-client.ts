@@ -1,4 +1,4 @@
-import { exactAuthOrigins, googleCallbackCode, googleOAuthOptions, loopbackUrl, validAuthConfiguration, withoutProviderCredentials } from '../shared/auth-security';
+import { exactAuthOrigins, googleCallbackCode, googleOAuthOptions, loopbackUrl, validGoogleFlowId, validAuthConfiguration, withoutProviderCredentials } from '../shared/auth-security';
 import type { PendingGoogle } from '../shared/auth-security';
 import { createClient, type AuthChangeEvent, type Session, type SupabaseClient } from '@supabase/supabase-js';
 import { apiRequest, BackendError } from './api-client';
@@ -35,15 +35,20 @@ export async function verifyEmailCode(email: string, code: string): Promise<void
   const { data, error } = await authClient().auth.verifyOtp({ email: email.trim(), token: code.trim(), type: 'email' });
   if (error || !data.session || !data.user?.email_confirmed_at) throw new Error('That code could not be verified or has expired. Request a new code and try again.');
 }
-export async function signInWithGoogle():Promise<void> {
+export async function signInWithGoogle(requestAccess = false):Promise<void> {
   if(!isGoogleSignInConfigured())throw new Error('Google sign-in is not configured for this address.');
-  const pending:PendingGoogle={origin:window.location.origin,startedAt:Date.now(),nonce:crypto.randomUUID()};
-  window.sessionStorage.setItem(pendingGoogleKey,JSON.stringify(pending));
   try {
     const {data,error}=await authClient().auth.signInWithOAuth(googleOAuthOptions(window.location.origin,exactAuthOrigins(import.meta.env.VITE_ACCOUNT_ALLOWED_ORIGINS),isGoogleSignInConfigured()));
-    if(error||!data.url)throw new Error('Could not begin Google sign-in.');
+    if(error||!data.url||!validGoogleFlowId(data.flowId))throw new Error('Could not begin Google sign-in.');
     const target=new URL(data.url),authOrigin=new URL(import.meta.env.VITE_SUPABASE_URL).origin;
     if(target.origin!==authOrigin||target.pathname!=='/auth/v1/authorize'||target.searchParams.get('provider')!=='google'||target.searchParams.get('redirect_to')!==window.location.origin+'/auth/callback'||target.searchParams.get('code_challenge_method')!=='s256'||!target.searchParams.get('code_challenge'))throw new Error('The sign-in destination could not be verified.');
+    // The SDK stores verifiers for all tabs in localStorage. Keep this tab's
+    // specific flow ID out of the URL and use it for the matching exchange.
+    const pending: PendingGoogle = {
+      origin: window.location.origin, startedAt: Date.now(), nonce: crypto.randomUUID(),
+      flowId: data.flowId, requestAccess,
+    };
+    window.sessionStorage.setItem(pendingGoogleKey, JSON.stringify(pending));
     window.location.assign(target.href);
   } catch { window.sessionStorage.removeItem(pendingGoogleKey);throw new Error('Google sign-in could not be started. Please try again.'); }
 }
@@ -62,7 +67,11 @@ export async function finishAuthCallback(): Promise<void> {
   try { code=googleCallbackCode(url,pending,isGoogleSignInConfigured()); }
   catch { throw new Error('This sign-in request is invalid, expired, or was opened in another browser. Start sign-in again.'); }
   if(!code)return;
-  try { const {error}=await authClient().auth.exchangeCodeForSession(code);if(error)throw error; }
+  try {
+    const {data, error} = await authClient().auth.exchangeCodeForSession(code, pending?.flowId ? {flowId:pending.flowId} : undefined);
+    if (error || !data.session) throw new Error('Missing session');
+    if (pending?.requestAccess === true) window.history.replaceState(null, '', '/account?intent=request');
+  }
   catch { throw new Error('This sign-in request is invalid or expired. Start sign-in again.'); }
 }
 export async function signOutAccount(): Promise<void> {
@@ -86,4 +95,17 @@ export function onSessionChange(listener: (event: AuthChangeEvent, session: Sess
     queueMicrotask(() => { if (active) listener(event, session); });
   });
   return () => { active = false; data.subscription.unsubscribe(); };
+}
+
+/** A different account may sign in in a second tab without a SIGNED_OUT event. */
+export function onAccountIdentityChange(listener: (signedIn: boolean) => void): () => void {
+  let lastUser: string | null | undefined;
+  return onSessionChange((event, session) => {
+    const user = session?.user.id ?? null;
+    const changed = lastUser !== undefined && user !== lastUser;
+    lastUser = user;
+    if (changed || event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
+      listener(user !== null);
+    }
+  });
 }

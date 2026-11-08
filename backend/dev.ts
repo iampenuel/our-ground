@@ -1,3 +1,6 @@
+import { randomBytes } from 'node:crypto';
+import { adultGate } from './adult-access.ts';
+import { createHostedEden } from './eden-hosted.ts';
 import { createServer } from 'node:http';
 import { handleApi } from './app.ts';
 import { productionDependencies } from './runtime.ts';
@@ -8,6 +11,8 @@ if (process.argv.includes('--demo')) {
   process.env.ALLOW_DEMO_DATA = 'true';
 }
 const deps = productionDependencies();
+const localAudience={ADULT_SESSION_SECRET:randomBytes(32).toString('base64url'),localDirectory:true};
+const hosted=createHostedEden(deps,{...process.env,ADULT_SESSION_SECRET:localAudience.ADULT_SESSION_SECRET});
 const port = Number(process.env.API_PORT ?? 8787);
 const server = createServer(async (incoming, outgoing) => {
   const controller = new AbortController();
@@ -38,7 +43,10 @@ const server = createServer(async (incoming, outgoing) => {
     body: incoming.method === 'GET' || incoming.method === 'HEAD' ? undefined : body
   });
   attestLocalDevelopmentRequest(request, server, incoming.socket);
-  const response = await handleApi(request, deps);
+  const path=new URL(request.url).pathname;
+  const response=path==='/eligibility' || path.startsWith('/api/v1/eden/hosted/')
+    ? await adultGate(request,localAudience) ?? await hosted(request,path.slice('/api/v1/eden/hosted/'.length))
+    : await handleApi(request,deps);
   outgoing.writeHead(response.status, Object.fromEntries(response.headers));
   outgoing.end(Buffer.from(await response.arrayBuffer()));
 }).listen(port, '127.0.0.1', () => {

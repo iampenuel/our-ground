@@ -30,3 +30,24 @@ test('the session remembers age decisions, rejects forgeries and preserves a dee
  assert.equal((await adultGate(new Request('https://other.example'+path,{headers:{cookie}}),config)).status,403);
  assert.equal((await adultGate(req(path,{headers:{cookie:cookie.replace(/19plus\.\d+/, '19plus.1')}}),config)).status,403);
 });
+test('protected staging serves discovery and OAuth independently of Eden; private intake and every Eden transport still require signed age',async()=>{
+ const stage={STAGING_RATE_LIMIT_SECRET:randomBytes(32).toString('hex'),VERCEL_ENV:'preview',VERCEL_PROJECT_ID:'prj_eU9xRSetSQYTbkAce2cYIR5zx8c2'};
+ for(const path of ['/','/support','/give','/organizations','/about','/auth/callback','/account','/api/index?path=resources/search'])assert.equal(await adultGate(req(path),stage),null,path);
+ for(const path of ['/api/v1/eden/hosted/session','/api/index?path=eden/hosted/result','/api/index?path=correction-reports'])assert.equal((await adultGate(req(path,{method:'POST'}),stage)).status,403,path);
+ const headers={Accept:'application/json',Origin:origin};
+ assert.deepEqual(await (await adultGate(req('/eligibility',{headers}),stage)).json(),{eligible:false,denied:false});
+ const pass=await adultGate(req('/eligibility',{headers,method:'POST',body:new URLSearchParams({age:'19plus'})}),stage);
+ assert.deepEqual(await pass.json(),{eligible:true,denied:false});
+ const cookie=pass.headers.get('set-cookie').split(';')[0];
+ assert.deepEqual(await (await adultGate(req('/eligibility',{headers:{...headers,cookie}}),stage)).json(),{eligible:true,denied:false});
+ assert.equal(await adultGate(req('/api/index?path=eden/hosted/session',{headers:{cookie}}),stage),null);
+ for(const cfg of [{...stage,VERCEL_ENV:'production'},{...stage,VERCEL_PROJECT_ID:'unknown'}])assert.match(await (await adultGate(req('/support'),cfg)).text(),/For adults 19 and older/);
+});
+test('a conflicting path parameter cannot disguise a private API route',async()=>{
+ const {publicApiRoute}=await import('../backend/adult-access.ts');
+ for(const path of ['/api/v1/correction-reports?path=resources/search','/api/index?path=/correction-reports/']) {
+  assert.equal(publicApiRoute(new URL(origin+path)),'correction-reports');
+  assert.equal((await adultGate(req(path,{method:'POST'}),{...config,localDirectory:true})).status,403);
+ }
+ assert.equal(publicApiRoute(new URL(origin+'/api/v1/resources/search?path=correction-reports')),'resources/search');
+});

@@ -1,6 +1,7 @@
 import {createHash,randomBytes} from 'node:crypto';
 import type {Dependencies} from './app.ts';
 import {adultSessionNonce} from './adult-access.ts';
+import {stagingProjectId} from './staging-limiter.ts';
 import {redis} from './hosted-store.ts';
 import {createEdenAgent, type EdenHostedTurnStore, type EdenAgentOptions} from './eden-agent.ts';
 import {EDEN_TEXT_MODELS,EdenProviderError} from './eden-provider.ts';
@@ -46,7 +47,7 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
   const store=options.store??(command=>redis(env,command));
   const textModel=EDEN_TEXT_MODELS.find(m=>m===(env.EDEN_GEMINI_TEXT_MODEL??EDEN_TEXT_MODELS[0]));
   const speechModel=EDEN_TTS_MODELS.find(m=>m===(env.EDEN_GEMINI_TTS_MODEL??EDEN_TTS_MODELS[0]));
-  const ready=()=>env.VERCEL==='1'&&env.VERCEL_ENV==='production'&&env.EDEN_HOSTED_COMMANDS==='enabled' &&
+  const ready=()=>env.VERCEL==='1'&&(env.VERCEL_ENV==='production'||env.VERCEL_ENV==='preview'&&env.VERCEL_PROJECT_ID===stagingProjectId)&&env.EDEN_HOSTED_COMMANDS==='enabled' &&
     env.EDEN_GEMINI_FREE_TIER_CONFIRMED==='true'&&env.BACKEND_DATA_MODE==='postgres'&&env.ALLOW_DEMO_DATA==='false'&&
     Boolean(env.GEMINI_API_KEY?.trim()&&deps.directoryCity&&deps.realDirectoryConfigured&&textModel);
   const key=(kind:string,id:string)=>'og:adult:eden:v1:'+kind+':'+id;
@@ -92,6 +93,15 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         await admit(store,String(minute),tts?'provider-speech-minute':'provider-text-minute',tts?3:12,65);
         await admit(store,day,tts?'speech-day':'text-day',tts?10:150,86460);
       }
+      if(path==='understand'){
+        fields(body,['symbols','context','controls','previous','noticeVersion']);
+        const context=validateEdenAgentContext(body.context);
+        if(body.noticeVersion!==EDEN_NOTICE_VERSION||!context||context.directory!=='public'||context.synthetic)reject(422,'EDEN_INVALID_REQUEST','Use the current public page.');
+        await capacity(false);
+        const decision=await agent.understand(body.symbols,context,body.controls,body.previous,request.signal);
+        if(await store(['GET',sessionKey])!==binding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
+        return response(decision);
+      }
       if(path==='plan'){
         const input=validateEdenAgentRequest(body);
         if(!input||input.context.directory!=='public'||input.context.synthetic) return response({error:{code:'EDEN_INVALID_REQUEST',message:'Use a supported public directory command.'}},422);
@@ -109,8 +119,10 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         const result=await agent.complete({turnToken:body.turnToken,outcome:body.outcome as 'done'|'failed',noticeVersion:EDEN_NOTICE_VERSION,resourceIds:context.resourceIds,context},session,request.signal);
         if(await store(['GET',sessionKey])!==binding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
         const speechTicket=token();
-        if(await store(['SET',key('speech',session+':'+hash(speechTicket)),spokenReply(result.sources),'EX','60','NX'])!=='OK')reject(503,'EDEN_SPEECH_UNAVAILABLE','Speech is temporarily unavailable.');
-        return response({...result,speechTicket});
+        // Optional speech degradation must never discard a verified text answer.
+        let audioReady=false;
+        try { audioReady=Boolean(speechModel) && await store(['SET',key('speech',session+':'+hash(speechTicket)),spokenReply(result.sources),'EX','60','NX'])==='OK'; }catch{/* Text remains available. */}
+        return response(audioReady?{...result,speechTicket}:result);
       }
       if(path==='speech'){
         fields(body,['speechTicket']);
@@ -124,7 +136,14 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
       }
       return response({error:{code:'EDEN_ROUTE_UNAVAILABLE',message:'Use the directory assistant.'}},404);
     }catch(error){
-      if(error instanceof EdenProviderError || error instanceof EdenSpeechError || error instanceof RequestInputError) return response({error:{code:error.code,message:error.message}},error.status);
+      if(error instanceof EdenProviderError){
+        // A bounded error enum and model name only. SDK errors may contain keys or input.
+        console.warn('eden.provider',JSON.stringify({code:error.code,model:textModel,status:error.status}));
+        const result=response({error:{code:error.code,message:error.status===429?'Gemini is temporarily busy. Try again in a moment.':'Gemini could not complete this request. The public page controls are available.'}},error.status);
+        if(error.status===429) result.headers.set('Retry-After','30');
+        return result;
+      }
+      if(error instanceof EdenSpeechError || error instanceof RequestInputError) return response({error:{code:error.code,message:error.message}},error.status);
       return response({error:{code:'EDEN_UNAVAILABLE',message:'The assistant is temporarily unavailable.'}},503);
     }
   };

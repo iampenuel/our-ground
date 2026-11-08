@@ -10,8 +10,8 @@ document.title = 'Our Ground — Stronger communities grow here.';
 
 const pathways = [
   { href: '/support', title: 'Find<br>Support', description: 'Explore food, healthcare and community support near you.', photo: 'flowers-search' as const, className: 'og-pathway--find' },
-  { href: '/give', title: 'Give<br>Support', description: 'Find a starting point for giving in your community.', photo: 'food-support' as const, className: 'og-pathway--give' },
-  { href: '/organizations', title: 'For<br>Organizations', description: 'Find your listing and learn how to flag a correction.', photo: 'landscape-story' as const, className: 'og-pathway--organizations' },
+  { href: '/give', title: 'Give<br>Support', description: 'Give time, food, or money through official giving programs.', photo: 'food-support' as const, className: 'og-pathway--give' },
+  { href: '/organizations', title: 'For<br>Organizations', description: 'Sign in, request listing access, or check your public information.', photo: 'landscape-story' as const, className: 'og-pathway--organizations' },
 ];
 
 root.innerHTML = `

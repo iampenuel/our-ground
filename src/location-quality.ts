@@ -23,6 +23,6 @@ export function locationQualityPresentation(quality: LocationQuality | undefined
   return {
     label, coordinateLabel, explanation: quality.explanation, sourceName: quality.sourceName,
     scope, sourceUrl: url?.startsWith('https://') ? url : null,
-    announcement: [label, coordinateLabel, representative ? `Representative ${area} point, not a confirmed street address.` : ''].filter(Boolean).join('. ')
+    announcement: [label, representative ? `Representative ${area} point, not a confirmed street address.` : ''].filter(Boolean).join('. ')
   };
 }

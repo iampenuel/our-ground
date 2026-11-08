@@ -48,10 +48,37 @@ test('Google PKCE uses the existing SDK with only identity scopes and a fixed ca
  assert.equal(target.origin,url);assert.equal(target.pathname,'/auth/v1/authorize');assert.equal(target.searchParams.get('provider'),'google');assert.equal(target.searchParams.get('redirect_to'),origin+'/auth/callback');assert.deepEqual(target.searchParams.get('scopes').split(' ').sort(),['email','openid','profile']);assert.equal(target.searchParams.get('access_type'),'online');assert.equal(target.searchParams.get('code_challenge_method'),'s256');assert(target.searchParams.get('code_challenge'));assert([...memory.keys()].some(k=>k.endsWith('-code-verifier')));
  for(const bad of [origin+'.evil.invalid','https://evil.invalid',origin+'/next'])assert.throws(()=>googleOAuthOptions(bad,[origin],true));assert.throws(()=>googleOAuthOptions(origin,[origin],false));
 });
+test('concurrent Google sign-ins exchange the verifier for the originating tab',async()=>{
+ const memory=new Map(), challenged=new Map();
+ const identity=createClient(url,key,{
+   auth:{flowType:'pkce',persistSession:true,autoRefreshToken:false,detectSessionInUrl:false,storage:{getItem:k=>memory.get(k)??null,setItem:(k,v)=>memory.set(k,v),removeItem:k=>memory.delete(k)}},
+   global:{fetch:async (input,init)=>{
+     const request=new Request(input,init);
+     assert.equal(new URL(request.url).searchParams.get('grant_type'),'pkce');
+     const {auth_code,code_verifier}=await request.json();
+     const digest=Buffer.from(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(code_verifier))).toString('base64url');
+     assert.equal(digest,challenged.get(auth_code));
+     challenged.delete(auth_code);
+     // Stop at the synthetic provider boundary after verifying the proof itself.
+     return Response.json({error:'invalid_grant'},{status:400});
+   }},
+ }).auth;
+ const start=async(code)=>{
+   const {data,error}=await identity.signInWithOAuth(googleOAuthOptions(origin,[origin],true));
+   assert.equal(error,null);assert(data.flowId);
+   challenged.set(code,new URL(data.url).searchParams.get('code_challenge'));
+   return data.flowId;
+ };
+ const first=await start('tab_one'),second=await start('tab_two');
+ assert.notEqual(first,second);
+ await identity.exchangeCodeForSession('tab_one',{flowId:first});
+ await identity.exchangeCodeForSession('tab_two',{flowId:second});
+ assert.equal(challenged.size,0);
+});
 test('Google callbacks require initiated same-origin fresh state and reject implicit tokens/open redirects',()=>{
  const now=Date.now(),pending={origin,startedAt:now,nonce:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'},valid=new URL(origin+'/auth/callback?code=synthetic_one_time_code');assert.equal(googleCallbackCode(valid,pending,true,now),'synthetic_one_time_code');
  for(const bad of [origin+'/account?code=synthetic_one_time_code',origin+'/auth/callback?code=synthetic_one_time_code&next=https://evil.invalid',origin+'/auth/callback?code=synthetic_one_time_code&code=duplicate_code',origin+'/auth/callback#access_token=not_accepted',origin+'/auth/callback?token_hash=not_accepted',origin+'/auth/callback?error=access_denied',origin+'/auth/callback?next=//evil.invalid'])assert.throws(()=>googleCallbackCode(new URL(bad),pending,true,now));
- for(const state of [null,{...pending,origin:'https://evil.invalid'},{...pending,startedAt:now-300001},{...pending,startedAt:now+1},{...pending,nonce:'not-a-browser-nonce'}])assert.throws(()=>googleCallbackCode(valid,state,true,now));
+ for(const state of [null,{...pending,origin:'https://evil.invalid'},{...pending,startedAt:now-300001},{...pending,startedAt:now+1},{...pending,nonce:'not-a-browser-nonce'},{...pending,flowId:'../other-tab'}])assert.throws(()=>googleCallbackCode(valid,state,true,now));
  assert.throws(()=>googleCallbackCode(valid,pending,false,now));assert.throws(()=>googleCallbackCode(valid,null,true,now),'consumed marker cannot be replayed');
 });
 test('persisted Supabase sessions retain auth credentials but discard Google provider credentials',()=>{

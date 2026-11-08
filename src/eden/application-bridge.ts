@@ -9,6 +9,7 @@ export type EdenApplicationEvent = { type: 'context' } | { type: 'search-started
 export interface EdenPageAdapter {
   context(): EdenPageContext;
   presentation?():Partial<EdenLocalPageContext>;
+  submit?(signal:AbortSignal):Promise<EdenActionResult>;
   execute(action: EdenAction, signal: AbortSignal): Promise<EdenActionResult>;
 }
 let active: EdenPageAdapter | undefined;
@@ -59,6 +60,10 @@ export function subscribeEdenApplication(listener: (event: EdenApplicationEvent)
 export function registerEdenPage(adapter: EdenPageAdapter) {
   active = adapter; publishEdenApplication();
   return () => { if (active === adapter) { active = undefined; publishEdenApplication(); } };
+}
+export async function executeDirectoryControl(signal:AbortSignal):Promise<EdenActionResult> {
+  if(signal.aborted || publicRoute()!=='support' || !active?.submit) return {status:'unavailable',message:'The search control is unavailable on this page.'};
+  return active.submit(signal);
 }
 export function edenActionLabel(action: EdenAction) {
   if(action.type==='navigate-support')return'Open Find Support';

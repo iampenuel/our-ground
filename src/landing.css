@@ -144,3 +144,14 @@
   .og-pathway p { padding-right: 0; }
   .og-pathway-arrow { left: 1.25rem; right: auto; bottom: 1.25rem; }
 }
+
+.og-giving { margin-top: 4rem; padding-top: 2.5rem; border-top: 1px solid var(--og-line); }
+.og-giving h2 { margin: 0; font-size: clamp(2rem, 4vw, 3rem); }
+.og-giving p { max-width: 50rem; color: var(--og-muted); line-height: 1.7; }
+.og-giving-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 3rem); margin-top: 2rem; }
+.og-giving-paths article { display: flex; flex-direction: column; align-items: flex-start; padding-top: 1.25rem; border-top: 1px solid var(--og-line); }
+.og-giving-paths h3 { margin: 0; font-size: 1.625rem; }
+.og-giving-paths a { margin-top: auto; min-height: 2.75rem; }
+@media (max-width: 700px) {
+  .og-giving-paths { grid-template-columns: minmax(0, 1fr); }
+}

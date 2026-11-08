@@ -44,9 +44,10 @@ test('Vite ordinary development and preview retain strict CSP on public, private
     const strict=config[preview?'preview':'server'].headers['Content-Security-Policy'];
     for(const path of [...publicPaths,...otherPaths]){
       const headers=documentHeaders(config,preview,path+'?public=1');
-      assert.equal(headers.get('content-security-policy'),strict,path);
+      const publicEden=publicPaths.includes(path),expected=publicEden?strict.replace("media-src 'none'",'media-src blob:'):strict;
+      assert.equal(headers.get('content-security-policy'),expected,path);
       assert(!strict.includes("'wasm-unsafe-eval'"));assert(!strict.includes("'unsafe-eval'"));assert.match(strict,/media-src 'none'/);
-      assert.equal(headers.get('permissions-policy'),browserSecurityHeaders()['Permissions-Policy']);
+      assert.equal(headers.get('permissions-policy'),publicEden?'camera=(), microphone=(self), on-device-speech-recognition=(self), geolocation=(self), payment=()':browserSecurityHeaders()['Permissions-Policy']);
       if(/^\/(?:account|auth|staff)(?:\/|$)/.test(path))for(const[name,value]of Object.entries(privateDocumentHeaders))assert.equal(headers.get(name.toLowerCase()),value,path);
     }
   }

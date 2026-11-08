@@ -108,7 +108,7 @@ test('typed public page explanations use a genuine two-call plan and verified pa
   const token=await session(item.service),plan=await begin(item.service,token,{goal:'explain-page'},give);
   const response=await item.service.handle(request('/eden/agent/result',{turnToken:plan.turnToken,outcome:'done',resourceIds:[],context:give,noticeVersion:EDEN_NOTICE_VERSION},token));
   assert.equal(response.status,200,await response.clone().text());const reply=await response.json();
-  assert(reply.reply.includes('Give Support explains'));assert.equal(item.calls.length,2);
+  assert(reply.reply.includes('official food bank resources'));assert.equal(item.calls.length,2);
   assert(!JSON.stringify(item.calls).includes('raw_dom'));
 });
 

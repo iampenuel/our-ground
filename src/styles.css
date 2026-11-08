@@ -69,3 +69,6 @@ input, select, textarea { color-scheme: light; }
 .page-shell .mapboxgl-ctrl-group button { width: 44px; height: 44px; }
 .page-shell .mapboxgl-ctrl-group button:focus-visible { outline: 3px solid var(--og-blue); outline-offset: -3px; }
 @media (max-width: 600px) { .result-card { padding: 1.25rem; } }
+
+.eden-page-target { scroll-margin-top: calc(var(--og-header-height, 5rem) + 1rem); }
+.eden-page-target:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }

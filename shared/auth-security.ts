@@ -44,12 +44,15 @@ export function googleOAuthOptions(origin:string,approvedOrigins:string[],enable
   if(!enabled||!approvedOrigins.includes(origin)||new URL(origin).origin!==origin)throw new Error('Google sign-in is not approved for this origin.');
   return {provider:'google' as const,options:{redirectTo:origin+'/auth/callback',scopes:'openid email profile',queryParams:{access_type:'online',prompt:'select_account'},skipBrowserRedirect:true}};
 }
-export type PendingGoogle = {origin:string;startedAt:number;nonce:string};
+export type PendingGoogle = { origin: string; startedAt: number; nonce: string; flowId?: string; requestAccess?: boolean };
+export function validGoogleFlowId(value: unknown): value is string {
+  return typeof value === 'string' && /^[A-Za-z0-9_-]{8,64}$/.test(value);
+}
 export function googleCallbackCode(url:URL,pending:PendingGoogle|null,enabled:boolean,now=Date.now()) {
   const hash=new URLSearchParams(url.hash.slice(1));
   if(['access_token','refresh_token','token','token_hash'].some(k=>url.searchParams.has(k)||hash.has(k)))throw new Error('Implicit authentication callbacks are not accepted.');
   if(url.searchParams.has('error')||hash.has('error'))throw new Error('Sign-in was canceled or could not be completed.');
   if(!url.searchParams.has('code')) {if([...url.searchParams.keys()].some(k=>['next','redirect','redirect_to','return_to'].includes(k)))throw new Error('Post-login redirects are not accepted.');return null;}
-  if(!enabled||url.pathname!=='/auth/callback'||url.hash||url.searchParams.size!==1||url.searchParams.getAll('code').length!==1||!pending||pending.origin!==url.origin||!Number.isFinite(pending.startedAt)||now<pending.startedAt||now-pending.startedAt>300000||!/^[a-f0-9-]{36}$/i.test(pending.nonce))throw new Error('This sign-in request could not be matched to this browser.');
+  if(!enabled||url.pathname!=='/auth/callback'||url.hash||url.searchParams.size!==1||url.searchParams.getAll('code').length!==1||!pending||pending.origin!==url.origin||!Number.isFinite(pending.startedAt)||now<pending.startedAt||now-pending.startedAt>300000||(pending.flowId!==undefined&&!validGoogleFlowId(pending.flowId))||!/^[a-f0-9-]{36}$/i.test(pending.nonce))throw new Error('This sign-in request could not be matched to this browser.');
   const code=url.searchParams.get('code')!;if(!/^[A-Za-z0-9_-]{10,2048}$/.test(code))throw new Error('The sign-in callback is invalid.');return code;
 }

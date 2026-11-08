@@ -77,7 +77,7 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
         <button type="submit" class="search-button" id="supportSubmit" disabled>Search</button>
         <div class="unified-filters"><div class="category-filters" role="group" aria-label="Support category"><button type="button" data-category="food">Food</button><button type="button" data-category="healthcare">Healthcare</button><button type="button" data-category="community">Community Support</button></div><label class="distance-field">Distance <select id="radiusInput" aria-label="Search distance">${[5,10,25,50].map(r=>`<option value="${r}"${state.radius===r?' selected':''}>Within ${r} miles</option>`).join('')}</select></label><details class="support-type-options"><summary>Mapped place type</summary><label class="location-field"><span class="search-field-label">Mapped place type</span><select id="supportTerm" name="term" disabled aria-describedby="supportTermHelp"></select><span id="supportTermHelp" class="location-help">Applies only to mapped supplements. Directory records use the selected category.</span></label></details></div>
       </form>
-      <p class="support-search-privacy">Location lookup uses Geoapify and U.S. geographic reference data. Map viewing connects to Geoapify.</p><details class="support-source-details" id="searchInformation"><summary>Sources, privacy &amp; search options</summary><p id="supportPrivacy" class="discovery-note">Location searches use city and state reference data and, when configured, send your query to Geoapify through Our Ground. Corrections and area suggestions do not confirm a street address. Current location is requested only when you choose it. Selected coordinates are used temporarily to find nearby records; exact coordinates and retrieved addresses are not saved in the search link. Geoapify discovery receives the chosen search area and support term when available. Showing the map connects your browser to Geoapify. <a href="https://www.geoapify.com/privacy-policy/" target="_blank" rel="noopener noreferrer">Geoapify privacy<span class="visually-hidden"> (opens in a new tab)</span></a> · <a href="https://www.geoapify.com/terms-and-conditions/" target="_blank" rel="noopener noreferrer">Geoapify terms<span class="visually-hidden"> (opens in a new tab)</span></a><span id="supportPolicies"></span></p>
+      <p class="support-search-privacy">Area matches are approximate. Confirm services with the provider.</p><details class="support-source-details" id="searchInformation"><summary>Sources, accuracy &amp; search options</summary><p id="supportPrivacy" class="discovery-note">Location searches use city and state reference data and, when configured, send your query to Geoapify through Our Ground. Corrections and area suggestions do not confirm a street address. Current location is requested only when you choose it. Selected coordinates are used temporarily to find nearby records; exact coordinates and retrieved addresses are not saved in the search link. Geoapify discovery receives the chosen search area and support term when available. Showing the map connects your browser to Geoapify. <a href="https://www.geoapify.com/privacy-policy/" target="_blank" rel="noopener noreferrer">Geoapify privacy<span class="visually-hidden"> (opens in a new tab)</span></a> · <a href="https://www.geoapify.com/terms-and-conditions/" target="_blank" rel="noopener noreferrer">Geoapify terms<span class="visually-hidden"> (opens in a new tab)</span></a><span id="supportPolicies"></span></p>
       <details class="support-demo-options"><summary>Demonstration options</summary><label><input type="checkbox" id="demoMode"${state.mode==='demo'?' checked':''} /> Use fictional demonstration records</label><p>Examples only, with no real providers, contacts or directions. This mode does not call Geoapify or display a location map. The server must also permit demo data.</p></details>
       <div id="supportAvailability" class="discovery-note" role="status">Checking search availability…</div>
       </details><p id="demoNotice" class="status-message" hidden>Fictional demonstration mode. These records are not real providers and are not visitable locations.</p>
@@ -441,7 +441,7 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
   el('cancelMapLocation').addEventListener('click',stopMapPicking);
   el('backToList').addEventListener('click',returnToList);
   mapButton.addEventListener('click',()=>{
-    state.view=state.view==='map'?'list':'map';showMap();updateUrl();
+    state.view=state.view==='map'?'list':'map';showMap();updateUrl();publishEdenApplication();
     if(state.view==='map'&&mobile.matches) el('mapTitle').focus();
   });
   el('moreDirectory').addEventListener('click',()=>{
@@ -492,6 +492,13 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
   // An explicit capability adapter: only the existing public search and selection
   // functions are reachable. No provider receives records, DOM, URLs or location.
   const unregisterEden=registerEdenPage({
+    async submit(signal){
+      if(signal.aborted||disposed||resolving||!ready)return {status:'unavailable',message:'Search is unavailable right now.'};
+      const interrupted=()=>{searches.cancel();resolutions.cancel();};
+      signal.addEventListener('abort',interrupted,{once:true});
+      try{await submitSearch();signal.throwIfAborted();return readResults();}
+      finally{signal.removeEventListener('abort',interrupted);}
+    },
     context:()=>({page:activeResource?'resource':'support',category:state.category,radius:[5,10,25,50].includes(state.radius)?state.radius as 5|10|25|50:25,resultCount:currentOutcome().phase==='complete'?Math.min(20,visible.length):0,synthetic:state.mode==='demo'}),
     presentation:()=>{
       const normalize=(value:string)=>value.toLowerCase().replace(/[.,]/g,'').replace(/\s+/g,' ').trim();

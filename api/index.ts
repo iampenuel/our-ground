@@ -1,15 +1,15 @@
 import {createHostedEden} from '../backend/eden-hosted.ts';
 import {handleApi} from '../backend/app.ts';
-import {adultGate} from '../backend/adult-access.ts';
+import {adultGate,publicApiRoute} from '../backend/adult-access.ts';
 import {redis} from '../backend/hosted-store.ts';
 import {productionDependencies} from '../backend/runtime.ts';
 const deps=productionDependencies();
 const hostedEden=createHostedEden(deps,process.env);
 async function serve(request:Request) {
-  const gate=await adultGate(request,{ADULT_SESSION_SECRET:process.env.ADULT_SESSION_SECRET});
+  const gate=await adultGate(request,{ADULT_SESSION_SECRET:process.env.ADULT_SESSION_SECRET,STAGING_RATE_LIMIT_SECRET:process.env.STAGING_RATE_LIMIT_SECRET,VERCEL_ENV:process.env.VERCEL_ENV,VERCEL_PROJECT_ID:process.env.VERCEL_PROJECT_ID});
   if (gate) return gate;
   const url=new URL(request.url);
-  const route=(url.searchParams.get('path')??url.pathname.replace(/^\/api\/v1\/?/, '')).replace(/^\/+|\/+$/g,'');
+  const route=publicApiRoute(url);
   if(route.startsWith('eden/hosted/')) return hostedEden(request,route.slice('eden/hosted/'.length));
   if(request.method==='POST' && route==='correction-reports'){
     let open=false;

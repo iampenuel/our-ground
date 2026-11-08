@@ -2,19 +2,19 @@ import { EDEN_CITIES, EDEN_MAX_COMMAND_LENGTH, EDEN_NOTICE_VERSION, interpretEde
 import type { EdenAction, EdenCategory, EdenCityId, EdenPageContext, EdenRadius } from './eden-assistant.ts';
 import { isEdenSpeechPhrase } from './eden-speech.ts';
 import type { EdenSpeechPhrase } from './eden-speech.ts';
-import {isEdenPublicDestination} from './eden-public-pages.ts';
+import {publicPageHeading,isEdenPublicDestination} from './eden-public-pages.ts';
 import type {EdenPublicDestination} from './eden-public-pages.ts';
 
 export const EDEN_AGENT_RESOURCE_IDS = ['11111111-1111-4111-8111-111111111111', '77777777-7777-4777-8777-777777777777'] as const;
 // Imported service IDs are stable UUIDv5 values minted by the reviewed importers.
 export type EdenAgentResourceId = string;
 export const isImportedResourceId = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value);
-export type EdenAgentContext = EdenPageContext & { directory?: 'public'; cityId?: EdenCityId; resourceIds: EdenAgentResourceId[]; selectedIndex?:number; searchState?:'idle'|'loading'|'ready'|'error';mapState?:'not-shown'|'loading'|'ready'|'unavailable' };
+export type EdenAgentContext = EdenPageContext & { directory?: 'public'; heading?:string; filtered?:true; view?:'list'|'map'; mappedCount?:number; cityId?: EdenCityId; resourceIds: EdenAgentResourceId[]; selectedIndex?:number; searchState?:'idle'|'loading'|'ready'|'error';mapState?:'not-shown'|'loading'|'ready'|'unavailable' };
 
 /** A map finishing its tiles does not change which published listing a command describes. */
 export function sameDirectoryView(a:EdenAgentContext,b:EdenAgentContext|null,includeMapState=false):boolean {
   return b!==null && a.page===b.page && a.category===b.category && a.cityId===b.cityId &&
-    a.radius===b.radius && a.directory===b.directory && a.synthetic===b.synthetic &&
+    a.radius===b.radius && a.heading===b.heading && a.filtered===b.filtered && a.mappedCount===b.mappedCount && a.view===b.view && a.directory===b.directory && a.synthetic===b.synthetic &&
     a.searchState===b.searchState && a.resultCount===b.resultCount && a.selectedIndex===b.selectedIndex &&
     a.resourceIds.length===b.resourceIds.length && a.resourceIds.every((id,i)=>id===b.resourceIds[i]) &&
     (!includeMapState||a.mapState===b.mapState);
@@ -73,17 +73,22 @@ export function validateEdenAgentResourceIds(value: unknown, directory = false):
 }
 export function validateEdenAgentContext(value: unknown): EdenAgentContext | null {
   const input = object(value);
-  if (!input || !only(input, ['page', 'category', 'radius', 'resultCount', 'synthetic', 'directory', 'cityId', 'resourceIds','selectedIndex','searchState','mapState']) || (Object.hasOwn(input, 'cityId') && !city(input.cityId))) return null;
+  if (!input || !only(input, ['page', 'category', 'radius', 'resultCount', 'synthetic', 'directory', 'cityId', 'resourceIds','selectedIndex','searchState','mapState','filtered','view','mappedCount','heading']) || (Object.hasOwn(input, 'cityId') && !city(input.cityId))) return null;
   const safe = validateEdenPageContext({ page: input.page, resultCount: input.resultCount, synthetic: input.synthetic,
     ...(Object.hasOwn(input, 'category') ? { category: input.category } : {}), ...(Object.hasOwn(input, 'radius') ? { radius: input.radius } : {}) });
   const directory = input.directory === 'public' && input.synthetic === false;
   const resourceIds = validateEdenAgentResourceIds(input.resourceIds, directory);
+  const heading=publicPageHeading(input.page,input.heading);
+  if (Object.hasOwn(input,'heading')&&(!directory||!heading))return null;
+  if ((Object.hasOwn(input,'filtered') && (!directory || input.filtered!==true)) ||
+    (Object.hasOwn(input,'view') && (!directory || !['map','list'].includes(String(input.view)))) ||
+    (Object.hasOwn(input,'mappedCount') && (!directory || !Number.isInteger(input.mappedCount) || Number(input.mappedCount)<0 || Number(input.mappedCount)>20))) return null;
   if (!safe || (Object.hasOwn(input,'directory') ? !directory : !safe.synthetic) || !resourceIds || safe.resultCount !== resourceIds.length
     || !['support','resource'].includes(safe.page)&&(resourceIds.length>0||Object.hasOwn(input,'selectedIndex'))
     || Object.hasOwn(input,'selectedIndex')&&(!Number.isInteger(input.selectedIndex)||Number(input.selectedIndex)<1||Number(input.selectedIndex)>safe.resultCount)
     || Object.hasOwn(input,'searchState')&&(typeof input.searchState!=='string'||!['idle','loading','ready','error'].includes(input.searchState))
     || Object.hasOwn(input,'mapState')&&(typeof input.mapState!=='string'||!['not-shown','loading','ready','unavailable'].includes(input.mapState))) return null;
-  return { ...safe, ...(directory ? { directory: 'public' as const } : {}), ...(city(input.cityId) ? { cityId: input.cityId } : {}), resourceIds,...(Object.hasOwn(input,'selectedIndex')?{selectedIndex:Number(input.selectedIndex)}:{}),...(Object.hasOwn(input,'searchState')?{searchState:input.searchState as EdenAgentContext['searchState']}:{}),...(Object.hasOwn(input,'mapState')?{mapState:input.mapState as EdenAgentContext['mapState']}:{}) };
+  return { ...safe, ...(heading?{heading}:{}), ...(input.filtered===true?{filtered:true as const}:{}), ...(input.view==='map'||input.view==='list'?{view:input.view}:{}), ...(Number.isInteger(input.mappedCount)?{mappedCount:Number(input.mappedCount)}:{}), ...(directory ? { directory: 'public' as const } : {}), ...(city(input.cityId) ? { cityId: input.cityId } : {}), resourceIds,...(Object.hasOwn(input,'selectedIndex')?{selectedIndex:Number(input.selectedIndex)}:{}),...(Object.hasOwn(input,'searchState')?{searchState:input.searchState as EdenAgentContext['searchState']}:{}),...(Object.hasOwn(input,'mapState')?{mapState:input.mapState as EdenAgentContext['mapState']}:{}) };
 }
 export function validateEdenAgentIntent(value: unknown): EdenAgentIntent | null {
   const input = object(value);
@@ -172,7 +177,7 @@ export function reduceEdenAgentInput(raw: unknown, context: EdenAgentContext, pe
     ? { ...rest, page: 'home' as const, ...(checkedPending.missing === 'city' ? { category: checkedPending.category }
       : checkedPending.missing === 'category' ? { cityId: checkedPending.cityId } : {}) }
     : safe;
-  const { cityId: _city, resourceIds: _ids, directory:_directory, selectedIndex:_selected,searchState:_search,mapState:_map, ...page } = reduction;
+  const { cityId: _city, resourceIds: _ids, directory:_directory, heading:_heading, filtered:_filtered,view:_view,mappedCount:_mapped, selectedIndex:_selected,searchState:_search,mapState:_map, ...page } = reduction;
   const interpreted = interpretEdenCommand(raw, page);
   if (interpreted.status === 'sensitive') return interpreted;
   const normalized = raw.normalize('NFC').replace(/’/g, "'").trim().toLowerCase().replace(/\s+/g, ' ').replace(/^(?:hey )?eden(?:,|:)?\s+/, '').replace(/^please\s+/, '').replace(/[.!?]$/, '').trim();

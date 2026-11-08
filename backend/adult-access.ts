@@ -2,12 +2,23 @@
 const cookieName='__Host-og-audience';
 const maxSeconds=8*3600;
 const encoder=new TextEncoder();
-type Config={ADULT_SESSION_SECRET?:string};
+type Config={ADULT_SESSION_SECRET?:string; STAGING_RATE_LIMIT_SECRET?:string; VERCEL_ENV?:string; VERCEL_PROJECT_ID?:string; localDirectory?:boolean};
+// The previously approved production demo remains sitewide adult-only. Only the
+// designated protected preview (or the loopback development adapter) has public discovery.
+const publicDiscovery=(c:Config)=>c.localDirectory===true||c.VERCEL_ENV==='preview'&&c.VERCEL_PROJECT_ID==='prj_eU9xRSetSQYTbkAce2cYIR5zx8c2';
 type Decision='19plus'|'under19';
 const url64=(bytes:ArrayBuffer)=>btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 async function signingKey(config:Config){
-  if(!config.ADULT_SESSION_SECRET||config.ADULT_SESSION_SECRET.length<43)throw Error('Age check unavailable');
-  return crypto.subtle.importKey('raw',encoder.encode(config.ADULT_SESSION_SECRET),{name:'HMAC',hash:'SHA-256'},false,['sign','verify']);
+  let material:BufferSource;
+  if(config.VERCEL_ENV==='preview'&&publicDiscovery(config)&&/^[a-f0-9]{64}$/.test(config.STAGING_RATE_LIMIT_SECRET??'')){
+    // A scope-separated subkey of the existing staging-only secret. No production keys.
+    const key=await crypto.subtle.importKey('raw',encoder.encode(config.STAGING_RATE_LIMIT_SECRET),'HKDF',false,['deriveBits']);
+    material=await crypto.subtle.deriveBits({name:'HKDF',hash:'SHA-256',salt:encoder.encode('ourground-staging'),info:encoder.encode('eden-age-acknowledgment-v1')},key,256);
+  }else{
+    if(!config.ADULT_SESSION_SECRET||config.ADULT_SESSION_SECRET.length<43)throw Error('Age check unavailable');
+    material=encoder.encode(config.ADULT_SESSION_SECRET);
+  }
+  return crypto.subtle.importKey('raw',material,{name:'HMAC',hash:'SHA-256'},false,['sign','verify']);
 }
 const payload=(origin:string,token:string)=>encoder.encode('audience-v1|'+origin+'|'+token);
 async function decisionFor(request:Request,config:Config):Promise<{decision:Decision;nonce:string}|null>{
@@ -44,20 +55,33 @@ async function form(request:Request){
   while(true){const r=await reader.read();if(r.done)break;size+=r.value.length;if(size>2048){await reader.cancel();return null;}parts.push(r.value);}
   return new URLSearchParams(await new Blob(parts as BlobPart[]).text());
 }
+// Resolve API rewrites once for both admission and dispatch. A visitor cannot
+// change a /v1 endpoint by appending a conflicting ?path query parameter.
+export function publicApiRoute(url:URL){
+  const path=/^\/api\/index(?:\.ts)?\/?$/.test(url.pathname)?url.searchParams.get('path')??'':url.pathname.replace(/^\/api\/v1\/?/,'');
+  return path.replace(/^\/+|\/+$/g,'');
+}
 export async function adultGate(request:Request,config:Config):Promise<Response|null>{
   const url=new URL(request.url);
+  const publicSite=publicDiscovery(config);
+  const route=publicApiRoute(url);
+  const protectedFeature=route==='eden'||route.startsWith('eden/')||route==='correction-reports';
+  const policyReply=(value:object,status=200)=>Response.json(value,{status,headers:{'Cache-Control':'private, no-store','Vary':'Accept','Referrer-Policy':'no-referrer'}});
+  const json=request.headers.get('accept')?.includes('application/json');
   try{
+    if(publicSite&&!protectedFeature&&!['/eligibility','/eligibility.css','/terms'].includes(url.pathname))return null;
     if(url.pathname==='/eligibility.css')return new Response('body{margin:0;background:#f6f4ec;color:#163a30;font:1.125rem/1.55 system-ui}main{max-width:34rem;margin:8vh auto;padding:1.5rem}h1{font:2.5rem Georgia,serif}button{font:inherit;color:white;background:#163a30;border:0;border-radius:.3em;padding:.7em;margin:.3em .3em .3em 0}a{color:inherit}button:focus-visible,a:focus-visible{outline:3px solid #976e16;outline-offset:4px}',{headers:{'Content-Type':'text/css','Cache-Control':'public,max-age=3600'}});
     const current=(await decisionFor(request,config))?.decision;
-    if(request.method==='GET' && url.pathname==='/terms')return page('Terms',`<p>${terms}</p><a href="/">Return to Our Ground</a>`);
+    if(request.method==='GET' && url.pathname==='/eligibility' && json)return policyReply({eligible:current==='19plus',denied:current==='under19'});
+    if(request.method==='GET' && url.pathname==='/terms')return page('Terms',`<p>${publicSite?'The public directory is available without an Eden session. Eden and private correction reports are for people aged 19 and older. Confirm listing details with the provider.':terms}</p><a href="/">Return to Our Ground</a>`);
     if(request.method==='GET' && url.pathname==='/privacy' && current!=='19plus')return page('Privacy',`<p>${privacy}</p><a href="/">Return to Our Ground</a>`);
     if(url.pathname==='/eligibility' && request.method==='POST'){
       if(request.headers.get('origin')!==url.origin||!request.headers.get('content-type')?.startsWith('application/x-www-form-urlencoded'))return deny(403);
-      if(current==='under19')return under();
+      if(current==='under19')return json?policyReply({eligible:false,denied:true},403):under();
       const fields=await form(request),age=fields?.get('age');
       if(age!=='19plus'&&age!=='under19')return deny(403);
-      const response=age==='under19'?under():new Response(null,{status:303,headers:{Location:new URL(safePath(fields?.get('return')??null),url.origin).href,'Cache-Control':'private,no-store'}});
-      response.headers.set('Set-Cookie',await mint(url.origin,age,config));return response;
+      const response=json?policyReply({eligible:age==='19plus',denied:age==='under19'},age==='19plus'?200:403):age==='under19'?under():new Response(null,{status:303,headers:{Location:new URL(safePath(fields?.get('return')??null),url.origin).href,'Cache-Control':'private,no-store'}});
+      if(current!==age)response.headers.set('Set-Cookie',await mint(url.origin,age,config));return response;
     }
     if(current==='19plus' && /^\/(account|auth|staff)(\/|$)/.test(url.pathname))return page('Directory demo','<p>Organization account access is closed. <a href="/support">Find support</a>.</p>',404);
     if(current==='19plus')return url.pathname==='/eligibility'?new Response(null,{status:303,headers:{Location:'/', 'Cache-Control':'private,no-store'}}):null;
