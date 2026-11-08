@@ -1,0 +1,90 @@
+/* Shared Our Ground foundations. Photography and application data remain separate. */
+:root {
+  color-scheme: only light;
+  --og-paper: #f8f7f2;
+  --og-white: #fffefa;
+  --og-ink: #202824;
+  --og-muted: #57615b;
+  --og-green: #244236;
+  --og-green-deep: #1c332c;
+  --og-blue: #254f5b;
+  --og-gold: #b58a37;
+  --og-line: #dedfd6;
+  --og-surface-soft: #eeeee6;
+  --og-green-soft: #e9ece4;
+  --og-blue-soft: #e8eff0;
+  --og-border-strong: #7c887d;
+  --og-error: #8b3330;
+  --og-error-surface: #f8eeeb;
+  --og-warning: #74531c;
+  --og-warning-surface: #f4f0e2;
+  --og-success: #244236;
+  --og-success-surface: #e9ece4;
+  --og-photo-meadow: #293e33;
+  --og-photo-field: #34483c;
+  --og-photo-community: #443f32;
+  --og-photo-river: #30484c;
+  --og-inverse-text: #f1f0e6;
+  --og-inverse-muted: #deded1;
+  --og-inverse-line: #f8f7f2a3;
+  --og-inverse-hover: #ffffff14;
+  --og-gold-light: #f2cd77;
+  --og-shadow: 0 12px 24px #2028240a;
+  --og-marker-shadow: 0 1px 4px #20282440;
+  --og-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --og-serif: Georgia, "Times New Roman", serif;
+  --og-space-1: .5rem;
+  --og-space-2: 1rem;
+  --og-space-3: 1.5rem;
+  --og-space-4: 2rem;
+  --og-space-5: 3rem;
+  --og-space-6: 4.5rem;
+  --og-gutter: clamp(1.25rem, 4.5vw, 5rem);
+  --og-content-width: 74.25rem;
+  --og-header-height: 5rem;
+  --og-editorial-display: clamp(2.75rem, 1.5rem + 2.5vw, 4rem);
+  --og-radius: .875rem;
+  --og-radius-small: .375rem;
+  --og-focus-ring: 2px solid var(--og-blue);
+  --og-focus-offset: 3px;
+  --og-press-time: 100ms;
+  --og-state-time: 160ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-family: var(--og-sans); color: var(--og-ink); background: var(--og-paper); }
+[hidden] { display: none !important; }
+button, input, select, textarea { font: inherit; }
+button, a, summary { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+:focus-visible { outline: var(--og-focus-ring); outline-offset: var(--og-focus-offset); }
+main:focus { outline: none; }
+.og-container { width: min(calc(100% - var(--og-gutter) * 2), var(--og-content-width)); margin-inline: auto; }
+.og-eyebrow { margin: 0; font: 500 .75rem/1.5 var(--og-sans); letter-spacing: .14em; text-transform: uppercase; }
+.og-display { font-family: var(--og-serif); font-weight: 400; letter-spacing: -.055em; text-wrap: balance; }
+.og-button { display: inline-flex; align-items: center; justify-content: center; gap: 1.25rem; min-height: 3.25rem; padding: .875rem 1.5rem; border: 1px solid transparent; border-radius: 999px; font: 500 .875rem/1.35 var(--og-sans); text-decoration: none; cursor: pointer; transition: background-color var(--og-state-time), border-color var(--og-state-time), transform var(--og-press-time); }
+.og-button svg, .og-text-link svg { flex: 0 0 auto; width: 1.25rem; height: 1.25rem; }
+.og-button--light { color: var(--og-ink); background: var(--og-white); }
+.og-button--light:hover { background: var(--og-surface-soft); }
+.og-button--outline { color: var(--og-white); background: transparent; border-color: var(--og-inverse-line); }
+.og-button--outline:hover { background: var(--og-inverse-hover); border-color: var(--og-white); }
+.og-button--dark { color: var(--og-white); background: var(--og-green-deep); }
+.og-button--dark:hover { background: var(--og-green); }
+.og-button--paper { color: var(--og-ink); border-color: var(--og-border-strong); background: transparent; }
+.og-button--paper:hover { background: var(--og-surface-soft); }
+.og-button:active { transform: scale(.98); }
+.og-text-link { display: inline-flex; align-items: center; gap: .75rem; min-height: 2.75rem; color: var(--og-blue); font: 500 .875rem/1.5 var(--og-sans); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .3em; }
+.og-text-link:hover { color: var(--og-green); }
+.og-home :focus-visible, .og-entry :focus-visible, .og-site-header :focus-visible, .og-footer :focus-visible { outline: 3px solid var(--og-blue); outline-offset: 5px; }
+.og-home-hero :focus-visible, .og-pathway:focus-visible { outline-color: var(--og-gold-light); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+  .og-button, .og-pathway, .og-site-header a, .og-site-header summary { transition: none !important; }
+  .og-button:active { transform: none; }
+}
+@media (prefers-contrast: more) {
+  :root { --og-muted: #303c34; --og-line: #67746b; }
+}
+@media (forced-colors: active) {
+  :focus-visible { outline-color: Highlight !important; }
+}

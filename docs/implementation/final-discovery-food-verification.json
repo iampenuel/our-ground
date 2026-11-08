@@ -1,0 +1,1301 @@
+{
+  "checked_at": "2026-11-06T15:01:57.503Z",
+  "target": "ourground_discovery_final",
+  "baseline_read_only": "ourground_final",
+  "schema_checks": {
+    "tables": [
+      "app_users",
+      "campaigns",
+      "categories",
+      "correction_reports",
+      "food_source_row_lineage",
+      "geographic_reference_imports",
+      "geographic_reference_names",
+      "geographic_reference_records",
+      "opening_hours",
+      "organization_action_limits",
+      "organization_audit",
+      "organization_claims",
+      "organization_listing_access",
+      "organization_memberships",
+      "organization_revisions",
+      "organization_revoked_sessions",
+      "organizations",
+      "privacy_retention_holds",
+      "resource_data_sources",
+      "resource_import_runs",
+      "resource_privacy_events",
+      "resource_privacy_holds",
+      "resource_source_records",
+      "resource_source_versions",
+      "service_categories",
+      "service_locations",
+      "services"
+    ],
+    "foreign_keys": 47,
+    "indexes": 60,
+    "problems": []
+  },
+  "preservation": {
+    "services": {
+      "rows": 17996,
+      "sha256": "b819065c683e315d1a0f024db4e50e53f26205e8337dc22055124fad3f183b73",
+      "matches": true
+    },
+    "locations": {
+      "rows": 17996,
+      "sha256": "6ab5bd8473987e42316e7e5fce464d0a107b8f69d8877debe2ff490fea03107c",
+      "matches": true
+    },
+    "organizations": {
+      "rows": 2162,
+      "sha256": "b52933441ecf15a0c99d62a462b6fd5403b8e1b0c0f2ce3b1a24dddc699218b6",
+      "matches": true
+    },
+    "source_records": {
+      "rows": 17996,
+      "sha256": "6f0167be10b8e4ff298a5dc6824803d4ea59797c4d6d25da6285466c2f653035",
+      "matches": true
+    },
+    "source_versions": {
+      "rows": 17996,
+      "sha256": "d27e3a1059fc29129eae902bcadbca740d78ad2d368f6e559d870d3a11a83dad",
+      "matches": true
+    },
+    "import_runs": {
+      "rows": 5,
+      "sha256": "be7c27435aff09f2f61a967763d8ce71c966c362df8ca721f5b175b339383794",
+      "matches": true
+    },
+    "privacy_holds": {
+      "rows": 34,
+      "sha256": "635455a15ad8f58557c02fcb80d28466b02c874846d50c9b538824ce0e8ed8d8",
+      "matches": true
+    },
+    "privacy_events": {
+      "rows": 34,
+      "sha256": "3e97b2dbd0d9c021c63713a9a28d25d40cb7cc71b6d907aa8bae2b46158863e5",
+      "matches": true
+    },
+    "hours": {
+      "rows": 525,
+      "sha256": "c08eda820b840a1b4a8014ae3cfb8ad47a0ef7a5ab662215947104a8d638a6a7",
+      "matches": true
+    }
+  },
+  "integration": {
+    "runtime_import_denied": true,
+    "runtime_withdrawal_denied": true,
+    "raw_table_denied": true,
+    "human_fields_preserved": true,
+    "pgc_privacy_hold_persists": true,
+    "privacy_snapshot_minimized": true,
+    "no_test_fixture_committed": true
+  },
+  "source_counts": [
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "AK",
+      "public_programs": 218,
+      "source_cities": 143
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "AL",
+      "public_programs": 206,
+      "source_cities": 102
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "AR",
+      "public_programs": 283,
+      "source_cities": 141
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "AS",
+      "public_programs": 7,
+      "source_cities": 3
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "AZ",
+      "public_programs": 265,
+      "source_cities": 73
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "CA",
+      "public_programs": 2734,
+      "source_cities": 460
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "CO",
+      "public_programs": 273,
+      "source_cities": 78
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "CT",
+      "public_programs": 431,
+      "source_cities": 67
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "DC",
+      "public_programs": 72,
+      "source_cities": 1
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "DE",
+      "public_programs": 14,
+      "source_cities": 9
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "FL",
+      "public_programs": 673,
+      "source_cities": 185
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "GA",
+      "public_programs": 415,
+      "source_cities": 175
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "GU",
+      "public_programs": 3,
+      "source_cities": 3
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "HI",
+      "public_programs": 117,
+      "source_cities": 32
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "IA",
+      "public_programs": 120,
+      "source_cities": 46
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "ID",
+      "public_programs": 233,
+      "source_cities": 68
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "IL",
+      "public_programs": 509,
+      "source_cities": 157
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "IN",
+      "public_programs": 503,
+      "source_cities": 126
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "KS",
+      "public_programs": 177,
+      "source_cities": 63
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "KY",
+      "public_programs": 625,
+      "source_cities": 179
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "LA",
+      "public_programs": 508,
+      "source_cities": 137
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "MA",
+      "public_programs": 269,
+      "source_cities": 73
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "MD",
+      "public_programs": 156,
+      "source_cities": 63
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "ME",
+      "public_programs": 174,
+      "source_cities": 76
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "MI",
+      "public_programs": 441,
+      "source_cities": 148
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "MN",
+      "public_programs": 91,
+      "source_cities": 24
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "MO",
+      "public_programs": 425,
+      "source_cities": 181
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "MP",
+      "public_programs": 3,
+      "source_cities": 3
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "MS",
+      "public_programs": 302,
+      "source_cities": 130
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "MT",
+      "public_programs": 132,
+      "source_cities": 43
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "NC",
+      "public_programs": 747,
+      "source_cities": 222
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "ND",
+      "public_programs": 33,
+      "source_cities": 18
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "NE",
+      "public_programs": 91,
+      "source_cities": 18
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "NH",
+      "public_programs": 70,
+      "source_cities": 24
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "NJ",
+      "public_programs": 143,
+      "source_cities": 64
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "NM",
+      "public_programs": 229,
+      "source_cities": 70
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "NV",
+      "public_programs": 67,
+      "source_cities": 17
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "NY",
+      "public_programs": 823,
+      "source_cities": 199
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "OH",
+      "public_programs": 628,
+      "source_cities": 191
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "OK",
+      "public_programs": 210,
+      "source_cities": 90
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "OR",
+      "public_programs": 299,
+      "source_cities": 85
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "PA",
+      "public_programs": 496,
+      "source_cities": 164
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "PR",
+      "public_programs": 125,
+      "source_cities": 82
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "RI",
+      "public_programs": 65,
+      "source_cities": 25
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "SC",
+      "public_programs": 305,
+      "source_cities": 117
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "SD",
+      "public_programs": 38,
+      "source_cities": 30
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "TN",
+      "public_programs": 234,
+      "source_cities": 106
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "TX",
+      "public_programs": 772,
+      "source_cities": 231
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "UT",
+      "public_programs": 60,
+      "source_cities": 37
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "VA",
+      "public_programs": 231,
+      "source_cities": 116
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "VI",
+      "public_programs": 6,
+      "source_cities": 4
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "VT",
+      "public_programs": 91,
+      "source_cities": 46
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "WA",
+      "public_programs": 423,
+      "source_cities": 118
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "WI",
+      "public_programs": 310,
+      "source_cities": 108
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "WV",
+      "public_programs": 524,
+      "source_cities": 190
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "state": "WY",
+      "public_programs": 19,
+      "source_cities": 12
+    },
+    {
+      "source_id": "pgc-food-assistance",
+      "state": "MD",
+      "public_programs": 60,
+      "source_cities": 19
+    },
+    {
+      "source_id": "philly-food-sites",
+      "state": "PA",
+      "public_programs": 324,
+      "source_cities": 1
+    },
+    {
+      "source_id": "seattle-food-resources",
+      "state": "WA",
+      "public_programs": 209,
+      "source_cities": 45
+    }
+  ],
+  "pgc_field_coverage": [
+    {
+      "public_programs": 60,
+      "phone": 0,
+      "website": 46,
+      "eligibility": 21,
+      "cost": 0,
+      "raw_schedule": 60,
+      "original_source_schedule_rows": 149
+    }
+  ],
+  "searches": [
+    {
+      "city": "Harrisburg PA",
+      "radius": 5,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Harrisburg PA",
+      "radius": 10,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Harrisburg PA",
+      "radius": 25,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Harrisburg PA",
+      "radius": 50,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Indiana PA",
+      "radius": 5,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Indiana PA",
+      "radius": 10,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Indiana PA",
+      "radius": 25,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Indiana PA",
+      "radius": 50,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Philadelphia PA",
+      "radius": 5,
+      "imported_total": 219,
+      "source_ids": [
+        "philly-food-sites"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Philadelphia PA",
+      "radius": 10,
+      "imported_total": 315,
+      "source_ids": [
+        "philly-food-sites"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Philadelphia PA",
+      "radius": 25,
+      "imported_total": 324,
+      "source_ids": [
+        "philly-food-sites"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Philadelphia PA",
+      "radius": 50,
+      "imported_total": 324,
+      "source_ids": [
+        "philly-food-sites"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Brooklyn NY",
+      "radius": 5,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Brooklyn NY",
+      "radius": 10,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Brooklyn NY",
+      "radius": 25,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Brooklyn NY",
+      "radius": 50,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "San Francisco CA",
+      "radius": 5,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "San Francisco CA",
+      "radius": 10,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "San Francisco CA",
+      "radius": 25,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "San Francisco CA",
+      "radius": 50,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Chicago IL",
+      "radius": 5,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Chicago IL",
+      "radius": 10,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Chicago IL",
+      "radius": 25,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Chicago IL",
+      "radius": 50,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Houston TX",
+      "radius": 5,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Houston TX",
+      "radius": 10,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Houston TX",
+      "radius": 25,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Houston TX",
+      "radius": 50,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Seattle WA",
+      "radius": 5,
+      "imported_total": 53,
+      "source_ids": [
+        "seattle-food-resources"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Seattle WA",
+      "radius": 10,
+      "imported_total": 106,
+      "source_ids": [
+        "seattle-food-resources"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Seattle WA",
+      "radius": 25,
+      "imported_total": 189,
+      "source_ids": [
+        "seattle-food-resources"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Seattle WA",
+      "radius": 50,
+      "imported_total": 208,
+      "source_ids": [
+        "seattle-food-resources"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Hyattsville MD",
+      "radius": 5,
+      "imported_total": 24,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Hyattsville MD",
+      "radius": 10,
+      "imported_total": 44,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Hyattsville MD",
+      "radius": 25,
+      "imported_total": 60,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Hyattsville MD",
+      "radius": 50,
+      "imported_total": 60,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Laurel MD",
+      "radius": 5,
+      "imported_total": 7,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Laurel MD",
+      "radius": 10,
+      "imported_total": 16,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Laurel MD",
+      "radius": 25,
+      "imported_total": 58,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Laurel MD",
+      "radius": 50,
+      "imported_total": 60,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Brandywine MD",
+      "radius": 5,
+      "imported_total": 2,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Brandywine MD",
+      "radius": 10,
+      "imported_total": 6,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Brandywine MD",
+      "radius": 25,
+      "imported_total": 53,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Brandywine MD",
+      "radius": 50,
+      "imported_total": 60,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Accokeek MD",
+      "radius": 5,
+      "imported_total": 0,
+      "source_ids": [],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Accokeek MD",
+      "radius": 10,
+      "imported_total": 3,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Accokeek MD",
+      "radius": 25,
+      "imported_total": 50,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Accokeek MD",
+      "radius": 50,
+      "imported_total": 60,
+      "source_ids": [
+        "pgc-food-assistance"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Carnation WA",
+      "radius": 5,
+      "imported_total": 3,
+      "source_ids": [
+        "seattle-food-resources"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Carnation WA",
+      "radius": 10,
+      "imported_total": 9,
+      "source_ids": [
+        "seattle-food-resources"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Carnation WA",
+      "radius": 25,
+      "imported_total": 164,
+      "source_ids": [
+        "seattle-food-resources"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    },
+    {
+      "city": "Carnation WA",
+      "radius": 50,
+      "imported_total": 208,
+      "source_ids": [
+        "seattle-food-resources"
+      ],
+      "mapped_leads": "NOT_RUN; no Geoapify requests",
+      "referrals_available": true
+    }
+  ],
+  "pgc_examples": [
+    {
+      "id": "7d9cb091-6cd2-5c70-bb8f-6f4e52fa4a38",
+      "title": "Community Support Systems (CSS) Inc BADEN \u2014 St. Paul's Episcopal Church",
+      "city": "Brandywine",
+      "state": "MD"
+    },
+    {
+      "id": "18df54a2-f88d-5466-be0e-5d10c432dee0",
+      "title": "PGC Family Services - Senior Nutrition Program Site \u2014 Southern Area Aquatics and Recreation Complex (SAARC)",
+      "city": "Brandywine",
+      "state": "MD"
+    },
+    {
+      "id": "5025c018-0915-5d86-85aa-16b14ca01aa7",
+      "title": "City of Greenbelt Food Pantry",
+      "city": "Greenbelt",
+      "state": "MD"
+    },
+    {
+      "id": "8e5b6d6c-bd8e-57b6-8d20-9657b61c8575",
+      "title": "PGC Family Services - Senior Nutrition Program Site \u2014 Greenbelt Senior Center",
+      "city": "Greenbelt",
+      "state": "MD"
+    },
+    {
+      "id": "bea67338-6b79-5dcd-99aa-52375bf24b3a",
+      "title": "FISH of Laurel, Inc. at Elizabeth House - Food Pantry",
+      "city": "Laurel",
+      "state": "MD"
+    },
+    {
+      "id": "811e7de2-0472-5ce3-bae8-ab8bb9970e92",
+      "title": "FISH of Laurel, Inc. at Elizabeth House - Meals",
+      "city": "Laurel",
+      "state": "MD"
+    },
+    {
+      "id": "1ad621e4-5c24-56b1-8529-529a18ea9995",
+      "title": "FISH of Laurel, Inc. at the Laurel Multiservice Center \u2014 Laurel Multiservice Center",
+      "city": "Laurel",
+      "state": "MD"
+    },
+    {
+      "id": "ae1585ec-7d2f-59ee-b049-3fabc2c1c745",
+      "title": "Laurel Advocacy and Referral Service (LARS)",
+      "city": "Laurel",
+      "state": "MD"
+    },
+    {
+      "id": "76c6130b-6d09-5db4-b851-1d5be382126b",
+      "title": "Laurel Advocacy and Referral Service (LARS) - Fresh Produce Friday",
+      "city": "Laurel",
+      "state": "MD"
+    },
+    {
+      "id": "1b2bb21c-af1b-59c1-978c-d0d5dfe2719b",
+      "title": "PGC Family Services - Senior Nutrition Program Site \u2014 Laurel Beltsville Senior Activity Center",
+      "city": "Laurel",
+      "state": "MD"
+    }
+  ],
+  "lineage": [
+    {
+      "bindings": 149,
+      "upstream_uuids": 149,
+      "programs": 60,
+      "held_bindings": 0,
+      "review_bindings": 0
+    }
+  ],
+  "import_runs": [
+    {
+      "pass": 1,
+      "states": {
+        "MD": 60
+      },
+      "created": 60,
+      "updated": 0,
+      "accepted": 60,
+      "category": "food",
+      "checksum": "13d738d3b61a10f1c11c484772de36db06fdddaf498f29b6fb23c1bd9f9ae764",
+      "excluded": 12,
+      "source_rows": 167,
+      "marked_stale": 0,
+      "needs_review": 0,
+      "full_snapshot": true,
+      "program_groups": 72,
+      "exclusion_reasons": {
+        "not_food_assistance": 9,
+        "regional_hub_not_walkin": 2,
+        "invalid_coordinates": 1
+      },
+      "source_updated_at": "2026-11-06T14:33:27.000Z",
+      "coordinate_quality": {
+        "policy": "regional-food-coordinate-anomalies-v2",
+        "city_anomaly_threshold_miles": 20,
+        "address_point_spread_threshold_miles": 1,
+        "reference_source": "census-gazetteer-2026",
+        "reference_fingerprint": "a31c4dfb0602efdb83d64eb8662a28306c6e84a8a8a88410ebedfa64f1161642",
+        "checked_records": 60,
+        "quarantined_records": 0,
+        "quarantine_reasons": {},
+        "unmatched_city_records": 8,
+        "ambiguous_city_records": 0,
+        "unmatched_record_ids": [
+          "PGC-224dd8b0aa8aba3eefb74f1a6ffb62dd",
+          "PGC-2874e112c9f2a506d587822121803757",
+          "PGC-6bd4551da76a02de55432a9a20bbc733",
+          "PGC-e0c75f45762ffc40303b2cdb3ea8c027",
+          "PGC-d78a181eb25a602f831e6f88a0e298fe",
+          "PGC-995dab6dcde53dfc32f1105ce98a5dca",
+          "PGC-76f8dc57735643ad2edddaa8f47aefd6",
+          "PGC-c8cd7139e8aff4b389f521a4fa03acfa"
+        ],
+        "quarantined": []
+      },
+      "privacy_withdrawals": 0,
+      "schedule_rows_coalesced": 95,
+      "new_coordinate_quarantines": 0,
+      "lineage_review_groups": 0,
+      "lineage_privacy_groups": 0,
+      "already_imported": true,
+      "run_id": "7686b4c6-cbf8-4aef-b5fe-d0dabb3325c0",
+      "privacy_backfilled": 0,
+      "coordinate_quarantines_backfilled": 0
+    },
+    {
+      "pass": 2,
+      "states": {
+        "MD": 60
+      },
+      "created": 60,
+      "updated": 0,
+      "accepted": 60,
+      "category": "food",
+      "checksum": "13d738d3b61a10f1c11c484772de36db06fdddaf498f29b6fb23c1bd9f9ae764",
+      "excluded": 12,
+      "source_rows": 167,
+      "marked_stale": 0,
+      "needs_review": 0,
+      "full_snapshot": true,
+      "program_groups": 72,
+      "exclusion_reasons": {
+        "not_food_assistance": 9,
+        "regional_hub_not_walkin": 2,
+        "invalid_coordinates": 1
+      },
+      "source_updated_at": "2026-11-06T14:33:27.000Z",
+      "coordinate_quality": {
+        "policy": "regional-food-coordinate-anomalies-v2",
+        "city_anomaly_threshold_miles": 20,
+        "address_point_spread_threshold_miles": 1,
+        "reference_source": "census-gazetteer-2026",
+        "reference_fingerprint": "a31c4dfb0602efdb83d64eb8662a28306c6e84a8a8a88410ebedfa64f1161642",
+        "checked_records": 60,
+        "quarantined_records": 0,
+        "quarantine_reasons": {},
+        "unmatched_city_records": 8,
+        "ambiguous_city_records": 0,
+        "unmatched_record_ids": [
+          "PGC-224dd8b0aa8aba3eefb74f1a6ffb62dd",
+          "PGC-2874e112c9f2a506d587822121803757",
+          "PGC-6bd4551da76a02de55432a9a20bbc733",
+          "PGC-e0c75f45762ffc40303b2cdb3ea8c027",
+          "PGC-d78a181eb25a602f831e6f88a0e298fe",
+          "PGC-995dab6dcde53dfc32f1105ce98a5dca",
+          "PGC-76f8dc57735643ad2edddaa8f47aefd6",
+          "PGC-c8cd7139e8aff4b389f521a4fa03acfa"
+        ],
+        "quarantined": []
+      },
+      "privacy_withdrawals": 0,
+      "schedule_rows_coalesced": 95,
+      "new_coordinate_quarantines": 0,
+      "lineage_review_groups": 0,
+      "lineage_privacy_groups": 0,
+      "already_imported": true,
+      "run_id": "7686b4c6-cbf8-4aef-b5fe-d0dabb3325c0",
+      "privacy_backfilled": 0,
+      "coordinate_quarantines_backfilled": 0
+    }
+  ],
+  "requests": [
+    {
+      "name": "nycGetFood",
+      "url": "https://www.nyc.gov/site/hra/help/food-assistance.page",
+      "status": 200,
+      "bytes": 24056,
+      "time": "2026-11-06T14:37:01.188Z"
+    },
+    {
+      "name": "boston",
+      "url": "https://data.boston.gov/api/3/action/package_search?q=food&rows=30",
+      "status": 200,
+      "bytes": 323857,
+      "time": "2026-11-06T14:37:01.598Z"
+    },
+    {
+      "name": "montgomery",
+      "url": "https://api.us.socrata.com/api/catalog/v1?search_context=data.montgomerycountymd.gov&q=food%20assistance&limit=15",
+      "status": 200,
+      "bytes": 46449,
+      "time": "2026-11-06T14:37:02.056Z"
+    },
+    {
+      "name": "cambridge",
+      "url": "https://api.us.socrata.com/api/catalog/v1?search_context=data.cambridgema.gov&q=food&limit=10",
+      "status": 200,
+      "bytes": 159507,
+      "time": "2026-11-06T14:37:02.177Z"
+    },
+    {
+      "name": "cdss",
+      "url": "https://www.cdss.ca.gov/food-banks",
+      "status": 200,
+      "bytes": 36975,
+      "time": "2026-11-06T14:37:03.187Z"
+    },
+    {
+      "name": "catalog",
+      "url": "https://api.us.socrata.com/api/catalog/v1?q=food%20pantry&limit=30",
+      "status": 200,
+      "bytes": 348595,
+      "time": "2026-11-06T14:38:11.145Z"
+    },
+    {
+      "name": "wprdc",
+      "url": "https://data.wprdc.org/api/3/action/package_search?q=food&rows=20",
+      "status": 200,
+      "bytes": 366792,
+      "time": "2026-11-06T14:38:11.694Z"
+    },
+    {
+      "name": "dc",
+      "url": "https://www.arcgis.com/sharing/rest/search?f=json&q=food%20pantry%20owner%3ADCGISopendata&num=30",
+      "status": 200,
+      "bytes": 58,
+      "time": "2026-11-06T14:38:11.855Z"
+    },
+    {
+      "name": "nycTerms",
+      "url": "https://www.nyc.gov/main/terms-of-use",
+      "status": 200,
+      "bytes": 512423,
+      "time": "2026-11-06T14:38:12.045Z"
+    },
+    {
+      "name": "pgMeta",
+      "url": "https://data.princegeorgescountymd.gov/api/views/d7ae-zbbv.json",
+      "status": 200,
+      "bytes": 33875,
+      "time": "2026-11-06T14:38:31.949Z"
+    },
+    {
+      "name": "moMeta",
+      "url": "https://data.mo.gov/api/views/eb3y-vtsa.json",
+      "status": 200,
+      "bytes": 12961,
+      "time": "2026-11-06T14:38:32.306Z"
+    },
+    {
+      "name": "deMeta",
+      "url": "https://data.delaware.gov/api/views/drmh-cny3.json",
+      "status": 200,
+      "bytes": 20414,
+      "time": "2026-11-06T14:38:32.672Z"
+    },
+    {
+      "name": "pgTerms",
+      "url": "https://data.princegeorgescountymd.gov/terms-of-use",
+      "status": 200,
+      "bytes": 605235,
+      "time": "2026-11-06T14:39:22.287Z"
+    },
+    {
+      "name": "pgRows",
+      "url": "https://data.princegeorgescountymd.gov/api/views/d7ae-zbbv/rows.json?accessType=DOWNLOAD",
+      "status": 200,
+      "bytes": 140940,
+      "time": "2026-11-06T14:39:22.535Z"
+    }
+  ],
+  "source_file_hashes": {
+    "pgRows.json": "9a7ddd227bc3ca006b9e4780e05d71854344b62a316b5b2db7c2a099700419ec",
+    "pgMeta.json": "f353fd2de5ad0c7e785562f2bcabed186b54111bd5e23287ee99147f33f96283",
+    "pgTerms.html": "a3f9e9f99332c7d37583e82c262c84c1e4af3eadc2f30cce7f5bb23395799431",
+    "openpgc-required-notice.txt": "fb5418981daef9e46ed2a539910825c8b08ecea741c7c95027d8e1b92b5c3473"
+  },
+  "migrations": [
+    {
+      "name": "001_init.sql",
+      "sha256": "2839718b850f5b15965fd62f46f30d161764e3bbed8c1a0ca5bce077f338a4a4"
+    },
+    {
+      "name": "002_demo_seed.sql",
+      "sha256": "bbb7c3b5862eb3bcd362f68e85e7903b090b5e1504503e11ac8cc6c5c68e25af"
+    },
+    {
+      "name": "003_api_role.sql",
+      "sha256": "42841f800d95ee7626cb88251304f47300308be3f363cf5b2042db9f47750a3c"
+    },
+    {
+      "name": "004_private_schema_access.sql",
+      "sha256": "e2d73be6dd4f05ede8dc1ad1f64eb3e8c3dfda142ac513a008dd1ca901726e51"
+    },
+    {
+      "name": "005_organization_accounts.sql",
+      "sha256": "b97aafc06faf408c72da0f93767682aa1b3f35d21dd302edd32ba5692d65e7e9"
+    },
+    {
+      "name": "006_security_boundary.sql",
+      "sha256": "52abd922de2d3796cd6a0f8072a4ac7a8924c9edb586837ea9d7405836b16ac9"
+    },
+    {
+      "name": "007_privacy_retention.sql",
+      "sha256": "bdfaf8e3ba1a86e3dd0fb216418c351080b0301a1988e0c7c2227a7d2c0e4fbe"
+    },
+    {
+      "name": "008_nationwide_resources.sql",
+      "sha256": "8846677d30eb78abc244264620c99b62cd61296f2deba000a2bc89167abc5037"
+    },
+    {
+      "name": "009_resource_privacy_withdrawals.sql",
+      "sha256": "74ddbcda21cad529a56928a1318afc32f976f1f0094d0204201a0d67463a84cf"
+    },
+    {
+      "name": "010_location_privacy_boundary.sql",
+      "sha256": "88e82d08205d26d19c646c36e08e9f26839821b2a5cd7dc8a71d61ec9d0aeecc"
+    },
+    {
+      "name": "011_geographic_reference.sql",
+      "sha256": "a96f8a9ea03a4f18460d9fc749cf4c4d467b5c16e52dd39f34a7b872a04d9b6a"
+    },
+    {
+      "name": "012_bounded_privacy_retention.sql",
+      "sha256": "8d573b943b37ba23f717e0ecb755e34414cd8ff191756c8c0dafa608e8674f9b"
+    },
+    {
+      "name": "013_resolved_retention_holds.sql",
+      "sha256": "92dda438a34a8a21604f2024361b061dc690a8973ac7e2d1f52b7d433451f0bf"
+    },
+    {
+      "name": "014_reviewed_food_sources.sql",
+      "sha256": "d3e3b8ca9483b1912bc732e40613fa55bc8b28648e69087acd320be7157a4f7c"
+    },
+    {
+      "name": "015_pgc_food_assistance.sql",
+      "sha256": "fdfc8f713a733f17cc71b770ea18b23cc6de3732c178ce562fb8fc4c4e5d5f03"
+    },
+    {
+      "name": "016_food_row_lineage.sql",
+      "sha256": "86b8def1e6380936b2b45f71b1bd042eac55aaf10b69411ab949305bacb1f21d"
+    }
+  ],
+  "lineage_regression_tests": {
+    "public_to_missing_confidential_address": true,
+    "renamed_moved_type_reappearance_held": true,
+    "original_public_checksum_replay_held": true,
+    "private_initial_never_published": true,
+    "ordinary_rekey_review_without_false_privacy": true,
+    "independent_human_correction_preserved": true,
+    "duplicate_uuid_alias_privacy": true,
+    "split_weekday_privacy_propagation": true,
+    "runtime_lineage_read_denied": true,
+    "all_synthetic_writes_rolled_back": true
+  }
+}

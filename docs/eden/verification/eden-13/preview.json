@@ -1,0 +1,115 @@
+{
+  "deployment": {
+    "id": "dpl_9pZw4J7JZjHbgQgnRE1hAeVX9hyN",
+    "url": "ourground-staging-rbpkuz1bg-penuels-projects-aa802b06.vercel.app",
+    "target": "preview",
+    "rawTarget": null,
+    "team": "team_7zBDrVIlwYth2sXkAbBPcbYw",
+    "project": "prj_eU9xRSetSQYTbkAce2cYIR5zx8c2",
+    "previous": "dpl_A4HRJGdewVv3Sae2DBWeZvL9qLhq",
+    "alias": "ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+    "autoAssignCustomDomains": false,
+    "createdAt": 1794095981662,
+    "inlineFiles": 10
+  },
+  "packageScan": {
+    "team": "team_7zBDrVIlwYth2sXkAbBPcbYw",
+    "project": "prj_eU9xRSetSQYTbkAce2cYIR5zx8c2",
+    "files": 462,
+    "privateMatches": 0,
+    "unchangedFunctionFiles": 330,
+    "staticFiles": 128,
+    "publicDescriptorMatchesPrior": true,
+    "pass": true
+  },
+  "stagingAlias": {
+    "id": "dpl_9pZw4J7JZjHbgQgnRE1hAeVX9hyN",
+    "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+    "anonymous": [
+      {
+        "path": "/",
+        "status": 302
+      },
+      {
+        "path": "/api/v1/health",
+        "status": 302
+      }
+    ],
+    "authenticated": [
+      {
+        "path": "/ourground-build-evidence.json",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/health",
+        "status": 200
+      },
+      {
+        "path": "/",
+        "status": 200
+      }
+    ],
+    "disabled": [
+      {
+        "path": "/api/v1/eden/session",
+        "status": 403,
+        "code": "EDEN_DISABLED"
+      },
+      {
+        "path": "/api/v1/eden/speech",
+        "status": 403,
+        "code": "EDEN_DISABLED"
+      },
+      {
+        "path": "/api/v1/eden/live/token",
+        "status": 403,
+        "code": "EDEN_DISABLED"
+      }
+    ]
+  },
+  "immutablePreview": {
+    "id": "dpl_9pZw4J7JZjHbgQgnRE1hAeVX9hyN",
+    "origin": "https://ourground-staging-rbpkuz1bg-penuels-projects-aa802b06.vercel.app",
+    "anonymous": [
+      {
+        "path": "/",
+        "status": 302
+      },
+      {
+        "path": "/api/v1/health",
+        "status": 302
+      }
+    ],
+    "authenticated": [
+      {
+        "path": "/ourground-build-evidence.json",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/health",
+        "status": 200
+      },
+      {
+        "path": "/",
+        "status": 200
+      }
+    ],
+    "disabled": [
+      {
+        "path": "/api/v1/eden/session",
+        "status": 403,
+        "code": "EDEN_DISABLED"
+      },
+      {
+        "path": "/api/v1/eden/speech",
+        "status": 403,
+        "code": "EDEN_DISABLED"
+      },
+      {
+        "path": "/api/v1/eden/live/token",
+        "status": 403,
+        "code": "EDEN_DISABLED"
+      }
+    ]
+  }
+}

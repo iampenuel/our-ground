@@ -1,0 +1,50 @@
+{
+  "created": "2026-11-07T23:10:37.029Z",
+  "project": "hrmocmvdmshoghclxyjs",
+  "public_rows": 367,
+  "schemas": [
+    "app_private",
+    "our_ground_meta",
+    "eden_staging_limits"
+  ],
+  "skipped_data": [
+    "app_users",
+    "campaigns",
+    "correction_reports",
+    "organization_claims",
+    "organization_revisions",
+    "organization_audit",
+    "organization_action_limits",
+    "organization_revoked_sessions",
+    "organization_memberships",
+    "organization_listing_access",
+    "privacy_retention_holds",
+    "eden_staging_limits.bucket"
+  ],
+  "source_receipts": [
+    {
+      "source_id": "hrsa-health-centers",
+      "checksum": "69f274ad859db78d35861642fa5a9f8132f22250ff3f46e453061cb7315cfacd",
+      "source_updated_at": "2026-11-06T00:00:00.000Z"
+    },
+    {
+      "source_id": "hrsa-health-centers",
+      "checksum": "e67f68397dbb226b8d23bfb5e544be2f7b6c5045ecb83bcc119aa81d0545bcad",
+      "source_updated_at": "2026-11-06T00:00:00.000Z"
+    },
+    {
+      "source_id": "philly-food-sites",
+      "checksum": "31d6ad668a6aab26c80f59ea91b7d74628040ede00ea1526ff90f70f6a3f9140",
+      "source_updated_at": "2026-11-05T16:54:29.474Z"
+    }
+  ],
+  "migrations": 15,
+  "bytes": 2181318,
+  "sha256": "e9c7515110b6ea86c9f6b103e587242d80654a1351941ffb41a042683aec0197",
+  "archive_members_read": true,
+  "restore_of_this_archive_tested": false,
+  "directory": "/Volumes/Penuel Back/Our Ground Backups/eden11-20261107T231056Z-f6c08990",
+  "ciphertext_sha256": "1bf5adf47a543c7420012da1805cff97f01d6db67e54ea0cf93f9180a1e62b66",
+  "decryption_hash_verified": true,
+  "original_checkpoint_preserved": true
+}

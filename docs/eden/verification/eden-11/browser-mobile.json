@@ -1,0 +1,432 @@
+{
+  "viewport": [
+    390,
+    844
+  ],
+  "pages": [
+    {
+      "name": "home",
+      "title": "Stronger\ncommunities\ngrow here.",
+      "description": "Our Ground helps visitors explore food, healthcare, and community resource information. The homepage links to Find Support, Give Support, and For Organizations."
+    },
+    {
+      "name": "support",
+      "title": "Find support\nnear you.",
+      "description": "Find Support searches food or healthcare resources by location and distance. Visitors can filter returned results, read source information and details, and use the map when available. Listing coverage varies; confirm service information directly with the provider."
+    },
+    {
+      "name": "give",
+      "title": "A stronger community\nstarts with connection.",
+      "description": "Give Support explains how to explore local providers and confirm their identity and current needs through official channels. Our Ground does not process donations, book volunteer opportunities, collect card details, or guarantee tax deductibility. Fictional demonstration listings are not real providers and cannot receive support."
+    },
+    {
+      "name": "organizations",
+      "title": "Local knowledge.\nA shared starting point.",
+      "description": "For Organizations explains how representatives can request access to their organization and location through their account. Administrators must approve organization access before assigned records can be edited; proposed updates require review. Eden can explain this public process but cannot sign in, inspect private accounts, or submit access requests or changes."
+    },
+    {
+      "name": "about",
+      "title": "A clearer path to community support.",
+      "description": "About explains Our Ground, its public resource directory, and how residents, donors, and organizations can participate. Sourced listings are not independent verification or a guarantee of availability; fictional demonstrations are labeled separately."
+    }
+  ],
+  "actions": [
+    {
+      "type": "read-page",
+      "status": "done",
+      "message": "Our Ground helps visitors explore food, healthcare, and community resource information. The homepage links to Find Support, Give Support, and For Organizations."
+    },
+    {
+      "type": "search",
+      "city": "Philadelphia",
+      "status": "mounted"
+    },
+    {
+      "type": "read-page",
+      "status": "done",
+      "message": "Find Support searches food or healthcare resources by location and distance. Visitors can filter returned results, read source information and details, and use the map when available. Listing coverage varies; confirm service information directly with the provider."
+    },
+    {
+      "type": "read-results",
+      "status": "done",
+      "message": "20 listings loaded. 1. Solomon Temple; 2. As I Plant This Seed Community Fridge; 3. McClure Elementary School; 4. 10th St. Market (North 10); 5. Small Things Philly Market - Fairhill. More are in the results list. Read each listing’s sources and confirm current services directly."
+    },
+    {
+      "type": "details",
+      "status": "done",
+      "message": "Opened public details for result 1. Check the listed source and confirm details directly."
+    },
+    {
+      "type": "select",
+      "status": "done",
+      "message": "Selected result 1. The map is loading."
+    },
+    {
+      "type": "radius",
+      "status": "done",
+      "message": "20 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+    },
+    {
+      "type": "details",
+      "status": "done",
+      "message": "Opened public details for result 1. Check the listed source and confirm details directly."
+    },
+    {
+      "type": "read-page",
+      "status": "done",
+      "message": "Give Support explains how to explore local providers and confirm their identity and current needs through official channels. Our Ground does not process donations, book volunteer opportunities, collect card details, or guarantee tax deductibility. Fictional demonstration listings are not real providers and cannot receive support."
+    },
+    {
+      "type": "read-page",
+      "status": "done",
+      "message": "For Organizations explains how representatives can request access to their organization and location through their account. Administrators must approve organization access before assigned records can be edited; proposed updates require review. Eden can explain this public process but cannot sign in, inspect private accounts, or submit access requests or changes."
+    },
+    {
+      "type": "read-page",
+      "status": "done",
+      "message": "About explains Our Ground, its public resource directory, and how residents, donors, and organizations can participate. Sourced listings are not independent verification or a guarantee of availability; fictional demonstrations are labeled separately."
+    },
+    {
+      "type": "refine",
+      "status": "done",
+      "message": "4 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+    },
+    {
+      "type": "search",
+      "status": "done",
+      "message": "5 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+    },
+    {
+      "type": "details",
+      "status": "done",
+      "message": "Opened public details for result 1. Check the listed source and confirm details directly."
+    },
+    {
+      "type": "search",
+      "status": "done",
+      "message": "3 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+    },
+    {
+      "type": "radius",
+      "status": "done",
+      "message": "2 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+    },
+    {
+      "type": "radius",
+      "status": "done",
+      "message": "3 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+    },
+    {
+      "type": "search",
+      "status": "done",
+      "message": "0 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+    },
+    {
+      "type": "refine",
+      "status": "done",
+      "message": "5 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+    },
+    {
+      "type": "select",
+      "status": "done",
+      "message": "Selected result 1. The map shows the same selection."
+    },
+    {
+      "type": "radius",
+      "status": "done",
+      "message": "5 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+    },
+    {
+      "type": "details",
+      "status": "done",
+      "message": "Opened public details for result 1. Check the listed source and confirm details directly."
+    }
+  ],
+  "cases": [
+    {
+      "city": "Philadelphia",
+      "category": "food",
+      "radius": 5,
+      "q": "",
+      "total": 226,
+      "cards": 20,
+      "first": "Solomon Temple"
+    },
+    {
+      "city": "Philadelphia",
+      "category": "food",
+      "radius": 10,
+      "q": "",
+      "total": 323,
+      "cards": 20,
+      "first": "Solomon Temple"
+    },
+    {
+      "city": "Philadelphia",
+      "category": "food",
+      "radius": 10,
+      "q": "share",
+      "total": 1,
+      "cards": 1,
+      "first": "Share Community Fridge"
+    },
+    {
+      "city": "Philadelphia",
+      "category": "food",
+      "radius": 10,
+      "q": "",
+      "total": 323,
+      "cards": 20,
+      "first": "Solomon Temple"
+    },
+    {
+      "city": "Philadelphia",
+      "category": "healthcare",
+      "radius": 10,
+      "q": "",
+      "total": 4,
+      "cards": 4,
+      "first": "Fair Hill Community Physicians- Hunting Park"
+    },
+    {
+      "city": "Lancaster",
+      "category": "healthcare",
+      "radius": 5,
+      "q": "",
+      "total": 5,
+      "cards": 5,
+      "first": "Lancaster Downtown (Medical, Dental & Pharmacy)"
+    },
+    {
+      "city": "Harrisburg",
+      "category": "healthcare",
+      "radius": 10,
+      "q": "",
+      "total": 3,
+      "cards": 3,
+      "first": "HHC- South Allison Hill"
+    },
+    {
+      "city": "Harrisburg",
+      "category": "healthcare",
+      "radius": 5,
+      "q": "",
+      "total": 2,
+      "cards": 2,
+      "first": "HHC- South Allison Hill"
+    },
+    {
+      "city": "Harrisburg",
+      "category": "healthcare",
+      "radius": 10,
+      "q": "Sadler",
+      "total": 1,
+      "cards": 1,
+      "first": "Sadler Health Center Corporation Mechanicsburg"
+    },
+    {
+      "city": "Pittsburgh",
+      "category": "food",
+      "radius": 10,
+      "q": "",
+      "total": 0,
+      "cards": 0,
+      "first": null
+    },
+    {
+      "city": "Pittsburgh",
+      "category": "healthcare",
+      "radius": 10,
+      "q": "",
+      "total": 5,
+      "cards": 5,
+      "first": "HILL HOUSE HEALTH CENTER"
+    },
+    {
+      "city": "Pittsburgh",
+      "category": "healthcare",
+      "radius": 5,
+      "q": "",
+      "total": 5,
+      "cards": 5,
+      "first": "HILL HOUSE HEALTH CENTER"
+    }
+  ],
+  "detail": [
+    {
+      "id": "3d3eaf0f-2e5b-556f-8f52-18594bdd31b5",
+      "title": "Solomon Temple",
+      "sourceUrl": "https://opendataphilly.org/datasets/free-food-and-meal-sites/",
+      "source": "Source & datesSource: City of Philadelphia, Office of Children and Families — Free Food and Meal Sites (opens in a new tab) · Dataset snapshot 2026-11-05 · Imported 2026-11-07License: City of Philadelphia License (opens in a new tab)City of Philadelphia, Office of Children and Families",
+      "body": "Selected resource\n\nClose\nHours\nWednesday\n8:30 AM – 10:30 AM\n\nSource-listed times. Confirm current hours and time zone before visiting.\n\nCost\n\nListed by the source as a free food resource."
+    },
+    {
+      "id": "9da6ad57-c6cc-5e74-9b0b-a63b00a006bd",
+      "title": "Share Community Fridge",
+      "sourceUrl": "https://opendataphilly.org/datasets/free-food-and-meal-sites/",
+      "source": "Source & datesSource: City of Philadelphia, Office of Children and Families — Free Food and Meal Sites (opens in a new tab) · Dataset snapshot 2026-11-05 · Imported 2026-11-07License: City of Philadelphia License (opens in a new tab)City of Philadelphia, Office of Children and Families",
+      "body": "Selected resource\n\nClose\nCost\n\nListed by the source as a free food resource."
+    },
+    {
+      "id": "9dcfed81-c974-5bc1-b285-da65462c22e0",
+      "title": "Lancaster Downtown (Medical, Dental & Pharmacy)",
+      "sourceUrl": "https://data.hrsa.gov/topics/health-centers/",
+      "source": "Source & datesSource: HRSA Health Center Program Service Delivery and Look-Alike Sites (opens in a new tab) · Dataset snapshot 2026-11-06 · Imported 2026-11-07",
+      "body": "Selected resource\n\nClose\nSource record\n\nHRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-032424\n\nContact the organization to confirm services, hours and availability before visiting."
+    },
+    {
+      "id": "7c29d14b-6372-57f9-a82a-069dbe32adb0",
+      "title": "HILL HOUSE HEALTH CENTER",
+      "sourceUrl": "https://data.hrsa.gov/topics/health-centers/",
+      "source": "Source & datesSource: HRSA Health Center Program Service Delivery and Look-Alike Sites (opens in a new tab) · Dataset snapshot 2026-11-06 · Imported 2026-11-07",
+      "body": "Selected resource\n\nClose\nSource record\n\nHRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-000827\n\nContact the organization to confirm services, hours and availability before visiting."
+    }
+  ],
+  "sync": [
+    {
+      "city": "philadelphia-pa",
+      "category": "food",
+      "pins": 20,
+      "markerToList": true,
+      "listToMarker": true
+    },
+    {
+      "city": "pittsburgh-pa",
+      "category": "healthcare",
+      "pins": 5,
+      "markerToList": true,
+      "listToMarker": true
+    }
+  ],
+  "pagination": {
+    "displayed": 40,
+    "firstPage": 20
+  },
+  "referrals": {
+    "visible": true,
+    "message": "Our Ground’s local food listings are incomplete. Food help may still be available. Start with these trusted referral services.",
+    "label": "EXTERNAL REFERRAL · NOT AN OUR GROUND LISTING"
+  },
+  "zero": "Our Ground’s local food listings are incomplete. Food help may still be available. Start with these trusted referral services.",
+  "emptyDetail": "That result number is not available. Choose a number from the current list.",
+  "stale": "The page changed. Please choose the action again.",
+  "pass": true,
+  "stats": {
+    "style_200": 2,
+    "map_asset_200": 6,
+    "tile_200": 4
+  },
+  "api": [
+    {
+      "path": "/api/v1/locations/status",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/geoapify/status",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/places/directory-city",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/3d3eaf0f-2e5b-556f-8f52-18594bdd31b5",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/9da6ad57-c6cc-5e74-9b0b-a63b00a006bd",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/locations/status",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/geoapify/status",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/places/directory-city",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/places/directory-city",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/9dcfed81-c974-5bc1-b285-da65462c22e0",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/places/directory-city",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/places/directory-city",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/7c29d14b-6372-57f9-a82a-069dbe32adb0",
+      "status": 200
+    }
+  ],
+  "errors": [],
+  "authenticatedSameOriginRequests": 95,
+  "credentialSentToOtherOrigins": 0
+}

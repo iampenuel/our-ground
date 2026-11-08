@@ -1,0 +1,322 @@
+{
+  "scope": "Authenticated project dashboard plus direct provider checks and a packaged local Preview; not a hosted website test.",
+  "date": "2026-11-07",
+  "expected_branch_hostname": "ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "alias_before_deployment": "Vercel alias lookup 404; no deployment exists",
+  "project_protection": "all_except_custom_domains",
+  "all_20_settings_preview_only": true,
+  "distinct_key": "Verified from provider dashboard; Preview map key differed from both existing local map keys without printing values.",
+  "initial_fresh_styles": {
+    "no_headers_first": {
+      "status": 200,
+      "valid_style": true,
+      "cache": "MISS",
+      "age": null
+    },
+    "only_unrelated_origin": {
+      "status": 401,
+      "valid_style": false,
+      "cache": "BYPASS",
+      "age": null
+    },
+    "only_unrelated_referrer": {
+      "status": 401,
+      "valid_style": false,
+      "cache": "BYPASS",
+      "age": null
+    },
+    "both_unrelated": {
+      "status": 401,
+      "valid_style": false,
+      "cache": "BYPASS",
+      "age": null
+    },
+    "both_allowed": {
+      "status": 200,
+      "valid_style": true,
+      "cache": "MISS",
+      "age": null
+    }
+  },
+  "initial_vector_tiles": {
+    "no_headers": {
+      "status": 200,
+      "bytes": 110588,
+      "cache": "MISS",
+      "type": "application/x-protobuf"
+    },
+    "unrelated": {
+      "status": 401,
+      "bytes": 65,
+      "cache": "BYPASS",
+      "type": "application/json"
+    },
+    "allowed": {
+      "status": 200,
+      "bytes": 110588,
+      "cache": "MISS",
+      "type": "application/x-protobuf"
+    }
+  },
+  "independent_no_key_control": {
+    "no_key": {
+      "status": 200,
+      "type": "application/x-protobuf"
+    },
+    "style_without_key": {
+      "status": 401
+    }
+  },
+  "temporary_ip_rule": "^$; authorized only for staging; rolled back after both allowed and headerless requests failed",
+  "with_ip_filter": {
+    "no_headers_first": {
+      "status": 401,
+      "valid_style": false,
+      "cache": "BYPASS",
+      "age": null
+    },
+    "only_unrelated_origin": {
+      "status": 401,
+      "valid_style": false,
+      "cache": "BYPASS",
+      "age": null
+    },
+    "only_unrelated_referrer": {
+      "status": 401,
+      "valid_style": false,
+      "cache": "BYPASS",
+      "age": null
+    },
+    "both_unrelated": {
+      "status": 401,
+      "valid_style": false,
+      "cache": "BYPASS",
+      "age": null
+    },
+    "both_allowed": {
+      "status": 401,
+      "valid_style": false,
+      "cache": "BYPASS",
+      "age": null
+    }
+  },
+  "after_removal": {
+    "no_headers_first": {
+      "status": 200,
+      "valid_style": true,
+      "cache": "MISS",
+      "age": null
+    },
+    "only_unrelated_origin": {
+      "status": 401,
+      "valid_style": false,
+      "cache": "BYPASS",
+      "age": null
+    },
+    "only_unrelated_referrer": {
+      "status": 401,
+      "valid_style": false,
+      "cache": "BYPASS",
+      "age": null
+    },
+    "both_unrelated": {
+      "status": 401,
+      "valid_style": false,
+      "cache": "BYPASS",
+      "age": null
+    },
+    "both_allowed": {
+      "status": 200,
+      "valid_style": true,
+      "cache": "MISS",
+      "age": null
+    }
+  },
+  "release_package": {
+    "output_files": 462,
+    "public_files_with_expected_map_key": 2,
+    "private_matches": 0,
+    "escaping_symlinks": 0,
+    "compiled_function_health": true,
+    "api_rewrite_before_spa": true,
+    "node": "nodejs24.x",
+    "build_diagnostics": 0,
+    "pass": true
+  },
+  "packaged_api": {
+    "hosted": false,
+    "endpoint": "Packaged Vercel Node 24 function, exercised locally against staging Supabase",
+    "search": [
+      {
+        "radius": 10,
+        "q": "",
+        "total": 3,
+        "ids": [
+          "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+          "5a9b557b-d98a-512e-bd9b-656c500582a6"
+        ]
+      },
+      {
+        "radius": 5,
+        "q": "",
+        "total": 2,
+        "ids": [
+          "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9"
+        ]
+      },
+      {
+        "radius": 10,
+        "q": "Sadler",
+        "total": 1,
+        "ids": [
+          "5a9b557b-d98a-512e-bd9b-656c500582a6"
+        ]
+      }
+    ],
+    "details": [
+      {
+        "title": "HHC- South Allison Hill",
+        "source": "BPS-H80-012534",
+        "kind": "imported_unverified"
+      },
+      {
+        "title": "Hamilton Health Center Family Practice at Steelton",
+        "source": "BPS-H80-038079",
+        "kind": "imported_unverified"
+      },
+      {
+        "title": "Sadler Health Center Corporation Mechanicsburg",
+        "source": "BPS-H80-033742",
+        "kind": "imported_unverified"
+      }
+    ],
+    "gemini_agent_live_speech": false,
+    "disabled_session_status": 403,
+    "pass": true
+  },
+  "local_preflight": {
+    "scope": "local isolated build and identity-checked directory-only configuration, not hosted verification",
+    "build": {
+      "status": "PASS",
+      "asset_count": 127
+    },
+    "checks": [
+      {
+        "id": "designated_preview_requires_postgres",
+        "status": "PASS"
+      },
+      {
+        "id": "reviewed_manifest_version",
+        "status": "PASS"
+      },
+      {
+        "id": "owner_target_approval_recorded",
+        "status": "PASS"
+      },
+      {
+        "id": "dedicated_staging_project",
+        "status": "PASS"
+      },
+      {
+        "id": "exact_linked_project",
+        "status": "PASS"
+      },
+      {
+        "id": "vercel_runtime_project_matches",
+        "status": "PASS"
+      },
+      {
+        "id": "preview_target_only",
+        "status": "PASS"
+      },
+      {
+        "id": "exact_nonproduction_https_origin",
+        "status": "PASS"
+      },
+      {
+        "id": "exact_auth_origin_allowlists",
+        "status": "PASS"
+      },
+      {
+        "id": "explicit_staging_supabase_project",
+        "status": "PASS"
+      },
+      {
+        "id": "production_auth_baseline_reviewed",
+        "status": "PASS"
+      },
+      {
+        "id": "distinct_auth_project",
+        "status": "PASS"
+      },
+      {
+        "id": "directory_only_auth_disabled",
+        "status": "PASS"
+      },
+      {
+        "id": "exact_build_auth_csp",
+        "status": "PASS"
+      },
+      {
+        "id": "actual_build_configuration_and_assets",
+        "status": "PASS"
+      },
+      {
+        "id": "restricted_staging_database",
+        "status": "PASS"
+      },
+      {
+        "id": "owner_credentials_absent",
+        "status": "PASS"
+      },
+      {
+        "id": "verified_tls_required",
+        "status": "PASS"
+      },
+      {
+        "id": "isolated_staging_postgres_limits",
+        "status": "PASS"
+      },
+      {
+        "id": "tile_key_restrictions_reviewed",
+        "status": "PASS"
+      },
+      {
+        "id": "known_headerless_tile_quota_accepted",
+        "status": "PASS"
+      },
+      {
+        "id": "supplemental_provider_off",
+        "status": "PASS"
+      },
+      {
+        "id": "directory_city_reference_enabled",
+        "status": "PASS"
+      },
+      {
+        "id": "no_hosted_eden_grant_or_credentials",
+        "status": "PASS"
+      },
+      {
+        "id": "real_data_fixture_isolation",
+        "status": "PASS"
+      },
+      {
+        "id": "provider_limits_not_raised",
+        "status": "PASS"
+      },
+      {
+        "id": "no_private_value_browser_alias",
+        "status": "PASS"
+      },
+      {
+        "id": "owner_database_not_in_runtime_build",
+        "status": "PASS"
+      }
+    ]
+  },
+  "deployed": false,
+  "status": "Predeployment package checkpoint. The later authorized bootstrap and hosted Preview passed. See hosted-verification.json."
+}

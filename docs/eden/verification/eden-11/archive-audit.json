@@ -1,0 +1,23 @@
+{
+  "prior": {
+    "services": 3,
+    "resource_source_records": 3,
+    "geographic_reference_records": 32415,
+    "migrations": 15,
+    "resource_privacy_holds": 0
+  },
+  "before_hrsa_link_correction": {
+    "services": 367,
+    "resource_source_records": 367,
+    "geographic_reference_records": 32415,
+    "migrations": 15,
+    "resource_privacy_holds": 0
+  },
+  "final": {
+    "services": 367,
+    "resource_source_records": 367,
+    "geographic_reference_records": 32415,
+    "migrations": 15,
+    "resource_privacy_holds": 0
+  }
+}

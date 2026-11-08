@@ -1,0 +1,21 @@
+[
+  {
+    "link": "https://data.hrsa.gov/topics/healthcenters",
+    "http": 403
+  },
+  {
+    "link": "https://data.hrsa.gov/data/download",
+    "http": 200,
+    "destination": "https://data.hrsa.gov/data/download"
+  },
+  {
+    "link": "https://opendataphilly.org/datasets/free-food-and-meal-sites/",
+    "http": 200,
+    "destination": "https://opendataphilly.org/datasets/free-food-and-meal-sites/"
+  },
+  {
+    "link": "https://metadata.phila.gov/#help/help-faqs/what-are-the-terms-of-use/",
+    "http": 200,
+    "destination": "https://metadata.phila.gov/#help/help-faqs/what-are-the-terms-of-use/"
+  }
+]

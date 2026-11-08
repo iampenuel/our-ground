@@ -1,0 +1,612 @@
+{
+  "measured_at": "2026-11-06T00:00:01.389Z",
+  "environment": "New disposable local ourground_7d1 clone, PostgreSQL18; actual restricted runtime role",
+  "method": "Five warm adapter calls per query, including transaction role check and750ms timeout setup. These are local server/database candidate timings, not browser typing or Geoapify network latency.",
+  "counts": {
+    "places": 32363,
+    "states": 52,
+    "indexed_names": 64817,
+    "import_runs": 2
+  },
+  "measurements": [
+    {
+      "query": "San Fransisco",
+      "state": "CA",
+      "median_ms": 17.98,
+      "maximum_ms": 20.57,
+      "candidates": [
+        {
+          "id": "census:2026:place:0667000",
+          "name": "San Francisco city",
+          "state": "CA",
+          "kind": "place",
+          "match": {
+            "query": "San Fransisco",
+            "method": "fuzzy",
+            "exact_match": false,
+            "matched_name": "San Francisco",
+            "edit_distance": 1,
+            "local_similarity": 0.64706,
+            "ambiguous_matches": 1
+          }
+        }
+      ]
+    },
+    {
+      "query": "Philidelphia",
+      "state": "PA",
+      "median_ms": 29.47,
+      "maximum_ms": 36.06,
+      "candidates": [
+        {
+          "id": "census:2026:place:4260000",
+          "name": "Philadelphia city",
+          "state": "PA",
+          "kind": "place",
+          "match": {
+            "query": "Philidelphia",
+            "method": "fuzzy",
+            "exact_match": false,
+            "matched_name": "Philadelphia",
+            "edit_distance": 1,
+            "local_similarity": 0.6,
+            "ambiguous_matches": 1
+          }
+        }
+      ]
+    },
+    {
+      "query": "Chcago",
+      "state": "IL",
+      "median_ms": 28.73,
+      "maximum_ms": 60.06,
+      "candidates": [
+        {
+          "id": "census:2026:place:1714000",
+          "name": "Chicago city",
+          "state": "IL",
+          "kind": "place",
+          "match": {
+            "query": "Chcago",
+            "method": "fuzzy",
+            "exact_match": false,
+            "matched_name": "Chicago",
+            "edit_distance": 1,
+            "local_similarity": 0.5,
+            "ambiguous_matches": 1
+          }
+        }
+      ]
+    },
+    {
+      "query": "Pensylvania",
+      "state": null,
+      "median_ms": 15.02,
+      "maximum_ms": 22.02,
+      "candidates": [
+        {
+          "id": "census:2026:state:42",
+          "name": "Pennsylvania",
+          "state": "PA",
+          "kind": "state",
+          "match": {
+            "query": "Pensylvania",
+            "method": "fuzzy",
+            "exact_match": false,
+            "matched_name": "Pennsylvania",
+            "edit_distance": 1,
+            "local_similarity": 0.78571,
+            "ambiguous_matches": 2
+          }
+        },
+        {
+          "id": "census:2026:place:5145008",
+          "name": "Leesylvania CDP",
+          "state": "VA",
+          "kind": "place",
+          "match": {
+            "query": "Pensylvania",
+            "method": "fuzzy",
+            "exact_match": false,
+            "matched_name": "Leesylvania",
+            "edit_distance": 2,
+            "local_similarity": 0.41177,
+            "ambiguous_matches": 2
+          }
+        }
+      ]
+    },
+    {
+      "query": "Los Angles",
+      "state": "CA",
+      "median_ms": 28.49,
+      "maximum_ms": 33.11,
+      "candidates": [
+        {
+          "id": "census:2026:place:0644000",
+          "name": "Los Angeles city",
+          "state": "CA",
+          "kind": "place",
+          "match": {
+            "query": "Los Angles",
+            "method": "fuzzy",
+            "exact_match": false,
+            "matched_name": "Los Angeles",
+            "edit_distance": 1,
+            "local_similarity": 0.64286,
+            "ambiguous_matches": 1
+          }
+        }
+      ]
+    },
+    {
+      "query": "Boson",
+      "state": "MA",
+      "median_ms": 16.56,
+      "maximum_ms": 20.46,
+      "candidates": [
+        {
+          "id": "census:2026:place:2507000",
+          "name": "Boston city",
+          "state": "MA",
+          "kind": "place",
+          "match": {
+            "query": "Boson",
+            "method": "fuzzy",
+            "exact_match": false,
+            "matched_name": "Boston",
+            "edit_distance": 1,
+            "local_similarity": 0.44444,
+            "ambiguous_matches": 1
+          }
+        }
+      ]
+    },
+    {
+      "query": "Boston",
+      "state": "MA",
+      "median_ms": 2,
+      "maximum_ms": 4.85,
+      "candidates": [
+        {
+          "id": "census:2026:place:2507000",
+          "name": "Boston city",
+          "state": "MA",
+          "kind": "place",
+          "match": {
+            "query": "Boston",
+            "method": "exact",
+            "exact_match": true,
+            "matched_name": "Boston",
+            "edit_distance": 0,
+            "local_similarity": 1,
+            "ambiguous_matches": 1
+          }
+        }
+      ]
+    },
+    {
+      "query": "Springfield",
+      "state": null,
+      "median_ms": 4.1,
+      "maximum_ms": 6.05,
+      "candidates": [
+        {
+          "id": "census:2026:place:0566110",
+          "name": "Springfield CDP",
+          "state": "AR",
+          "kind": "place",
+          "match": {
+            "query": "Springfield",
+            "method": "exact",
+            "exact_match": true,
+            "matched_name": "Springfield",
+            "edit_distance": 0,
+            "local_similarity": 1,
+            "ambiguous_matches": 22
+          }
+        },
+        {
+          "id": "census:2026:place:0873330",
+          "name": "Springfield town",
+          "state": "CO",
+          "kind": "place",
+          "match": {
+            "query": "Springfield",
+            "method": "exact",
+            "exact_match": true,
+            "matched_name": "Springfield",
+            "edit_distance": 0,
+            "local_similarity": 1,
+            "ambiguous_matches": 22
+          }
+        },
+        {
+          "id": "census:2026:place:1268275",
+          "name": "Springfield city",
+          "state": "FL",
+          "kind": "place",
+          "match": {
+            "query": "Springfield",
+            "method": "exact",
+            "exact_match": true,
+            "matched_name": "Springfield",
+            "edit_distance": 0,
+            "local_similarity": 1,
+            "ambiguous_matches": 22
+          }
+        },
+        {
+          "id": "census:2026:place:1372780",
+          "name": "Springfield city",
+          "state": "GA",
+          "kind": "place",
+          "match": {
+            "query": "Springfield",
+            "method": "exact",
+            "exact_match": true,
+            "matched_name": "Springfield",
+            "edit_distance": 0,
+            "local_similarity": 1,
+            "ambiguous_matches": 22
+          }
+        },
+        {
+          "id": "census:2026:place:1772000",
+          "name": "Springfield city",
+          "state": "IL",
+          "kind": "place",
+          "match": {
+            "query": "Springfield",
+            "method": "exact",
+            "exact_match": true,
+            "matched_name": "Springfield",
+            "edit_distance": 0,
+            "local_similarity": 1,
+            "ambiguous_matches": 22
+          }
+        }
+      ]
+    },
+    {
+      "query": "Springfield",
+      "state": "IL",
+      "median_ms": 1.45,
+      "maximum_ms": 2.17,
+      "candidates": [
+        {
+          "id": "census:2026:place:1772000",
+          "name": "Springfield city",
+          "state": "IL",
+          "kind": "place",
+          "match": {
+            "query": "Springfield",
+            "method": "exact",
+            "exact_match": true,
+            "matched_name": "Springfield",
+            "edit_distance": 0,
+            "local_similarity": 1,
+            "ambiguous_matches": 1
+          }
+        }
+      ]
+    },
+    {
+      "query": "New York",
+      "state": null,
+      "median_ms": 1.5,
+      "maximum_ms": 4.04,
+      "candidates": [
+        {
+          "id": "census:2026:place:1248725",
+          "name": "New York CDP",
+          "state": "FL",
+          "kind": "place",
+          "match": {
+            "query": "New York",
+            "method": "exact",
+            "exact_match": true,
+            "matched_name": "New York",
+            "edit_distance": 0,
+            "local_similarity": 1,
+            "ambiguous_matches": 3
+          }
+        },
+        {
+          "id": "census:2026:place:3651000",
+          "name": "New York city",
+          "state": "NY",
+          "kind": "place",
+          "match": {
+            "query": "New York",
+            "method": "exact",
+            "exact_match": true,
+            "matched_name": "New York",
+            "edit_distance": 0,
+            "local_similarity": 1,
+            "ambiguous_matches": 3
+          }
+        },
+        {
+          "id": "census:2026:state:36",
+          "name": "New York",
+          "state": "NY",
+          "kind": "state",
+          "match": {
+            "query": "New York",
+            "method": "exact",
+            "exact_match": true,
+            "matched_name": "New York",
+            "edit_distance": 0,
+            "local_similarity": 1,
+            "ambiguous_matches": 3
+          }
+        }
+      ]
+    },
+    {
+      "query": "Penuelas",
+      "state": "PR",
+      "median_ms": 3.63,
+      "maximum_ms": 8.07,
+      "candidates": [
+        {
+          "id": "census:2026:place:7261074",
+          "name": "Pe\u00f1uelas zona urbana",
+          "state": "PR",
+          "kind": "place",
+          "match": {
+            "query": "Penuelas",
+            "method": "normalized",
+            "exact_match": true,
+            "matched_name": "Pe\u00f1uelas",
+            "edit_distance": 0,
+            "local_similarity": 1,
+            "ambiguous_matches": 1
+          }
+        }
+      ]
+    },
+    {
+      "query": "PA",
+      "state": null,
+      "median_ms": 6.6,
+      "maximum_ms": 7.46,
+      "candidates": [
+        {
+          "id": "census:2026:state:42",
+          "name": "Pennsylvania",
+          "state": "PA",
+          "kind": "state",
+          "match": {
+            "query": "PA",
+            "method": "exact",
+            "exact_match": true,
+            "matched_name": "PA",
+            "edit_distance": 0,
+            "local_similarity": 1,
+            "ambiguous_matches": 1
+          }
+        }
+      ]
+    }
+  ],
+  "index_plan": [
+    {
+      "Plan": {
+        "Node Type": "Limit",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Startup Cost": 0.28,
+        "Total Cost": 13.82,
+        "Plan Rows": 128,
+        "Plan Width": 29,
+        "Actual Startup Time": 15.155,
+        "Actual Total Time": 15.719,
+        "Actual Rows": 128,
+        "Actual Loops": 1,
+        "Disabled": false,
+        "Shared Hit Blocks": 717,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "Plans": [
+          {
+            "Node Type": "Index Scan",
+            "Parent Relationship": "Outer",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Scan Direction": "Forward",
+            "Index Name": "geographic_reference_names_trgm_idx",
+            "Relation Name": "geographic_reference_names",
+            "Alias": "geographic_reference_names",
+            "Startup Cost": 0.28,
+            "Total Cost": 6856.62,
+            "Plan Rows": 64817,
+            "Plan Width": 29,
+            "Actual Startup Time": 15.154,
+            "Actual Total Time": 15.71,
+            "Actual Rows": 128,
+            "Actual Loops": 1,
+            "Disabled": false,
+            "Order By": "(normalized_name OPERATOR(extensions.<->) 'san fransisco'::text)",
+            "Index Searches": 1,
+            "Shared Hit Blocks": 717,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          }
+        ]
+      },
+      "Planning": {
+        "Shared Hit Blocks": 16,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0
+      },
+      "Planning Time": 0.08,
+      "Triggers": [],
+      "Execution Time": 15.794
+    }
+  ],
+  "state_scoped_plan": [
+    {
+      "Plan": {
+        "Node Type": "Limit",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Startup Cost": 0.69,
+        "Total Cost": 503.58,
+        "Plan Rows": 128,
+        "Plan Width": 53,
+        "Actual Startup Time": 12.817,
+        "Actual Total Time": 14.166,
+        "Actual Rows": 128,
+        "Actual Loops": 1,
+        "Disabled": false,
+        "Shared Hit Blocks": 1861,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "Plans": [
+          {
+            "Node Type": "Nested Loop",
+            "Parent Relationship": "Outer",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Join Type": "Inner",
+            "Startup Cost": 0.69,
+            "Total Cost": 13048.29,
+            "Plan Rows": 3321,
+            "Plan Width": 53,
+            "Actual Startup Time": 12.816,
+            "Actual Total Time": 14.159,
+            "Actual Rows": 128,
+            "Actual Loops": 1,
+            "Disabled": false,
+            "Inner Unique": true,
+            "Shared Hit Blocks": 1861,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0,
+            "Plans": [
+              {
+                "Node Type": "Index Scan",
+                "Parent Relationship": "Outer",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "Scan Direction": "Forward",
+                "Index Name": "geographic_reference_names_trgm_idx",
+                "Relation Name": "geographic_reference_names",
+                "Alias": "n",
+                "Startup Cost": 0.28,
+                "Total Cost": 7018.66,
+                "Plan Rows": 3324,
+                "Plan Width": 49,
+                "Actual Startup Time": 12.791,
+                "Actual Total Time": 13.664,
+                "Actual Rows": 128,
+                "Actual Loops": 1,
+                "Disabled": false,
+                "Order By": "(normalized_name OPERATOR(extensions.<->) 'san fransisco'::text)",
+                "Filter": "((state = 'CA'::text) AND (kind = 'place'::text))",
+                "Rows Removed by Filter": 707,
+                "Index Searches": 1,
+                "Shared Hit Blocks": 1349,
+                "Shared Read Blocks": 0,
+                "Shared Dirtied Blocks": 0,
+                "Shared Written Blocks": 0,
+                "Local Hit Blocks": 0,
+                "Local Read Blocks": 0,
+                "Local Dirtied Blocks": 0,
+                "Local Written Blocks": 0,
+                "Temp Read Blocks": 0,
+                "Temp Written Blocks": 0
+              },
+              {
+                "Node Type": "Index Scan",
+                "Parent Relationship": "Inner",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "Scan Direction": "Forward",
+                "Index Name": "geographic_reference_records_pkey",
+                "Relation Name": "geographic_reference_records",
+                "Alias": "g",
+                "Startup Cost": 0.41,
+                "Total Cost": 1.81,
+                "Plan Rows": 1,
+                "Plan Width": 25,
+                "Actual Startup Time": 0.002,
+                "Actual Total Time": 0.002,
+                "Actual Rows": 1,
+                "Actual Loops": 128,
+                "Disabled": false,
+                "Index Cond": "(id = n.record_id)",
+                "Rows Removed by Index Recheck": 0,
+                "Filter": "active",
+                "Rows Removed by Filter": 0,
+                "Index Searches": 128,
+                "Shared Hit Blocks": 512,
+                "Shared Read Blocks": 0,
+                "Shared Dirtied Blocks": 0,
+                "Shared Written Blocks": 0,
+                "Local Hit Blocks": 0,
+                "Local Read Blocks": 0,
+                "Local Dirtied Blocks": 0,
+                "Local Written Blocks": 0,
+                "Temp Read Blocks": 0,
+                "Temp Written Blocks": 0
+              }
+            ]
+          }
+        ]
+      },
+      "Planning": {
+        "Shared Hit Blocks": 171,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0
+      },
+      "Planning Time": 0.305,
+      "Triggers": [],
+      "Execution Time": 14.198
+    }
+  ],
+  "provider_requests": 0
+}

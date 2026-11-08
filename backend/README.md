@@ -1,8 +1,10 @@
 # Our Ground backend and frontend integration
 
-One Vite/TypeScript frontend, one REST API, and Supabase PostgreSQL/Auth. The simplified scope is Pennsylvania, food/healthcare discovery, optional Google sign-in, assigned staff editing, and anonymous correction reports. Verification workflows, payments and AI remain outside this implementation.
+> Phase 7D current state: Geoapify provides location autocomplete, forward/reverse geocoding and MapLibre map tiles; Mapbox is not required. Read the [nationwide discovery report](../docs/implementation/phase-7d-nationwide-discovery.md), [provider setup](../docs/implementation/phase-7d-provider-setup.md), [data sources](../docs/implementation/phase-7d-data-sources.md), and [pilot readiness guide](../docs/implementation/phase-7d-pilot-readiness.md). Phase 7C protections remain in force. Production remains Phase 7A; pilot readiness is NO-GO pending live/operational gates. The direct PATCH publishing example below is historical: current staff changes require reviewed revisions and legacy direct writes return REVIEW_REQUIRED after authorization. Shared abuse controls, verified database TLS, restricted private projections, current permission checks and owner-only privacy maintenance are now implemented and locally tested. Real Google/Supabase verification remains BLOCKED.
 
-**Real-service setup is still blocked by missing credentials/account access.** Read [SETUP.md](SETUP.md) for exact database, Google, redirect and staff-assignment steps. Read [VERIFICATION.md](VERIFICATION.md) for checks actually performed. The [architecture proposal](../our-ground-backend-proposal/README.md) remains a team-review reference.
+One Vite/TypeScript frontend, one REST API, and Supabase PostgreSQL/Auth. The current scope is nationwide food/healthcare discovery, public HRSA health-center imports, external food referrals, organization accounts, reviewed claims/revisions, administration and anonymous correction reports. Resource coverage is incomplete; no payments or AI agent is implemented.
+
+**Hosted Auth/database and deployment verification remain blocked; Geoapify keys are already configured locally.** Provider and isolated hosted-Redis evidence are recorded separately in the Phase 7D report, not inferred from credential presence. Read [SETUP.md](SETUP.md) for exact database, Google, redirect and staff-assignment steps. Read [VERIFICATION.md](VERIFICATION.md) for checks actually performed. The [architecture proposal](../our-ground-backend-proposal/README.md) remains a team-review reference.
 
 ## Run without credentials
 
@@ -27,7 +29,9 @@ All routes below are under `/api/v1`.
 | --- | --- | --- |
 | `GET /health` | Local diagnostics | Public |
 | `GET /categories` | Category definitions | Public |
-| `GET /places/resolve?q=17101` | Search location | Public |
+| `GET /places/resolve?q=17101` | Legacy city/ZIP resolution | Public |
+| `POST /locations/suggest`, `/locations/retrieve`, `/locations/reverse` | Live suggestions, selection and optional location labels | Public, bounded shared admission |
+| `POST /resources/search` | Nearby search without precise coordinates in URLs | Public, published records only |
 | `GET /resources` | `/support` list and current-page map markers | Public, published records only |
 | `GET /resources/:id` | `/resources/:id` | Public, published records only |
 | `POST /correction-reports` | Resource detail report form | Anonymous |
@@ -40,7 +44,7 @@ New Google accounts default to `role=user` and have no memberships. Staff member
 
 ## Requests and responses
 
-Search requires `lat` and `lng`; optional fields are `category=food|healthcare`, `radius_miles=1..50` (default 25), `q` (up to 100 characters), `page` and `page_size=1..50` (default 20). Coordinates are checked against a Pennsylvania bounding rectangle; stored locations must say `PA`. The rectangle is not an exact state polygon. Distances are straight-line miles, not travel estimates.
+Search requires `lat` and `lng`; optional fields are `category=food|healthcare`, `radius_miles=1..50` (default 25), `q` (up to 100 characters), `page` and `page_size=1..50` (default 20). Coordinates use finite world latitude/longitude ranges; resource state codes cover all 50 states, DC and the explicitly supported territory codes. No Pennsylvania rectangle is used. Provider country/state evidence is checked separately. New selected-location searches use POST bodies; precise device/map coordinates do not belong in share URLs. Distances are straight-line miles, not travel estimates.
 
 ```http
 GET /api/v1/resources?lat=40.2732&lng=-76.8867&category=food&radius_miles=10&page=1&page_size=20
@@ -79,14 +83,17 @@ Errors share `{"error":{"code":"...","message":"...","fields":{}}}` (fields opti
 
 - `backend/app.ts`: routing, request validation and permission gates.
 - `backend/postgres.ts`: parameterized SQL, repeated ownership checks and atomic version updates.
-- `backend/runtime.ts`: Supabase token validation and transient Mapbox geocoding.
+- `backend/runtime.ts`: restricted repository/Auth wiring and provider-independent location search.
+- `backend/location-search.ts`: concrete Geoapify location adapter; separate from authorized resource queries.
+- `backend/hrsa-import.mjs`, `scripts/import-hrsa.mjs`: reviewed national HRSA ingestion and provenance; no resident search data becomes a durable resource.
 - `backend/demo.ts`: disposable fictional repository; no auth bypass.
 - `backend/migrations/`: original migrations plus explicit browser-role denial.
 - `backend/manage-db.mjs`: explicit development-target checks, transactional migration journal, schema/role verification and deliberate staff grants.
 - `shared/contracts.ts`: frontend data shapes.
 - `src/support.ts`, `src/resource-detail.ts`: API-backed resident screens.
 - `src/account.ts`, `src/backend-client.ts`, `src/staff.ts`: Google PKCE and assigned staff editing.
-- `src/resource-map.ts`: optional Mapbox display of API coordinates in the existing map panel.
+- `src/maplibre-support-map.ts`: lazy Geoapify/MapLibre map used by support and resource details, with shared list selection and fallback. The unused Mapbox renderer/dependency were removed after verifying zero callers.
+- `shared/map-provider.ts`: trusted Geoapify style configuration and required attribution metadata.
 - `api/index.ts`: Vercel function entry; no deployment was made.
 
 Postgres.js uses TLS, one connection per process, disabled prepared statements and serialized queries to avoid shared-pooler pipelining. [Supabase Postgres.js guidance](https://supabase.com/docs/guides/database/postgres-js). The browser uses public Supabase project values only; Google secrets stay in Supabase and database passwords remain server/local-tool values. The SDK manages the browser session; Our Ground does not call Google data APIs or copy provider tokens into its own database.
@@ -103,4 +110,6 @@ npm run test:integration
 
 The first two run without account credentials. Setup/database/live checks identify missing access explicitly. See [VERIFICATION](VERIFICATION.md) for evidence and limitations. Live Supabase SQL/PostGIS, real Google consent/login and authorized browser editing have not been claimed as passed.
 
-Organization/location creation, invitations, hours/category/contact editing, report administration, campaigns, payments and AI remain future work. Initial organizations and memberships are maintained by a project owner. Add shared rate limiting for reports/geocoding before a public deployment; this task does not deploy.
+Organization claims and revisions require independent administrator review. Invitations, broader field editing, campaigns, payments and AI remain outside this phase. Existing shared abuse controls fail closed in public deployment when required infrastructure is missing. Follow the Phase 7D pilot gate before onboarding; this work does not deploy.
+
+For a reviewed HRSA CSV, run `node --experimental-strip-types scripts/import-hrsa.mjs --file /absolute/path/to/reviewed.csv` for a dry-run with no database connection. Controlled nonproduction apply requires the owner-only `HRSA_IMPORT_DATABASE_URL`, reviewed migration 008, and an explicit `--development-target --apply`; add `--full-snapshot` only after reviewing removal/stale reconciliation. See [data sources](../docs/implementation/phase-7d-data-sources.md) for import scope, source dates and publication limitations.

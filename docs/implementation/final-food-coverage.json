@@ -1,0 +1,759 @@
+{
+  "checked_at": "2026-11-06T07:03:16.324Z",
+  "database": "isolated local ourground_final",
+  "states_categories": [
+    {
+      "state": "AK",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 218
+    },
+    {
+      "state": "AL",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 206
+    },
+    {
+      "state": "AR",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 283
+    },
+    {
+      "state": "AS",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 7
+    },
+    {
+      "state": "AZ",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 265
+    },
+    {
+      "state": "CA",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 2734
+    },
+    {
+      "state": "CO",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 273
+    },
+    {
+      "state": "CT",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 431
+    },
+    {
+      "state": "DC",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 72
+    },
+    {
+      "state": "DE",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 14
+    },
+    {
+      "state": "FL",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 673
+    },
+    {
+      "state": "GA",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 415
+    },
+    {
+      "state": "GU",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 3
+    },
+    {
+      "state": "HI",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 117
+    },
+    {
+      "state": "IA",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 120
+    },
+    {
+      "state": "ID",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 233
+    },
+    {
+      "state": "IL",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 509
+    },
+    {
+      "state": "IN",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 503
+    },
+    {
+      "state": "KS",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 177
+    },
+    {
+      "state": "KY",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 625
+    },
+    {
+      "state": "LA",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 508
+    },
+    {
+      "state": "MA",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 269
+    },
+    {
+      "state": "MD",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 156
+    },
+    {
+      "state": "ME",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 174
+    },
+    {
+      "state": "MI",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 441
+    },
+    {
+      "state": "MN",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 91
+    },
+    {
+      "state": "MO",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 425
+    },
+    {
+      "state": "MP",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 3
+    },
+    {
+      "state": "MS",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 302
+    },
+    {
+      "state": "MT",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 132
+    },
+    {
+      "state": "NC",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 747
+    },
+    {
+      "state": "ND",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 33
+    },
+    {
+      "state": "NE",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 91
+    },
+    {
+      "state": "NH",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 70
+    },
+    {
+      "state": "NJ",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 143
+    },
+    {
+      "state": "NM",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 229
+    },
+    {
+      "state": "NV",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 67
+    },
+    {
+      "state": "NY",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 823
+    },
+    {
+      "state": "OH",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 628
+    },
+    {
+      "state": "OK",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 210
+    },
+    {
+      "state": "OR",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 299
+    },
+    {
+      "state": "PA",
+      "category": "food",
+      "publicly_visible_imported_services": 324
+    },
+    {
+      "state": "PA",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 496
+    },
+    {
+      "state": "PR",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 125
+    },
+    {
+      "state": "RI",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 65
+    },
+    {
+      "state": "SC",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 305
+    },
+    {
+      "state": "SD",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 38
+    },
+    {
+      "state": "TN",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 234
+    },
+    {
+      "state": "TX",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 772
+    },
+    {
+      "state": "UT",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 60
+    },
+    {
+      "state": "VA",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 231
+    },
+    {
+      "state": "VI",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 6
+    },
+    {
+      "state": "VT",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 91
+    },
+    {
+      "state": "WA",
+      "category": "food",
+      "publicly_visible_imported_services": 209
+    },
+    {
+      "state": "WA",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 423
+    },
+    {
+      "state": "WI",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 310
+    },
+    {
+      "state": "WV",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 524
+    },
+    {
+      "state": "WY",
+      "category": "healthcare",
+      "publicly_visible_imported_services": 19
+    }
+  ],
+  "coordinate_quality_runs": [
+    {
+      "run_id": "c076c508-da71-4a48-93dc-92b54d1ba889",
+      "source_id": "philly-food-sites",
+      "checksum": "f13ce10a8e7ca84df1804264e6859f90d49f3a479c3a225f948711d63f330bfd",
+      "coordinate_quality": {
+        "policy": "regional-food-coordinate-anomalies-v2",
+        "quarantined": [
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "109"
+          },
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "111"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "142"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "146"
+          },
+          {
+            "reasons": [
+              "unresolved_city_scope"
+            ],
+            "record_id": "148"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "167"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "177"
+          },
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "179"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "190"
+          },
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "196"
+          },
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "22"
+          },
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "23"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "235"
+          },
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "24"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "242"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "243"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "258"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "272"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "275"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "276"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "281"
+          },
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "294"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "319"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "321"
+          },
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "328"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "331"
+          },
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "332"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "334"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "335"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "336"
+          },
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "340"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "343"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "354"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "355"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "357"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "358"
+          },
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "378"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "384"
+          },
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "386"
+          },
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "387"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "391"
+          },
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "392"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "403"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ],
+            "record_id": "68"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "69"
+          },
+          {
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "93"
+          }
+        ],
+        "checked_records": 372,
+        "reference_source": "census-gazetteer-2026",
+        "quarantine_reasons": {
+          "unresolved_city_scope": 1,
+          "same_point_conflicting_addresses": 25,
+          "same_address_points_over_1_mile_apart": 31
+        },
+        "quarantined_records": 46,
+        "unmatched_record_ids": [],
+        "reference_fingerprint": "097f08b95714fbf5b6f86909b75818c51acd1a13652e56642eaed5882b8ccb16",
+        "ambiguous_city_records": 0,
+        "unmatched_city_records": 0,
+        "city_anomaly_threshold_miles": 20,
+        "address_point_spread_threshold_miles": 1
+      },
+      "accepted": 324,
+      "newly_hidden_locations": 42
+    },
+    {
+      "run_id": "fa9b560c-9d41-47ba-b42d-787765eebb09",
+      "source_id": "seattle-food-resources",
+      "checksum": "91a7cfb5d6e5e5f1b806aa21e5c282b45607ca5c099b987d8e460456c51e6aae",
+      "coordinate_quality": {
+        "policy": "regional-food-coordinate-anomalies-v2",
+        "quarantined": [
+          {
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "00000000-0000-0000-1605-C3C60A56C786"
+          },
+          {
+            "reasons": [
+              "city_representative_distance_over_20_miles"
+            ],
+            "record_id": "00000000-0000-0000-447E-987BDFB057BD"
+          },
+          {
+            "reasons": [
+              "city_representative_distance_over_20_miles",
+              "same_point_conflicting_addresses"
+            ],
+            "record_id": "00000000-0000-0000-476D-38C226D2EA4E"
+          }
+        ],
+        "checked_records": 212,
+        "reference_source": "census-gazetteer-2026",
+        "quarantine_reasons": {
+          "same_point_conflicting_addresses": 2,
+          "city_representative_distance_over_20_miles": 2
+        },
+        "quarantined_records": 3,
+        "unmatched_record_ids": [
+          "00000000-0000-0000-8B07-6D72921F7507",
+          "00000000-0000-0000-AF14-4ED7E13C47A1",
+          "00000000-0000-0000-A2BC-70C7BABC13B9",
+          "00000000-0000-0000-E00F-155F94DD77C2"
+        ],
+        "reference_fingerprint": "2657bcfcd115bcf580556918af381b6207066272bc4d803e64ca640736b7f041",
+        "ambiguous_city_records": 0,
+        "unmatched_city_records": 4,
+        "city_anomaly_threshold_miles": 20,
+        "address_point_spread_threshold_miles": 1
+      },
+      "accepted": 209,
+      "newly_hidden_locations": 3
+    }
+  ],
+  "post_quality_status_counts": [
+    {
+      "source_id": "philly-food-sites",
+      "record_status": "active",
+      "location_status": "published",
+      "records": 324
+    },
+    {
+      "source_id": "philly-food-sites",
+      "record_status": "inactive",
+      "location_status": "hidden",
+      "records": 42
+    },
+    {
+      "source_id": "seattle-food-resources",
+      "record_status": "active",
+      "location_status": "published",
+      "records": 209
+    },
+    {
+      "source_id": "seattle-food-resources",
+      "record_status": "inactive",
+      "location_status": "hidden",
+      "records": 3
+    }
+  ],
+  "quarantine_public_absence": [
+    {
+      "source_id": "philly-food-sites",
+      "quarantined_existing_locations": 42,
+      "publicly_visible": 0
+    },
+    {
+      "source_id": "seattle-food-resources",
+      "quarantined_existing_locations": 3,
+      "publicly_visible": 0
+    }
+  ],
+  "unmatched_source_cities": [
+    {
+      "source_city": "East Sumner",
+      "records": 1
+    },
+    {
+      "source_city": "Preston",
+      "records": 1
+    },
+    {
+      "source_city": "Tillicum",
+      "records": 2
+    }
+  ],
+  "field_coverage": [
+    {
+      "source_id": "philly-food-sites",
+      "records": 324,
+      "phone": 227,
+      "website": 306,
+      "eligibility": 26,
+      "structured_hours": 275,
+      "raw_schedule": 0
+    },
+    {
+      "source_id": "seattle-food-resources",
+      "records": 209,
+      "phone": 198,
+      "website": 207,
+      "eligibility": 209,
+      "structured_hours": 0,
+      "raw_schedule": 202
+    }
+  ],
+  "smaller_wa_places": [
+    {
+      "city": "Carnation",
+      "records": 3
+    },
+    {
+      "city": "Duvall",
+      "records": 1
+    },
+    {
+      "city": "Enumclaw",
+      "records": 1
+    },
+    {
+      "city": "Fall City",
+      "records": 1
+    },
+    {
+      "city": "North Bend",
+      "records": 2
+    },
+    {
+      "city": "Vashon",
+      "records": 3
+    }
+  ],
+  "limitation": "Food imports cover portions of Philadelphia PA and Seattle/King County WA only. All other US food areas rely on separately labeled national referrals until an authorized source is added. No comprehensive food coverage claim."
+}

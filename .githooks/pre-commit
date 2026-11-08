@@ -1,0 +1,4 @@
+#!/bin/sh
+# Inspect staged blob contents, including real .env files accidentally added with -f.
+# Findings print rule/path/line only, never the matched credential.
+exec node scripts/secret-scan.mjs --staged

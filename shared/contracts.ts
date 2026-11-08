@@ -1,12 +1,25 @@
-export type ServiceCategory = 'food' | 'healthcare';
+import type { LocationQuality } from './location-search.ts';
+import type { USResourceStateCode } from './resource-geography.ts';
+import type { ReviewedGiving } from './place-evidence.ts';
+export type ServiceCategory = 'food' | 'healthcare' | 'community';
 export type ServiceStatus = 'draft' | 'published' | 'hidden';
 export type SearchCategory = ServiceCategory | 'all';
-export interface Place { label: string; city: string; state: 'PA'; latitude: number; longitude: number }
+export interface Place { label: string; city: string; state: USResourceStateCode; latitude: number; longitude: number; quality?:LocationQuality; publicQuery?:string }
+export interface ResourceProvenance {
+  source_id: string; source_name: string; source_record_id: string; source_url: string;
+  imported_at: string; source_updated_at: string; last_seen_at: string;
+  license_name?: string | null; license_url?: string | null; attribution?: string | null;
+  verification_status: 'imported_unverified' | 'stale_or_needs_review';
+}
 export interface ResourceCard {
   id: string; title: string; summary: string; category_slugs: ServiceCategory[];
   organization: { id: string; name: string };
-  location: { city: string; state: 'PA'; address_label: string; latitude: number; longitude: number };
-  distance_miles: number; data_kind: 'fictional_demo' | 'sourced_unverified'; source_recorded_at: string | null;
+  location: { city: string; state: USResourceStateCode; address_label: string; latitude: number; longitude: number };
+  contact?: { website_url: string | null; phone: string | null };
+  reviewed_giving?: ReviewedGiving;
+  provenance?: ResourceProvenance;
+  detail_level?: 'basic' | 'substantive';
+  distance_miles: number; data_kind: 'fictional_demo' | 'sourced_unverified' | 'imported_unverified'; source_recorded_at: string | null;
 }
 export interface ResourceDetail extends Omit<ResourceCard, 'distance_miles'> {
   description: string; eligibility_text: string | null; cost_summary: string | null;

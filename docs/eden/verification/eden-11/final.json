@@ -1,0 +1,13 @@
+{
+  "checkedAt": "2026-11-07T23:12:14.200Z",
+  "staging": {
+    "bytes": "68277939",
+    "limiter_bytes": "65536",
+    "public_unverified": "367",
+    "canonical_hrsa": "43",
+    "successful_recent_cleanups": "3",
+    "migrations": "15"
+  },
+  "health": 200,
+  "cache": "no-store"
+}

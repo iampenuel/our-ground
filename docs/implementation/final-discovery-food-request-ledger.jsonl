@@ -1,0 +1,14 @@
+{"name":"nycGetFood","url":"https://www.nyc.gov/site/hra/help/food-assistance.page","status":200,"bytes":24056,"time":"2026-11-06T14:37:01.188Z"}
+{"name":"boston","url":"https://data.boston.gov/api/3/action/package_search?q=food&rows=30","status":200,"bytes":323857,"time":"2026-11-06T14:37:01.598Z"}
+{"name":"montgomery","url":"https://api.us.socrata.com/api/catalog/v1?search_context=data.montgomerycountymd.gov&q=food%20assistance&limit=15","status":200,"bytes":46449,"time":"2026-11-06T14:37:02.056Z"}
+{"name":"cambridge","url":"https://api.us.socrata.com/api/catalog/v1?search_context=data.cambridgema.gov&q=food&limit=10","status":200,"bytes":159507,"time":"2026-11-06T14:37:02.177Z"}
+{"name":"cdss","url":"https://www.cdss.ca.gov/food-banks","status":200,"bytes":36975,"time":"2026-11-06T14:37:03.187Z"}
+{"name":"catalog","url":"https://api.us.socrata.com/api/catalog/v1?q=food%20pantry&limit=30","status":200,"bytes":348595,"time":"2026-11-06T14:38:11.145Z"}
+{"name":"wprdc","url":"https://data.wprdc.org/api/3/action/package_search?q=food&rows=20","status":200,"bytes":366792,"time":"2026-11-06T14:38:11.694Z"}
+{"name":"dc","url":"https://www.arcgis.com/sharing/rest/search?f=json&q=food%20pantry%20owner%3ADCGISopendata&num=30","status":200,"bytes":58,"time":"2026-11-06T14:38:11.855Z"}
+{"name":"nycTerms","url":"https://www.nyc.gov/main/terms-of-use","status":200,"bytes":512423,"time":"2026-11-06T14:38:12.045Z"}
+{"name":"pgMeta","url":"https://data.princegeorgescountymd.gov/api/views/d7ae-zbbv.json","status":200,"bytes":33875,"time":"2026-11-06T14:38:31.949Z"}
+{"name":"moMeta","url":"https://data.mo.gov/api/views/eb3y-vtsa.json","status":200,"bytes":12961,"time":"2026-11-06T14:38:32.306Z"}
+{"name":"deMeta","url":"https://data.delaware.gov/api/views/drmh-cny3.json","status":200,"bytes":20414,"time":"2026-11-06T14:38:32.672Z"}
+{"name":"pgTerms","url":"https://data.princegeorgescountymd.gov/terms-of-use","status":200,"bytes":605235,"time":"2026-11-06T14:39:22.287Z"}
+{"name":"pgRows","url":"https://data.princegeorgescountymd.gov/api/views/d7ae-zbbv/rows.json?accessType=DOWNLOAD","status":200,"bytes":140940,"time":"2026-11-06T14:39:22.535Z"}

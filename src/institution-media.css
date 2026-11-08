@@ -1,0 +1,14 @@
+/* A fixed square contains logos, crops editorial images, and never shifts the layout. */
+.institution-media { margin: 0; min-width: 0; width: 100%; align-self: start; }
+.institution-media-frame { position: relative; display: grid; place-items: center; aspect-ratio: 1; overflow: hidden; border: 1px solid var(--og-line); border-radius: var(--og-radius); background: var(--og-surface-soft); }
+.institution-media img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
+.institution-media[data-kind="official_logo"] .institution-media-frame { background: #fffefa; }
+.institution-media[data-kind="official_logo"] img { object-fit: contain; inset: auto; width: auto; height: auto; max-width: 72%; max-height: 72%; }
+.institution-monogram { color: var(--og-green); font: 400 clamp(2rem,6vw,4rem)/1 var(--og-serif); }
+.institution-media figcaption { margin-top: .5rem; font: 400 .6875rem/1.5 var(--og-sans); color: var(--og-muted); }
+.institution-media figcaption a { color: inherit; text-underline-offset: .2em; }
+.institution-media--compact { width: 4.5rem; margin: 0; }
+.institution-media--compact .institution-media-frame { border-radius: var(--og-radius-small); }
+.institution-media--compact figcaption { font-size: .6875rem; }
+.institution-media--compact .institution-monogram { font-size: 1.75rem; }
+@media(max-width:760px) { .detail-hero > .institution-media { max-width: 18rem; } }

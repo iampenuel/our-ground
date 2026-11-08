@@ -1,0 +1,86 @@
+{
+  "checked_on": "2026-11-07",
+  "target": {
+    "name": "ourground-staging",
+    "ref": "hrmocmvdmshoghclxyjs",
+    "plan": "Free",
+    "region": "us-east-1",
+    "dashboard_status": "Healthy",
+    "data_api_enabled": false
+  },
+  "catalog_baseline": {
+    "server_version": "17.11",
+    "database_bytes": 10942131,
+    "app_schema_or_journal_or_runtime_role_present": false,
+    "postgis_installed": false
+  },
+  "postgis_after_install": {
+    "version": "3.3.7",
+    "schema": "extensions",
+    "database_bytes": 19117747
+  },
+  "direct_transport_only": {
+    "source": "project Connect panel and Database Settings > SSL configuration",
+    "host": "aws-0-us-east-1.pooler.supabase.com",
+    "ports_verified": [
+      5432,
+      6543
+    ],
+    "tls": "TLSv1.3",
+    "ca_and_hostname_verified": true,
+    "postgres_login_sent": false,
+    "ca_sha256_fingerprint": "807025AD50D4ED219D2C9C7D299C004F824EB00CF7F65AFEF607D07B72E6CAFA"
+  },
+  "postgis_control": {
+    "method": "Read-only ST_Distance and ST_DWithin on WGS84 geography literals, 1609.344 meters per mile. This did not access the directory.",
+    "center": {
+      "id": "census:2026:place:4232800",
+      "latitude": 40.275891,
+      "longitude": -76.88502
+    },
+    "sites": [
+      {
+        "hrsa_id": "BPS-H80-012534",
+        "miles": 1.29,
+        "within_5": true,
+        "within_10": true
+      },
+      {
+        "hrsa_id": "BPS-H80-038079",
+        "miles": 3.62,
+        "within_5": true,
+        "within_10": true
+      },
+      {
+        "hrsa_id": "BPS-H80-033742",
+        "miles": 6.43,
+        "within_5": false,
+        "within_10": true
+      }
+    ]
+  },
+  "pilot_rows_imported_by_this_run": 3,
+  "application_migration_receipts": {
+    "count": 15,
+    "sha256_matches_local_reviewed_files": true
+  },
+  "published_counts_queried_as_runtime": {
+    "healthcare": 3,
+    "food": 0
+  },
+  "eden_and_find_support_search_verified": true,
+  "rendered_marker_selection_verified": false,
+  "manual_restore_verified": true,
+  "vercel_staging_deployed": false,
+  "authenticated_owner_verified": true,
+  "runtime_role_verified": "our_ground_api",
+  "marker_coordinate_data_verified": true,
+  "keyword_filter_verified": true,
+  "negative_access_verified": true,
+  "latest_database_bytes": 66336435,
+  "application_index_bytes": 32423936,
+  "private_user_rows_imported": 0,
+  "last_verified_at": "2026-11-07T20:32:22.246Z",
+  "manual_restore_scope": "Separate disposable database in the same staging project; source unchanged; no independent backup copy verified.",
+  "independent_backup_copy_verified": false
+}

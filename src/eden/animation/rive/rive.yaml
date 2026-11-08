@@ -1,0 +1,4 @@
+name: eden
+main: Eden
+output:
+  dir: build

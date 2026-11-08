@@ -1,0 +1,46 @@
+{
+  "deployment": "dpl_A4HRJGdewVv3Sae2DBWeZvL9qLhq",
+  "queryTime": "2026-11-07T23:06:04.700Z",
+  "window": "30m",
+  "rawLogsRetained": false,
+  "requests": {
+    "commandOk": true,
+    "counts": {
+      "request": 100,
+      "summary": 1
+    },
+    "statuses": {
+      "200": 97,
+      "304": 3
+    },
+    "fields": [
+      "timestamp",
+      "projectId",
+      "requestId",
+      "deploymentId",
+      "environment",
+      "requestHostname",
+      "requestPath",
+      "requestMethod",
+      "httpStatus",
+      "route",
+      "pathType",
+      "cacheResult",
+      "edgeNetworkRegion",
+      "service",
+      "clientIpCountry",
+      "clientUserAgent",
+      "wafAction"
+    ],
+    "credentialSignatureDetected": false
+  },
+  "runtime": {
+    "commandOk": true,
+    "counts": {
+      "summary": 1
+    },
+    "statuses": {},
+    "fields": [],
+    "credentialSignatureDetected": false
+  }
+}

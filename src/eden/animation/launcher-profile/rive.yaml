@@ -1,0 +1,5 @@
+name: eden-launcher
+main: Eden
+alwaysWatermark: true
+output:
+  dir: build

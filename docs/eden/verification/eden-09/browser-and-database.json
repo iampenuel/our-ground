@@ -1,0 +1,643 @@
+{
+  "recorded_at_utc": "2026-11-07T21:08:03.395982+00:00",
+  "scope": "Loopback website/API connected to the real ourground-staging database. Not a hosted Vercel test.",
+  "browser": "Google Chrome; separate temporary profiles; phone dimensions and touch emulated, not a physical handset.",
+  "regular_support_page": {
+    "desktop": {
+      "viewport": [
+        1365,
+        880
+      ],
+      "scope": "Regular /support route, restricted staging API, hosted tiles unavailable",
+      "ten": [
+        "1 HHC- South Allison Hill — select location on map",
+        "2 Hamilton Health Center Family Practice at Steelton — select location on map",
+        "3 Sadler Health Center Corporation Mechanicsburg — select location on map"
+      ],
+      "verified": true,
+      "details": [
+        {
+          "id": "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "source": "Selected resource Close Source record HRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-012534 Contact the organization to confirm services, hours and availability before visiting."
+        },
+        {
+          "id": "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+          "source": "Selected resource Close Source record HRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-038079 Contact the organization to confirm services, hours and availability before visiting."
+        },
+        {
+          "id": "5a9b557b-d98a-512e-bd9b-656c500582a6",
+          "source": "Selected resource Close Source record HRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-033742 Contact the organization to confirm services, hours and availability before visiting."
+        }
+      ],
+      "five": [
+        "1 HHC- South Allison Hill — select location on map",
+        "2 Hamilton Health Center Family Practice at Steelton — select location on map"
+      ],
+      "sadler": [
+        "1 Sadler Health Center Corporation Mechanicsburg — select location on map"
+      ],
+      "detail": "Selected resource Close Source record HRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-033742 Contact the organization to confirm services, hours and availability before visiting.",
+      "pass": true
+    },
+    "mobile": {
+      "viewport": [
+        390,
+        844
+      ],
+      "scope": "Regular /support route, restricted staging API, hosted tiles unavailable",
+      "ten": [
+        "1 HHC- South Allison Hill — select location on map",
+        "2 Hamilton Health Center Family Practice at Steelton — select location on map",
+        "3 Sadler Health Center Corporation Mechanicsburg — select location on map"
+      ],
+      "verified": true,
+      "details": [
+        {
+          "id": "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "source": "Selected resource Close Source record HRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-012534 Contact the organization to confirm services, hours and availability before visiting."
+        },
+        {
+          "id": "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+          "source": "Selected resource Close Source record HRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-038079 Contact the organization to confirm services, hours and availability before visiting."
+        },
+        {
+          "id": "5a9b557b-d98a-512e-bd9b-656c500582a6",
+          "source": "Selected resource Close Source record HRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-033742 Contact the organization to confirm services, hours and availability before visiting."
+        }
+      ],
+      "five": [
+        "1 HHC- South Allison Hill — select location on map",
+        "2 Hamilton Health Center Family Practice at Steelton — select location on map"
+      ],
+      "sadler": [
+        "1 Sadler Health Center Corporation Mechanicsburg — select location on map"
+      ],
+      "detail": "Selected resource Close Source record HRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-033742 Contact the organization to confirm services, hours and availability before visiting.",
+      "pass": true
+    }
+  },
+  "controller_and_maplibre": {
+    "desktop": {
+      "viewport": [
+        1365,
+        880
+      ],
+      "mobile": false,
+      "actions": [
+        {
+          "type": "read-page",
+          "message": "Our Ground helps visitors explore food, healthcare, and community resource information. The homepage links to Find Support, Give Support, and For Organizations."
+        },
+        {
+          "type": "read-results",
+          "message": "3 listings loaded. 1. HHC- South Allison Hill; 2. Hamilton Health Center Family Practice at Steelton; 3. Sadler Health Center Corporation Mechanicsburg. Read each listing’s sources and confirm current services directly."
+        },
+        {
+          "type": "details",
+          "message": "Opened public details for result 1. Check the listed source and confirm details directly."
+        },
+        {
+          "type": "details",
+          "message": "Opened public details for result 2. Check the listed source and confirm details directly."
+        },
+        {
+          "type": "details",
+          "message": "Opened public details for result 3. Check the listed source and confirm details directly."
+        },
+        {
+          "type": "select",
+          "message": "Selected result 1. The map shows the same selection."
+        },
+        {
+          "type": "radius",
+          "message": "2 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+        },
+        {
+          "type": "search",
+          "message": "3 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+        },
+        {
+          "type": "details",
+          "message": "Opened public details for result 1. Check the listed source and confirm details directly."
+        },
+        {
+          "type": "select",
+          "message": "Selected result 1. The map shows the same selection."
+        },
+        {
+          "type": "read-hours",
+          "message": "The current result is selected for a source-backed hours check. Opening status requires reliable current hours and time information."
+        }
+      ],
+      "requests": [
+        {
+          "path": "/api/v1/locations/status",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/geoapify/status",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/places/directory-city",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/resources/search",
+          "status": 200,
+          "category": "healthcare",
+          "radius": 10,
+          "keyword": "",
+          "mode": "real",
+          "total": 3,
+          "ids": [
+            "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+            "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+            "5a9b557b-d98a-512e-bd9b-656c500582a6"
+          ]
+        },
+        {
+          "path": "/api/v1/resources/828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "status": 200,
+          "id": "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "kind": "imported_unverified",
+          "source": "hrsa-health-centers",
+          "lat": 40.26548364,
+          "lng": -76.86473784
+        },
+        {
+          "path": "/api/v1/resources/c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+          "status": 200,
+          "id": "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+          "kind": "imported_unverified",
+          "source": "hrsa-health-centers",
+          "lat": 40.23520607,
+          "lng": -76.84183421
+        },
+        {
+          "path": "/api/v1/resources/5a9b557b-d98a-512e-bd9b-656c500582a6",
+          "status": 200,
+          "id": "5a9b557b-d98a-512e-bd9b-656c500582a6",
+          "kind": "imported_unverified",
+          "source": "hrsa-health-centers",
+          "lat": 40.22018004,
+          "lng": -76.9826107
+        },
+        {
+          "path": "/api/v1/resources/search",
+          "status": 200,
+          "category": "healthcare",
+          "radius": 5,
+          "keyword": "",
+          "mode": "real",
+          "total": 2,
+          "ids": [
+            "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+            "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9"
+          ]
+        },
+        {
+          "path": "/api/v1/places/directory-city",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/resources/search",
+          "status": 200,
+          "category": "healthcare",
+          "radius": 10,
+          "keyword": "",
+          "mode": "real",
+          "total": 3,
+          "ids": [
+            "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+            "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+            "5a9b557b-d98a-512e-bd9b-656c500582a6"
+          ]
+        },
+        {
+          "path": "/api/v1/resources/search",
+          "status": 200,
+          "category": "healthcare",
+          "radius": 10,
+          "keyword": "Sadler",
+          "mode": "real",
+          "total": 1,
+          "ids": [
+            "5a9b557b-d98a-512e-bd9b-656c500582a6"
+          ]
+        },
+        {
+          "path": "/api/v1/resources/5a9b557b-d98a-512e-bd9b-656c500582a6",
+          "status": 200,
+          "id": "5a9b557b-d98a-512e-bd9b-656c500582a6",
+          "kind": "imported_unverified",
+          "source": "hrsa-health-centers",
+          "lat": 40.22018004,
+          "lng": -76.9826107
+        }
+      ],
+      "details": [
+        {
+          "id": "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "title": "HHC- South Allison Hill",
+          "visible": "Selected resource Close Source record HRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-012534 Contact the organization to confirm services, hours and availability before visiting."
+        },
+        {
+          "id": "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+          "title": "Hamilton Health Center Family Practice at Steelton",
+          "visible": "Selected resource Close Source record HRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-038079 Contact the organization to confirm services, hours and availability before visiting."
+        },
+        {
+          "id": "5a9b557b-d98a-512e-bd9b-656c500582a6",
+          "title": "Sadler Health Center Corporation Mechanicsburg",
+          "visible": "Selected resource Close Source record HRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-033742 Contact the organization to confirm services, hours and availability before visiting."
+        }
+      ],
+      "verified": [
+        "Harrisburg Healthcare at 10 miles: 3 real cards",
+        "Listing matches source: HHC- South Allison Hill",
+        "Visible import status and HRSA source: HHC- South Allison Hill",
+        "Opened matching live details: HHC- South Allison Hill",
+        "Listing matches source: Hamilton Health Center Family Practice at Steelton",
+        "Visible import status and HRSA source: Hamilton Health Center Family Practice at Steelton",
+        "Opened matching live details: Hamilton Health Center Family Practice at Steelton",
+        "Listing matches source: Sadler Health Center Corporation Mechanicsburg",
+        "Visible import status and HRSA source: Sadler Health Center Corporation Mechanicsburg",
+        "Opened matching live details: Sadler Health Center Corporation Mechanicsburg",
+        "MapLibre rendered without a tile provider",
+        "Three real map markers",
+        "Marker coordinates: HHC- South Allison Hill",
+        "Marker coordinates: Hamilton Health Center Family Practice at Steelton",
+        "Marker coordinates: Sadler Health Center Corporation Mechanicsburg",
+        "Marker click selects the matching list card",
+        "List selection highlights the matching marker",
+        "Harrisburg Healthcare at 5 miles: 2 real cards",
+        "Five-mile radius renders two markers",
+        "Harrisburg Healthcare at 10 miles: 3 real cards",
+        "Sadler server-side keyword returns one correct card",
+        "EDEN focuses the real Sadler marker",
+        "EDEN does not assert current opening status",
+        "All recorded API requests succeeded"
+      ],
+      "basemap": "local plain style; no tile service",
+      "markers": [
+        {
+          "id": "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "lat": 40.26548364,
+          "lng": -76.86473784
+        },
+        {
+          "id": "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+          "lat": 40.23520607,
+          "lng": -76.84183421
+        },
+        {
+          "id": "5a9b557b-d98a-512e-bd9b-656c500582a6",
+          "lat": 40.22018004,
+          "lng": -76.9826107
+        }
+      ],
+      "pass": true
+    },
+    "mobile": {
+      "viewport": [
+        390,
+        844
+      ],
+      "mobile": true,
+      "actions": [
+        {
+          "type": "read-page",
+          "message": "Our Ground helps visitors explore food, healthcare, and community resource information. The homepage links to Find Support, Give Support, and For Organizations."
+        },
+        {
+          "type": "read-results",
+          "message": "3 listings loaded. 1. HHC- South Allison Hill; 2. Hamilton Health Center Family Practice at Steelton; 3. Sadler Health Center Corporation Mechanicsburg. Read each listing’s sources and confirm current services directly."
+        },
+        {
+          "type": "details",
+          "message": "Opened public details for result 1. Check the listed source and confirm details directly."
+        },
+        {
+          "type": "details",
+          "message": "Opened public details for result 2. Check the listed source and confirm details directly."
+        },
+        {
+          "type": "details",
+          "message": "Opened public details for result 3. Check the listed source and confirm details directly."
+        },
+        {
+          "type": "select",
+          "message": "Selected result 1. The map shows the same selection."
+        },
+        {
+          "type": "radius",
+          "message": "2 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+        },
+        {
+          "type": "select",
+          "message": "Selected result 1. The map shows the same selection."
+        },
+        {
+          "type": "search",
+          "message": "3 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+        },
+        {
+          "type": "details",
+          "message": "Opened public details for result 1. Check the listed source and confirm details directly."
+        },
+        {
+          "type": "select",
+          "message": "Selected result 1. The map shows the same selection."
+        },
+        {
+          "type": "read-hours",
+          "message": "The current result is selected for a source-backed hours check. Opening status requires reliable current hours and time information."
+        }
+      ],
+      "requests": [
+        {
+          "path": "/api/v1/locations/status",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/geoapify/status",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/places/directory-city",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/resources/search",
+          "status": 200,
+          "category": "healthcare",
+          "radius": 10,
+          "keyword": "",
+          "mode": "real",
+          "total": 3,
+          "ids": [
+            "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+            "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+            "5a9b557b-d98a-512e-bd9b-656c500582a6"
+          ]
+        },
+        {
+          "path": "/api/v1/resources/828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "status": 200,
+          "id": "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "kind": "imported_unverified",
+          "source": "hrsa-health-centers",
+          "lat": 40.26548364,
+          "lng": -76.86473784
+        },
+        {
+          "path": "/api/v1/resources/c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+          "status": 200,
+          "id": "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+          "kind": "imported_unverified",
+          "source": "hrsa-health-centers",
+          "lat": 40.23520607,
+          "lng": -76.84183421
+        },
+        {
+          "path": "/api/v1/resources/5a9b557b-d98a-512e-bd9b-656c500582a6",
+          "status": 200,
+          "id": "5a9b557b-d98a-512e-bd9b-656c500582a6",
+          "kind": "imported_unverified",
+          "source": "hrsa-health-centers",
+          "lat": 40.22018004,
+          "lng": -76.9826107
+        },
+        {
+          "path": "/api/v1/resources/search",
+          "status": 200,
+          "category": "healthcare",
+          "radius": 5,
+          "keyword": "",
+          "mode": "real",
+          "total": 2,
+          "ids": [
+            "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+            "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9"
+          ]
+        },
+        {
+          "path": "/api/v1/places/directory-city",
+          "status": 200
+        },
+        {
+          "path": "/api/v1/resources/search",
+          "status": 200,
+          "category": "healthcare",
+          "radius": 10,
+          "keyword": "",
+          "mode": "real",
+          "total": 3,
+          "ids": [
+            "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+            "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+            "5a9b557b-d98a-512e-bd9b-656c500582a6"
+          ]
+        },
+        {
+          "path": "/api/v1/resources/search",
+          "status": 200,
+          "category": "healthcare",
+          "radius": 10,
+          "keyword": "Sadler",
+          "mode": "real",
+          "total": 1,
+          "ids": [
+            "5a9b557b-d98a-512e-bd9b-656c500582a6"
+          ]
+        },
+        {
+          "path": "/api/v1/resources/5a9b557b-d98a-512e-bd9b-656c500582a6",
+          "status": 200,
+          "id": "5a9b557b-d98a-512e-bd9b-656c500582a6",
+          "kind": "imported_unverified",
+          "source": "hrsa-health-centers",
+          "lat": 40.22018004,
+          "lng": -76.9826107
+        }
+      ],
+      "details": [
+        {
+          "id": "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "title": "HHC- South Allison Hill",
+          "visible": "Selected resource Close Source record HRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-012534 Contact the organization to confirm services, hours and availability before visiting."
+        },
+        {
+          "id": "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+          "title": "Hamilton Health Center Family Practice at Steelton",
+          "visible": "Selected resource Close Source record HRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-038079 Contact the organization to confirm services, hours and availability before visiting."
+        },
+        {
+          "id": "5a9b557b-d98a-512e-bd9b-656c500582a6",
+          "title": "Sadler Health Center Corporation Mechanicsburg",
+          "visible": "Selected resource Close Source record HRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-033742 Contact the organization to confirm services, hours and availability before visiting."
+        }
+      ],
+      "verified": [
+        "Harrisburg Healthcare at 10 miles: 3 real cards",
+        "Listing matches source: HHC- South Allison Hill",
+        "Visible import status and HRSA source: HHC- South Allison Hill",
+        "Opened matching live details: HHC- South Allison Hill",
+        "Listing matches source: Hamilton Health Center Family Practice at Steelton",
+        "Visible import status and HRSA source: Hamilton Health Center Family Practice at Steelton",
+        "Opened matching live details: Hamilton Health Center Family Practice at Steelton",
+        "Listing matches source: Sadler Health Center Corporation Mechanicsburg",
+        "Visible import status and HRSA source: Sadler Health Center Corporation Mechanicsburg",
+        "Opened matching live details: Sadler Health Center Corporation Mechanicsburg",
+        "MapLibre rendered without a tile provider",
+        "Three real map markers",
+        "Marker coordinates: HHC- South Allison Hill",
+        "Marker coordinates: Hamilton Health Center Family Practice at Steelton",
+        "Marker coordinates: Sadler Health Center Corporation Mechanicsburg",
+        "Marker click selects the matching list card",
+        "List selection highlights the matching marker",
+        "Harrisburg Healthcare at 5 miles: 2 real cards",
+        "Five-mile radius renders two markers",
+        "Harrisburg Healthcare at 10 miles: 3 real cards",
+        "Sadler server-side keyword returns one correct card",
+        "EDEN focuses the real Sadler marker",
+        "EDEN does not assert current opening status",
+        "All recorded API requests succeeded"
+      ],
+      "basemap": "local plain style; no tile service",
+      "markers": [
+        {
+          "id": "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "lat": 40.26548364,
+          "lng": -76.86473784
+        },
+        {
+          "id": "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+          "lat": 40.23520607,
+          "lng": -76.84183421
+        },
+        {
+          "id": "5a9b557b-d98a-512e-bd9b-656c500582a6",
+          "lat": 40.22018004,
+          "lng": -76.9826107
+        }
+      ],
+      "pass": true
+    }
+  },
+  "restricted_database": {
+    "project_ref": "hrmocmvdmshoghclxyjs",
+    "identity": {
+      "role": "our_ground_api",
+      "postgres": "17.11"
+    },
+    "searches": [
+      {
+        "radius_miles": 10,
+        "total": 3,
+        "ids": [
+          "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+          "5a9b557b-d98a-512e-bd9b-656c500582a6"
+        ],
+        "distances": [
+          1.3,
+          3.6,
+          6.4
+        ],
+        "all_details_sources_and_marker_data_match": true
+      },
+      {
+        "radius_miles": 5,
+        "total": 2,
+        "ids": [
+          "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9"
+        ],
+        "distances": [
+          1.3,
+          3.6
+        ],
+        "all_details_sources_and_marker_data_match": true
+      }
+    ],
+    "denied": [
+      {
+        "operation": "raw services",
+        "sqlstate": "42501"
+      },
+      {
+        "operation": "source snapshots",
+        "sqlstate": "42501"
+      },
+      {
+        "operation": "privacy holds",
+        "sqlstate": "42501"
+      },
+      {
+        "operation": "owner import",
+        "sqlstate": "42501"
+      },
+      {
+        "operation": "owner withdrawal",
+        "sqlstate": "42501"
+      }
+    ],
+    "keyword": {
+      "query": "Sadler",
+      "total": 1
+    },
+    "food_total": 0
+  },
+  "eden_published_facts": {
+    "gemini_called": false,
+    "facts": [
+      {
+        "public_record": "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+        "display": [
+          "HHC- South Allison Hill",
+          "Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified."
+        ],
+        "model_safe": [
+          "Directory listing 1. Its published name is shown in the results list.",
+          "Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified."
+        ]
+      },
+      {
+        "public_record": "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+        "display": [
+          "Hamilton Health Center Family Practice at Steelton",
+          "Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified."
+        ],
+        "model_safe": [
+          "Directory listing 2. Its published name is shown in the results list.",
+          "Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified."
+        ]
+      },
+      {
+        "public_record": "5a9b557b-d98a-512e-bd9b-656c500582a6",
+        "display": [
+          "Sadler Health Center Corporation Mechanicsburg",
+          "Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified."
+        ],
+        "model_safe": [
+          "Directory listing 3. Its published name is shown in the results list.",
+          "Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified."
+        ]
+      }
+    ]
+  },
+  "hosted_preview": {
+    "project": "ourground-staging",
+    "deployments": 0,
+    "environment_variables": 0,
+    "node": "24.x",
+    "vercel_authentication": "all_except_custom_domains",
+    "project_drains": 0,
+    "external_redis": "dedicated staging instance missing",
+    "anonymous_denial_test": "not run: no deployment",
+    "hosted_api_test": "not run: no deployment",
+    "hosted_tiles_test": "not run: staging key and exact origin not configured"
+  }
+}

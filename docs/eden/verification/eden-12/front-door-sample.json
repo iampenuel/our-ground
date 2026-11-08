@@ -1,0 +1,15 @@
+{
+  "checked_on": "2026-11-07",
+  "published": "2026-10-10",
+  "catalog": "https://www.localcarehub.org/open-data/pennsylvania",
+  "free_sample_url": "https://www.localcarehub.org/api/hsds/pa/download",
+  "uncompressed_sample_sha256": "916a88a561061c3e763c16aecea7da60602c815f12574b850d66a45e9b94b13c",
+  "sample_services": 409,
+  "sample_locations": 372,
+  "has_both_coordinates": 25,
+  "places_with_coordinates": {
+    "Philadelphia": 25
+  },
+  "upstream_for_geocoded_service_locations": "https://services.arcgis.com/fLeGjb7u4uXqeF9q/arcgis/rest/services/free_meal_sites/FeatureServer/0",
+  "imported": 0
+}

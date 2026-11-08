@@ -1,0 +1,190 @@
+{
+  "checked_at": "2026-11-07T20:33:20.002Z",
+  "project_ref": "hrmocmvdmshoghclxyjs",
+  "instance": {
+    "db": "postgres",
+    "role": "postgres",
+    "pg": "17.11",
+    "bytes": "66336435",
+    "owner_can_create_database": true
+  },
+  "schema": {
+    "tables": [
+      "app_users",
+      "campaigns",
+      "categories",
+      "correction_reports",
+      "food_source_row_lineage",
+      "geographic_reference_imports",
+      "geographic_reference_names",
+      "geographic_reference_records",
+      "opening_hours",
+      "organization_action_limits",
+      "organization_audit",
+      "organization_claims",
+      "organization_listing_access",
+      "organization_memberships",
+      "organization_revisions",
+      "organization_revoked_sessions",
+      "organizations",
+      "privacy_retention_holds",
+      "resource_data_sources",
+      "resource_import_runs",
+      "resource_privacy_events",
+      "resource_privacy_holds",
+      "resource_source_records",
+      "resource_source_versions",
+      "service_categories",
+      "service_locations",
+      "services"
+    ],
+    "foreign_keys": 47,
+    "indexes": 60,
+    "problems": []
+  },
+  "migrations": [
+    {
+      "name": "001_init.sql",
+      "sha256": "2839718b850f5b15965fd62f46f30d161764e3bbed8c1a0ca5bce077f338a4a4",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    },
+    {
+      "name": "003_api_role.sql",
+      "sha256": "42841f800d95ee7626cb88251304f47300308be3f363cf5b2042db9f47750a3c",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    },
+    {
+      "name": "004_private_schema_access.sql",
+      "sha256": "e2d73be6dd4f05ede8dc1ad1f64eb3e8c3dfda142ac513a008dd1ca901726e51",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    },
+    {
+      "name": "005_organization_accounts.sql",
+      "sha256": "b97aafc06faf408c72da0f93767682aa1b3f35d21dd302edd32ba5692d65e7e9",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    },
+    {
+      "name": "006_security_boundary.sql",
+      "sha256": "52abd922de2d3796cd6a0f8072a4ac7a8924c9edb586837ea9d7405836b16ac9",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    },
+    {
+      "name": "007_privacy_retention.sql",
+      "sha256": "bdfaf8e3ba1a86e3dd0fb216418c351080b0301a1988e0c7c2227a7d2c0e4fbe",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    },
+    {
+      "name": "008_nationwide_resources.sql",
+      "sha256": "8846677d30eb78abc244264620c99b62cd61296f2deba000a2bc89167abc5037",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    },
+    {
+      "name": "009_resource_privacy_withdrawals.sql",
+      "sha256": "74ddbcda21cad529a56928a1318afc32f976f1f0094d0204201a0d67463a84cf",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    },
+    {
+      "name": "010_location_privacy_boundary.sql",
+      "sha256": "88e82d08205d26d19c646c36e08e9f26839821b2a5cd7dc8a71d61ec9d0aeecc",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    },
+    {
+      "name": "011_geographic_reference.sql",
+      "sha256": "a96f8a9ea03a4f18460d9fc749cf4c4d467b5c16e52dd39f34a7b872a04d9b6a",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    },
+    {
+      "name": "012_bounded_privacy_retention.sql",
+      "sha256": "8d573b943b37ba23f717e0ecb755e34414cd8ff191756c8c0dafa608e8674f9b",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    },
+    {
+      "name": "013_resolved_retention_holds.sql",
+      "sha256": "92dda438a34a8a21604f2024361b061dc690a8973ac7e2d1f52b7d433451f0bf",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    },
+    {
+      "name": "014_reviewed_food_sources.sql",
+      "sha256": "d3e3b8ca9483b1912bc732e40613fa55bc8b28648e69087acd320be7157a4f7c",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    },
+    {
+      "name": "015_pgc_food_assistance.sql",
+      "sha256": "fdfc8f713a733f17cc71b770ea18b23cc6de3732c178ce562fb8fc4c4e5d5f03",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    },
+    {
+      "name": "016_food_row_lineage.sql",
+      "sha256": "86b8def1e6380936b2b45f71b1bd042eac55aaf10b69411ab949305bacb1f21d",
+      "applied_at": "2026-11-07T20:25:22.791Z"
+    }
+  ],
+  "usage": [
+    {
+      "schemaname": "app_private",
+      "index_bytes": "32407552",
+      "tables_including_indexes_bytes": "45924352"
+    },
+    {
+      "schemaname": "our_ground_meta",
+      "index_bytes": "16384",
+      "tables_including_indexes_bytes": "32768"
+    }
+  ],
+  "counts": {
+    "organizations": "2",
+    "locations": "3",
+    "services": "3",
+    "demo_services": "0",
+    "app_users": "0",
+    "corrections": "0",
+    "claims": "0",
+    "revisions": "0",
+    "account_audit": "0",
+    "privacy_holds": "0",
+    "geography_records": "32415",
+    "published_with_lineage": "3"
+  },
+  "hrsa": [
+    {
+      "source_id": "hrsa-health-centers",
+      "checksum": "69f274ad859db78d35861642fa5a9f8132f22250ff3f46e453061cb7315cfacd",
+      "source_updated_at": "2026-11-06T00:00:00.000Z",
+      "completed_at": "2026-11-07T20:25:47.400Z",
+      "summary": {
+        "states": {
+          "PA": 3
+        },
+        "created": 3,
+        "updated": 0,
+        "accepted": 3,
+        "category": "healthcare",
+        "checksum": "69f274ad859db78d35861642fa5a9f8132f22250ff3f46e453061cb7315cfacd",
+        "excluded": 0,
+        "source_rows": 3,
+        "marked_stale": 0,
+        "needs_review": 0,
+        "full_snapshot": false,
+        "exclusion_reasons": {},
+        "source_updated_at": "2026-11-06T00:00:00.000Z",
+        "privacy_withdrawals": 0
+      }
+    }
+  ],
+  "census": [
+    {
+      "source_id": "census-gazetteer-2026",
+      "kind": "place",
+      "checksum": "af678e2d990827c89ee39b98c82de6e90b693c7361ff0e559ae3076670dd2863",
+      "completed_at": "2026-11-07T20:26:37.552Z",
+      "records": "32363"
+    },
+    {
+      "source_id": "census-gazetteer-2026",
+      "kind": "state",
+      "checksum": "54352ca34f869b4deca03a65da72cccb8e9f0c2702340061949b63c76c63f852",
+      "completed_at": "2026-11-07T20:26:37.552Z",
+      "records": "52"
+    }
+  ]
+}

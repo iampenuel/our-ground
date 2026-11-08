@@ -1,0 +1,8 @@
+.og-photograph { position: relative; overflow: hidden; background: var(--og-photo-meadow); }
+.og-photograph picture, .og-photograph img { display: block; width: 100%; height: 100%; }
+.og-photograph img { object-fit: cover; }
+.og-photograph[data-photo-state="error"] picture { visibility: hidden; }
+.og-photo-unavailable { position: absolute; inset: 1rem 1rem auto auto; max-width: calc(100% - 2rem); padding: .375rem .625rem; border: 1px solid var(--og-inverse-line); background: var(--og-ink); color: var(--og-white); font: 400 .75rem/1.5 var(--og-sans); }
+.og-editorial-photo { margin: 2rem 0 0; }
+.og-editorial-photo .og-photograph { aspect-ratio: 3 / 2; border-radius: var(--og-radius); }
+.og-editorial-photo figcaption { margin-top: .625rem; color: var(--og-muted); font-size: .75rem; line-height: 1.5; }

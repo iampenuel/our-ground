@@ -1,0 +1,135 @@
+{
+  "verified_at": "2026-11-07T20:32:22.246Z",
+  "project_ref": "hrmocmvdmshoghclxyjs",
+  "catalog": {
+    "identity": {
+      "role": "our_ground_api",
+      "postgres": "17.11"
+    },
+    "schema": {
+      "tables": [
+        "app_users",
+        "campaigns",
+        "categories",
+        "correction_reports",
+        "food_source_row_lineage",
+        "geographic_reference_imports",
+        "geographic_reference_names",
+        "geographic_reference_records",
+        "opening_hours",
+        "organization_action_limits",
+        "organization_audit",
+        "organization_claims",
+        "organization_listing_access",
+        "organization_memberships",
+        "organization_revisions",
+        "organization_revoked_sessions",
+        "organizations",
+        "privacy_retention_holds",
+        "resource_data_sources",
+        "resource_import_runs",
+        "resource_privacy_events",
+        "resource_privacy_holds",
+        "resource_source_records",
+        "resource_source_versions",
+        "service_categories",
+        "service_locations",
+        "services"
+      ],
+      "foreign_keys": 47,
+      "indexes": 60,
+      "problems": []
+    },
+    "extensions": [
+      {
+        "extname": "fuzzystrmatch",
+        "extversion": "1.2",
+        "schema": "extensions"
+      },
+      {
+        "extname": "pg_trgm",
+        "extversion": "1.6",
+        "schema": "extensions"
+      },
+      {
+        "extname": "postgis",
+        "extversion": "3.3.7",
+        "schema": "extensions"
+      },
+      {
+        "extname": "unaccent",
+        "extversion": "1.1",
+        "schema": "extensions"
+      }
+    ],
+    "published": [
+      {
+        "slug": "healthcare",
+        "total": 3
+      }
+    ]
+  },
+  "denied": [
+    {
+      "operation": "raw services",
+      "sqlstate": "42501"
+    },
+    {
+      "operation": "source snapshots",
+      "sqlstate": "42501"
+    },
+    {
+      "operation": "privacy holds",
+      "sqlstate": "42501"
+    },
+    {
+      "operation": "owner import",
+      "sqlstate": "42501"
+    },
+    {
+      "operation": "owner withdrawal",
+      "sqlstate": "42501"
+    }
+  ],
+  "center": {
+    "latitude": 40.275891,
+    "longitude": -76.88502
+  },
+  "searches": [
+    {
+      "radius_miles": 10,
+      "total": 3,
+      "ids": [
+        "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+        "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+        "5a9b557b-d98a-512e-bd9b-656c500582a6"
+      ],
+      "distances": [
+        1.3,
+        3.6,
+        6.4
+      ],
+      "all_details_sources_and_marker_data_match": true
+    },
+    {
+      "radius_miles": 5,
+      "total": 2,
+      "ids": [
+        "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+        "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9"
+      ],
+      "distances": [
+        1.3,
+        3.6
+      ],
+      "all_details_sources_and_marker_data_match": true
+    }
+  ],
+  "food_total": 0,
+  "keyword": {
+    "query": "Sadler",
+    "total": 1
+  },
+  "gemini_called": false,
+  "browser_rendering_verified": false
+}

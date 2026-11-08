@@ -1,0 +1,1973 @@
+{
+  "checked_at": "2026-11-08T01:31:05.706Z",
+  "db": {
+    "bytes": 120002227,
+    "migrations": 18,
+    "holds": 34,
+    "stale": 0
+  },
+  "acl": {
+    "current_user": "our_ground_api",
+    "raw_services": false,
+    "raw_reports": false,
+    "raw_limits": false
+  },
+  "totals": {
+    "healthcare": 16417,
+    "food": 593,
+    "community": 508
+  },
+  "states": {
+    "AK": {
+      "healthcare": 205,
+      "food": 0,
+      "community": 0
+    },
+    "AL": {
+      "healthcare": 194,
+      "food": 0,
+      "community": 8
+    },
+    "AR": {
+      "healthcare": 266,
+      "food": 0,
+      "community": 3
+    },
+    "AS": {
+      "healthcare": 7,
+      "food": 0,
+      "community": 0
+    },
+    "AZ": {
+      "healthcare": 231,
+      "food": 0,
+      "community": 4
+    },
+    "CA": {
+      "healthcare": 2512,
+      "food": 0,
+      "community": 28
+    },
+    "CO": {
+      "healthcare": 247,
+      "food": 0,
+      "community": 13
+    },
+    "CT": {
+      "healthcare": 427,
+      "food": 0,
+      "community": 7
+    },
+    "DC": {
+      "healthcare": 71,
+      "food": 0,
+      "community": 8
+    },
+    "DE": {
+      "healthcare": 11,
+      "food": 0,
+      "community": 5
+    },
+    "FL": {
+      "healthcare": 634,
+      "food": 0,
+      "community": 29
+    },
+    "GA": {
+      "healthcare": 402,
+      "food": 0,
+      "community": 10
+    },
+    "GU": {
+      "healthcare": 3,
+      "food": 0,
+      "community": 0
+    },
+    "HI": {
+      "healthcare": 103,
+      "food": 0,
+      "community": 2
+    },
+    "IA": {
+      "healthcare": 110,
+      "food": 0,
+      "community": 7
+    },
+    "ID": {
+      "healthcare": 224,
+      "food": 0,
+      "community": 2
+    },
+    "IL": {
+      "healthcare": 486,
+      "food": 0,
+      "community": 37
+    },
+    "IN": {
+      "healthcare": 483,
+      "food": 0,
+      "community": 9
+    },
+    "KS": {
+      "healthcare": 161,
+      "food": 0,
+      "community": 1
+    },
+    "KY": {
+      "healthcare": 604,
+      "food": 0,
+      "community": 7
+    },
+    "LA": {
+      "healthcare": 490,
+      "food": 0,
+      "community": 10
+    },
+    "MA": {
+      "healthcare": 239,
+      "food": 0,
+      "community": 11
+    },
+    "MD": {
+      "healthcare": 151,
+      "food": 60,
+      "community": 17
+    },
+    "ME": {
+      "healthcare": 169,
+      "food": 0,
+      "community": 1
+    },
+    "MI": {
+      "healthcare": 435,
+      "food": 0,
+      "community": 27
+    },
+    "MN": {
+      "healthcare": 90,
+      "food": 0,
+      "community": 17
+    },
+    "MO": {
+      "healthcare": 413,
+      "food": 0,
+      "community": 9
+    },
+    "MP": {
+      "healthcare": 3,
+      "food": 0,
+      "community": 0
+    },
+    "MS": {
+      "healthcare": 287,
+      "food": 0,
+      "community": 5
+    },
+    "MT": {
+      "healthcare": 122,
+      "food": 0,
+      "community": 6
+    },
+    "NC": {
+      "healthcare": 727,
+      "food": 0,
+      "community": 22
+    },
+    "ND": {
+      "healthcare": 29,
+      "food": 0,
+      "community": 1
+    },
+    "NE": {
+      "healthcare": 82,
+      "food": 0,
+      "community": 5
+    },
+    "NH": {
+      "healthcare": 65,
+      "food": 0,
+      "community": 2
+    },
+    "NJ": {
+      "healthcare": 132,
+      "food": 0,
+      "community": 13
+    },
+    "NM": {
+      "healthcare": 226,
+      "food": 0,
+      "community": 2
+    },
+    "NV": {
+      "healthcare": 60,
+      "food": 0,
+      "community": 2
+    },
+    "NY": {
+      "healthcare": 790,
+      "food": 0,
+      "community": 35
+    },
+    "OH": {
+      "healthcare": 587,
+      "food": 0,
+      "community": 15
+    },
+    "OK": {
+      "healthcare": 192,
+      "food": 0,
+      "community": 4
+    },
+    "OR": {
+      "healthcare": 277,
+      "food": 0,
+      "community": 8
+    },
+    "PA": {
+      "healthcare": 475,
+      "food": 324,
+      "community": 33
+    },
+    "PR": {
+      "healthcare": 120,
+      "food": 0,
+      "community": 4
+    },
+    "RI": {
+      "healthcare": 58,
+      "food": 0,
+      "community": 2
+    },
+    "SC": {
+      "healthcare": 267,
+      "food": 0,
+      "community": 4
+    },
+    "SD": {
+      "healthcare": 39,
+      "food": 0,
+      "community": 5
+    },
+    "TN": {
+      "healthcare": 222,
+      "food": 0,
+      "community": 8
+    },
+    "TX": {
+      "healthcare": 714,
+      "food": 0,
+      "community": 20
+    },
+    "UT": {
+      "healthcare": 52,
+      "food": 0,
+      "community": 4
+    },
+    "VA": {
+      "healthcare": 210,
+      "food": 0,
+      "community": 14
+    },
+    "VI": {
+      "healthcare": 5,
+      "food": 0,
+      "community": 0
+    },
+    "VT": {
+      "healthcare": 86,
+      "food": 0,
+      "community": 3
+    },
+    "WA": {
+      "healthcare": 398,
+      "food": 209,
+      "community": 3
+    },
+    "WI": {
+      "healthcare": 308,
+      "food": 0,
+      "community": 11
+    },
+    "WV": {
+      "healthcare": 498,
+      "food": 0,
+      "community": 4
+    },
+    "WY": {
+      "healthcare": 18,
+      "food": 0,
+      "community": 1
+    }
+  },
+  "sources": {
+    "hrsa-health-centers": 16417,
+    "hud-housing-counselors": 508,
+    "pgc-food-assistance": 60,
+    "philly-food-sites": 324,
+    "seattle-food-resources": 209
+  },
+  "groups": [
+    {
+      "state": "AK",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 205
+    },
+    {
+      "state": "AL",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 194
+    },
+    {
+      "state": "AL",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 8
+    },
+    {
+      "state": "AR",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 266
+    },
+    {
+      "state": "AR",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 3
+    },
+    {
+      "state": "AS",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 7
+    },
+    {
+      "state": "AZ",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 231
+    },
+    {
+      "state": "AZ",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 4
+    },
+    {
+      "state": "CA",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 2512
+    },
+    {
+      "state": "CA",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 28
+    },
+    {
+      "state": "CO",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 247
+    },
+    {
+      "state": "CO",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 13
+    },
+    {
+      "state": "CT",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 427
+    },
+    {
+      "state": "CT",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 7
+    },
+    {
+      "state": "DC",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 71
+    },
+    {
+      "state": "DC",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 8
+    },
+    {
+      "state": "DE",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 11
+    },
+    {
+      "state": "DE",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 5
+    },
+    {
+      "state": "FL",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 634
+    },
+    {
+      "state": "FL",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 29
+    },
+    {
+      "state": "GA",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 402
+    },
+    {
+      "state": "GA",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 10
+    },
+    {
+      "state": "GU",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 3
+    },
+    {
+      "state": "HI",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 103
+    },
+    {
+      "state": "HI",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 2
+    },
+    {
+      "state": "IA",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 110
+    },
+    {
+      "state": "IA",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 7
+    },
+    {
+      "state": "ID",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 224
+    },
+    {
+      "state": "ID",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 2
+    },
+    {
+      "state": "IL",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 486
+    },
+    {
+      "state": "IL",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 37
+    },
+    {
+      "state": "IN",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 483
+    },
+    {
+      "state": "IN",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 9
+    },
+    {
+      "state": "KS",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 161
+    },
+    {
+      "state": "KS",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 1
+    },
+    {
+      "state": "KY",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 604
+    },
+    {
+      "state": "KY",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 7
+    },
+    {
+      "state": "LA",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 490
+    },
+    {
+      "state": "LA",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 10
+    },
+    {
+      "state": "MA",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 239
+    },
+    {
+      "state": "MA",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 11
+    },
+    {
+      "state": "MD",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 151
+    },
+    {
+      "state": "MD",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 17
+    },
+    {
+      "state": "MD",
+      "source_id": "pgc-food-assistance",
+      "category": "food",
+      "n": 60
+    },
+    {
+      "state": "ME",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 169
+    },
+    {
+      "state": "ME",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 1
+    },
+    {
+      "state": "MI",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 435
+    },
+    {
+      "state": "MI",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 27
+    },
+    {
+      "state": "MN",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 90
+    },
+    {
+      "state": "MN",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 17
+    },
+    {
+      "state": "MO",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 413
+    },
+    {
+      "state": "MO",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 9
+    },
+    {
+      "state": "MP",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 3
+    },
+    {
+      "state": "MS",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 287
+    },
+    {
+      "state": "MS",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 5
+    },
+    {
+      "state": "MT",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 122
+    },
+    {
+      "state": "MT",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 6
+    },
+    {
+      "state": "NC",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 727
+    },
+    {
+      "state": "NC",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 22
+    },
+    {
+      "state": "ND",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 29
+    },
+    {
+      "state": "ND",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 1
+    },
+    {
+      "state": "NE",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 82
+    },
+    {
+      "state": "NE",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 5
+    },
+    {
+      "state": "NH",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 65
+    },
+    {
+      "state": "NH",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 2
+    },
+    {
+      "state": "NJ",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 132
+    },
+    {
+      "state": "NJ",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 13
+    },
+    {
+      "state": "NM",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 226
+    },
+    {
+      "state": "NM",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 2
+    },
+    {
+      "state": "NV",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 60
+    },
+    {
+      "state": "NV",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 2
+    },
+    {
+      "state": "NY",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 790
+    },
+    {
+      "state": "NY",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 35
+    },
+    {
+      "state": "OH",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 587
+    },
+    {
+      "state": "OH",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 15
+    },
+    {
+      "state": "OK",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 192
+    },
+    {
+      "state": "OK",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 4
+    },
+    {
+      "state": "OR",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 277
+    },
+    {
+      "state": "OR",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 8
+    },
+    {
+      "state": "PA",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 475
+    },
+    {
+      "state": "PA",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 33
+    },
+    {
+      "state": "PA",
+      "source_id": "philly-food-sites",
+      "category": "food",
+      "n": 324
+    },
+    {
+      "state": "PR",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 120
+    },
+    {
+      "state": "PR",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 4
+    },
+    {
+      "state": "RI",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 58
+    },
+    {
+      "state": "RI",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 2
+    },
+    {
+      "state": "SC",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 267
+    },
+    {
+      "state": "SC",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 4
+    },
+    {
+      "state": "SD",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 39
+    },
+    {
+      "state": "SD",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 5
+    },
+    {
+      "state": "TN",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 222
+    },
+    {
+      "state": "TN",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 8
+    },
+    {
+      "state": "TX",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 714
+    },
+    {
+      "state": "TX",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 20
+    },
+    {
+      "state": "UT",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 52
+    },
+    {
+      "state": "UT",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 4
+    },
+    {
+      "state": "VA",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 210
+    },
+    {
+      "state": "VA",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 14
+    },
+    {
+      "state": "VI",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 5
+    },
+    {
+      "state": "VT",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 86
+    },
+    {
+      "state": "VT",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 3
+    },
+    {
+      "state": "WA",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 398
+    },
+    {
+      "state": "WA",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 3
+    },
+    {
+      "state": "WA",
+      "source_id": "seattle-food-resources",
+      "category": "food",
+      "n": 209
+    },
+    {
+      "state": "WI",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 308
+    },
+    {
+      "state": "WI",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 11
+    },
+    {
+      "state": "WV",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 498
+    },
+    {
+      "state": "WV",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 4
+    },
+    {
+      "state": "WY",
+      "source_id": "hrsa-health-centers",
+      "category": "healthcare",
+      "n": 18
+    },
+    {
+      "state": "WY",
+      "source_id": "hud-housing-counselors",
+      "category": "community",
+      "n": 1
+    }
+  ],
+  "cases": [
+    {
+      "city": "Harrisburg, PA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 6,
+        "ms": 313
+      },
+      "food": {
+        "total": 0,
+        "ms": 69
+      },
+      "community": {
+        "total": 0,
+        "ms": 141
+      }
+    },
+    {
+      "city": "Philadelphia, PA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 92,
+        "ms": 122
+      },
+      "food": {
+        "total": 323,
+        "ms": 92
+      },
+      "community": {
+        "total": 15,
+        "ms": 161
+      }
+    },
+    {
+      "city": "Pittsburgh, PA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 30,
+        "ms": 78
+      },
+      "food": {
+        "total": 0,
+        "ms": 76
+      },
+      "community": {
+        "total": 2,
+        "ms": 82
+      }
+    },
+    {
+      "city": "Lancaster, PA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 10,
+        "ms": 76
+      },
+      "food": {
+        "total": 0,
+        "ms": 64
+      },
+      "community": {
+        "total": 1,
+        "ms": 65
+      }
+    },
+    {
+      "city": "New York, NY",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 274,
+        "ms": 164
+      },
+      "food": {
+        "total": 0,
+        "ms": 77
+      },
+      "community": {
+        "total": 11,
+        "ms": 74
+      }
+    },
+    {
+      "city": "Baltimore, MD",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 32,
+        "ms": 146
+      },
+      "food": {
+        "total": 0,
+        "ms": 68
+      },
+      "community": {
+        "total": 5,
+        "ms": 74
+      }
+    },
+    {
+      "city": "Washington, DC",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 99,
+        "ms": 72
+      },
+      "food": {
+        "total": 43,
+        "ms": 78
+      },
+      "community": {
+        "total": 12,
+        "ms": 158
+      }
+    },
+    {
+      "city": "Boston, MA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 102,
+        "ms": 74
+      },
+      "food": {
+        "total": 0,
+        "ms": 67
+      },
+      "community": {
+        "total": 2,
+        "ms": 66
+      }
+    },
+    {
+      "city": "Chicago, IL",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 165,
+        "ms": 86
+      },
+      "food": {
+        "total": 0,
+        "ms": 68
+      },
+      "community": {
+        "total": 15,
+        "ms": 69
+      }
+    },
+    {
+      "city": "Detroit, MI",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 70,
+        "ms": 72
+      },
+      "food": {
+        "total": 0,
+        "ms": 62
+      },
+      "community": {
+        "total": 7,
+        "ms": 69
+      }
+    },
+    {
+      "city": "Atlanta, GA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 26,
+        "ms": 102
+      },
+      "food": {
+        "total": 0,
+        "ms": 161
+      },
+      "community": {
+        "total": 3,
+        "ms": 68
+      }
+    },
+    {
+      "city": "Los Angeles, CA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 215,
+        "ms": 85
+      },
+      "food": {
+        "total": 0,
+        "ms": 159
+      },
+      "community": {
+        "total": 2,
+        "ms": 65
+      }
+    },
+    {
+      "city": "Birmingham, AL",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 26,
+        "ms": 70
+      },
+      "food": {
+        "total": 0,
+        "ms": 66
+      },
+      "community": {
+        "total": 1,
+        "ms": 67
+      }
+    },
+    {
+      "city": "Anchorage, AK",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 0,
+        "ms": 69
+      },
+      "food": {
+        "total": 0,
+        "ms": 68
+      },
+      "community": {
+        "total": 0,
+        "ms": 62
+      }
+    },
+    {
+      "city": "Phoenix, AZ",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 63,
+        "ms": 80
+      },
+      "food": {
+        "total": 0,
+        "ms": 70
+      },
+      "community": {
+        "total": 2,
+        "ms": 68
+      }
+    },
+    {
+      "city": "Little Rock, AR",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 14,
+        "ms": 73
+      },
+      "food": {
+        "total": 0,
+        "ms": 68
+      },
+      "community": {
+        "total": 1,
+        "ms": 65
+      }
+    },
+    {
+      "city": "Sacramento, CA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 73,
+        "ms": 156
+      },
+      "food": {
+        "total": 0,
+        "ms": 71
+      },
+      "community": {
+        "total": 1,
+        "ms": 69
+      }
+    },
+    {
+      "city": "Denver, CO",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 72,
+        "ms": 79
+      },
+      "food": {
+        "total": 0,
+        "ms": 156
+      },
+      "community": {
+        "total": 7,
+        "ms": 72
+      }
+    },
+    {
+      "city": "Hartford, CT",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 74,
+        "ms": 78
+      },
+      "food": {
+        "total": 0,
+        "ms": 67
+      },
+      "community": {
+        "total": 3,
+        "ms": 69
+      }
+    },
+    {
+      "city": "Dover, DE",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 1,
+        "ms": 68
+      },
+      "food": {
+        "total": 0,
+        "ms": 65
+      },
+      "community": {
+        "total": 1,
+        "ms": 70
+      }
+    },
+    {
+      "city": "Miami, FL",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 116,
+        "ms": 76
+      },
+      "food": {
+        "total": 0,
+        "ms": 64
+      },
+      "community": {
+        "total": 1,
+        "ms": 74
+      }
+    },
+    {
+      "city": "Savannah, GA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 20,
+        "ms": 70
+      },
+      "food": {
+        "total": 0,
+        "ms": 156
+      },
+      "community": {
+        "total": 0,
+        "ms": 83
+      }
+    },
+    {
+      "city": "Honolulu, HI",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 23,
+        "ms": 74
+      },
+      "food": {
+        "total": 0,
+        "ms": 64
+      },
+      "community": {
+        "total": 1,
+        "ms": 143
+      }
+    },
+    {
+      "city": "Boise, ID",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 19,
+        "ms": 73
+      },
+      "food": {
+        "total": 0,
+        "ms": 65
+      },
+      "community": {
+        "total": 2,
+        "ms": 66
+      }
+    },
+    {
+      "city": "Springfield, IL",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 11,
+        "ms": 68
+      },
+      "food": {
+        "total": 0,
+        "ms": 92
+      },
+      "community": {
+        "total": 1,
+        "ms": 73
+      }
+    },
+    {
+      "city": "Indianapolis, IN",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 96,
+        "ms": 73
+      },
+      "food": {
+        "total": 0,
+        "ms": 66
+      },
+      "community": {
+        "total": 2,
+        "ms": 73
+      }
+    },
+    {
+      "city": "Des Moines, IA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 9,
+        "ms": 70
+      },
+      "food": {
+        "total": 0,
+        "ms": 66
+      },
+      "community": {
+        "total": 2,
+        "ms": 68
+      }
+    },
+    {
+      "city": "Topeka, KS",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 2,
+        "ms": 64
+      },
+      "food": {
+        "total": 0,
+        "ms": 70
+      },
+      "community": {
+        "total": 0,
+        "ms": 63
+      }
+    },
+    {
+      "city": "Frankfort, KY",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 6,
+        "ms": 71
+      },
+      "food": {
+        "total": 0,
+        "ms": 72
+      },
+      "community": {
+        "total": 0,
+        "ms": 66
+      }
+    },
+    {
+      "city": "Baton Rouge, LA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 37,
+        "ms": 79
+      },
+      "food": {
+        "total": 0,
+        "ms": 68
+      },
+      "community": {
+        "total": 1,
+        "ms": 73
+      }
+    },
+    {
+      "city": "Portland, ME",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 34,
+        "ms": 70
+      },
+      "food": {
+        "total": 0,
+        "ms": 68
+      },
+      "community": {
+        "total": 0,
+        "ms": 67
+      }
+    },
+    {
+      "city": "Annapolis, MD",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 2,
+        "ms": 73
+      },
+      "food": {
+        "total": 0,
+        "ms": 67
+      },
+      "community": {
+        "total": 2,
+        "ms": 69
+      }
+    },
+    {
+      "city": "Worcester, MA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 17,
+        "ms": 67
+      },
+      "food": {
+        "total": 0,
+        "ms": 64
+      },
+      "community": {
+        "total": 1,
+        "ms": 66
+      }
+    },
+    {
+      "city": "Lansing, MI",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 10,
+        "ms": 65
+      },
+      "food": {
+        "total": 0,
+        "ms": 65
+      },
+      "community": {
+        "total": 2,
+        "ms": 67
+      }
+    },
+    {
+      "city": "Minneapolis, MN",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 53,
+        "ms": 77
+      },
+      "food": {
+        "total": 0,
+        "ms": 66
+      },
+      "community": {
+        "total": 9,
+        "ms": 71
+      }
+    },
+    {
+      "city": "Jackson, MS",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 26,
+        "ms": 67
+      },
+      "food": {
+        "total": 0,
+        "ms": 71
+      },
+      "community": {
+        "total": 3,
+        "ms": 65
+      }
+    },
+    {
+      "city": "Jefferson City, MO",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 1,
+        "ms": 67
+      },
+      "food": {
+        "total": 0,
+        "ms": 64
+      },
+      "community": {
+        "total": 0,
+        "ms": 72
+      }
+    },
+    {
+      "city": "Helena, MT",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 8,
+        "ms": 71
+      },
+      "food": {
+        "total": 0,
+        "ms": 65
+      },
+      "community": {
+        "total": 0,
+        "ms": 64
+      }
+    },
+    {
+      "city": "Lincoln, NE",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 4,
+        "ms": 68
+      },
+      "food": {
+        "total": 0,
+        "ms": 68
+      },
+      "community": {
+        "total": 1,
+        "ms": 71
+      }
+    },
+    {
+      "city": "Las Vegas, NV",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 27,
+        "ms": 67
+      },
+      "food": {
+        "total": 0,
+        "ms": 63
+      },
+      "community": {
+        "total": 2,
+        "ms": 73
+      }
+    },
+    {
+      "city": "Concord, NH",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 0,
+        "ms": 66
+      },
+      "food": {
+        "total": 0,
+        "ms": 65
+      },
+      "community": {
+        "total": 0,
+        "ms": 64
+      }
+    },
+    {
+      "city": "Trenton, NJ",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 9,
+        "ms": 71
+      },
+      "food": {
+        "total": 0,
+        "ms": 71
+      },
+      "community": {
+        "total": 1,
+        "ms": 62
+      }
+    },
+    {
+      "city": "Albuquerque, NM",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 21,
+        "ms": 69
+      },
+      "food": {
+        "total": 0,
+        "ms": 69
+      },
+      "community": {
+        "total": 2,
+        "ms": 64
+      }
+    },
+    {
+      "city": "Albany, NY",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 11,
+        "ms": 78
+      },
+      "food": {
+        "total": 0,
+        "ms": 70
+      },
+      "community": {
+        "total": 1,
+        "ms": 65
+      }
+    },
+    {
+      "city": "Raleigh, NC",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 8,
+        "ms": 77
+      },
+      "food": {
+        "total": 0,
+        "ms": 66
+      },
+      "community": {
+        "total": 1,
+        "ms": 75
+      }
+    },
+    {
+      "city": "Bismarck, ND",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 2,
+        "ms": 75
+      },
+      "food": {
+        "total": 0,
+        "ms": 73
+      },
+      "community": {
+        "total": 0,
+        "ms": 79
+      }
+    },
+    {
+      "city": "Columbus, OH",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 32,
+        "ms": 75
+      },
+      "food": {
+        "total": 0,
+        "ms": 70
+      },
+      "community": {
+        "total": 2,
+        "ms": 67
+      }
+    },
+    {
+      "city": "Oklahoma City, OK",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 18,
+        "ms": 83
+      },
+      "food": {
+        "total": 0,
+        "ms": 68
+      },
+      "community": {
+        "total": 0,
+        "ms": 68
+      }
+    },
+    {
+      "city": "Salem, OR",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 8,
+        "ms": 78
+      },
+      "food": {
+        "total": 0,
+        "ms": 81
+      },
+      "community": {
+        "total": 0,
+        "ms": 67
+      }
+    },
+    {
+      "city": "Erie, PA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 12,
+        "ms": 68
+      },
+      "food": {
+        "total": 0,
+        "ms": 66
+      },
+      "community": {
+        "total": 2,
+        "ms": 77
+      }
+    },
+    {
+      "city": "Providence, RI",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 37,
+        "ms": 72
+      },
+      "food": {
+        "total": 0,
+        "ms": 63
+      },
+      "community": {
+        "total": 2,
+        "ms": 67
+      }
+    },
+    {
+      "city": "Columbia, SC",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 12,
+        "ms": 69
+      },
+      "food": {
+        "total": 0,
+        "ms": 67
+      },
+      "community": {
+        "total": 0,
+        "ms": 73
+      }
+    },
+    {
+      "city": "Pierre, SD",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 1,
+        "ms": 79
+      },
+      "food": {
+        "total": 0,
+        "ms": 65
+      },
+      "community": {
+        "total": 0,
+        "ms": 66
+      }
+    },
+    {
+      "city": "Nashville, TN",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 13,
+        "ms": 69
+      },
+      "food": {
+        "total": 0,
+        "ms": 71
+      },
+      "community": {
+        "total": 2,
+        "ms": 62
+      }
+    },
+    {
+      "city": "Austin, TX",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 42,
+        "ms": 72
+      },
+      "food": {
+        "total": 0,
+        "ms": 67
+      },
+      "community": {
+        "total": 3,
+        "ms": 74
+      }
+    },
+    {
+      "city": "Salt Lake City, UT",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 7,
+        "ms": 95
+      },
+      "food": {
+        "total": 0,
+        "ms": 93
+      },
+      "community": {
+        "total": 1,
+        "ms": 67
+      }
+    },
+    {
+      "city": "Montpelier, VT",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 7,
+        "ms": 68
+      },
+      "food": {
+        "total": 0,
+        "ms": 66
+      },
+      "community": {
+        "total": 0,
+        "ms": 69
+      }
+    },
+    {
+      "city": "Richmond, VA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 16,
+        "ms": 70
+      },
+      "food": {
+        "total": 0,
+        "ms": 64
+      },
+      "community": {
+        "total": 4,
+        "ms": 72
+      }
+    },
+    {
+      "city": "Seattle, WA",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 76,
+        "ms": 78
+      },
+      "food": {
+        "total": 101,
+        "ms": 78
+      },
+      "community": {
+        "total": 1,
+        "ms": 65
+      }
+    },
+    {
+      "city": "Charleston, WV",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 23,
+        "ms": 75
+      },
+      "food": {
+        "total": 0,
+        "ms": 78
+      },
+      "community": {
+        "total": 1,
+        "ms": 66
+      }
+    },
+    {
+      "city": "Madison, WI",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 7,
+        "ms": 84
+      },
+      "food": {
+        "total": 0,
+        "ms": 63
+      },
+      "community": {
+        "total": 1,
+        "ms": 67
+      }
+    },
+    {
+      "city": "Cheyenne, WY",
+      "reference_points": 1,
+      "healthcare": {
+        "total": 3,
+        "ms": 88
+      },
+      "food": {
+        "total": 0,
+        "ms": 78
+      },
+      "community": {
+        "total": 0,
+        "ms": 66
+      }
+    }
+  ],
+  "cross_state": {
+    "at": "Camden, NJ / Philadelphia, PA",
+    "states": [
+      "NJ",
+      "PA"
+    ]
+  },
+  "index_used": true
+}

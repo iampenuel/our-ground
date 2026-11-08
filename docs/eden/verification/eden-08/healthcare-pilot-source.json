@@ -1,0 +1,40 @@
+{
+  "reviewed_on": "2026-11-07",
+  "scope": "Three public facility listings only; healthcare, PA. Not a full source snapshot. Not proof of services, hours or availability.",
+  "source": "https://data.hrsa.gov/DataDownload/DD_Files/Health_Center_Service_Delivery_and_LookAlike_Sites.csv",
+  "source_date": "2026-11-06T00:00:00.000Z",
+  "source_sha256": "304c9236787cbed7869ee07eff750e32db4109fa51fe11b77f74c9ed98655c3c",
+  "slice_sha256": "69f274ad859db78d35861642fa5a9f8132f22250ff3f46e453061cb7315cfacd",
+  "records": [
+    {
+      "hrsa_id": "BPS-H80-038079",
+      "service_id": "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+      "name": "Hamilton Health Center Family Practice at Steelton",
+      "city": "Steelton",
+      "street": "120 N Front St",
+      "latitude": 40.23520607,
+      "longitude": -76.84183421,
+      "providerLocationPage": "https://www.hamiltonhealthcenter.com/locations/"
+    },
+    {
+      "hrsa_id": "BPS-H80-012534",
+      "service_id": "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+      "name": "HHC- South Allison Hill",
+      "city": "Harrisburg",
+      "street": "110 S 17th St",
+      "latitude": 40.26548364,
+      "longitude": -76.86473784,
+      "providerLocationPage": "https://www.hamiltonhealthcenter.com/locations/"
+    },
+    {
+      "hrsa_id": "BPS-H80-033742",
+      "service_id": "5a9b557b-d98a-512e-bd9b-656c500582a6",
+      "name": "Sadler Health Center Corporation Mechanicsburg",
+      "city": "Mechanicsburg",
+      "street": "5210 E Trindle Rd",
+      "latitude": 40.22018004,
+      "longitude": -76.9826107,
+      "providerLocationPage": "https://www.sadlerhealth.org/contact/mechanicsburg/"
+    }
+  ]
+}

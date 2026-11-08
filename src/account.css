@@ -1,0 +1,146 @@
+.account-main, .staff-main { max-width: 1160px; padding-block: clamp(2.5rem, 5vw, 5rem); }
+.account-intro { max-width: 49rem; margin-bottom: clamp(2rem, 4vw, 3.5rem); }
+.account-intro h1, .staff-intro h1 { margin: 1rem 0 1.25rem; font: 400 clamp(2.5rem, 4.6vw, 4.5rem)/1.06 var(--og-serif); letter-spacing: -.045em; text-wrap: balance; }
+.account-intro > p, .staff-intro > p { max-width: 42rem; margin: 0; color: var(--og-muted); font-size: 1.0625rem; line-height: 1.75; }
+.account-layout { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 5rem); align-items: start; }
+.account-panel { padding: clamp(1.25rem, 3vw, 2.5rem); border: 1px solid var(--og-line); border-radius: var(--og-radius); background: var(--og-white); }
+.account-panel h2, .account-aside h2, .account-records h2, .staff-guidance h2 { margin: 0 0 1rem; font: 400 clamp(1.75rem, 2.4vw, 2.25rem)/1.15 var(--og-serif); letter-spacing: -.025em; }
+.account-status { color: var(--og-muted); font-size: .9375rem; line-height: 1.65; overflow-wrap: anywhere; }
+.account-status:empty { display: none; }
+.account-status[data-state="error"] { color: var(--og-error); }
+.account-status[data-state="warning"] { color: var(--og-warning); }
+.account-status[data-state="success"] { color: var(--og-success); }
+.account-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+.account-actions:has(> [hidden]):not(:has(> :not([hidden]))) { display: none; }
+.account-memberships { margin: 1.5rem 0 0; padding: 0; list-style: none; }
+.account-memberships:empty { display: none; }
+.account-memberships li { padding-block: .75rem; border-top: 1px solid var(--og-line); font-size: .9375rem; line-height: 1.5; }
+.account-aside { padding-block: .5rem; }
+.account-aside .page-eyebrow { margin-bottom: 1rem; }
+.account-aside p, .staff-guidance p { color: var(--og-muted); font-size: .9375rem; line-height: 1.75; }
+.account-access-note { border-top: 1px solid var(--og-line); padding-top: 1.25rem; margin-top: 1.5rem; }
+.account-records { margin-top: 3.5rem; padding-top: 2.5rem; border-top: 1px solid var(--og-line); }
+.account-record-heading p { color: var(--og-muted); line-height: 1.6; }
+#serviceList { display: grid; gap: .75rem; }
+.account-record { display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; }
+.account-record h3 { margin: 0 0 .5rem; font-size: 1.0625rem; font-weight: 500; line-height: 1.4; }
+.account-record-meta { color: var(--og-muted); font-size: .8125rem; }
+.account-record-action { display: flex; align-items: center; gap: .75rem; color: var(--og-blue); font-size: .875rem; white-space: nowrap; }
+.account-record-action svg { width: 1.25rem; height: 1.25rem; }
+.staff-intro { margin-top: 2rem; }
+.staff-back { display: inline-flex; align-items: center; gap: .75rem; min-height: 2.75rem; color: var(--og-blue); text-underline-offset: .3em; font-size: .9375rem; }
+.staff-back svg { width: 1.25rem; height: 1.25rem; transform: rotate(180deg); }
+.staff-layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, .8fr); gap: clamp(2rem, 5vw, 5rem); align-items: start; margin-top: 2.5rem; }
+.staff-editor { min-width: 0; }
+.staff-status { margin: 0 0 1.5rem; padding: 1rem 1.25rem; border: 1px solid var(--og-line); border-radius: .5rem; background: var(--og-surface-soft); }
+.staff-status[data-state="error"] { background: var(--og-error-surface); border-color: var(--og-error); }
+.staff-status[data-state="warning"] { background: var(--og-warning-surface); border-color: var(--og-warning); }
+.staff-status[data-state="success"] { background: var(--og-success-surface); border-color: var(--og-success); }
+.staff-form { margin-top: 0; }
+.staff-form .field-hint { color: var(--og-muted); font-size: .8125rem; font-weight: 400; line-height: 1.6; }
+.staff-form textarea { min-height: 7rem; }
+.staff-form :user-invalid { border-color: var(--og-error); }
+.staff-save-row { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; border-top: 1px solid var(--og-line); padding-top: 1.5rem; margin-top: .5rem; }
+.staff-save-row .account-status { margin: 0; }
+.staff-conflict { margin-top: 1rem; padding: 1.25rem; border: 1px solid var(--og-warning); border-radius: .5rem; background: var(--og-warning-surface); }
+.staff-conflict p { margin: 0 0 1rem; color: var(--og-ink); line-height: 1.6; }
+.staff-guidance { padding-left: 1.75rem; border-left: 1px solid var(--og-line); }
+.staff-guidance dl { margin: 1.5rem 0; }
+.staff-guidance dt { font-weight: 500; font-size: .9375rem; margin-top: 1rem; }
+.staff-guidance dd { margin: .375rem 0 0; color: var(--og-muted); font-size: .875rem; line-height: 1.7; }
+.staff-recovery { display: flex; flex-wrap: wrap; gap: .75rem; }
+@media (max-width: 900px) {
+  .account-layout, .staff-layout { grid-template-columns: minmax(0, 1fr); gap: 2.5rem; }
+  .account-aside { max-width: 42rem; }
+  .staff-guidance { padding: 2rem 0 0; border-left: 0; border-top: 1px solid var(--og-line); }
+}
+@media (max-width: 600px) {
+  .account-record { align-items: start; flex-direction: column; gap: 1rem; }
+  .staff-save-row { align-items: start; flex-direction: column; }
+}
+
+.account-hero { display: grid; grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr); gap: clamp(1.5rem, 3vw, 3rem); align-items: center; margin-bottom: clamp(2rem, 4vw, 3.5rem); }
+.account-hero .account-intro { margin-bottom: 0; }
+.account-photo { aspect-ratio: 16 / 10; border-radius: var(--og-radius); }
+.account-photo img { object-position: 62% center; }
+@media (max-width: 900px) {
+  .account-hero { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+  .account-photo { aspect-ratio: 16 / 9; }
+}
+
+/* Organization account and review workflows reuse the approved Account surfaces. */
+.account-auth-form { margin-top: 1.5rem; }
+.account-auth-form .field-hint, .account-claim-form .field-hint, .account-editor-group .field-hint { font-size: .8125rem; color: var(--og-muted); font-weight: 400; line-height: 1.6; }
+.account-form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+.account-form-grid > *, .account-admin, .admin-review-card, .account-request { min-width: 0; }
+.account-claim-form { max-width: 49rem; }
+.account-claim-form > button { justify-self: start; }
+.account-card-list { display: grid; gap: 1rem; }
+.account-card-list:empty { display: none; }
+.account-request { padding: clamp(1.15rem,2.5vw,1.75rem); border: 1px solid var(--og-line); border-radius: var(--og-radius); background: var(--og-white); overflow-wrap: anywhere; }
+.account-request h3 { margin: 0; color: var(--og-ink); font-size: 1.0625rem; line-height: 1.45; font-weight: 500; }
+.account-request > p, .account-request > div > p { color: var(--og-muted); font-size: .9375rem; line-height: 1.65; }
+.account-request-heading { display: flex; align-items: start; justify-content: space-between; gap: 1rem; }
+.review-badge { flex: 0 0 auto; display: inline-block; padding: .25rem .65rem; border-radius: 2rem; color: var(--og-ink); background: var(--og-surface-soft); font-size: .75rem; font-weight: 500; line-height: 1.5; white-space: nowrap; }
+.review-badge[data-review="pending"] { color: var(--og-warning); background: var(--og-warning-surface); }
+.review-badge[data-review="approved"] { color: var(--og-success); background: var(--og-success-surface); }
+.review-badge[data-review="rejected"] { color: var(--og-error); background: var(--og-error-surface); }
+.review-note { border-top: 1px solid var(--og-line); padding-top: 1rem; white-space: pre-wrap; }
+.account-empty { max-width: 44rem; padding: 1.25rem 0; }
+.account-empty h3 { font-size: 1.125rem; font-weight: 500; margin: 0 0 .5rem; }
+.account-empty p { color: var(--og-muted); line-height: 1.7; margin: 0; }
+.account-published { margin-top: 2rem; padding: clamp(1.25rem,3vw,2rem); border: 1px solid var(--og-line); border-radius: var(--og-radius); display: grid; grid-template-columns: minmax(0,1.4fr) minmax(0,.8fr); gap: 2rem; background: var(--og-white); }
+.account-published h2, .staff-editor > h2 { margin: .75rem 0 1rem; font: 400 clamp(1.75rem,2.4vw,2.25rem)/1.15 var(--og-serif); letter-spacing: -.025em; }
+.account-published h3 { font-size: 1.0625rem; font-weight: 500; }
+.account-published p { line-height: 1.7; color: var(--og-muted); overflow-wrap: anywhere; }
+.account-source { border-left: 1px solid var(--og-line); padding-left: 1.5rem; }
+.account-source a, .account-published a, .admin-review-card a { color: var(--og-blue); text-underline-offset: .25em; }
+.staff-form > fieldset { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: 1.25rem; }
+.account-category-fields { display: grid; gap: .75rem; padding: 1rem; border: 1px solid var(--og-line); border-radius: .5rem; }
+.account-category-fields legend { padding-inline: .25rem; font-weight: 500; font-size: .9375rem; }
+.account-category-fields label { display: flex; gap: .65rem; align-items: center; font-weight: 400; }
+.account-category-fields input[type="checkbox"] { width: 1.1rem; min-height: 1.1rem; height: 1.1rem; margin: 0; accent-color: var(--og-green); }
+.account-editor-details { border-top: 1px solid var(--og-line); padding-top: 1rem; }
+.account-editor-details summary { cursor: pointer; padding-block: .5rem; font-weight: 500; }
+.account-editor-group { display: grid; gap: 1.25rem; padding-top: 1rem; }
+.account-hours-row { display: grid; grid-template-columns: minmax(0,1.1fr) repeat(2,minmax(0,1fr)); gap: .75rem; padding: 1rem 0; border-top: 1px solid var(--og-line); }
+.account-hours-note { grid-column: 1 / -1; }
+.account-remove-hours { justify-self: start; grid-column: 1 / -1; }
+.account-section-nav { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; padding-top: 2rem; font-size: .9375rem; }
+.account-section-nav a { color: var(--og-blue); text-underline-offset: .3em; }
+.account-definition-list { display: grid; grid-template-columns: minmax(9rem,.45fr) minmax(0,1fr); gap: .75rem 1.5rem; font-size: .9375rem; line-height: 1.65; }
+.account-definition-list dt { color: var(--og-muted); }
+.account-definition-list dd { margin: 0; overflow-wrap: anywhere; }
+.account-id { font-size: .8125rem; overflow-wrap: anywhere; }
+.admin-decision-form { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--og-line); max-width: 46rem; }
+.admin-decision-form > button { justify-self: start; }
+.admin-decision-form input, .admin-decision-form select, .admin-decision-form textarea { width: 100%; min-width: 0; box-sizing: border-box; }
+.account-comparison-wrap { overflow-x: auto; margin-top: 1.5rem; border: 1px solid var(--og-line); border-radius: .5rem; }
+.account-comparison { border-collapse: collapse; width: 100%; min-width: 32rem; table-layout: fixed; font-size: .875rem; line-height: 1.6; }
+.account-comparison th, .account-comparison td { padding: .85rem; border-bottom: 1px solid var(--og-line); text-align: left; vertical-align: top; white-space: pre-wrap; overflow-wrap: anywhere; }
+.account-comparison thead { background: var(--og-surface-soft); }
+.account-comparison th { font-weight: 500; }
+.account-comparison th:first-child { width: 24%; }
+.account-comparison tr:last-child th, .account-comparison tr:last-child td { border-bottom: 0; }
+.account-audit { list-style: none; margin: 0; padding: 0; }
+.account-audit li { display: grid; gap: .4rem; padding-block: 1rem; border-bottom: 1px solid var(--og-line); line-height: 1.6; }
+.account-audit strong { font-weight: 500; font-size: .9375rem; text-transform: capitalize; }
+.account-audit li > span { color: var(--og-muted); font-size: .8125rem; }
+.account-auth-form button:active, .account-claim-form button:active, .admin-decision-form button:active, .staff-form button:active { transform: scale(.985); }
+@media (max-width: 900px) {
+  .account-published { grid-template-columns: minmax(0,1fr); }
+  .account-source { padding: 1.25rem 0 0; border-left: 0; border-top: 1px solid var(--og-line); }
+}
+@media (max-width: 600px) {
+  .account-form-grid { grid-template-columns: minmax(0,1fr); }
+  .account-request-heading { flex-direction: column; gap: .6rem; }
+  .account-definition-list { grid-template-columns: minmax(0,1fr); gap: .25rem; }
+  .account-definition-list dd { margin-bottom: .75rem; }
+  .account-hours-row { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .account-hours-row > label:first-child { grid-column: 1 / -1; }
+  .account-auth-form .account-actions, .account-auth-form button { width: 100%; }
+  .account-section-nav { gap: .75rem 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .account-auth-form button:active, .account-claim-form button:active, .admin-decision-form button:active, .staff-form button:active { transform: none; }
+}

@@ -72,7 +72,7 @@ test('demo data is excluded when disabled', async () => {
 test('search rejects invalid category and coordinate', async () => {
   const { send } = setup();
   assert.equal((await send('resources?lat=40&lng=-76&category=housing')).status, 422);
-  assert.equal((await send('resources?lat=10&lng=-76')).status, 422);
+  assert.equal((await send('resources?lat=91&lng=-76')).status, 422);
 });
 test('Google account alone grants no edit permission', async () => {
   const { send } = setup();
@@ -82,24 +82,17 @@ test('Google account alone grants no edit permission', async () => {
   });
   assert.equal(response.status, 404);
 });
-test('assigned editor can update once; stale version conflicts', async () => {
-  const { send } = setup();
-  const initial = await send('services/' + serviceId, { headers: { authorization: 'Bearer editor' } });
-  assert.equal((await initial.json()).version, 1);
-  const init = {
-    method: 'PATCH', headers: { authorization: 'Bearer editor', 'content-type': 'application/json' },
-    body: JSON.stringify({ expected_version: 1, title: 'Demo Updated Pantry — fictional' })
-  };
-  const first = await send('services/' + serviceId, init);
-  assert.equal(first.status, 200);
-  assert.equal((await first.json()).version, 2);
-  assert.equal((await send('services/' + serviceId, init)).status, 409);
+test('legacy editor endpoint cannot publish outside the review workflow', async () => {
+  const {send}=setup();
+  const response=await send('services/'+serviceId,{method:'PATCH',headers:{authorization:'Bearer editor'},body:JSON.stringify({expected_version:1,title:'Attempted direct change'})});
+  assert.equal(response.status,409);assert.equal((await response.json()).error.code,'REVIEW_REQUIRED');
+  assert.equal((await(await send('services/'+serviceId,{headers:{authorization:'Bearer editor'}})).json()).version,1);
 });
 test('text validation matches database limits and rejects null required text', async () => {
   const { send } = setup();
   for (const patch of [{ title: 'x'.repeat(161) }, { summary: null }]) {
     const response = await send('services/' + serviceId, { method: 'PATCH', headers: { authorization: 'Bearer editor' }, body: JSON.stringify({ expected_version: 1, ...patch }) });
-    assert.equal(response.status, 422);
+    assert.equal(response.status, 409);
   }
 });
 test('anonymous correction report is accepted without account', async () => {
@@ -124,9 +117,10 @@ test('demo repository supports geographic search, staff maintenance, hide and co
   const me = await send('me', { headers: { authorization: 'Bearer editor' } });
   assert.equal((await me.json()).organizations[0].id, orgId);
   const update = await send('services/' + serviceId, { method: 'PATCH', headers: { authorization: 'Bearer editor' }, body: JSON.stringify({ expected_version: 1, status: 'hidden' }) });
-  assert.equal(update.status, 200);
+  assert.equal(update.status, 409);
+  await repo.updateService(serviceId,await repo.account(editorId),1,{status:'hidden'});
   assert.equal((await send('resources/' + serviceId)).status, 404);
-  const report = await send('correction-reports', { method: 'POST', body: JSON.stringify({ service_id: serviceId, reason_code: 'closed' }) });
+  const report = await send('correction-reports', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ service_id: serviceId, reason_code: 'closed' }) });
   assert.equal(report.status, 404);
   const staffView = await send('services/' + serviceId, { headers: { authorization: 'Bearer editor' } });
   assert.equal((await staffView.json()).version, 2);
@@ -144,7 +138,7 @@ test('staff collections and edits are scoped; anonymous and forged writes cannot
   assert.equal((await send('services/'+serviceId,null,{method:'PATCH',body})).status,401);
   assert.equal((await send('services/'+serviceId,'invalid',{method:'PATCH',body})).status,401);
   assert.equal((await send('services/'+serviceId,'outsider',{method:'PATCH',body})).status,404);
-  assert.equal((await send('services/'+serviceId,'editor',{method:'PATCH',body:JSON.stringify({expected_version:1,role:'admin',organization_id:orgId})})).status,422);
+  assert.equal((await send('services/'+serviceId,'editor',{method:'PATCH',body:JSON.stringify({expected_version:1,role:'admin',organization_id:orgId})})).status,409);
   assert.equal((await send('services/77777777-7777-4777-8777-777777777777','editor')).status,404);
   assert.equal((await (await send('me','outsider')).json()).role,'user');
 });

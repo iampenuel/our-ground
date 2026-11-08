@@ -1,7 +1,7 @@
 import type { SearchCategory, ResourceDetail } from '../shared/contracts';
-export const directoryCategories: Array<{ id: SearchCategory; label: string }> = [{ id:'all',label:'All' }, { id:'food',label:'Food' }, { id:'healthcare',label:'Healthcare' }];
+export const directoryCategories: Array<{ id: SearchCategory; label: string }> = [{ id:'all',label:'All' }, { id:'food',label:'Food' }, { id:'healthcare',label:'Healthcare' }, { id:'community',label:'Community Support' }];
 export function categoryName(value: string) { return directoryCategories.find((c) => c.id === value)?.label ?? 'Support'; }
-export function directoryCategory(value: string | null): SearchCategory { return value === 'food' || value === 'healthcare' ? value : 'all'; }
+export function directoryCategory(value: string | null): SearchCategory { return value === 'food' || value === 'healthcare' || value === 'community' ? value : 'all'; }
 export function searchUrl(category: SearchCategory, location: string, radius: number, keyword = '', page = 1, view = 'list') {
   const p = new URLSearchParams();
   if (location.trim()) p.set('location', location.trim());

@@ -1,6 +1,12 @@
+> **Phase 7D current provider and scope:** Geoapify is the selected autocomplete, forward/reverse geocoding and map-tile provider; MapLibre renders support/detail maps. No Mapbox token or dependency is required. Use the [current provider setup](../docs/implementation/phase-7d-provider-setup.md), [data-source/import guide](../docs/implementation/phase-7d-data-sources.md) and [pilot-readiness gates](../docs/implementation/phase-7d-pilot-readiness.md). The older OAuth/direct-editor examples below are historical; current PKCE uses the exact `/auth/callback` route and staff updates require reviewed revisions. Do not use the historical `/account` redirect example to configure a new project. Production remains unchanged and no staging deployment is authorized here.
+
+> **Phase 7B account setup:** Follow [organization accounts](../docs/implementation/phase-7b-organization-accounts.md) for email-code sign-in, migration 005, reviewed access, and administrator bootstrap. The Google-first and direct-editor instructions below describe the earlier milestone.
+
+> Phase 7C: follow the [owner readiness guide](../docs/implementation/phase-7c-owner-readiness.md) and [security report](../docs/implementation/phase-7c-security-hardening.md) before using historical setup examples below. Use reviewed migrations 006/007 in the explicitly selected development target only. Production has not changed; real service and operational privacy gates remain BLOCKED.
+
 # Connect the intended development project
 
-**Current status:** no Supabase/database/Google credentials are available locally, the Supabase dashboard requires sign-in, and the connected Vercel account cannot read this project's environment settings. No remote database was changed. These steps are for your team's intended **development** project. No deployment is required.
+**Hosted setup status:** real Supabase/database/Google verification remains unconfigured or unverified. Existing separate Geoapify server/browser keys are present locally. The isolated hosted-Redis algorithm check passed; the actual deployed trusted-header boundary and hosted Auth/database remain separate blockers. No remote database was changed. These steps are for your team's intended **development** project. No deployment is required.
 
 ## 1. Supply development configuration locally
 
@@ -34,6 +40,12 @@ Review the SQL in [migrations](migrations/):
 | `002_demo_seed.sql` | Optional fictional Harrisburg/Philadelphia fixtures; excluded by default |
 | `003_api_role.sql` | Restricted server SQL role; initially has no password |
 | `004_private_schema_access.sql` | Explicitly removes browser-role access to application tables |
+| `005_organization_accounts.sql` | Organization claims, reviewed revisions and scoped account operations |
+| `006_security_boundary.sql` | Restricted projections/operations, suspension and correlated auditing |
+| `007_privacy_retention.sql` | Owner-only privacy retention/redaction |
+| `008_nationwide_resources.sql` | Nationwide resource geography, bounded PostGIS search and source/import provenance |
+| `009_resource_privacy_withdrawals.sql` | Durable source privacy holds and owner-reviewed release; no suppressed address reconstruction or automatic republication |
+| `010_location_privacy_boundary.sql` | Whole-location suppression so another service at a held site cannot disclose its address or coordinates |
 
 The existing first three files were preserved. Migration tools validate the project reference against both Auth and database connection, acquire a database lock, record checksums, and apply pending files in one transaction. They contain no table resets or replacement of existing rows. If a file was applied manually, the original `IF NOT EXISTS` / `ON CONFLICT DO NOTHING` statements are rerun and checked before a journal entry is recorded. If existing structure differs, inspect the failure rather than deleting data.
 
@@ -99,7 +111,22 @@ npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
 
 Open `http://127.0.0.1:5173/support`. With fictional seeds enabled, try `17101` + Food, then `19102` + Healthcare. The frontend calls the real API; errors never fall back to the old static listings. In this mode reports persist in PostgreSQL.
 
-Without Mapbox, only the documented Harrisburg/Philadelphia city-center lookups are available when `ALLOW_DEMO_DATA=true`. For broader Pennsylvania city/ZIP lookup, set server `MAPBOX_ACCESS_TOKEN`. For interactive maps, set browser `VITE_MAPBOX_PUBLIC_TOKEN` to a **public** `pk.` token with the intended origin restrictions. The list, details and reports work when map tiles are unavailable. No Mapbox account or paid plan was created. Geocoding search results are transient; stored provider coordinates need an independently permitted source or permanent geocoding entitlement. [Mapbox Geocoding](https://docs.mapbox.com/api/search/geocoding/), [Mapbox GL JS](https://docs.mapbox.com/mapbox-gl-js/guides/).
+Nationwide live suggestions and forward/reverse geocoding use server-only `GEOAPIFY_SERVER_API_KEY` with explicit `GEOAPIFY_LOCATION_ENABLED=true` and `GEOAPIFY_LOCATION_LIVE_APPROVED=true`. The existing separate public `VITE_GEOAPIFY_BROWSER_KEY` supplies Geoapify tiles to MapLibre; restrict it to approved browser referrers/origins. Optional mapped Places discovery retains its separate enable/approval flags, while sharing the server provider budget. All Geoapify services and browser tiles consume one free account allowance of 3,000 credits/day; the server's conservative 200-request/day admission is not a complete browser-tile/account credit cap. Do not raise limits, enable retries or activate a paid plan to make a check pass. Maps are lazy, retain attribution and fall back to the list. No Mapbox value is required. Follow the [provider guide](../docs/implementation/phase-7d-provider-setup.md) for exact restrictions, CSP/referrer compatibility and bounded live verification.
+
+After the reviewed additive migration is applied, a local HRSA CSV can be validated without database access:
+
+```sh
+node --experimental-strip-types scripts/import-hrsa.mjs --file /absolute/path/to/reviewed.csv
+```
+
+A deliberate nonproduction apply uses the owner-only `HRSA_IMPORT_DATABASE_URL` in ignored configuration and an explicitly selected development project:
+
+```sh
+node --env-file=.env.local --experimental-strip-types scripts/import-hrsa.mjs \
+  --file /absolute/path/to/reviewed.csv --development-target --apply
+```
+
+This command refuses production runtime and the application role. Use `--full-snapshot` only for a reviewed complete source snapshot and cautious stale-record reconciliation. `--local-test-target` is reserved for a disposable loopback `ourground_7d*` database, not a way to bypass hosted targeting. Downloading with `--download` is a separate explicit official HRSA request; reuse a reviewed file for repeated checks. Importing does not independently verify an organization, patient availability, free care or hours. No production import or schedule is installed; see [data sources](../docs/implementation/phase-7d-data-sources.md).
 
 ## 5. Assign one staff account deliberately
 

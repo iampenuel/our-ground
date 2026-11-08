@@ -1,0 +1,59 @@
+// Operator-only one-time EDEN-11 import. No environment-selected database,
+// network downloads, migrations, full-snapshot withdrawals, or automatic refresh.
+import fs from 'node:fs';import {parseEnv} from 'node:util';import assert from 'node:assert/strict';import postgres from 'postgres';
+import {developmentTarget} from '../../backend/db-target.mjs';import {databaseTls} from '../../backend/database-security.ts';
+import {normalizeHrsaCsv,hrsaRequiredHeaders,parseCsv,sha256,importHrsa} from '../../backend/hrsa-import.mjs';
+import {normalizeFoodSnapshot,validateFoodGeography,importFood} from '../../backend/food-import.mjs';
+const ref='hrmocmvdmshoghclxyjs',dir='tmp/eden11/',evidence='docs/eden/verification/eden-11/',file='.env.eden08-owner.local';
+const read=f=>fs.readFileSync(f,'utf8'),json=f=>JSON.parse(read(f)),prior=json('docs/eden/verification/eden-08/healthcare-pilot-source.json'), reviewed=json('docs/eden/verification/eden-08/source-dry-runs.json');
+const cap=150_000_000, targets=['Philadelphia','Pittsburgh','Lancaster','Erie','Scranton','Allentown','Reading','York','Williamsport','Johnstown','Wellsboro','Huntingdon'];
+const publicSetting=r=>r.location_type==='Permanent'&&r.setting==='All Other Clinic Types'&&r.phone&&!/school|student|shelter|confidential|mobile|residential|prison|correctional|detention|carceral|employee|administrat|outreach only/i.test(r.name);
+const distance=(r,g)=>{const rad=n=>n*Math.PI/180;return 3959*2*Math.asin(Math.min(1,Math.sqrt(Math.sin(rad(r.latitude-g.latitude)/2)**2+Math.cos(rad(r.latitude))*Math.cos(rad(g.latitude))*Math.sin(rad(r.longitude-g.longitude)/2)**2)));};
+function pick(candidates,center){
+ const chosen=[],zips=new Set(),orgs=new Set();
+ while(candidates.length&&chosen.length<6){const score=r=>(!zips.has(r.postal_code.slice(0,5))?2:0)+(!orgs.has(r.organization_source_id)?1:0);
+ candidates.sort((a,b)=>score(b)-score(a)||distance(a,center)-distance(b,center)||a.record_id.localeCompare(b.record_id));const r=candidates.shift();chosen.push(r);zips.add(r.postal_code.slice(0,5));orgs.add(r.organization_source_id);}
+ return chosen;
+}
+let sql,phase='target';try{await run();}catch(e){console.error('Pilot stopped:',phase,e.code??'CHECK_FAILED',e.name==='AssertionError'?'assertion':'');process.exitCode=1;}finally{await sql?.end();}
+async function run(){
+ const attribution=process.argv[2]==='--repair-attribution',apply=process.argv[2]==='--apply';assert(process.argv.length===3&&(attribution||apply||process.argv[2]==='--review'));assert(!process.env.VERCEL&&process.env.NODE_ENV!=='production'&&!(fs.lstatSync(file).mode&0o077));
+ const env=parseEnv(read(file)),u=new URL(env.MIGRATION_DATABASE_URL);assert.equal(developmentTarget(u.href,env).ref,ref);assert(u.hostname==='aws-0-us-east-1.pooler.supabase.com'&&u.port==='5432'&&u.pathname==='/postgres'&&u.username==='postgres.'+ref&&!u.search&&!u.hash);
+ const ssl=databaseTls(env,u.href);assert(ssl.ca&&ssl.rejectUnauthorized);sql=postgres(u.href,{max:1,prepare:false,ssl,onnotice:()=>{},connect_timeout:8});
+ if(attribution){
+  phase='staging attribution';const old='https://data.hrsa.gov/topics/healthcenters',canonical='https://data.hrsa.gov/topics/health-centers/',links=json(evidence+'publisher-browser.json');assert(links.some(l=>l.url===old&&l.title.includes('403'))&&links.some(l=>l.url===canonical&&l.contains_dataset&&l.title==='Health Centers'));
+  const expected=new Set([...json(evidence+'source-plan.json').health.added.map(r=>r.id),...prior.records.map(r=>r.service_id)]);assert.equal(expected.size,43);
+  const changes=await sql.begin(async tx=>{
+   await tx`select pg_advisory_xact_lock(hashtext('our-ground-hrsa-import'))`;
+   const [base]=await tx`select current_user as role,current_database() as db,(select count(*) from app_private.public_resource_provenance) as records`;assert(base.role==='postgres'&&base.db==='postgres'&&Number(base.records)===367);
+   const rows=await tx`select r.service_id,s.location_id from app_private.resource_source_records r join app_private.services s on s.id=r.service_id join app_private.service_locations l on l.id=s.location_id where r.source_id='hrsa-health-centers' and r.record_status='active' and not r.needs_review and r.service_version=s.version and r.location_version=l.version and s.updated_by is null and not s.is_demo and s.source_url=${old} and l.source_url=${old} for update of r,s,l`;assert(rows.length===43&&rows.every(r=>expected.has(r.service_id)));
+   const a=await tx`update app_private.resource_data_sources set source_url=${canonical} where id='hrsa-health-centers' and source_url=${old} and enabled returning id`;
+   const b=await tx`update app_private.services set source_url=${canonical} where id=any(${rows.map(r=>r.service_id)}::uuid[]) and source_url=${old} returning id`;const c=await tx`update app_private.service_locations set source_url=${canonical} where id=any(${rows.map(r=>r.location_id)}::uuid[]) and source_url=${old} returning id`;
+   assert(a.length===1&&b.length===43&&c.length===43);const [{n}]=await tx`select count(*) as n from app_private.public_resource_provenance where source_id='hrsa-health-centers' and source_url=${canonical} and verification_status='imported_unverified'`;assert(Number(n)===43);return {registry:a.length,services:b.length,locations:c.length};
+  });fs.writeFileSync(evidence+'attribution.json',JSON.stringify({at:new Date().toISOString(),old,canonical,changes,import_receipts_unchanged:true},null,2)+'\n',{flag:'wx'});console.log(changes);return;
+ }
+ phase='source';const text=read(dir+'hrsa.csv'),all=normalizeHrsaCsv(text),food=normalizeFoodSnapshot('philly-food-sites',read(dir+'food.json'));assert.equal(all.checksum,reviewed.healthcare.checksum);assert.equal(food.checksum,reviewed.food.find(r=>r.source_id===food.source.id).checksum);
+ const pa=all.records.filter(r=>r.state==='PA');assert(prior.records.every(p=>pa.find(r=>r.record_id===p.hrsa_id&&r.latitude===p.latitude&&r.longitude===p.longitude)));
+ // Exclude co-located distinct records rather than choosing a winner. Do not replace source coordinates.
+ const point=r=>r.latitude.toFixed(4)+','+r.longitude.toFixed(4),st=r=>r.city+'|'+r.street.toLowerCase().replace(/[^a-z0-9]/g,'');
+ phase='review';const report=await sql.begin(async tx=>{
+ await tx`set local statement_timeout='60s'`;if(!apply)await tx`set transaction read only`;
+ const [base]=await tx`select current_user as role,current_database() as db,pg_database_size(current_database()) as bytes,(select count(*) from app_private.services)::int as services,(select count(*) from our_ground_meta.migrations)::int as migrations`;
+ assert(base.role==='postgres'&&base.db==='postgres'&&base.services===3&&base.migrations===15&&Number(base.bytes)<cap,'baseline');
+ const old=await tx`select service_id,source_id from app_private.public_resource_provenance order by service_id`;assert.deepEqual(old.map(x=>x.service_id),prior.records.map(r=>r.service_id).sort());assert(old.every(r=>r.source_id===all.source.id));
+ const records=[];for(const city of targets){
+ const centers=await tx`select distinct g.id,g.latitude,g.longitude from app_private.geographic_reference_records g join app_private.geographic_reference_names n on n.record_id=g.id join app_private.geographic_reference_imports i on i.id=g.import_id where g.active and g.vintage=2026 and g.kind='place' and g.state='PA' and n.normalized_name=lower(${city}) and i.completed_at is not null`;
+ if(centers.length!==1)continue;records.push(...pick(pa.filter(r=>r.city===city&&publicSetting(r)&&distance(r,centers[0])<=12&&pa.filter(p=>point(p)===point(r)||st(p)===st(r)).length===1),centers[0]));}
+ assert(records.length>=20&&records.length<=72);const skipped=new Set(["BPS-H80-019617", "BPS-H80-013224", "BPS-H80-034066", "BPS-H80-009420", "BPS-H80-020921", "BPS-H80-038708"]);const ids=new Set(records.filter(r=>!skipped.has(r.record_id)).map(r=>r.record_id)),csv=[hrsaRequiredHeaders,...parseCsv(text).filter(row=>ids.has(row['BPHC Assigned Number'])).map(row=>hrsaRequiredHeaders.map(h=>row[h]))].map(row=>row.map(s=>'"'+s.replaceAll('"','""')+'"').join(',')).join('\r\n')+'\r\n',h=normalizeHrsaCsv(csv);assert.equal(h.records.length,ids.size);assert.equal(h.excluded.length,0);
+ const f=await validateFoodGeography(tx,food);assert(f.records.length>0&&f.records.length<=400&&f.records.every(r=>r.state==='PA'&&r.city==='Philadelphia'));assert(f.records.length+f.excluded.length===f.summary.source_rows);
+ const plan={baseline_public:old,health:{full_feed_sha256:all.checksum,slice_sha256:h.checksum,date:h.source_updated_at,scope:targets,added:h.records.map(r=>({source_id:r.record_id,id:r.service_id,name:r.name,city:r.city,street:r.street,point:[r.latitude,r.longitude]}))},food:{full_feed_sha256:food.checksum,validated_sha256:f.checksum,date:f.source_updated_at,summary:f.summary},max_database_bytes:cap};
+ if(!apply){fs.writeFileSync(evidence+'source-plan.json',JSON.stringify(plan,null,2)+'\n');return {phase:'review',food:f.summary,health:h.records.map(r=>[r.city,r.name])};}
+ phase='approved manifest';assert.deepEqual(JSON.parse(JSON.stringify(plan)),json(evidence+'source-plan.json'));const backup=json(dir+'verified-old.json');assert(backup.readback&&backup.sha256===json('docs/eden/verification/eden-08/manual-recovery.json').archive_sha256&&Date.now()-Date.parse(backup.checked)<86400000);
+ phase='atomic import';const nested={begin:fn=>fn(tx)},health=await importHrsa(nested,h,{apply:true,fullSnapshot:false}),meals=await importFood(nested,food,{apply:true,fullSnapshot:false});
+ assert(health.created===h.records.length&&meals.created===f.records.length&&!health.needs_review&&!meals.needs_review);
+ phase='publication checks';const expected=new Map([...h.records,...f.records].map(r=>[r.service_id,r])),published=await tx`select p.service_id,p.verification_status,p.source_id,p.source_url,p.source_record_id,p.source_updated_at,p.attribution,p.license_url,l.state,l.city,l.street_address,extensions.st_y(l.point::extensions.geometry) as lat,extensions.st_x(l.point::extensions.geometry) as lng,c.slug from app_private.public_resource_provenance p join app_private.services s on s.id=p.service_id join app_private.service_locations l on l.id=s.location_id join app_private.service_categories sc on sc.service_id=s.id join app_private.categories c on c.id=sc.category_id`;
+ assert.equal(published.length,expected.size+3);for(const r of published){assert(r.state==='PA'&&r.verification_status==='imported_unverified'&&r.source_url);const x=expected.get(r.service_id);if(!x){assert(old.some(o=>o.service_id===r.service_id));continue;}assert.equal(r.source_record_id,x.record_id);assert.equal(r.city,x.city);assert.equal(r.street_address,x.street);assert(Math.abs(r.lat-x.latitude)<0.000001&&Math.abs(r.lng-x.longitude)<0.000001);const isFood=r.source_id===food.source.id;assert.equal(r.slug,isFood?'food':'healthcare');assert.equal(new Date(r.source_updated_at).toISOString(),isFood?food.source_updated_at:h.source_updated_at);if(isFood)assert(r.attribution===food.source.attribution&&r.license_url===food.source.authority);}
+ const [size]=await tx`select pg_database_size(current_database()) as bytes`;assert(Number(size.bytes)<cap);const byCity={};for(const r of published){byCity[r.city]??={};byCity[r.city][r.slug]=(byCity[r.city][r.slug]||0)+1;}
+ return {project:ref,recorded_at:new Date().toISOString(),baseline:base,after_bytes:size.bytes,health,food:meals,byCity,checked_public_rows:published.length,verified_fields:['category','source ID, URL, date','PA street/city','original coordinates','imported_unverified','Philadelphia credit and license']};
+ });if(apply)fs.writeFileSync(evidence+'import.json',JSON.stringify(report,null,2)+'\n',{flag:'wx'});console.log(JSON.stringify(apply?{rows:report.checked_public_rows,bytes:report.after_bytes,byCity:report.byCity}:report,null,2));
+}

@@ -1,0 +1,549 @@
+{
+  "measured_at": "2026-11-05T20:07:40.304Z",
+  "environment": "Disposable local PostgreSQL18/PostGIS, loopback; no hosted or production measurement",
+  "source": {
+    "source_id": "hrsa-health-centers",
+    "checksum": "b6972bb8f096efb81e0e22cba7c32762f0e39b15ce3347d1cf91bd24579f6021",
+    "source_updated_at": "2026-11-05T00:00:00.000Z",
+    "imported_at": "2026-11-05T20:02:52.533Z",
+    "completed_at": "2026-11-05T20:02:52.533Z",
+    "summary": {
+      "states": {
+        "AK": 218,
+        "AL": 206,
+        "AR": 283,
+        "AS": 7,
+        "AZ": 265,
+        "CA": 2734,
+        "CO": 273,
+        "CT": 431,
+        "DC": 72,
+        "DE": 14,
+        "FL": 673,
+        "GA": 415,
+        "GU": 3,
+        "HI": 117,
+        "IA": 120,
+        "ID": 233,
+        "IL": 509,
+        "IN": 503,
+        "KS": 177,
+        "KY": 625,
+        "LA": 508,
+        "MA": 269,
+        "MD": 156,
+        "ME": 174,
+        "MI": 441,
+        "MN": 91,
+        "MO": 425,
+        "MP": 3,
+        "MS": 302,
+        "MT": 132,
+        "NC": 747,
+        "ND": 33,
+        "NE": 91,
+        "NH": 70,
+        "NJ": 143,
+        "NM": 229,
+        "NV": 67,
+        "NY": 823,
+        "OH": 628,
+        "OK": 210,
+        "OR": 299,
+        "PA": 496,
+        "PR": 125,
+        "RI": 65,
+        "SC": 305,
+        "SD": 38,
+        "TN": 234,
+        "TX": 772,
+        "UT": 60,
+        "VA": 231,
+        "VI": 6,
+        "VT": 91,
+        "WA": 423,
+        "WI": 310,
+        "WV": 524,
+        "WY": 19
+      },
+      "created": 17418,
+      "updated": 0,
+      "accepted": 17418,
+      "category": "healthcare",
+      "checksum": "b6972bb8f096efb81e0e22cba7c32762f0e39b15ce3347d1cf91bd24579f6021",
+      "excluded": 2119,
+      "source_rows": 19537,
+      "marked_stale": 0,
+      "needs_review": 0,
+      "full_snapshot": true,
+      "exclusion_reasons": {
+        "suppressed": 14,
+        "unsupported_state": 696,
+        "mobile_or_nonfixed": 1404,
+        "invalid_coordinates": 1,
+        "invalid_identity_or_fields": 1,
+        "suppressed_or_missing_address": 3
+      },
+      "source_updated_at": "2026-11-05T00:00:00.000Z"
+    }
+  },
+  "counts": {
+    "organizations": 1584,
+    "healthcare_sites": 17418,
+    "eligibility_claims": 0,
+    "cost_claims": 0,
+    "opening_hour_rows": 0
+  },
+  "states": [
+    {
+      "state": "AK",
+      "healthcare_sites": 218
+    },
+    {
+      "state": "AL",
+      "healthcare_sites": 206
+    },
+    {
+      "state": "AR",
+      "healthcare_sites": 283
+    },
+    {
+      "state": "AS",
+      "healthcare_sites": 7
+    },
+    {
+      "state": "AZ",
+      "healthcare_sites": 265
+    },
+    {
+      "state": "CA",
+      "healthcare_sites": 2734
+    },
+    {
+      "state": "CO",
+      "healthcare_sites": 273
+    },
+    {
+      "state": "CT",
+      "healthcare_sites": 431
+    },
+    {
+      "state": "DC",
+      "healthcare_sites": 72
+    },
+    {
+      "state": "DE",
+      "healthcare_sites": 14
+    },
+    {
+      "state": "FL",
+      "healthcare_sites": 673
+    },
+    {
+      "state": "GA",
+      "healthcare_sites": 415
+    },
+    {
+      "state": "GU",
+      "healthcare_sites": 3
+    },
+    {
+      "state": "HI",
+      "healthcare_sites": 117
+    },
+    {
+      "state": "IA",
+      "healthcare_sites": 120
+    },
+    {
+      "state": "ID",
+      "healthcare_sites": 233
+    },
+    {
+      "state": "IL",
+      "healthcare_sites": 509
+    },
+    {
+      "state": "IN",
+      "healthcare_sites": 503
+    },
+    {
+      "state": "KS",
+      "healthcare_sites": 177
+    },
+    {
+      "state": "KY",
+      "healthcare_sites": 625
+    },
+    {
+      "state": "LA",
+      "healthcare_sites": 508
+    },
+    {
+      "state": "MA",
+      "healthcare_sites": 269
+    },
+    {
+      "state": "MD",
+      "healthcare_sites": 156
+    },
+    {
+      "state": "ME",
+      "healthcare_sites": 174
+    },
+    {
+      "state": "MI",
+      "healthcare_sites": 441
+    },
+    {
+      "state": "MN",
+      "healthcare_sites": 91
+    },
+    {
+      "state": "MO",
+      "healthcare_sites": 425
+    },
+    {
+      "state": "MP",
+      "healthcare_sites": 3
+    },
+    {
+      "state": "MS",
+      "healthcare_sites": 302
+    },
+    {
+      "state": "MT",
+      "healthcare_sites": 132
+    },
+    {
+      "state": "NC",
+      "healthcare_sites": 747
+    },
+    {
+      "state": "ND",
+      "healthcare_sites": 33
+    },
+    {
+      "state": "NE",
+      "healthcare_sites": 91
+    },
+    {
+      "state": "NH",
+      "healthcare_sites": 70
+    },
+    {
+      "state": "NJ",
+      "healthcare_sites": 143
+    },
+    {
+      "state": "NM",
+      "healthcare_sites": 229
+    },
+    {
+      "state": "NV",
+      "healthcare_sites": 67
+    },
+    {
+      "state": "NY",
+      "healthcare_sites": 823
+    },
+    {
+      "state": "OH",
+      "healthcare_sites": 628
+    },
+    {
+      "state": "OK",
+      "healthcare_sites": 210
+    },
+    {
+      "state": "OR",
+      "healthcare_sites": 299
+    },
+    {
+      "state": "PA",
+      "healthcare_sites": 496
+    },
+    {
+      "state": "PR",
+      "healthcare_sites": 125
+    },
+    {
+      "state": "RI",
+      "healthcare_sites": 65
+    },
+    {
+      "state": "SC",
+      "healthcare_sites": 305
+    },
+    {
+      "state": "SD",
+      "healthcare_sites": 38
+    },
+    {
+      "state": "TN",
+      "healthcare_sites": 234
+    },
+    {
+      "state": "TX",
+      "healthcare_sites": 772
+    },
+    {
+      "state": "UT",
+      "healthcare_sites": 60
+    },
+    {
+      "state": "VA",
+      "healthcare_sites": 231
+    },
+    {
+      "state": "VI",
+      "healthcare_sites": 6
+    },
+    {
+      "state": "VT",
+      "healthcare_sites": 91
+    },
+    {
+      "state": "WA",
+      "healthcare_sites": 423
+    },
+    {
+      "state": "WI",
+      "healthcare_sites": 310
+    },
+    {
+      "state": "WV",
+      "healthcare_sites": 524
+    },
+    {
+      "state": "WY",
+      "healthcare_sites": 19
+    }
+  ],
+  "cities": [
+    {
+      "city": "Harrisburg",
+      "latitude": 40.2732,
+      "longitude": -76.8867,
+      "radius_miles": 10,
+      "total": 6,
+      "returned": 6,
+      "nearest_source_id": "BPS-H80-012534",
+      "nearest_distance_miles": 1.3,
+      "median_sql_round_trip_ms": 1.97,
+      "max_sql_round_trip_ms": 2.61
+    },
+    {
+      "city": "Philadelphia",
+      "latitude": 39.9526,
+      "longitude": -75.1652,
+      "radius_miles": 10,
+      "total": 97,
+      "returned": 20,
+      "nearest_source_id": "BPS-H80-013882",
+      "nearest_distance_miles": 0.1,
+      "median_sql_round_trip_ms": 4.08,
+      "max_sql_round_trip_ms": 4.48
+    },
+    {
+      "city": "San Francisco",
+      "latitude": 37.7749,
+      "longitude": -122.4194,
+      "radius_miles": 10,
+      "total": 135,
+      "returned": 20,
+      "nearest_source_id": "BPS-H80-032389",
+      "nearest_distance_miles": 0.1,
+      "median_sql_round_trip_ms": 5.14,
+      "max_sql_round_trip_ms": 5.58
+    },
+    {
+      "city": "New York",
+      "latitude": 40.7128,
+      "longitude": -74.006,
+      "radius_miles": 10,
+      "total": 365,
+      "returned": 20,
+      "nearest_source_id": "BPS-H80-029707",
+      "nearest_distance_miles": 0.3,
+      "median_sql_round_trip_ms": 12.02,
+      "max_sql_round_trip_ms": 15.07
+    },
+    {
+      "city": "Boston",
+      "latitude": 42.3601,
+      "longitude": -71.0589,
+      "radius_miles": 10,
+      "total": 116,
+      "returned": 20,
+      "nearest_source_id": "BPS-H80-000559",
+      "nearest_distance_miles": 0.1,
+      "median_sql_round_trip_ms": 4.82,
+      "max_sql_round_trip_ms": 4.92
+    },
+    {
+      "city": "Chicago",
+      "latitude": 41.8781,
+      "longitude": -87.6298,
+      "radius_miles": 10,
+      "total": 183,
+      "returned": 20,
+      "nearest_source_id": "BPS-H80-005196",
+      "nearest_distance_miles": 0.5,
+      "median_sql_round_trip_ms": 5.92,
+      "max_sql_round_trip_ms": 6.93
+    },
+    {
+      "city": "Houston",
+      "latitude": 29.7604,
+      "longitude": -95.3698,
+      "radius_miles": 10,
+      "total": 65,
+      "returned": 20,
+      "nearest_source_id": "BPS-H80-013530",
+      "nearest_distance_miles": 0.6,
+      "median_sql_round_trip_ms": 2.86,
+      "max_sql_round_trip_ms": 4.01
+    },
+    {
+      "city": "Seattle",
+      "latitude": 47.6062,
+      "longitude": -122.3321,
+      "radius_miles": 10,
+      "total": 80,
+      "returned": 20,
+      "nearest_source_id": "BPS-H80-043290",
+      "nearest_distance_miles": 0.3,
+      "median_sql_round_trip_ms": 3.06,
+      "max_sql_round_trip_ms": 3.69
+    },
+    {
+      "city": "Los Angeles",
+      "latitude": 34.0522,
+      "longitude": -118.2437,
+      "radius_miles": 10,
+      "total": 440,
+      "returned": 20,
+      "nearest_source_id": "BPS-H80-013742",
+      "nearest_distance_miles": 0.5,
+      "median_sql_round_trip_ms": 20.39,
+      "max_sql_round_trip_ms": 86.54
+    },
+    {
+      "city": "Anchorage",
+      "latitude": 61.2181,
+      "longitude": -149.9003,
+      "radius_miles": 10,
+      "total": 7,
+      "returned": 7,
+      "nearest_source_id": "BPS-H80-038050",
+      "nearest_distance_miles": 0.7,
+      "median_sql_round_trip_ms": 0.81,
+      "max_sql_round_trip_ms": 1.09
+    },
+    {
+      "city": "Honolulu",
+      "latitude": 21.3099,
+      "longitude": -157.8581,
+      "radius_miles": 10,
+      "total": 25,
+      "returned": 20,
+      "nearest_source_id": "BPS-H80-002105",
+      "nearest_distance_miles": 0.3,
+      "median_sql_round_trip_ms": 2.06,
+      "max_sql_round_trip_ms": 2.9
+    },
+    {
+      "city": "Washington DC",
+      "latitude": 38.9072,
+      "longitude": -77.0369,
+      "radius_miles": 10,
+      "total": 98,
+      "returned": 20,
+      "nearest_source_id": "BPS-H80-009022",
+      "nearest_distance_miles": 0.3,
+      "median_sql_round_trip_ms": 5.34,
+      "max_sql_round_trip_ms": 6.87
+    }
+  ],
+  "index_plan": [
+    {
+      "Plan": {
+        "Node Type": "Bitmap Heap Scan",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Relation Name": "service_locations",
+        "Alias": "service_locations",
+        "Startup Cost": 4.52,
+        "Total Cost": 260.45,
+        "Plan Rows": 2,
+        "Plan Width": 16,
+        "Actual Startup Time": 36.324,
+        "Actual Total Time": 36.72,
+        "Actual Rows": 135,
+        "Actual Loops": 1,
+        "Disabled": false,
+        "Filter": "extensions.st_dwithin(point, '0101000020E610000050FC1873D79A5EC0D0D556EC2FE34240'::extensions.geography, '16093.44'::double precision, true)",
+        "Rows Removed by Filter": 36,
+        "Exact Heap Blocks": 148,
+        "Lossy Heap Blocks": 0,
+        "Shared Hit Blocks": 412,
+        "Shared Read Blocks": 12,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "Plans": [
+          {
+            "Node Type": "Bitmap Index Scan",
+            "Parent Relationship": "Outer",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Index Name": "service_locations_point_gix",
+            "Startup Cost": 0,
+            "Total Cost": 4.52,
+            "Plan Rows": 16,
+            "Plan Width": 0,
+            "Actual Startup Time": 0.484,
+            "Actual Total Time": 0.484,
+            "Actual Rows": 171,
+            "Actual Loops": 1,
+            "Disabled": false,
+            "Index Cond": "(point OPERATOR(extensions.&&) extensions._st_expand('0101000020E610000050FC1873D79A5EC0D0D556EC2FE34240'::extensions.geography, '16093.44'::double precision))",
+            "Index Searches": 1,
+            "Shared Hit Blocks": 1,
+            "Shared Read Blocks": 2,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          }
+        ]
+      },
+      "Planning": {
+        "Shared Hit Blocks": 70,
+        "Shared Read Blocks": 20,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0
+      },
+      "Planning Time": 96.319,
+      "Triggers": [],
+      "Execution Time": 37.019
+    }
+  ],
+  "limits": "Five warm SQL round trips per city, not end-to-end browser/API benchmarks; local hardware/load only. Authoritative source listing does not prove current patient availability."
+}

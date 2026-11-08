@@ -1,0 +1,2280 @@
+[
+  {
+    "appDeadline": 1794067319759,
+    "at": 1794067149528,
+    "audioChunks": 281,
+    "callRef": "eden-local-2",
+    "connectionGeneration": 7,
+    "connections": 1,
+    "failure": "none",
+    "forwarding": "true",
+    "generationComplete": 5,
+    "inputChunks": 1348,
+    "inputContext": "running",
+    "lastEvent": "turn-complete",
+    "microphone": "true",
+    "model": "gemini-3.8-live",
+    "outputContext": "running",
+    "page": "For Organizations",
+    "pendingTools": 0,
+    "phase": "listening",
+    "providerCategory": "none",
+    "startedAt": 1794067019630,
+    "timeline": [
+      {
+        "connection": 7,
+        "elapsedMs": 81030,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 2
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 82642,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 2
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 94573,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 2
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 94573,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 2
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 94576,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 2
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 94857,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 2
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 97030,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 97244,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 97245,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 97272,
+        "event": "tool-complete",
+        "phase": "acting",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 97272,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 97985,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 98007,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 98007,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 100993,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113004,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113285,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117356,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117463,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117464,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "tool-complete",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118214,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 119499,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126676,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126957,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 4
+      }
+    ],
+    "tokenExpiresAt": 1794067320296,
+    "toolsCompleted": 3,
+    "toolsFailed": 0,
+    "toolsStarted": 3,
+    "turnComplete": 5
+  },
+  {
+    "appDeadline": 1794067319759,
+    "at": 1794067152559,
+    "audioChunks": 286,
+    "callRef": "eden-local-2",
+    "connectionGeneration": 7,
+    "connections": 1,
+    "failure": "none",
+    "forwarding": "false",
+    "generationComplete": 5,
+    "inputChunks": 1546,
+    "inputContext": "running",
+    "lastEvent": "audio",
+    "microphone": "true",
+    "model": "gemini-3.8-live",
+    "outputContext": "running",
+    "page": "Find Support",
+    "pendingTools": 0,
+    "phase": "speaking",
+    "providerCategory": "none",
+    "startedAt": 1794067019630,
+    "timeline": [
+      {
+        "connection": 7,
+        "elapsedMs": 97245,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 97272,
+        "event": "tool-complete",
+        "phase": "acting",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 97272,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 97985,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 98007,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 98007,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 100993,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113004,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113285,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117356,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117463,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117464,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "tool-complete",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118214,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 119499,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126676,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126957,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 130923,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131142,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131143,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131514,
+        "event": "tool-failed",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131514,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132126,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 5
+      }
+    ],
+    "tokenExpiresAt": 1794067320296,
+    "toolsCompleted": 3,
+    "toolsFailed": 1,
+    "toolsStarted": 4,
+    "turnComplete": 5
+  },
+  {
+    "appDeadline": 1794067319759,
+    "at": 1794067155581,
+    "audioChunks": 286,
+    "callRef": "eden-local-2",
+    "connectionGeneration": 7,
+    "connections": 1,
+    "failure": "none",
+    "forwarding": "false",
+    "generationComplete": 5,
+    "inputChunks": 1546,
+    "inputContext": "running",
+    "lastEvent": "audio",
+    "microphone": "true",
+    "model": "gemini-3.8-live",
+    "outputContext": "running",
+    "page": "Find Support",
+    "pendingTools": 0,
+    "phase": "speaking",
+    "providerCategory": "none",
+    "startedAt": 1794067019630,
+    "timeline": [
+      {
+        "connection": 7,
+        "elapsedMs": 97245,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 97272,
+        "event": "tool-complete",
+        "phase": "acting",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 97272,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 97985,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 98007,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 98007,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 100993,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113004,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113285,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117356,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117463,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117464,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "tool-complete",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118214,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 119499,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126676,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126957,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 130923,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131142,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131143,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131514,
+        "event": "tool-failed",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131514,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132126,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 5
+      }
+    ],
+    "tokenExpiresAt": 1794067320296,
+    "toolsCompleted": 3,
+    "toolsFailed": 1,
+    "toolsStarted": 4,
+    "turnComplete": 5
+  },
+  {
+    "appDeadline": 1794067319759,
+    "at": 1794067158604,
+    "audioChunks": 307,
+    "callRef": "eden-local-2",
+    "connectionGeneration": 7,
+    "connections": 1,
+    "failure": "none",
+    "forwarding": "false",
+    "generationComplete": 6,
+    "inputChunks": 1546,
+    "inputContext": "running",
+    "lastEvent": "generation-complete",
+    "microphone": "true",
+    "model": "gemini-3.8-live",
+    "outputContext": "running",
+    "page": "Find Support",
+    "pendingTools": 0,
+    "phase": "processing",
+    "providerCategory": "none",
+    "startedAt": 1794067019630,
+    "timeline": [
+      {
+        "connection": 7,
+        "elapsedMs": 97985,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 98007,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 98007,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 100993,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113004,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113285,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117356,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117463,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117464,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "tool-complete",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118214,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 119499,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126676,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126957,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 130923,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131142,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131143,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131514,
+        "event": "tool-failed",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131514,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132126,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132959,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138690,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138690,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      }
+    ],
+    "tokenExpiresAt": 1794067320296,
+    "toolsCompleted": 3,
+    "toolsFailed": 1,
+    "toolsStarted": 4,
+    "turnComplete": 5
+  },
+  {
+    "appDeadline": 1794067319759,
+    "at": 1794067161623,
+    "audioChunks": 307,
+    "callRef": "eden-local-2",
+    "connectionGeneration": 7,
+    "connections": 1,
+    "failure": "none",
+    "forwarding": "true",
+    "generationComplete": 6,
+    "inputChunks": 1546,
+    "inputContext": "running",
+    "lastEvent": "turn-complete",
+    "microphone": "true",
+    "model": "gemini-3.8-live",
+    "outputContext": "running",
+    "page": "Find Support",
+    "pendingTools": 0,
+    "phase": "listening",
+    "providerCategory": "none",
+    "startedAt": 1794067019630,
+    "timeline": [
+      {
+        "connection": 7,
+        "elapsedMs": 98007,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 100993,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113004,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113285,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117356,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117463,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117464,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "tool-complete",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118214,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 119499,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126676,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126957,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 130923,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131142,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131143,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131514,
+        "event": "tool-failed",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131514,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132126,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132959,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138690,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138690,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138707,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138988,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 5
+      }
+    ],
+    "tokenExpiresAt": 1794067320296,
+    "toolsCompleted": 3,
+    "toolsFailed": 1,
+    "toolsStarted": 4,
+    "turnComplete": 6
+  },
+  {
+    "appDeadline": 1794067319759,
+    "at": 1794067164663,
+    "audioChunks": 307,
+    "callRef": "eden-local-2",
+    "connectionGeneration": 7,
+    "connections": 1,
+    "failure": "none",
+    "forwarding": "true",
+    "generationComplete": 6,
+    "inputChunks": 1546,
+    "inputContext": "running",
+    "lastEvent": "turn-complete",
+    "microphone": "true",
+    "model": "gemini-3.8-live",
+    "outputContext": "running",
+    "page": "Find Support",
+    "pendingTools": 0,
+    "phase": "listening",
+    "providerCategory": "none",
+    "startedAt": 1794067019630,
+    "timeline": [
+      {
+        "connection": 7,
+        "elapsedMs": 98007,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 100993,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113004,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113285,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117356,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117463,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117464,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "tool-complete",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118214,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 119499,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126676,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126957,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 130923,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131142,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131143,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131514,
+        "event": "tool-failed",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131514,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132126,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132959,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138690,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138690,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138707,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138988,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 5
+      }
+    ],
+    "tokenExpiresAt": 1794067320296,
+    "toolsCompleted": 3,
+    "toolsFailed": 1,
+    "toolsStarted": 4,
+    "turnComplete": 6
+  },
+  {
+    "appDeadline": 1794067319759,
+    "at": 1794067167688,
+    "audioChunks": 307,
+    "callRef": "eden-local-2",
+    "connectionGeneration": 7,
+    "connections": 1,
+    "failure": "none",
+    "forwarding": "true",
+    "generationComplete": 6,
+    "inputChunks": 1546,
+    "inputContext": "running",
+    "lastEvent": "turn-complete",
+    "microphone": "true",
+    "model": "gemini-3.8-live",
+    "outputContext": "running",
+    "page": "Find Support",
+    "pendingTools": 0,
+    "phase": "listening",
+    "providerCategory": "none",
+    "startedAt": 1794067019630,
+    "timeline": [
+      {
+        "connection": 7,
+        "elapsedMs": 98007,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 100993,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113004,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113285,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117356,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117463,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117464,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "tool-complete",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118214,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 119499,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126676,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126957,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 130923,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131142,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131143,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131514,
+        "event": "tool-failed",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131514,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132126,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132959,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138690,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138690,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138707,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138988,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 5
+      }
+    ],
+    "tokenExpiresAt": 1794067320296,
+    "toolsCompleted": 3,
+    "toolsFailed": 1,
+    "toolsStarted": 4,
+    "turnComplete": 6
+  },
+  {
+    "appDeadline": 1794067319759,
+    "at": 1794067170709,
+    "audioChunks": 307,
+    "callRef": "eden-local-2",
+    "connectionGeneration": 7,
+    "connections": 1,
+    "failure": "none",
+    "forwarding": "true",
+    "generationComplete": 6,
+    "inputChunks": 1546,
+    "inputContext": "running",
+    "lastEvent": "turn-complete",
+    "microphone": "true",
+    "model": "gemini-3.8-live",
+    "outputContext": "running",
+    "page": "Find Support",
+    "pendingTools": 0,
+    "phase": "listening",
+    "providerCategory": "none",
+    "startedAt": 1794067019630,
+    "timeline": [
+      {
+        "connection": 7,
+        "elapsedMs": 98007,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 100993,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 112924,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113004,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 113285,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 3
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117356,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117463,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117464,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "tool-complete",
+        "phase": "acting",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 117547,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118214,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 118240,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 119499,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126674,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126676,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 126957,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 4
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 130923,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131142,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131143,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131514,
+        "event": "tool-failed",
+        "phase": "acting",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 131514,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132126,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132959,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138690,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138690,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138707,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138988,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 5
+      }
+    ],
+    "tokenExpiresAt": 1794067320296,
+    "toolsCompleted": 3,
+    "toolsFailed": 1,
+    "toolsStarted": 4,
+    "turnComplete": 6
+  },
+  {
+    "appDeadline": 1794067319759,
+    "at": 1794067421496,
+    "audioChunks": 391,
+    "callRef": "eden-local-2",
+    "connectionGeneration": 7,
+    "connections": 1,
+    "endReason": "app-expiry",
+    "failure": "none",
+    "forwarding": "false",
+    "generationComplete": 8,
+    "inputChunks": 3285,
+    "inputContext": "running",
+    "lastEvent": "turn-complete",
+    "microphone": "false",
+    "model": "gemini-3.8-live",
+    "outputContext": "running",
+    "page": "Find Support",
+    "pendingTools": 0,
+    "phase": "ended",
+    "providerCategory": "none",
+    "startedAt": 1794067019630,
+    "timeline": [
+      {
+        "connection": 7,
+        "elapsedMs": 132156,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 132959,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138690,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138690,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138707,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 138988,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 5
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 160540,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 6
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 160685,
+        "event": "phase",
+        "phase": "acting",
+        "turn": 6
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 160685,
+        "event": "tool-start",
+        "phase": "acting",
+        "turn": 6
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 160702,
+        "event": "tool-complete",
+        "phase": "acting",
+        "turn": 6
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 160702,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 6
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 161494,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 6
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 161991,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 6
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 161991,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 6
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 164101,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 6
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 178222,
+        "event": "turn-complete",
+        "phase": "speaking",
+        "turn": 6
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 178224,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 6
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 178503,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 6
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 185834,
+        "event": "phase",
+        "phase": "muted",
+        "turn": 6
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 231604,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 6
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 234972,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 7
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 235209,
+        "event": "audio",
+        "phase": "processing",
+        "turn": 7
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 235225,
+        "event": "playback-start",
+        "phase": "processing",
+        "turn": 7
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 235225,
+        "event": "phase",
+        "phase": "speaking",
+        "turn": 7
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 236385,
+        "event": "generation-complete",
+        "phase": "speaking",
+        "turn": 7
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 244024,
+        "event": "playback-end",
+        "phase": "speaking",
+        "turn": 7
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 244024,
+        "event": "phase",
+        "phase": "processing",
+        "turn": 7
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 244078,
+        "event": "turn-complete",
+        "phase": "processing",
+        "turn": 7
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 244360,
+        "event": "phase",
+        "phase": "listening",
+        "turn": 7
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 247133,
+        "event": "phase",
+        "phase": "muted",
+        "turn": 7
+      },
+      {
+        "connection": 7,
+        "elapsedMs": 300132,
+        "event": "ended",
+        "phase": "muted",
+        "turn": 7
+      },
+      {
+        "connection": 8,
+        "elapsedMs": 300149,
+        "event": "phase",
+        "phase": "ended",
+        "turn": 7
+      }
+    ],
+    "tokenExpiresAt": 1794067320296,
+    "toolsCompleted": 4,
+    "toolsFailed": 1,
+    "toolsStarted": 5,
+    "turnComplete": 8
+  }
+]

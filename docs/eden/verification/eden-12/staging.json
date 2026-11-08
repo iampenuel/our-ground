@@ -1,0 +1,257 @@
+{
+  "at": "2026-11-07T23:32:15.625Z",
+  "capacity": {
+    "db_bytes": "68310707",
+    "app_indexes_bytes": "32858112",
+    "limiter_cleanup_jobs": "1",
+    "active_holds": "0"
+  },
+  "freshness": [
+    {
+      "source_id": "hrsa-health-centers",
+      "verification_status": "imported_unverified",
+      "published": "43",
+      "oldest_source": "2026-11-06T00:00:00.000Z",
+      "newest_source": "2026-11-06T00:00:00.000Z",
+      "first_import": "2026-11-07T20:25:47.400Z",
+      "last_import": "2026-11-07T22:56:38.479Z",
+      "first_seen_in_latest_import": "2026-11-07T20:25:47.400Z",
+      "last_seen_in_latest_import": "2026-11-07T22:56:38.479Z"
+    },
+    {
+      "source_id": "philly-food-sites",
+      "verification_status": "imported_unverified",
+      "published": "324",
+      "oldest_source": "2026-11-05T16:54:29.474Z",
+      "newest_source": "2026-11-05T16:54:29.474Z",
+      "first_import": "2026-11-07T22:56:38.479Z",
+      "last_import": "2026-11-07T22:56:38.479Z",
+      "first_seen_in_latest_import": "2026-11-07T22:56:38.479Z",
+      "last_seen_in_latest_import": "2026-11-07T22:56:38.479Z"
+    }
+  ],
+  "places": [
+    {
+      "city": "Allentown",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "2"
+    },
+    {
+      "city": "Erie",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "4"
+    },
+    {
+      "city": "Harrisburg",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "1"
+    },
+    {
+      "city": "Huntingdon",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "5"
+    },
+    {
+      "city": "Johnstown",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "3"
+    },
+    {
+      "city": "Lancaster",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "5"
+    },
+    {
+      "city": "Mechanicsburg",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "1"
+    },
+    {
+      "city": "Philadelphia",
+      "state": "PA",
+      "slug": "food",
+      "published": "324"
+    },
+    {
+      "city": "Philadelphia",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "4"
+    },
+    {
+      "city": "Pittsburgh",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "5"
+    },
+    {
+      "city": "Reading",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "3"
+    },
+    {
+      "city": "Scranton",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "3"
+    },
+    {
+      "city": "Steelton",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "1"
+    },
+    {
+      "city": "Wellsboro",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "2"
+    },
+    {
+      "city": "Williamsport",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "2"
+    },
+    {
+      "city": "York",
+      "state": "PA",
+      "slug": "healthcare",
+      "published": "2"
+    }
+  ],
+  "cases": [
+    {
+      "city": "Philadelphia",
+      "category": "food",
+      "radius": 5,
+      "q": "",
+      "total": 226,
+      "query_ms": 11.282
+    },
+    {
+      "city": "Philadelphia",
+      "category": "food",
+      "radius": 10,
+      "q": "",
+      "total": 323,
+      "query_ms": 14.532
+    },
+    {
+      "city": "Philadelphia",
+      "category": "food",
+      "radius": 10,
+      "q": "share",
+      "total": 1,
+      "query_ms": 4.508
+    },
+    {
+      "city": "Pittsburgh",
+      "category": "food",
+      "radius": 10,
+      "q": "",
+      "total": 0,
+      "query_ms": 0.433
+    },
+    {
+      "city": "Pittsburgh",
+      "category": "healthcare",
+      "radius": 5,
+      "q": "",
+      "total": 5,
+      "query_ms": 0.927
+    },
+    {
+      "city": "Harrisburg",
+      "category": "food",
+      "radius": 10,
+      "q": "",
+      "total": 0,
+      "query_ms": 0.435
+    },
+    {
+      "city": "Harrisburg",
+      "category": "healthcare",
+      "radius": 10,
+      "q": "",
+      "total": 3,
+      "query_ms": 0.687
+    },
+    {
+      "city": "Harrisburg",
+      "category": "healthcare",
+      "radius": 5,
+      "q": "",
+      "total": 2,
+      "query_ms": 0.69
+    },
+    {
+      "city": "Harrisburg",
+      "category": "healthcare",
+      "radius": 10,
+      "q": "sadler",
+      "total": 1,
+      "query_ms": 0.632
+    },
+    {
+      "city": "Lancaster",
+      "category": "healthcare",
+      "radius": 5,
+      "q": "",
+      "total": 5,
+      "query_ms": 1.004
+    },
+    {
+      "city": "Wellsboro",
+      "category": "healthcare",
+      "radius": 5,
+      "q": "",
+      "total": 2,
+      "query_ms": 0.639
+    },
+    {
+      "city": "Steelton",
+      "category": "food",
+      "radius": 25,
+      "q": "",
+      "total": 0,
+      "query_ms": 0.51
+    },
+    {
+      "city": "Elizabethville",
+      "category": "food",
+      "radius": 25,
+      "q": "",
+      "total": 0,
+      "query_ms": 0.432
+    },
+    {
+      "city": "Homestead",
+      "category": "food",
+      "radius": 25,
+      "q": "",
+      "total": 0,
+      "query_ms": 0.471
+    },
+    {
+      "city": "Pittsburgh",
+      "category": "healthcare",
+      "radius": 10,
+      "q": "",
+      "total": 5
+    }
+  ],
+  "grants": {
+    "role": "our_ground_api",
+    "raw_source_read": false,
+    "raw_correction_read": false
+  }
+}

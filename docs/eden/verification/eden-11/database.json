@@ -1,0 +1,267 @@
+{
+  "db": [
+    {
+      "database_bytes": "68245171",
+      "app_indexes_bytes": "32858112",
+      "active_purge": "1",
+      "limiter_bytes": "65536"
+    }
+  ],
+  "runtime": [
+    {
+      "current_user": "our_ground_api",
+      "raw_services": false,
+      "raw_limiter": false,
+      "limiter": true
+    }
+  ],
+  "contacts": [
+    {
+      "source_id": "hrsa-health-centers",
+      "listings": "43",
+      "phones": "43",
+      "urls": "23",
+      "with_hours": "0",
+      "mismatched_contacts": "0"
+    },
+    {
+      "source_id": "philly-food-sites",
+      "listings": "324",
+      "phones": "227",
+      "urls": "306",
+      "with_hours": "275",
+      "mismatched_contacts": "0"
+    }
+  ],
+  "cases": [
+    {
+      "city": "Philadelphia",
+      "category": "food",
+      "radius": 5,
+      "q": "",
+      "total": 226,
+      "ids": [
+        "3d3eaf0f-2e5b-556f-8f52-18594bdd31b5",
+        "d4f5d209-33c2-5230-a84b-ed52605a752b",
+        "60838cfb-c7eb-5367-b6c5-d5ff64b2e433",
+        "c868d643-9742-561a-ac37-6c643564be0b",
+        "2ce204a7-7b89-574a-9ca4-b65fcf8975fd",
+        "3db8e614-ec8a-5dd4-bd85-a56bef9c03be",
+        "b9050979-e0ce-5846-bb48-fdd8fb120606",
+        "679e4df4-6688-5798-b20f-a5eb2e9e8a1f",
+        "fef62be2-750c-5ad0-82e0-104f93c522e5",
+        "97faa040-a1e4-54f3-9ddd-d54ac55e13f6",
+        "38eaa1eb-fd54-5d8f-9b7f-3e26414c8435",
+        "27dfc7c0-9ec5-5db6-bc63-18a4848a3d81",
+        "2c6acf3e-8db9-5769-abfb-7b4ac7282782",
+        "afa61512-372c-50ab-b369-b2ca610a55f0",
+        "df9e369b-8b30-58bd-a49b-73577f7b11f6",
+        "5eb562fd-f676-5d93-83b6-1a3b3f178853",
+        "25d0a821-0358-5756-bb6b-440435bfe2aa",
+        "7e8056b3-bfc6-5f64-b835-870688e3870b",
+        "e3403196-16f5-55ee-9427-c8d690e0e440",
+        "dc75d52b-9e8a-5a76-aba4-01c4db99741b"
+      ],
+      "first": "Solomon Temple",
+      "query_ms": 19.821
+    },
+    {
+      "city": "Philadelphia",
+      "category": "food",
+      "radius": 10,
+      "q": "",
+      "total": 323,
+      "ids": [
+        "3d3eaf0f-2e5b-556f-8f52-18594bdd31b5",
+        "d4f5d209-33c2-5230-a84b-ed52605a752b",
+        "60838cfb-c7eb-5367-b6c5-d5ff64b2e433",
+        "c868d643-9742-561a-ac37-6c643564be0b",
+        "2ce204a7-7b89-574a-9ca4-b65fcf8975fd",
+        "3db8e614-ec8a-5dd4-bd85-a56bef9c03be",
+        "b9050979-e0ce-5846-bb48-fdd8fb120606",
+        "679e4df4-6688-5798-b20f-a5eb2e9e8a1f",
+        "fef62be2-750c-5ad0-82e0-104f93c522e5",
+        "97faa040-a1e4-54f3-9ddd-d54ac55e13f6",
+        "38eaa1eb-fd54-5d8f-9b7f-3e26414c8435",
+        "27dfc7c0-9ec5-5db6-bc63-18a4848a3d81",
+        "2c6acf3e-8db9-5769-abfb-7b4ac7282782",
+        "afa61512-372c-50ab-b369-b2ca610a55f0",
+        "df9e369b-8b30-58bd-a49b-73577f7b11f6",
+        "5eb562fd-f676-5d93-83b6-1a3b3f178853",
+        "25d0a821-0358-5756-bb6b-440435bfe2aa",
+        "7e8056b3-bfc6-5f64-b835-870688e3870b",
+        "e3403196-16f5-55ee-9427-c8d690e0e440",
+        "dc75d52b-9e8a-5a76-aba4-01c4db99741b"
+      ],
+      "first": "Solomon Temple",
+      "query_ms": 16.647
+    },
+    {
+      "city": "Philadelphia",
+      "category": "food",
+      "radius": 25,
+      "q": "",
+      "total": 324,
+      "ids": [
+        "3d3eaf0f-2e5b-556f-8f52-18594bdd31b5",
+        "d4f5d209-33c2-5230-a84b-ed52605a752b",
+        "60838cfb-c7eb-5367-b6c5-d5ff64b2e433",
+        "c868d643-9742-561a-ac37-6c643564be0b",
+        "2ce204a7-7b89-574a-9ca4-b65fcf8975fd",
+        "3db8e614-ec8a-5dd4-bd85-a56bef9c03be",
+        "b9050979-e0ce-5846-bb48-fdd8fb120606",
+        "679e4df4-6688-5798-b20f-a5eb2e9e8a1f",
+        "fef62be2-750c-5ad0-82e0-104f93c522e5",
+        "97faa040-a1e4-54f3-9ddd-d54ac55e13f6",
+        "38eaa1eb-fd54-5d8f-9b7f-3e26414c8435",
+        "27dfc7c0-9ec5-5db6-bc63-18a4848a3d81",
+        "2c6acf3e-8db9-5769-abfb-7b4ac7282782",
+        "afa61512-372c-50ab-b369-b2ca610a55f0",
+        "df9e369b-8b30-58bd-a49b-73577f7b11f6",
+        "5eb562fd-f676-5d93-83b6-1a3b3f178853",
+        "25d0a821-0358-5756-bb6b-440435bfe2aa",
+        "7e8056b3-bfc6-5f64-b835-870688e3870b",
+        "e3403196-16f5-55ee-9427-c8d690e0e440",
+        "dc75d52b-9e8a-5a76-aba4-01c4db99741b"
+      ],
+      "first": "Solomon Temple",
+      "query_ms": 14.736
+    },
+    {
+      "city": "Philadelphia",
+      "category": "food",
+      "radius": 10,
+      "q": "share",
+      "total": 1,
+      "ids": [
+        "9da6ad57-c6cc-5e74-9b0b-a63b00a006bd"
+      ],
+      "first": "Share Community Fridge",
+      "query_ms": 4.655
+    },
+    {
+      "city": "Philadelphia",
+      "category": "healthcare",
+      "radius": 10,
+      "q": "",
+      "total": 4,
+      "ids": [
+        "ed652cff-7d68-539a-aff4-094ec8643bc5",
+        "cf1421b4-6c4d-53e0-8122-4f8a41ab0ada",
+        "86aa7d94-aa1e-5418-9de2-2de8f71c0c44",
+        "2c3d7885-795c-5502-bbab-350fb184020a"
+      ],
+      "first": "Fair Hill Community Physicians- Hunting Park",
+      "query_ms": 5.336
+    },
+    {
+      "city": "Pittsburgh",
+      "category": "healthcare",
+      "radius": 5,
+      "q": "",
+      "total": 5,
+      "ids": [
+        "7c29d14b-6372-57f9-a82a-069dbe32adb0",
+        "a7f32601-4e73-538c-878e-034db0b1c128",
+        "727563d0-377f-5657-9b98-3eeaa8afabf5",
+        "f530bb4c-b92a-50f6-ae29-a213b6243c31",
+        "c11c215b-e8f0-5b1f-9d25-67eabe1f7541"
+      ],
+      "first": "HILL HOUSE HEALTH CENTER",
+      "query_ms": 0.938
+    },
+    {
+      "city": "Pittsburgh",
+      "category": "healthcare",
+      "radius": 10,
+      "q": "",
+      "total": 5,
+      "ids": [
+        "7c29d14b-6372-57f9-a82a-069dbe32adb0",
+        "a7f32601-4e73-538c-878e-034db0b1c128",
+        "727563d0-377f-5657-9b98-3eeaa8afabf5",
+        "f530bb4c-b92a-50f6-ae29-a213b6243c31",
+        "c11c215b-e8f0-5b1f-9d25-67eabe1f7541"
+      ],
+      "first": "HILL HOUSE HEALTH CENTER",
+      "query_ms": 0.911
+    },
+    {
+      "city": "Pittsburgh",
+      "category": "food",
+      "radius": 10,
+      "q": "",
+      "total": 0,
+      "ids": [],
+      "query_ms": 0.463
+    },
+    {
+      "city": "Lancaster",
+      "category": "healthcare",
+      "radius": 5,
+      "q": "",
+      "total": 5,
+      "ids": [
+        "9dcfed81-c974-5bc1-b285-da65462c22e0",
+        "c5ea9f8a-2e70-53ed-99bc-1f72578df8eb",
+        "8593a331-a4b4-514e-b86a-9cfab062a1c3",
+        "363cc2eb-55bf-577e-bfb3-6b6315a44197",
+        "9c040c55-c679-5f64-b52f-b2a8cdcc9465"
+      ],
+      "first": "Lancaster Downtown (Medical, Dental & Pharmacy)",
+      "query_ms": 1.082
+    },
+    {
+      "city": "Harrisburg",
+      "category": "healthcare",
+      "radius": 10,
+      "q": "",
+      "total": 3,
+      "ids": [
+        "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+        "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+        "5a9b557b-d98a-512e-bd9b-656c500582a6"
+      ],
+      "first": "HHC- South Allison Hill",
+      "query_ms": 0.768
+    },
+    {
+      "city": "Harrisburg",
+      "category": "healthcare",
+      "radius": 5,
+      "q": "",
+      "total": 2,
+      "ids": [
+        "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+        "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9"
+      ],
+      "first": "HHC- South Allison Hill",
+      "query_ms": 0.674
+    },
+    {
+      "city": "Harrisburg",
+      "category": "healthcare",
+      "radius": 10,
+      "q": "Sadler",
+      "total": 1,
+      "ids": [
+        "5a9b557b-d98a-512e-bd9b-656c500582a6"
+      ],
+      "first": "Sadler Health Center Corporation Mechanicsburg",
+      "query_ms": 0.652
+    },
+    {
+      "city": "Wellsboro",
+      "category": "healthcare",
+      "radius": 5,
+      "q": "",
+      "total": 2,
+      "ids": [
+        "0e9cb10e-b8ff-5115-a533-64da97be21b7",
+        "07de3fa5-8fa1-539c-afee-6e50386f62b2"
+      ],
+      "first": "Wellsboro Laurel Health Center",
+      "query_ms": 0.68
+    }
+  ]
+}

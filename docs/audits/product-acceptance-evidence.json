@@ -1,0 +1,1218 @@
+{
+  "reviewDate": "2026-11-07 America/New_York",
+  "preview": {
+    "project": "ourground-staging",
+    "readyDeployment": "dpl_9pZw4J7JZjHbgQgnRE1hAeVX9hyN",
+    "priorReadyPreview": "dpl_A4HRJGdewVv3Sae2DBWeZvL9qLhq",
+    "protection": "all_except_custom_domains",
+    "gitRefMetadata": "eden13-review",
+    "gitSHAProvided": false
+  },
+  "git": {
+    "head": "3897dea703a7175e8ec57e1d7ba0f358dafc0221",
+    "branch": "feat/phase-7d1-search-and-7e-readiness",
+    "remotesConfigured": 0,
+    "runtimeFilesUntracked": [
+      "src/support-page.ts",
+      "src/support-search.ts",
+      "src/support-search-outcome.ts",
+      "src/eden/public-navigation.ts",
+      "src/eden/support-navigation.ts"
+    ]
+  },
+  "verifiedBuildInputs": {
+    "src/support-page.ts": {
+      "sameAsBuildInput": true,
+      "sha256": "8b2b864199f3df6cd690aaf9d6e9219f0fb7adb466663f1969f5f93c7a3ef2cf"
+    },
+    "src/support-search.ts": {
+      "sameAsBuildInput": true,
+      "sha256": "3bd06bb86af743b4a241f9c705cf28c5df4d53617ac2a65c5b25e1be6fffe298"
+    },
+    "src/support-search-outcome.ts": {
+      "sameAsBuildInput": true,
+      "sha256": "f95f3c58b3d9d6b58d706a0774e83c431e091231f9abf2d931b2d3fe88b5b299"
+    },
+    "src/eden/public-navigation.ts": {
+      "sameAsBuildInput": true,
+      "sha256": "79a24a835c1ea34b8dcb5e985d2070e6f7ad5a5a3dce90f8c3684a6ca0827861"
+    },
+    "src/eden/support-navigation.ts": {
+      "sameAsBuildInput": true,
+      "sha256": "9b6ced9bdbd669341560a07b36a3689b2fc38fbd0509877330964cf03757ae70"
+    }
+  },
+  "servedManifestSHA256": "fd55aab1838db9d2fad28c85b56ce38cbb49ea0aa6a4dc474918f983aa5843bc",
+  "servedAssets": {
+    "assets/application-bridge-CZqoHKl-.js": {
+      "status": 200,
+      "sameAsArtifact": true,
+      "containsSearchOutcome": false
+    },
+    "assets/public-navigation-BTUo-S85.js": {
+      "status": 200,
+      "sameAsArtifact": true,
+      "containsSearchOutcome": false
+    },
+    "assets/support-navigation-Cv1Yg6n6.js": {
+      "status": 200,
+      "sameAsArtifact": true,
+      "containsSearchOutcome": false
+    },
+    "assets/support-page-CTrUK_Ym.js": {
+      "status": 200,
+      "sameAsArtifact": true,
+      "containsSearchOutcome": false
+    },
+    "assets/support-page-Da7xkkt1.js": {
+      "status": 200,
+      "sameAsArtifact": true,
+      "containsSearchOutcome": true
+    }
+  },
+  "access": [
+    {
+      "path": "/",
+      "authenticated": false,
+      "status": 302,
+      "redirectHost": "vercel.com"
+    },
+    {
+      "path": "/api/v1/health",
+      "authenticated": false,
+      "status": 302,
+      "redirectHost": "vercel.com"
+    },
+    {
+      "path": "/api/v1/health",
+      "authenticated": true,
+      "status": 200,
+      "health": "ok"
+    },
+    {
+      "path": "/api/v1/org/status",
+      "authenticated": true,
+      "status": 200,
+      "orgConfigured": false,
+      "email": false
+    },
+    {
+      "path": "/api/v1/org/account",
+      "authenticated": true,
+      "status": 503,
+      "code": "ACCOUNT_NOT_CONFIGURED"
+    },
+    {
+      "path": "/api/v1/eden/status",
+      "authenticated": true,
+      "status": 200,
+      "orgConfigured": false,
+      "mode": "disabled",
+      "engine": "local"
+    },
+    {
+      "path": "/api/v1/eden/session",
+      "authenticated": true,
+      "status": 403,
+      "code": "EDEN_DISABLED"
+    },
+    {
+      "path": "/api/v1/eden/speech",
+      "authenticated": true,
+      "status": 403,
+      "code": "EDEN_DISABLED"
+    },
+    {
+      "path": "/api/v1/eden/live/token",
+      "authenticated": true,
+      "status": 403,
+      "code": "EDEN_DISABLED"
+    },
+    {
+      "path": "/api/v1/correction-reports",
+      "authenticated": true,
+      "status": 422,
+      "code": "VALIDATION_ERROR"
+    },
+    {
+      "path": "/",
+      "authenticated": true,
+      "status": 200
+    },
+    {
+      "path": "/audit-missing",
+      "authenticated": true,
+      "status": 200
+    }
+  ],
+  "responseHeaders": {
+    "/api/v1/health": {
+      "cache-control": "no-store",
+      "referrer-policy": "no-referrer",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(self), payment=()",
+      "x-content-type-options": "nosniff",
+      "content-security-policy": "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-elem 'self'; style-src-attr 'none'; img-src 'self' data: blob: https://maps.geoapify.com; font-src 'self'; worker-src 'self' blob:; connect-src 'self' https://api.geoapify.com https://maps.geoapify.com https://hrmocmvdmshoghclxyjs.supabase.co; manifest-src 'self'; frame-src 'none'; media-src 'none'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+      "x-frame-options": "DENY",
+      "strict-transport-security": "max-age=31536000"
+    },
+    "/": {
+      "cache-control": "public, max-age=0, must-revalidate",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(self), payment=()",
+      "x-content-type-options": "nosniff",
+      "content-security-policy": "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-elem 'self'; style-src-attr 'none'; img-src 'self' data: blob: https://maps.geoapify.com; font-src 'self'; worker-src 'self' blob:; connect-src 'self' https://api.geoapify.com https://maps.geoapify.com https://hrmocmvdmshoghclxyjs.supabase.co; manifest-src 'self'; frame-src 'none'; media-src 'none'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+      "x-frame-options": "DENY",
+      "strict-transport-security": "max-age=31536000"
+    }
+  },
+  "previewEnvironment": {
+    "count": 20,
+    "previewOnly": true,
+    "hiddenProduction": 0,
+    "restricted": [
+      [
+        "STAGING_RATE_LIMIT_SECRET",
+        "sensitive"
+      ],
+      [
+        "DATABASE_URL",
+        "sensitive"
+      ],
+      [
+        "DATABASE_SSL_CA",
+        "sensitive"
+      ]
+    ],
+    "ownerOrModelKey": false
+  },
+  "database": {
+    "at": "2026-11-08T00:35:50.422Z",
+    "role": "our_ground_api",
+    "db_bytes": "68310707",
+    "raw_services": false,
+    "raw_reports": false,
+    "raw_limits": false,
+    "directory": [
+      {
+        "source_id": "hrsa-health-centers",
+        "verification_status": "imported_unverified",
+        "listings": "43",
+        "source_date": "2026-11-06T00:00:00.000Z",
+        "last_import": "2026-11-07T22:56:38.479Z"
+      },
+      {
+        "source_id": "philly-food-sites",
+        "verification_status": "imported_unverified",
+        "listings": "324",
+        "source_date": "2026-11-05T16:54:29.474Z",
+        "last_import": "2026-11-07T22:56:38.479Z"
+      }
+    ]
+  },
+  "encryptedBackup": {
+    "created": "2026-11-07T23:10:37.029Z",
+    "matches": true,
+    "rows": 367
+  },
+  "residentKeyboardWithMapBlocked": {
+    "pathways": [
+      {
+        "count": 0,
+        "status": "No food-support listings found within 10 miles near Harrisburg, PA. Try a wider distance or the referral services below.",
+        "refs": [
+          "www.feedingamerica.org",
+          "www.211.org",
+          "www.usa.gov"
+        ],
+        "map": "No matching locations to display. Try another search or results filter."
+      },
+      {
+        "count": 20,
+        "status": "20 food-support records near Philadelphia, PA.",
+        "refs": [],
+        "map": "Loading Map…"
+      }
+    ],
+    "api": [
+      {
+        "path": "/api/v1/geoapify/status",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/locations/status",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/locations/resolve",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/resources/search",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/locations/resolve",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/resources/search",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/resources/search",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/resources/search",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/resources/9da6ad57-c6cc-5e74-9b0b-a63b00a006bd",
+        "status": 200
+      }
+    ],
+    "errors": [],
+    "afterLoadMore": 40,
+    "filtered": {
+      "count": 1,
+      "title": "1\nShare Community Fridge\n— select location on map",
+      "source": "https://opendataphilly.org/datasets/free-food-and-meal-sites/",
+      "mapText": "Map unavailable. The matching results and details remain usable in the list. Reload to retry the map.",
+      "reduced": true
+    }
+  },
+  "donorDesktop": {
+    "count": 3,
+    "status": "3 matching records near Harrisburg, PA.",
+    "titles": [
+      "1\nHHC- South Allison Hill\n— select location on map",
+      "2\nHamilton Health Center Family Practice at Steelton\n— select location on map",
+      "3\nSadler Health Center Corporation Mechanicsburg\n— select location on map"
+    ],
+    "giving": [
+      "Visit organization website\n(opens in a new tab)\n\nListed website from the directory. Online donation information not confirmed.",
+      "Call 7172329971\n\nContact the organization about ways to give.",
+      "Visit organization website\n(opens in a new tab)\n\nListed website from the directory. Online donation information not confirmed."
+    ],
+    "targets": [
+      {
+        "kind": "https:",
+        "host": "www.hamiltonhealthcenter.com"
+      },
+      {
+        "kind": "tel:",
+        "host": ""
+      },
+      {
+        "kind": "https:",
+        "host": "sadlerhealth.org"
+      }
+    ]
+  },
+  "desktopDraft": {
+    "edited": true,
+    "section": true,
+    "retained": true,
+    "button": true,
+    "discarded": true
+  },
+  "desktopMap": {
+    "pins": 3,
+    "secondCard": "true",
+    "firstPin": "true"
+  },
+  "healthcareDetail": {
+    "source": [
+      "data.hrsa.gov",
+      "data.hrsa.gov",
+      "data.hrsa.gov"
+    ],
+    "text": "Healthcare\n1\nHHC- South Allison Hill\n— select location on map\n\n110 S 17th St, Harrisburg, PA\n\n1.3 mi · straight-line estimate\n\nHRSA-listed health center.\n\nImported source record · Not independently verified\n\nSource & dates\nDirections\n(opens in a new tab)\nWebsite\n(opens in a new tab)\nCall 7172329971\nView source record\nCopy resource link\n\nSelected resource\n\nClose\nSource record\n\nHRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-012534\n\nContact the organization to confirm services, hours and availability before visiting.\n\nReport incorrect information"
+  },
+  "mobileTouch": {
+    "at": "2026-11-08T00:32:19.566Z",
+    "checks": [
+      {
+        "x": 326,
+        "y": 38,
+        "selector": ".og-mobile-menu summary",
+        "same": true,
+        "hitClass": "",
+        "hit": "SUMMARY",
+        "enabled": true
+      },
+      {
+        "x": 139.96875,
+        "y": 421.5,
+        "selector": ".og-entry-actions [href*=\"intent=give\"]",
+        "same": true,
+        "hitClass": "og-button og-button--dark",
+        "hit": "A",
+        "enabled": true
+      },
+      {
+        "x": 151.375,
+        "y": 421.796875,
+        "selector": "[data-category=healthcare]",
+        "same": true,
+        "hitClass": "",
+        "hit": "BUTTON",
+        "enabled": true
+      },
+      {
+        "x": 215,
+        "y": 420.734375,
+        "selector": "#locationInput",
+        "same": true,
+        "hitClass": "",
+        "hit": "locationInput",
+        "enabled": true
+      },
+      {
+        "x": 195,
+        "y": 421.984375,
+        "selector": "#supportSubmit",
+        "same": true,
+        "hitClass": "search-button",
+        "hit": "supportSubmit",
+        "enabled": true
+      },
+      {
+        "x": 195,
+        "y": 421.796875,
+        "selector": "#supportSubmit",
+        "same": true,
+        "hitClass": "search-button",
+        "hit": "supportSubmit",
+        "enabled": true
+      },
+      {
+        "x": 119.9296875,
+        "y": 422.1875,
+        "selector": "[data-resource-open]",
+        "same": true,
+        "hitClass": "",
+        "hit": "A",
+        "enabled": true
+      },
+      {
+        "x": 195,
+        "y": 634.515625,
+        "selector": "[data-resource-report] summary",
+        "same": true,
+        "hitClass": "",
+        "hit": "SUMMARY",
+        "enabled": true
+      },
+      {
+        "x": 195,
+        "y": 422.328125,
+        "selector": "[data-correction-form] textarea",
+        "same": true,
+        "hitClass": "",
+        "hit": "TEXTAREA",
+        "enabled": true
+      },
+      {
+        "x": 195,
+        "y": 421.90625,
+        "selector": "[data-resource-report] summary",
+        "same": true,
+        "hitClass": "",
+        "hit": "SUMMARY",
+        "enabled": true
+      },
+      {
+        "x": 195,
+        "y": 421.90625,
+        "selector": "[data-resource-report] summary",
+        "same": true,
+        "hitClass": "",
+        "hit": "SUMMARY",
+        "enabled": true
+      },
+      {
+        "x": 248.453125,
+        "y": 422.125,
+        "selector": "[data-discard-report]",
+        "same": true,
+        "hitClass": "",
+        "hit": "BUTTON",
+        "enabled": true
+      },
+      {
+        "x": 195,
+        "y": 422.296875,
+        "selector": "[data-result-key]",
+        "same": true,
+        "hitClass": "",
+        "hit": "SPAN",
+        "enabled": true
+      }
+    ],
+    "api": [
+      {
+        "path": "/api/v1/geoapify/status",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/locations/status",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/locations/resolve",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/resources/search",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/resources/828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+        "status": 200
+      }
+    ],
+    "stats": {
+      "style_200": 1,
+      "map_asset_200": 3,
+      "tile_200": 2
+    },
+    "menuTap": true,
+    "menuKeyboard": true,
+    "menuClosed": true,
+    "before": {
+      "city": "Harrisburg, PA",
+      "cat": "Healthcare",
+      "radius": "10",
+      "submit": false,
+      "categoryColors": [
+        [
+          "Food",
+          "rgb(32, 40, 36)",
+          "rgb(255, 254, 250)"
+        ],
+        [
+          "Healthcare",
+          "rgb(255, 254, 250)",
+          "rgb(36, 66, 54)"
+        ]
+      ]
+    },
+    "firstTap": {
+      "events": [
+        [
+          "pointerdown",
+          "supportSubmit"
+        ],
+        [
+          "touchstart",
+          "supportSubmit"
+        ],
+        [
+          "pointerup",
+          "supportSubmit"
+        ],
+        [
+          "touchend",
+          "supportSubmit"
+        ],
+        [
+          "focusout",
+          "locationInput"
+        ],
+        [
+          "click",
+          "locationForm"
+        ]
+      ],
+      "count": 0,
+      "formValid": true,
+      "focus": "main",
+      "scrollX": 0,
+      "viewportScale": 1,
+      "offset": 0,
+      "panelStatus": "Choose a location to search again. Exact locations are not stored in this link."
+    },
+    "secondTap": [
+      [
+        "pointerdown",
+        "supportSubmit"
+      ],
+      [
+        "touchstart",
+        "supportSubmit"
+      ],
+      [
+        "pointerup",
+        "supportSubmit"
+      ],
+      [
+        "touchend",
+        "supportSubmit"
+      ],
+      [
+        "focusout",
+        "locationInput"
+      ],
+      [
+        "click",
+        "locationForm"
+      ],
+      [
+        "pointerdown",
+        "supportSubmit"
+      ],
+      [
+        "touchstart",
+        "supportSubmit"
+      ],
+      [
+        "pointerup",
+        "supportSubmit"
+      ],
+      [
+        "touchend",
+        "supportSubmit"
+      ],
+      [
+        "focusout",
+        "main"
+      ],
+      [
+        "click",
+        "supportSubmit"
+      ],
+      [
+        "submit",
+        "locationForm"
+      ],
+      [
+        "focusout",
+        "supportSubmit"
+      ]
+    ],
+    "search": {
+      "status": "3 matching records near Harrisburg, PA.",
+      "choices": "",
+      "count": 3,
+      "city": "Harrisburg, PA",
+      "contact": "Visit organization website\n(opens in a new tab)\n\nListed website from the directory. Online donation information not confirmed."
+    },
+    "retained": true,
+    "discarded": true,
+    "detail": "orts privately. Reports do not immediately change the listing.\n\nWhat needs correcting?\nHours are incorrect\nService may be closed\nContact information is incorrect\nEligibility information is incorrect\nLocation is incorrect\nSomething else\nDetails (optional)\n\nDescribe only the listing issue. Do not include resident names, personal contact details, medical or financial information, or identification documents. Maximum 1,000 characters. Privacy and retention\n(opens in a new tab)\n.\n\nSend report\n\nDraft discarded.",
+    "pins": 3,
+    "pinSelect": "true",
+    "listSelect": "true"
+  },
+  "organizationVisitor": {
+    "/account": {
+      "statuses": [
+        "Organization sign-in is not configured yet. You can still browse resources without an account."
+      ],
+      "forms": [],
+      "eden": false
+    },
+    "/account/administration": {
+      "statuses": [
+        "Organization sign-in is not configured yet."
+      ],
+      "forms": [],
+      "eden": false
+    },
+    "/staff/services/828e4d8a-d5d7-5527-a75c-2a6f10027a56": {
+      "statuses": [
+        "Organization sign-in is not configured yet. Listing management requires approved access."
+      ],
+      "forms": [],
+      "eden": false
+    }
+  },
+  "hostedEden": {
+    "opened": true,
+    "visible": true,
+    "message": "Eden is unavailable right now.\n\nContinue to Find Support ↗",
+    "composer": false,
+    "find": "/support",
+    "closed": true
+  },
+  "a11y": {
+    "desktop": {
+      "skip": {
+        "first": "Skip to content",
+        "focus": "main"
+      },
+      "horizontalOverflowAt320": {
+        "/": 0,
+        "/give": 0,
+        "/organizations": 0,
+        "/account": 0,
+        "/support": 0
+      },
+      "pages": [
+        {
+          "page": "home",
+          "path": "/",
+          "heading": "Stronger\ncommunities\ngrow here.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [
+            "color-contrast"
+          ],
+          "brokenImages": []
+        },
+        {
+          "page": "give",
+          "path": "/give",
+          "heading": "A stronger community\nstarts with connection.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        },
+        {
+          "page": "give directory",
+          "path": "/support",
+          "heading": "Find ways to give\nnear you.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [
+            "aria-valid-attr-value",
+            "color-contrast"
+          ],
+          "brokenImages": []
+        },
+        {
+          "page": "directory after interaction",
+          "path": "/support",
+          "heading": "Find ways to give\nnear you.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [
+            "aria-valid-attr-value"
+          ],
+          "brokenImages": []
+        },
+        {
+          "page": "/organizations",
+          "path": "/organizations",
+          "heading": "Local knowledge.\nA shared starting point.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        },
+        {
+          "page": "/account",
+          "path": "/account",
+          "heading": "A place to care\nfor your community.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        },
+        {
+          "page": "/account/administration",
+          "path": "/account/administration",
+          "heading": "A careful review.\nA clearer directory.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        },
+        {
+          "page": "/staff/services/828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "path": "/staff/services/828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+          "heading": "Keep the next step clear.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        },
+        {
+          "page": "/about",
+          "path": "/about",
+          "heading": "A clearer path to community support.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        },
+        {
+          "page": "/privacy",
+          "path": "/privacy",
+          "heading": "Useful information.\nCareful with yours.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        },
+        {
+          "page": "/discover",
+          "path": "/support",
+          "heading": "Find support\nnear you.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [
+            "aria-valid-attr-value",
+            "color-contrast"
+          ],
+          "brokenImages": []
+        },
+        {
+          "page": "/audit-missing",
+          "path": "/audit-missing",
+          "heading": "Let’s find\na new starting point.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        }
+      ]
+    },
+    "mobile": {
+      "skip": {
+        "first": "Skip to content",
+        "focus": "main"
+      },
+      "horizontalOverflowAt320": {
+        "/": 0,
+        "/give": 0,
+        "/organizations": 0,
+        "/account": 0,
+        "/support": 0
+      },
+      "pages": [
+        {
+          "page": "home",
+          "path": "/",
+          "heading": "Stronger\ncommunities\ngrow here.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        },
+        {
+          "page": "give",
+          "path": "/give",
+          "heading": "A stronger community\nstarts with connection.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        },
+        {
+          "page": "give directory",
+          "path": "/support",
+          "heading": "Find ways to give\nnear you.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [
+            "aria-valid-attr-value",
+            "color-contrast"
+          ],
+          "brokenImages": []
+        },
+        {
+          "page": "directory after interaction",
+          "path": "/support",
+          "heading": "Find ways to give\nnear you.",
+          "horizontalOverflow": 0,
+          "violations": [
+            {
+              "id": "color-contrast",
+              "impact": "serious",
+              "count": 1,
+              "examples": [
+                [
+                  "button[data-category=\"food\"]"
+                ]
+              ],
+              "details": [
+                "Fix any of the following:\n  Element has insufficient color contrast of 1.37 (foreground color: #202824, background color: #244236, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+              ]
+            }
+          ],
+          "incomplete": [
+            "aria-valid-attr-value",
+            "color-contrast"
+          ],
+          "brokenImages": []
+        },
+        {
+          "page": "/organizations",
+          "path": "/organizations",
+          "heading": "Local knowledge.\nA shared starting point.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        },
+        {
+          "page": "/account",
+          "path": "/account",
+          "heading": "A place to care\nfor your community.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        },
+        {
+          "page": "/account/administration",
+          "path": "/account/administration",
+          "heading": "A careful review.\nA clearer directory.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        },
+        {
+          "page": "/staff/services/00000000-0000-4000-8000-000000000000",
+          "path": "/staff/services/00000000-0000-4000-8000-000000000000",
+          "heading": "Keep the next step clear.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        },
+        {
+          "page": "/about",
+          "path": "/about",
+          "heading": "A clearer path to community support.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        },
+        {
+          "page": "/privacy",
+          "path": "/privacy",
+          "heading": "Useful information.\nCareful with yours.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [
+            "color-contrast"
+          ],
+          "brokenImages": []
+        },
+        {
+          "page": "/discover",
+          "path": "/support",
+          "heading": "Find support\nnear you.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [
+            "aria-valid-attr-value",
+            "color-contrast"
+          ],
+          "brokenImages": []
+        },
+        {
+          "page": "/demo",
+          "path": "/demo",
+          "heading": "Explore what's\npossible.",
+          "horizontalOverflow": 0,
+          "violations": [
+            {
+              "id": "aria-prohibited-attr",
+              "impact": "serious",
+              "count": 1,
+              "examples": [
+                [
+                  "#globeMount"
+                ]
+              ],
+              "details": [
+                "Fix all of the following:\n  aria-label attribute cannot be used on a div with no valid role attribute."
+              ]
+            }
+          ],
+          "incomplete": [
+            "aria-prohibited-attr",
+            "color-contrast"
+          ],
+          "brokenImages": []
+        },
+        {
+          "page": "/audit-missing",
+          "path": "/audit-missing",
+          "heading": "Let’s find\na new starting point.",
+          "horizontalOverflow": 0,
+          "violations": [],
+          "incomplete": [],
+          "brokenImages": []
+        }
+      ]
+    }
+  },
+  "performance": {
+    "desktop": {
+      "network": "host connection, no CPU throttle",
+      "visits": [
+        {
+          "path": "/",
+          "title": "Our Ground — Stronger communities grow here.",
+          "ttfb": 149,
+          "fcp": 0,
+          "lcp": null,
+          "cls": 0,
+          "photos": [
+            [
+              1238,
+              "available/visible"
+            ]
+          ],
+          "hero": 478384,
+          "sampleInteractionMaxMs": null
+        },
+        {
+          "path": "/",
+          "title": "Our Ground — Stronger communities grow here.",
+          "ttfb": 42,
+          "fcp": 0,
+          "lcp": null,
+          "cls": 0,
+          "photos": [
+            [
+              134,
+              "no element"
+            ],
+            [
+              1700,
+              "available/visible"
+            ]
+          ],
+          "hero": 478384,
+          "sampleInteractionMaxMs": null
+        },
+        {
+          "path": "/give",
+          "title": "Give Support — Our Ground",
+          "ttfb": 53,
+          "fcp": 964,
+          "lcp": 992,
+          "cls": 0,
+          "photos": [
+            [
+              148,
+              "no element"
+            ],
+            [
+              231,
+              "waiting"
+            ],
+            [
+              864,
+              "available/visible"
+            ]
+          ],
+          "candidate": "IMG",
+          "sampleInteractionMaxMs": 88
+        },
+        {
+          "path": "/support",
+          "title": "Find support — Our Ground",
+          "ttfb": 40,
+          "fcp": 528,
+          "lcp": 744,
+          "cls": 0.0072,
+          "photos": [
+            [
+              109,
+              "no element"
+            ],
+            [
+              225,
+              "waiting"
+            ],
+            [
+              525,
+              "available/visible"
+            ]
+          ],
+          "candidate": "IMG",
+          "sampleInteractionMaxMs": 48
+        }
+      ],
+      "workflowHighestCLS": 0.22867087360708585
+    },
+    "mobile": {
+      "network": "80ms latency, 5Mbps down, no CPU throttle",
+      "visits": [
+        {
+          "path": "/",
+          "title": "Our Ground — Stronger communities grow here.",
+          "ttfb": 181,
+          "fcp": 0,
+          "lcp": null,
+          "cls": 0,
+          "photos": [
+            [
+              1571,
+              "available/visible"
+            ]
+          ],
+          "hero": 478384,
+          "sampleInteractionMaxMs": null
+        },
+        {
+          "path": "/",
+          "title": "Our Ground — Stronger communities grow here.",
+          "ttfb": 84,
+          "fcp": 368,
+          "lcp": 2640,
+          "cls": 0,
+          "photos": [
+            [
+              198,
+              "no element"
+            ],
+            [
+              348,
+              "waiting"
+            ],
+            [
+              2465,
+              "available/visible"
+            ]
+          ],
+          "candidate": "IMG",
+          "hero": 478384,
+          "sampleInteractionMaxMs": 40
+        },
+        {
+          "path": "/give",
+          "title": "Give Support — Our Ground",
+          "ttfb": 83,
+          "fcp": 380,
+          "lcp": 380,
+          "cls": 0,
+          "photos": [
+            [
+              195,
+              "no element"
+            ],
+            [
+              345,
+              "waiting"
+            ],
+            [
+              645,
+              "available/visible"
+            ]
+          ],
+          "candidate": "H1",
+          "sampleInteractionMaxMs": 32
+        },
+        {
+          "path": "/support",
+          "title": "Find support — Our Ground",
+          "ttfb": 84,
+          "fcp": 988,
+          "lcp": 1576,
+          "cls": 0.0141,
+          "photos": [
+            [
+              185,
+              "no element"
+            ],
+            [
+              502,
+              "waiting"
+            ],
+            [
+              1519,
+              "available/visible"
+            ]
+          ],
+          "candidate": "IMG",
+          "sampleInteractionMaxMs": 64
+        }
+      ],
+      "workflowHighestCLS": 0
+    },
+    "desktopFilmstrip": {
+      "samples": [
+        {
+          "t": 212,
+          "loadStateBeforeCapture": 0,
+          "lcp": null,
+          "fcp": null
+        },
+        {
+          "t": 7175,
+          "loadStateBeforeCapture": 1672,
+          "lcp": 5208,
+          "fcp": 5208
+        },
+        {
+          "t": 7482,
+          "loadStateBeforeCapture": 1672,
+          "lcp": 5208,
+          "fcp": 5208
+        },
+        {
+          "t": 7781,
+          "loadStateBeforeCapture": 1672,
+          "lcp": 5208,
+          "fcp": 5208
+        },
+        {
+          "t": 8084,
+          "loadStateBeforeCapture": 1672,
+          "lcp": 5208,
+          "fcp": 5208
+        },
+        {
+          "t": 9183,
+          "loadStateBeforeCapture": 1672,
+          "lcp": 5208,
+          "fcp": 5208
+        },
+        {
+          "t": 10285,
+          "loadStateBeforeCapture": 1672,
+          "lcp": 5208,
+          "fcp": 5208
+        },
+        {
+          "t": 11385,
+          "loadStateBeforeCapture": 1672,
+          "lcp": 5208,
+          "fcp": 5208
+        }
+      ],
+      "remark": "Screenshots are asynchronous. Sampling timestamps precede capture. Later frames continued showing the hero."
+    }
+  },
+  "alternateRoutes": [
+    {
+      "path": "/auth/callback",
+      "message": "Organization sign-in is not configured yet. You can still browse resources without an account."
+    },
+    {
+      "path": "/support",
+      "keywordInAddressBar": true,
+      "title": "1\nShare Community Fridge\n— select location on map",
+      "shareLinkHasKeyword": true
+    }
+  ],
+  "focusedLocalTests": {
+    "passed": 40,
+    "failed": 0,
+    "suites": [
+      "organization-api",
+      "organization-auth",
+      "giving-links",
+      "resource-context",
+      "privacy-maintenance"
+    ]
+  },
+  "limitations": [
+    "Chrome desktop and mobile emulation, synthetic inputs, no human assistive technology or physical mobile device.",
+    "Touch event trace supersedes a first mouse-driven mobile pass. Default-map verification supersedes a desktop probe that toggled the map off.",
+    "Axe findings apply to sampled states. The mobile category contrast result was not reproduced in later settled computed colors.",
+    "Lab timing only. A missing paint or interaction entry is unknown, not zero. No user INP or p75 distribution.",
+    "No successful correction submission, account creation, email, provider call, restore or moderation writes in this audit."
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "at": "2026-11-08T00:04:52.419Z",
+  "published": 367,
+  "sources": [
+    {
+      "source": "philly-food-sites",
+      "count": 324,
+      "bindingsAndDatesEqual": true,
+      "digest": "6cd4472663baf28567a31b87c6fe11e993944200f780b8454b3e5ae5ed95192c"
+    },
+    {
+      "source": "hrsa-health-centers",
+      "count": 43,
+      "bindingsAndDatesEqual": true,
+      "digest": "b7a9af7f04bf5fc1a098eda1cdf1fc4a05f68bbcd891ecacffeaff0187034218"
+    }
+  ]
+}

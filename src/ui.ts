@@ -1,4 +1,5 @@
 import { categories, categoryLabel, cityForResource, supportUrl, type Category, type Resource, type ResourceCategory } from './resources';
+export { brand, header } from './navigation';
 
 export const arrow = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-6-7 7 7-7 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 export const pinIcon = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="10" r="2.3" stroke="currentColor" stroke-width="1.6"/></svg>';
@@ -10,8 +11,6 @@ export const icons: Record<ResourceCategory | 'pantry', string> = {
   pantry: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 28 5 17C-3 8 9-2 16 7c7-9 19 1 11 10z" fill="currentColor"/></svg>',
 };
 
-export const brand = `<a class="access-brand" href="/" aria-label="Access home"><svg class="access-mark" viewBox="0 0 48 48" aria-hidden="true"><circle cx="15" cy="13" r="8.5" fill="#804827"/><circle cx="33" cy="16" r="11" fill="#ffa45d"/><circle cx="13" cy="33" r="11" fill="#ff964b"/><circle cx="34" cy="35" r="9" fill="#ffb277"/></svg><span>Access</span></a>`;
-
 export function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]!));
 }
@@ -20,10 +19,6 @@ export function element<T extends HTMLElement>(selector: string): T {
   const found = document.querySelector<T>(selector);
   if (!found) throw new Error(`Missing element: ${selector}`);
   return found;
-}
-
-export function header(active = ''): string {
-  return `<a class="skip-link" href="#main">Skip to content</a><header class="page-header">${brand}<nav class="page-nav" aria-label="Main navigation"><a href="/support"${active === 'support' ? ' aria-current="page"' : ''}>Find support</a><a href="/about"${active === 'about' ? ' aria-current="page"' : ''}>About</a><a href="/account"${active === 'account' ? ' aria-current="page"' : ''}>Account</a><a class="page-home" href="/">Back to the map ${arrow}</a></nav></header>`;
 }
 
 export function filterChips(active: Category, className = ''): string {

@@ -1,0 +1,77 @@
+{
+  "date": "2026-11-07",
+  "owner_scope": "Already-built Preview artifact on ourground-staging only. Owner accepted headerless Geoapify quota for authenticated reviewers.",
+  "requested_target": "preview",
+  "artifact": {
+    "output_files": 462,
+    "public_files_with_expected_map_key": 2,
+    "private_matches": 0,
+    "escaping_symlinks": 0,
+    "compiled_function_health": true,
+    "api_rewrite_before_spa": true,
+    "node": "nodejs24.x",
+    "build_diagnostics": 0,
+    "pass": true
+  },
+  "actual_deployment": {
+    "id": "dpl_GxKZUxZ5jBD9im463kTN2yXukULW",
+    "projectId": "prj_eU9xRSetSQYTbkAce2cYIR5zx8c2",
+    "target": "production",
+    "readyState": "READY",
+    "alias": [
+      "ourground-staging.vercel.app",
+      "ourground-staging-penuels-projects-aa802b06.vercel.app"
+    ],
+    "source": "cli",
+    "removed": true,
+    "record_after": "unavailable"
+  },
+  "immutable_url_anonymous_requests": {
+    "/": "redirected to https://vercel.com/login",
+    "/api/v1/health": "redirected to https://vercel.com/login"
+  },
+  "production_alias_anonymous_access_while_ready": "not measured",
+  "post_removal": [
+    {
+      "host": "ourground-staging-j47hlaz6b-penuels-projects-aa802b06.vercel.app",
+      "status": 404,
+      "code": "DEPLOYMENT_NOT_FOUND",
+      "app": false
+    },
+    {
+      "host": "ourground-staging.vercel.app",
+      "status": 404,
+      "code": "DEPLOYMENT_NOT_FOUND",
+      "app": false
+    },
+    {
+      "host": "ourground-staging-penuels-projects-aa802b06.vercel.app",
+      "status": 404,
+      "code": "DEPLOYMENT_NOT_FOUND",
+      "app": false
+    },
+    {
+      "host": "ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+      "status": 404,
+      "code": "DEPLOYMENT_NOT_FOUND",
+      "app": false
+    }
+  ],
+  "remaining_deployments": 0,
+  "preview_variables": 20,
+  "all_preview_only": true,
+  "hidden_production_variables": 0,
+  "hosted_authenticated_verification": "Stopped at target mismatch before testing the directory, maps, EDEN, runtime role or limiter.",
+  "geoapify": {
+    "plan": "Free",
+    "period": "Oct 7 \u2013 Nov 7, 2026 (dashboard UTC period)",
+    "project_requests": 458,
+    "project_credits": 296,
+    "daily_credit_limit": 3000,
+    "staging_key_requests": 3,
+    "staging_key_credits": 1,
+    "billing_changes": false,
+    "interpretation": "Dashboard snapshot, not a real-time usage delta."
+  },
+  "reference": "https://vercel.com/docs/domains/working-with-domains/deploying-and-redirecting"
+}

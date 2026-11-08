@@ -1,0 +1,41 @@
+{
+  "allNative" : true,
+  "captures" : 377,
+  "durationMs" : 33002,
+  "nativeAdvanceEnd" : 8108,
+  "nativeAdvanceStart" : 6136,
+  "picks" : [
+    {
+      "eyeDarkPixels" : 13,
+      "frame" : 0,
+      "gazeCenter" : 42.92307692307692,
+      "label" : "eyes-open",
+      "noseCenter" : 45.5,
+      "timeMs" : 170
+    },
+    {
+      "eyeDarkPixels" : 0,
+      "frame" : 44,
+      "gazeCenter" : 0,
+      "label" : "blink-closed",
+      "noseCenter" : 0,
+      "timeMs" : 4068
+    },
+    {
+      "eyeDarkPixels" : 11,
+      "frame" : 344,
+      "gazeCenter" : 43.636363636363633,
+      "label" : "gaze",
+      "noseCenter" : 45,
+      "timeMs" : 30202
+    },
+    {
+      "eyeDarkPixels" : 13,
+      "frame" : 4,
+      "gazeCenter" : 43.384615384615387,
+      "label" : "head-tilt",
+      "noseCenter" : 47,
+      "timeMs" : 584
+    }
+  ]
+}
