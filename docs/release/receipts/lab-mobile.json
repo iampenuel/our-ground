@@ -1,0 +1,95 @@
+{
+  "variant": "mobile",
+  "network": "80ms latency, 5Mbps down, no CPU throttle",
+  "samples": [
+    {
+      "path": "/",
+      "title": "Our Ground — Stronger communities grow here.",
+      "ttfb": 192,
+      "fcp": 0,
+      "lcp": null,
+      "cls": 0,
+      "photos": [
+        [
+          2274,
+          "available/visible"
+        ]
+      ],
+      "hero": 107090,
+      "sampleInteractionMaxMs": null
+    },
+    {
+      "path": "/",
+      "title": "Our Ground — Stronger communities grow here.",
+      "ttfb": 97,
+      "fcp": 520,
+      "lcp": 1220,
+      "cls": 0,
+      "photos": [
+        [
+          335,
+          "no element"
+        ],
+        [
+          485,
+          "waiting"
+        ],
+        [
+          1202,
+          "available/visible"
+        ]
+      ],
+      "candidate": "IMG",
+      "hero": 107090,
+      "sampleInteractionMaxMs": 32
+    },
+    {
+      "path": "/give",
+      "title": "Give Support — Our Ground",
+      "ttfb": 85,
+      "fcp": 424,
+      "lcp": 424,
+      "cls": 0,
+      "photos": [
+        [
+          237,
+          "no element"
+        ],
+        [
+          387,
+          "waiting"
+        ],
+        [
+          653,
+          "available/visible"
+        ]
+      ],
+      "candidate": "H1",
+      "sampleInteractionMaxMs": 32
+    },
+    {
+      "path": "/support",
+      "title": "Find support — Our Ground",
+      "ttfb": 84,
+      "fcp": 1028,
+      "lcp": 1644,
+      "cls": 0.0195,
+      "photos": [
+        [
+          203,
+          "no element"
+        ],
+        [
+          553,
+          "waiting"
+        ],
+        [
+          1586,
+          "available/visible"
+        ]
+      ],
+      "candidate": "IMG",
+      "sampleInteractionMaxMs": 48
+    }
+  ]
+}

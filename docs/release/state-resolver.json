@@ -1,0 +1,363 @@
+{
+  "states_and_dc": 51,
+  "cases": [
+    {
+      "state": "AL",
+      "city": "Birmingham, AL",
+      "label": "Birmingham, AL",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "AK",
+      "city": "Anchorage, AK",
+      "label": "Anchorage, AK",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "AZ",
+      "city": "Phoenix, AZ",
+      "label": "Phoenix, AZ",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "AR",
+      "city": "Little Rock, AR",
+      "label": "Little Rock, AR",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "CA",
+      "city": "Los Angeles, CA",
+      "label": "Los Angeles, CA",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "CO",
+      "city": "Denver, CO",
+      "label": "Denver, CO",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "CT",
+      "city": "Hartford, CT",
+      "label": "Hartford, CT",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "DE",
+      "city": "Dover, DE",
+      "label": "Dover, DE",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "DC",
+      "city": "Washington, DC",
+      "label": "Washington, DC",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "FL",
+      "city": "Miami, FL",
+      "label": "Miami, FL",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "GA",
+      "city": "Atlanta, GA",
+      "label": "Atlanta, GA",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "HI",
+      "city": "Honolulu, HI",
+      "label": "Urban Honolulu, HI",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "ID",
+      "city": "Boise, ID",
+      "label": "Boise City, ID",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "IL",
+      "city": "Chicago, IL",
+      "label": "Chicago, IL",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "IN",
+      "city": "Indianapolis, IN",
+      "label": "Indianapolis city (balance), IN",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "IA",
+      "city": "Des Moines, IA",
+      "label": "Des Moines, IA",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "KS",
+      "city": "Topeka, KS",
+      "label": "Topeka, KS",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "KY",
+      "city": "Frankfort, KY",
+      "label": "Frankfort, KY",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "LA",
+      "city": "Baton Rouge, LA",
+      "label": "Baton Rouge, LA",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "ME",
+      "city": "Portland, ME",
+      "label": "Portland, ME",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "MD",
+      "city": "Baltimore, MD",
+      "label": "Baltimore, MD",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "MA",
+      "city": "Boston, MA",
+      "label": "Boston, MA",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "MI",
+      "city": "Detroit, MI",
+      "label": "Detroit, MI",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "MN",
+      "city": "Minneapolis, MN",
+      "label": "Minneapolis, MN",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "MS",
+      "city": "Jackson, MS",
+      "label": "Jackson, MS",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "MO",
+      "city": "Jefferson City, MO",
+      "label": "Jefferson City, MO",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "MT",
+      "city": "Helena, MT",
+      "label": "Helena, MT",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "NE",
+      "city": "Lincoln, NE",
+      "label": "Lincoln, NE",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "NV",
+      "city": "Las Vegas, NV",
+      "label": "Las Vegas, NV",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "NH",
+      "city": "Concord, NH",
+      "label": "Concord, NH",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "NJ",
+      "city": "Trenton, NJ",
+      "label": "Trenton, NJ",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "NM",
+      "city": "Albuquerque, NM",
+      "label": "Albuquerque, NM",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "NY",
+      "city": "New York, NY",
+      "label": "New York, NY",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "NC",
+      "city": "Raleigh, NC",
+      "label": "Raleigh, NC",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "ND",
+      "city": "Bismarck, ND",
+      "label": "Bismarck, ND",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "OH",
+      "city": "Columbus, OH",
+      "label": "Columbus, OH",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "OK",
+      "city": "Oklahoma City, OK",
+      "label": "Oklahoma City, OK",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "OR",
+      "city": "Salem, OR",
+      "label": "Salem, OR",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "PA",
+      "city": "Harrisburg, PA",
+      "label": "Harrisburg, PA",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "RI",
+      "city": "Providence, RI",
+      "label": "Providence, RI",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "SC",
+      "city": "Columbia, SC",
+      "label": "Columbia, SC",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "SD",
+      "city": "Pierre, SD",
+      "label": "Pierre, SD",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "TN",
+      "city": "Nashville, TN",
+      "label": "Nashville-Davidson metropolitan government (balance), TN",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "TX",
+      "city": "Austin, TX",
+      "label": "Austin, TX",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "UT",
+      "city": "Salt Lake City, UT",
+      "label": "Salt Lake City, UT",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "VT",
+      "city": "Montpelier, VT",
+      "label": "Montpelier, VT",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "VA",
+      "city": "Richmond, VA",
+      "label": "Richmond, VA",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "WA",
+      "city": "Seattle, WA",
+      "label": "Seattle, WA",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "WV",
+      "city": "Charleston, WV",
+      "label": "Charleston, WV",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "WI",
+      "city": "Madison, WI",
+      "label": "Madison, WI",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    },
+    {
+      "state": "WY",
+      "city": "Cheyenne, WY",
+      "label": "Cheyenne, WY",
+      "eden": "canonical_exact",
+      "source": "census-gazetteer-2026"
+    }
+  ],
+  "errors": []
+}

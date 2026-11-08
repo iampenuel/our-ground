@@ -1,0 +1,26 @@
+{
+  "initial": {
+    "host": "ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+    "commit": "04fbdeb7793710bec14a1e6f91ca38a4916488d2",
+    "anon": 302,
+    "auth": 200
+  },
+  "previous_target": {
+    "host": "ourground-staging-d86pqhi88-penuels-projects-aa802b06.vercel.app",
+    "commit": "1adffe2e7086b81e20df2ae24ffdc4f7a652af71",
+    "anon": 302,
+    "auth": 200
+  },
+  "rollback": {
+    "host": "ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+    "commit": "1adffe2e7086b81e20df2ae24ffdc4f7a652af71",
+    "anon": 302,
+    "auth": 200
+  },
+  "final": {
+    "host": "ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+    "commit": "04fbdeb7793710bec14a1e6f91ca38a4916488d2",
+    "anon": 302,
+    "auth": 200
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "firstTap": {
+    "events": [
+      [
+        "pointerdown",
+        "supportSubmit"
+      ],
+      [
+        "touchstart",
+        "supportSubmit"
+      ],
+      [
+        "pointerup",
+        "supportSubmit"
+      ],
+      [
+        "touchend",
+        "supportSubmit"
+      ],
+      [
+        "focusout",
+        "locationInput"
+      ],
+      [
+        "click",
+        "supportSubmit"
+      ],
+      [
+        "submit",
+        "locationForm"
+      ],
+      [
+        "focusout",
+        "supportSubmit"
+      ]
+    ],
+    "count": 6,
+    "formValid": true,
+    "focus": "",
+    "scrollX": 0,
+    "viewportScale": 1,
+    "offset": 0,
+    "panelStatus": "6 matching records near Harrisburg, PA."
+  },
+  "api": [
+    {
+      "path": "/api/v1/locations/status",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/geoapify/status",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/locations/resolve",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+      "status": 200
+    }
+  ],
+  "retained": false,
+  "discarded": true,
+  "pinSelect": "true",
+  "listSelect": "true",
+  "stats": {
+    "style_200": 1,
+    "map_asset_200": 3,
+    "tile_200": 2
+  }
+}

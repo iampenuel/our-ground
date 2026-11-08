@@ -1,0 +1,46 @@
+{
+  "origin": "https://ourground-staging-h2z4bst1p-penuels-projects-aa802b06.vercel.app",
+  "id": "dpl_CSAC1QC3Y13VcnVhAu4oC6Xszqvp",
+  "anonymous": [
+    [
+      "/",
+      302
+    ],
+    [
+      "/api/v1/health",
+      302
+    ]
+  ],
+  "authenticated": [
+    [
+      "/ourground-build-evidence.json",
+      200
+    ],
+    [
+      "/api/v1/health",
+      200
+    ],
+    [
+      "/api/v1/categories",
+      200
+    ]
+  ],
+  "disabled": [
+    [
+      "/api/v1/eden/session",
+      403,
+      "EDEN_DISABLED"
+    ],
+    [
+      "/api/v1/eden/live/token",
+      403,
+      "EDEN_DISABLED"
+    ],
+    [
+      "/api/v1/eden/speech",
+      403,
+      "EDEN_DISABLED"
+    ]
+  ],
+  "source_commit": "04fbdeb7793710bec14a1e6f91ca38a4916488d2"
+}

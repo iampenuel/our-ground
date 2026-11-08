@@ -1,0 +1,265 @@
+{
+  "pages": [
+    {
+      "label": "home",
+      "path": "/",
+      "h1": "Stronger\ncommunities\ngrow here.",
+      "overflow": 0,
+      "violations": [],
+      "incomplete": [],
+      "broken": []
+    },
+    {
+      "label": "give",
+      "path": "/give",
+      "h1": "A stronger community\nstarts with connection.",
+      "overflow": 0,
+      "violations": [],
+      "incomplete": [],
+      "broken": []
+    },
+    {
+      "label": "give directory",
+      "path": "/support",
+      "h1": "Find ways to give\nnear you.",
+      "overflow": 0,
+      "violations": [],
+      "incomplete": [
+        "aria-valid-attr-value",
+        "color-contrast"
+      ],
+      "broken": []
+    },
+    {
+      "label": "populated directory",
+      "path": "/support",
+      "h1": "Find ways to give\nnear you.",
+      "overflow": 0,
+      "violations": [],
+      "incomplete": [
+        "aria-valid-attr-value",
+        "color-contrast"
+      ],
+      "broken": []
+    },
+    {
+      "label": "/organizations",
+      "path": "/organizations",
+      "h1": "Local knowledge.\nA shared starting point.",
+      "overflow": 0,
+      "violations": [],
+      "incomplete": [],
+      "broken": []
+    },
+    {
+      "label": "/account",
+      "path": "/organizations",
+      "h1": "Local knowledge.\nA shared starting point.",
+      "overflow": 0,
+      "violations": [],
+      "incomplete": [],
+      "broken": []
+    },
+    {
+      "label": "/account/administration",
+      "path": "/account/administration",
+      "h1": "A careful review.\nA clearer directory.",
+      "overflow": 0,
+      "violations": [],
+      "incomplete": [],
+      "broken": []
+    },
+    {
+      "label": "/staff/services/828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+      "path": "/staff/services/828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+      "h1": "Keep the next step clear.",
+      "overflow": 0,
+      "violations": [],
+      "incomplete": [],
+      "broken": []
+    },
+    {
+      "label": "/about",
+      "path": "/about",
+      "h1": "A clearer path to community support.",
+      "overflow": 0,
+      "violations": [],
+      "incomplete": [],
+      "broken": []
+    },
+    {
+      "label": "/privacy",
+      "path": "/privacy",
+      "h1": "Useful information.\nCareful with yours.",
+      "overflow": 0,
+      "violations": [],
+      "incomplete": [
+        "color-contrast"
+      ],
+      "broken": []
+    },
+    {
+      "label": "/discover",
+      "path": "/support",
+      "h1": "Find support\nnear you.",
+      "overflow": 0,
+      "violations": [],
+      "incomplete": [
+        "aria-valid-attr-value",
+        "color-contrast"
+      ],
+      "broken": []
+    },
+    {
+      "label": "/demo",
+      "path": "/demo",
+      "h1": "Explore what's\npossible.",
+      "overflow": 0,
+      "violations": [],
+      "incomplete": [
+        "aria-prohibited-attr",
+        "color-contrast"
+      ],
+      "broken": []
+    },
+    {
+      "label": "/audit-missing",
+      "path": "/audit-missing",
+      "h1": "Let\u2019s find\na new starting point.",
+      "overflow": 0,
+      "violations": [],
+      "incomplete": [],
+      "broken": []
+    }
+  ],
+  "checks": {
+    "skip": {
+      "first": "Skip to content",
+      "focus": "main"
+    },
+    "menu": {
+      "opened": false,
+      "closed": true,
+      "restored": true
+    },
+    "edenPanel": {
+      "opened": true,
+      "visible": true,
+      "message": "Eden is unavailable right now.\n\nContinue to Find Support \u2197",
+      "composer": false,
+      "find": "/support",
+      "closed": true
+    },
+    "donorIntent": "give",
+    "manualSearch": {
+      "count": 6,
+      "status": "6 matching records near Harrisburg, PA.",
+      "titles": [
+        "1\nHHC- South Allison Hill\n\u2014 select location on map",
+        "2\nHamilton Health Center Family Practice at Steelton\n\u2014 select location on map",
+        "3\nUnion Deposit Family Practice\n\u2014 select location on map",
+        "4\nFamilycare at Union Deposit\n\u2014 select location on map",
+        "5\nSadler Health Center Corporation Mechanicsburg\n\u2014 select location on map",
+        "6\nLEWISBERRY CENTER\n\u2014 select location on map"
+      ],
+      "giving": [
+        "Visit organization website\n(opens in a new tab)\n\nListed website from the directory. Online donation information not confirmed.",
+        "Call 7172329971\n\nContact the organization about ways to give.",
+        "Call 7172320500\n\nContact the organization about ways to give.",
+        "Call 7172329971\n\nContact the organization about ways to give.",
+        "Visit organization website\n(opens in a new tab)\n\nListed website from the directory. Online donation information not confirmed.",
+        "Visit organization website\n(opens in a new tab)\n\nListed website from the directory. Online donation information not confirmed."
+      ],
+      "targets": [
+        {
+          "kind": "https:",
+          "host": "www.hamiltonhealthcenter.com"
+        },
+        {
+          "kind": "tel:",
+          "host": ""
+        },
+        {
+          "kind": "tel:",
+          "host": ""
+        },
+        {
+          "kind": "tel:",
+          "host": ""
+        },
+        {
+          "kind": "https:",
+          "host": "sadlerhealth.org"
+        },
+        {
+          "kind": "https:",
+          "host": "www.familyfirsthealth.org"
+        }
+      ]
+    },
+    "details": {
+      "firstCard": "directory:828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+      "clicked": true,
+      "detail": {
+        "urlHasResource": true,
+        "source": [
+          "data.hrsa.gov",
+          "data.hrsa.gov",
+          "data.hrsa.gov"
+        ],
+        "unverified": false
+      }
+    },
+    "correctionDraft": {
+      "edited": true,
+      "section": true,
+      "retained": true,
+      "button": true,
+      "discarded": true
+    },
+    "map": {
+      "opened": true,
+      "pins": 0,
+      "pin": false,
+      "selected": "directory:828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+      "card": true
+    },
+    "/account": {
+      "statuses": [],
+      "forms": [],
+      "eden": true
+    },
+    "/account/administration": {
+      "statuses": [
+        "Organization sign-in is not configured yet."
+      ],
+      "forms": [],
+      "eden": false
+    },
+    "/staff/services/828e4d8a-d5d7-5527-a75c-2a6f10027a56": {
+      "statuses": [
+        "Organization sign-in is not configured yet. Listing management requires approved access."
+      ],
+      "forms": [],
+      "eden": false
+    },
+    "demo": {
+      "text": "LEGACY INTERACTIVE DEMO\nExplore what's\npossible.\n\nMove the globe to find the pilot community.\n\nExplore our pilot\nPreview search\n\u2197\nAbout this demo\nExplore demo\nPilot community\nIllustrative location\nDrag to explore\n\u2212\n+\nLegacy demo \u00b7 Illustrative data\n01 / 03\nEarth imagery: NASA/GSFC SVS\n\u2197",
+      "actions": [
+        "Explore our pilot",
+        "Preview search\n\u2197",
+        "About this demo",
+        "Explore demo",
+        "Pilot community\nIllustrative location"
+      ]
+    },
+    "reflow320": {
+      "/": 0,
+      "/give": 0,
+      "/organizations": 0,
+      "/account": 0,
+      "/support": 0
+    }
+  },
+  "errors": []
+}

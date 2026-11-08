@@ -1,0 +1,20 @@
+[
+  {
+    "project": "ourground-staging",
+    "commit": "04fbdeb7793710bec14a1e6f91ca38a4916488d2",
+    "target": "preview",
+    "files": 463,
+    "private_matches": 0,
+    "browser_key_fingerprint": "9be81316ae63f975774833580f677d46363b9c92e5bded66006a1a0b7fc56f53",
+    "artifact_assets": 128
+  },
+  {
+    "project": "ourground",
+    "commit": "04fbdeb7793710bec14a1e6f91ca38a4916488d2",
+    "target": "production",
+    "files": 463,
+    "private_matches": 0,
+    "browser_key_fingerprint": "8049ab801e1cff55b83269dd1cb0d00be029e66fd41a5661f570b8528dc00496",
+    "artifact_assets": 128
+  }
+]

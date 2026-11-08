@@ -1,0 +1,142 @@
+{
+  "commit": "04fbdeb7793710bec14a1e6f91ca38a4916488d2",
+  "location_status": {
+    "configured": false,
+    "provider": "geoapify",
+    "maxSuggestions": 5,
+    "referenceConfigured": true
+  },
+  "zip": [
+    {
+      "zip": "10001",
+      "state": "NY",
+      "source": "census-zcta-2026",
+      "totals": {
+        "healthcare": 410,
+        "community": 12,
+        "food": 0
+      }
+    },
+    {
+      "zip": "94103",
+      "state": "CA",
+      "source": "census-zcta-2026",
+      "totals": {
+        "healthcare": 134,
+        "community": 4,
+        "food": 0
+      }
+    },
+    {
+      "zip": "78701",
+      "state": "TX",
+      "source": "census-zcta-2026",
+      "totals": {
+        "healthcare": 43,
+        "community": 3,
+        "food": 0
+      }
+    },
+    {
+      "zip": "33130",
+      "state": "FL",
+      "source": "census-zcta-2026",
+      "totals": {
+        "healthcare": 114,
+        "community": 1,
+        "food": 0
+      }
+    },
+    {
+      "zip": "60601",
+      "state": "IL",
+      "source": "census-zcta-2026",
+      "totals": {
+        "healthcare": 173,
+        "community": 16,
+        "food": 0
+      }
+    },
+    {
+      "zip": "19104",
+      "state": "PA",
+      "source": "census-zcta-2026",
+      "totals": {
+        "healthcare": 95,
+        "community": 16,
+        "food": 310
+      }
+    },
+    {
+      "zip": "98101",
+      "state": "WA",
+      "source": "census-zcta-2026",
+      "totals": {
+        "healthcare": 80,
+        "community": 1,
+        "food": 104
+      }
+    },
+    {
+      "zip": "99501",
+      "state": "AK",
+      "source": "census-zcta-2026",
+      "totals": {
+        "healthcare": 4,
+        "community": 0,
+        "food": 0
+      }
+    },
+    {
+      "zip": "96813",
+      "state": "HI",
+      "source": "census-zcta-2026",
+      "totals": {
+        "healthcare": 23,
+        "community": 1,
+        "food": 0
+      }
+    },
+    {
+      "zip": "02108",
+      "state": "MA",
+      "source": "census-zcta-2026",
+      "totals": {
+        "healthcare": 102,
+        "community": 3,
+        "food": 0
+      }
+    }
+  ],
+  "city": [
+    {
+      "q": "Springfield",
+      "labels": [
+        "Springfield, AR",
+        "Springfield, CO",
+        "Springfield, FL",
+        "Springfield, GA",
+        "Springfield, IL"
+      ]
+    },
+    {
+      "q": "Springfield, IL",
+      "labels": [
+        "Springfield, IL"
+      ]
+    },
+    {
+      "q": "Urban Honolulu, HI",
+      "labels": [
+        "Urban Honolulu, HI"
+      ]
+    },
+    {
+      "q": "Seattle, WA",
+      "labels": [
+        "Seattle, WA"
+      ]
+    }
+  ],
+  "failures": []
+}

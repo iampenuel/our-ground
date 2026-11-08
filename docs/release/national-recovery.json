@@ -1,0 +1,38 @@
+{
+  "created_at": "20261108T015547Z",
+  "folder": "national-directory-20261108T015547Z",
+  "archive": "directory.dump.gpg",
+  "encrypted_bytes": 12567520,
+  "ciphertext_sha256": "11e643399bc18cbcadd65fc69065792ab5c0ab3f45c6938a18493297e727ee17",
+  "streamed_dump_sha256": "96c75e562237ff16d0f18778f7313d89b14e1b744b9591845860eb63af2d7e63",
+  "restored_sha256_matches": true,
+  "restore_target": "ourground_rc_restore_db2fab9c",
+  "counts": {
+    "hrsa-health-centers": "16417",
+    "hud-housing-counselors": "508",
+    "pgc-food-assistance": "60",
+    "philly-food-sites": "324",
+    "seattle-food-resources": "209"
+  },
+  "migrations": 19,
+  "source_receipts": 7,
+  "active_privacy_holds": 34,
+  "postal_areas": 33791,
+  "private_tables_excluded": [
+    "app_users",
+    "campaigns",
+    "correction_reports",
+    "organization_action_limits",
+    "organization_audit",
+    "organization_claims",
+    "organization_listing_access",
+    "organization_memberships",
+    "organization_revisions",
+    "organization_revoked_sessions",
+    "privacy_retention_holds"
+  ],
+  "limiter_buckets_excluded": true,
+  "private_runtime_reads_denied": true,
+  "limiter_execute": true,
+  "honolulu_10mi_healthcare": 23
+}

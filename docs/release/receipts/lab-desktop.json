@@ -1,0 +1,99 @@
+{
+  "variant": "desktop",
+  "network": "host connection, no CPU throttle",
+  "samples": [
+    {
+      "path": "/",
+      "title": "Our Ground — Stronger communities grow here.",
+      "ttfb": 146,
+      "fcp": 0,
+      "lcp": null,
+      "cls": 0,
+      "photos": [
+        [
+          1730,
+          "available/visible"
+        ]
+      ],
+      "hero": 478384,
+      "sampleInteractionMaxMs": null
+    },
+    {
+      "path": "/",
+      "title": "Our Ground — Stronger communities grow here.",
+      "ttfb": 96,
+      "fcp": 2180,
+      "lcp": 2180,
+      "cls": 0,
+      "photos": [
+        [
+          297,
+          "no element"
+        ],
+        [
+          1464,
+          "available/visible"
+        ]
+      ],
+      "candidate": "IMG",
+      "hero": 478384,
+      "sampleInteractionMaxMs": null
+    },
+    {
+      "path": "/give",
+      "title": "Give Support — Our Ground",
+      "ttfb": 36,
+      "fcp": 992,
+      "lcp": 992,
+      "cls": 0,
+      "photos": [
+        [
+          580,
+          "available/visible"
+        ]
+      ],
+      "candidate": "IMG",
+      "sampleInteractionMaxMs": 88
+    },
+    {
+      "path": "/support",
+      "title": "Find support — Our Ground",
+      "ttfb": 49,
+      "fcp": 232,
+      "lcp": 700,
+      "cls": 0.0072,
+      "photos": [
+        [
+          123,
+          "no element"
+        ],
+        [
+          239,
+          "waiting"
+        ],
+        [
+          473,
+          "available/visible"
+        ]
+      ],
+      "candidate": "IMG",
+      "sampleInteractionMaxMs": 72
+    }
+  ],
+  "map": {
+    "pins": 6,
+    "secondCard": "true",
+    "firstPin": "true"
+  },
+  "detail": {
+    "source": [
+      "data.hrsa.gov",
+      "data.hrsa.gov",
+      "data.hrsa.gov",
+      "data.hrsa.gov",
+      "data.hrsa.gov",
+      "data.hrsa.gov"
+    ],
+    "text": "Healthcare\n1\nHHC- South Allison Hill\n— select location on map\n\n110 S 17th St, Harrisburg, PA\n\n1.3 mi · straight-line estimate\n\nHRSA-listed health center.\n\nImported source record · Not independently verified\n\nSource & dates\nDirections\n(opens in a new tab)\nWebsite\n(opens in a new tab)\nCall 7172329971\nView source record\nCopy resource link\n\nSelected resource\n\nClose\nSource record\n\nHRSA Health Center Program Service Delivery and Look-Alike Sites · Record BPS-H80-012534\n\nContact the organization to confirm services, hours and availability before visiting.\n\nReport incorrect information"
+  }
+}
