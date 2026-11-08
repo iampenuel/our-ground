@@ -29,7 +29,7 @@ test('token requests and replies bind consent, model, credential type, expiry an
   const request={nonce:key,noticeVersion:EDEN_NOTICE_VERSION,liveAudioAcknowledged:true,context};assert(validateEdenLiveTokenRequest(request));
   for(const extra of [{liveAudioAcknowledged:false},{nonce:'short'},{noticeVersion:'old'},{rawTranscript:'private'},{resumeHandle:'opaque'},{callId:key},{context:{...context,title:'private'}}])assert.equal(validateEdenLiveTokenRequest({...request,...extra}),null);
   assert(validateEdenLiveTokenRequest({...request,callId:key,resumeHandle:'opaque-provider-handle'}));assert(validateEdenLiveTokenResponse(token(),now));
-  for(const extra of [{model:'gemini-2.5-flash'},{voiceName:'Kore'},{token:'permanent-provider-key'},{expiresAt:new Date(now+700_000).toISOString()},{newSessionExpiresAt:new Date(now-1).toISOString()},{maxCallSeconds:301},{apiKey:'server-secret'}])assert.equal(validateEdenLiveTokenResponse({...token(),...extra},now),null);
+  for(const extra of [{model:'gemini-2.5-flash'},{voiceName:'Kore'},{token:'permanent-provider-key'},{expiresAt:new Date(now+700_000).toISOString()},{newSessionExpiresAt:new Date(now-1).toISOString()},{maxCallSeconds:601},{apiKey:'server-secret'}])assert.equal(validateEdenLiveTokenResponse({...token(),...extra},now),null);
 });
 test('public context and calls exclude private prose, unknown capabilities and exotic properties without executing getters',()=>{
   const checked=validateEdenLiveContext(context);assert.deepEqual(checked,context);assert.notEqual(checked.resourceIds,context.resourceIds);

@@ -55,7 +55,7 @@ export type CursorStep =
   | { action: 'leave' }
   | ({ action: 'move'; to: CursorTarget } & MoveOptions)
   | ({ action: 'hover'; target: CursorTarget } & MoveOptions)
-  | ({ action: 'click'; target: CursorTarget } & MoveOptions)
+  | ({ action: 'click'; target: CursorTarget; hoverMs?: number } & MoveOptions)
   | ({ action: 'drag'; from: CursorTarget; to: CursorTarget } & MoveOptions)
   | ({
       action: 'select';
@@ -686,7 +686,7 @@ export const ShowcasePointer = forwardRef<ShowcasePointerHandle, ShowcasePointer
           await travel(cancel, cursor, point, size, step);
           setHovered(cursor, hitTest(point, element));
           if (step.action === 'hover') return;
-          await wait(cancel, 120 + cursor.random() * 120);
+          await wait(cancel, step.hoverMs ?? 120 + cursor.random() * 120);
           const target = hitTest(point, element) ?? element;
           if (!target) return;
           press(cursor, true);

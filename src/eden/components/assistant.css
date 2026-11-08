@@ -174,3 +174,7 @@
   .eden-hosted.eden-short-viewport .eden-composer>p{display:block}
   .eden-hosted.eden-short-viewport .eden-header{min-height:44px;padding-block:.05rem}
 }
+
+.eden-live-strip{padding:.25rem 1rem;color:var(--og-ink);font-size:.84rem;max-height:35dvh;overflow:auto}
+.eden-live-strip p{margin:.25rem 0}.eden-live-strip button{min-height:32px;padding:.3rem .55rem}
+.eden-live-strip [data-live-state]{display:block}.eden-live-strip [data-live-clock]{font-variant-numeric:tabular-nums}

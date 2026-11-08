@@ -10,7 +10,7 @@ export async function stagingEdenStore(env:Env,command:string[]) {
   const config=stagingLimitConfig(env);
   const [cmd]=command;
   const key=cmd==='EVAL'?command[3]:command[1];
-  if (!key||!/^og:adult:eden:v1:(session|speech|turn|rate):[\w:.\-]{1,220}$/.test(key))throw Error('Unsupported staging ticket');
+  if (!key||!/^og:adult:eden:v1:(session|speech|turn|rate|live):[\w:.\-]{1,220}$/.test(key))throw Error('Unsupported staging ticket');
   let op=cmd,value='',ttl=0;
   if(cmd==='EVAL'&&command.length===5&&command[2]==='1'&&key.startsWith('og:adult:eden:v1:rate:')){op='COUNT';ttl=Number(command[4]);}
   else if(cmd==='SET'&&command.length===6&&command[3]==='EX'&&command[5]==='NX'){value=command[2];ttl=Number(command[4]);}

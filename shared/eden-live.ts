@@ -7,7 +7,7 @@ import {EDEN_PUBLIC_DESTINATIONS} from './eden-public-pages.ts';
 
 export const EDEN_LIVE_MODEL = 'gemini-3.8-live' as const;
 export const EDEN_LIVE_VOICE = 'Aoede' as const;
-export const EDEN_LIVE_MAX_CALL_SECONDS = 300;
+export const EDEN_LIVE_MAX_CALL_SECONDS = 600;
 export const EDEN_LIVE_INTRODUCTION = "Hi! I'm Eden. I can help you find food, healthcare, and community resources. You can ask me something like, 'Find food support near Harrisburg.' What would you like to explore?";
 export const EDEN_LIVE_INTRODUCTION_PROMPT = `Say exactly this introduction: ${JSON.stringify(EDEN_LIVE_INTRODUCTION)} Do not add anything else and do not call a tool.`;
 // SDK 3 exposes historyConfig on the documented wire setup, but not yet on
@@ -145,7 +145,7 @@ export function buildEdenLiveConfig(options: { resumeHandle?: string; directory?
     systemInstruction: { parts: [{ text: options.directory ? directoryInstruction : EDEN_LIVE_SYSTEM_INSTRUCTION }] },
     inputAudioTranscription: {}, outputAudioTranscription: {}, sessionResumption: options.resumeHandle ? { handle: options.resumeHandle } : {},
     ...(options.resumeHandle ? {} : { historyConfig: { initialHistoryInClientContent: true } }),
-    realtimeInputConfig: { activityHandling: 'NO_INTERRUPTION', automaticActivityDetection: { disabled: false, startOfSpeechSensitivity: 'START_SENSITIVITY_LOW', endOfSpeechSensitivity: 'END_SENSITIVITY_LOW', prefixPaddingMs: 300, silenceDurationMs: 800 }, turnCoverage: 'TURN_INCLUDES_ONLY_ACTIVITY' },
+    realtimeInputConfig: { activityHandling: options.directory?'START_OF_ACTIVITY_INTERRUPTS':'NO_INTERRUPTION', automaticActivityDetection: { disabled: false, startOfSpeechSensitivity: 'START_SENSITIVITY_LOW', endOfSpeechSensitivity: 'END_SENSITIVITY_LOW', prefixPaddingMs: 300, silenceDurationMs: 800 }, turnCoverage: 'TURN_INCLUDES_ONLY_ACTIVITY' },
     tools: [{ functionDeclarations: structuredClone(EDEN_LIVE_TOOL_DEFINITIONS) }],
   } as EdenLiveConfig;
 }

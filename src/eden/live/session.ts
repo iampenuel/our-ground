@@ -1,4 +1,4 @@
-import { EDEN_LIVE_INTRODUCTION_PROMPT, edenLiveModelContext, validateEdenLiveTokenResponse, validateEdenLiveContext, normalizeEdenLiveWireToolCall, isEdenLiveResumeHandle } from '../../../shared/eden-live.ts';
+import { EDEN_LIVE_MAX_CALL_SECONDS, EDEN_LIVE_INTRODUCTION_PROMPT, edenLiveModelContext, validateEdenLiveTokenResponse, validateEdenLiveContext, normalizeEdenLiveWireToolCall, isEdenLiveResumeHandle } from '../../../shared/eden-live.ts';
 import type { EdenLiveTokenResponse, EdenLiveContext, EdenLiveToolCall as SharedLiveToolCall } from '../../../shared/eden-live.ts';
 import { validateEdenAgentIntent } from '../../../shared/eden-agent.ts';
 import { EDEN_PUBLIC_DESTINATIONS } from '../../../shared/eden-public-pages.ts';
@@ -33,6 +33,7 @@ export type EdenLiveTranscript = {role: 'user' | 'assistant'; text: string; fina
 export type EdenLiveToolCall = SharedLiveToolCall;
 export type EdenLiveTokenRequest = {nonce: string; context: EdenLiveContext; callId?: string; resumeHandle?: string};
 export type EdenLiveOptions = {
+  allowSpokenInterruption?:boolean;
   getToken(request: EdenLiveTokenRequest, signal: AbortSignal): Promise<EdenLiveTokenResponse>;
   releaseToken?(callId: string): void | Promise<void>;
   getContext(): EdenLiveContext;
@@ -102,7 +103,8 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
   const ledger = new Map<string, {signature: string; response?: Record<string, unknown>; sentEpoch?: number; cancelled: boolean; abort: AbortController}>();
   let actionQueue = Promise.resolve();
   const active = () => Boolean(abort && !abort.signal.aborted && !disposed);
-  const forwarding = () => active() && phase === 'listening' && !micMuted && Boolean(microphone?.active) && !deps.document.hidden && pendingTools === 0;
+  const duringPlayback=()=>options.allowSpokenInterruption===true && (phase==='speaking'||phase==='introducing')&&diagnostic.playbackStarts>diagnostic.playbackEnds;
+  const forwarding = () => active() && (phase === 'listening'||duringPlayback()) && !micMuted && Boolean(microphone?.active) && !deps.document.hidden && pendingTools === 0;
   const snapshot = (): EdenLiveSnapshot => ({phase, microphoneActive: Boolean(microphone?.active), forwarding: forwarding(), microphoneForwarding: forwarding(), microphoneMuted: micMuted, speakerMuted, ...(reason ? {reason} : {}), diagnostic:{...diagnostic,pendingTools,resumable:Boolean(resumeHandle),timeline:diagnostic.timeline.map(item=>({...item}))}});
   const publish = () => { microphone?.setForwarding?.(forwarding()); if (!disposed) options.onState(snapshot()); };
   function trace(event:LiveEvent){diagnostic.timeline.push({elapsedMs:Math.max(0,Math.round(deps.now()-diagnostic.startedAt)),connection:connectionEpoch,turn,phase,event});if(diagnostic.timeline.length>32)diagnostic.timeline.shift();}
@@ -128,7 +130,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
       const category=diagnostic.serviceCategory??diagnostic.providerCategory;
       if(category==='rate-limit-or-quota')message='Google’s voice service reached a rate or usage limit. Wait before trying again, or use text if available.';
       else if(category==='overload')message='Google’s voice service is temporarily busy. Try again later, or use text if available.';
-      else if(category==='local-limit')message='This local voice demo reached its usage limit. Continue with the page controls or text if available.';
+      else if(category==='local-limit')message='Voice calls have reached their current usage limit. Continue with the page controls or text if available.';
       else if(category==='access'||category==='authentication')message='Voice access expired or could not be confirmed. Review the current session notice to continue.';
     }
     diagnostic.failure = failure; cleanup(); setPhase(next, message);
@@ -186,6 +188,10 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
           onsetVoicedMs += duration; onsetGapMs = 0;
           if (onsetVoicedMs >= LOCAL_SPEECH_ONSET_MS) {
             const voiced = onsetVoicedMs;
+            if(duringPlayback()){
+              drainGeneration++;output?.stop();clearResponseTimer();
+              introducing=false;introPlayed=true;listening();
+            }
             if (!startUserTurn()) return;
             voiceMs = voiced; silenceMs = 0;
           }
@@ -304,7 +310,12 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     seenMessages.add(value);
     diagnostic.messages++; diagnostic.lastEvent = 'message';
     const content = record(value.serverContent), resume = record(value.sessionResumptionUpdate);
-    if (content?.interrupted === true) { discardOutput = true; drainGeneration++; output?.stop(); options.onAudioLevel(0); }
+    if (content?.interrupted === true) {
+      discardOutput=true;drainGeneration++;output?.stop();options.onAudioLevel(0);
+      if(options.allowSpokenInterruption&&!pendingTools){
+        clearResponseTimer();introducing=false;introPlayed=true;listening();
+      }
+    }
     const cancelled = record(value.toolCallCancellation)?.ids;
     if (Array.isArray(cancelled)) for (const id of cancelled) if (typeof id === 'string') { const entry = ledger.get(id); if (entry) { entry.cancelled = true; entry.abort.abort(); } }
     const calls = record(value.toolCall)?.functionCalls;
@@ -329,7 +340,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
       }
     }
     if (content?.generationComplete === true) { diagnostic.generationComplete++; diagnostic.lastEvent = 'generation-complete';trace('generation-complete'); }
-    if (content?.turnComplete === true) {
+    if (content?.turnComplete === true && !(options.allowSpokenInterruption&&content.interrupted)) {
       diagnostic.turnComplete++; diagnostic.lastEvent = 'turn-complete';
       trace('turn-complete');
       complete = true;
@@ -357,7 +368,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     if (!active() || epoch !== generation) { if (next.callId) void options.releaseToken?.(next.callId); return; }
     if (resuming && (next.callId !== token?.callId || !next.config.sessionResumption?.handle)) throw new Error('Voice resumption unavailable.');
     token = next;diagnostic.tokenExpiresAt=Date.parse(next.expiresAt);
-    if (!resuming) { deadline = Math.min(deps.now() + Math.min(300,next.maxCallSeconds) * 1000, Date.parse(next.expiresAt));diagnostic.appDeadline=deadline; timer(() => end('This call reached its time limit. Text is still available.','app-expiry'), Math.max(0,deadline-deps.now())); }
+    if (!resuming) { deadline = Math.min(deps.now() + Math.min(EDEN_LIVE_MAX_CALL_SECONDS,next.maxCallSeconds) * 1000, Date.parse(next.expiresAt));diagnostic.appDeadline=deadline; timer(() => end('This call reached its time limit. Text is still available.','app-expiry'), Math.max(0,deadline-deps.now())); }
     const socketEpoch = ++connectionEpoch; diagnostic.connections++; diagnostic.lastEvent = 'setup'; seenMessages = new WeakSet(); connectionAbort?.abort(); connectionAbort = new AbortController();
     diagnostic.connectionGeneration=socketEpoch;trace('setup');
     // Setup timeout is separate from call lifetime: do not leave it attached to

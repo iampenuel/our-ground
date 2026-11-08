@@ -23,7 +23,8 @@ export function mountHostedEden(host:HTMLElement) {
   const conversation=createHostedConversation(),mobile=matchMedia('(max-width:767px)');
   let session:string|undefined,expires=0,generation=0,eligibilityRevision=0;
   let eligible=false,denied=false,privacyAccepted=false,navigationOnly=false,expanded=false,inertApp:HTMLElement|undefined,priorInert=false;
-  let pending:'send'|'dictate'|undefined,accepting=false,showingSettings=false,retry=false;
+  let live:ReturnType<typeof import('./hosted-live')['mountHostedLive']>|undefined,liveActive=false,liveLoading=false;
+  let pending:'send'|'dictate'|'live'|undefined,accepting=false,showingSettings=false,retry=false;
   let turn:AbortController|undefined,dictation:AbortController|undefined,playback:AbortController|undefined;
   let lastReply:{reply:string;speechTicket?:string}|undefined;
   let forgetTimer:ReturnType<typeof setTimeout>|undefined;
@@ -34,14 +35,17 @@ export function mountHostedEden(host:HTMLElement) {
     get('.eden-welcome').hidden=Boolean(log.childElementCount);
     get<HTMLButtonElement>('[data-send]').disabled=!input.value.trim()||Boolean(pending||accepting||dictation);
     get('[data-send]').hidden=Boolean(turn||playback);
-    mic.disabled=Boolean(turn||pending||accepting||playback);
+    mic.disabled=Boolean(turn||pending||accepting||playback||liveActive||liveLoading);
+    input.disabled=liveActive||liveLoading;
+    const liveStart=host.querySelector<HTMLButtonElement>('[data-live-start]');
+    if(liveStart)liveStart.disabled=Boolean(turn||dictation||playback||pending||accepting||liveLoading);
     mic.setAttribute('aria-pressed',String(Boolean(dictation)));
     mic.setAttribute('aria-label',dictation?'Cancel dictation':'Dictate a message');
     mic.title=dictation?'Cancel dictation':'Dictate a message to review before sending';
     get('[data-dictation-label]').textContent=dictation?'Cancel':'Dictate';
     get('[data-preview]').textContent=playback?'Stop preview':'Preview device voice';
     get('[data-stop]').hidden=!turn&&!playback;get('[data-stop]').setAttribute('aria-label',playback?'Stop speaking':'Stop response');
-    get('[data-speak]').hidden=!lastReply||Boolean(turn||playback||dictation||pending);
+    get('[data-speak]').hidden=!lastReply||Boolean(turn||playback||dictation||pending||liveActive||liveLoading);
     get('[data-retry]').hidden=!retry||Boolean(turn||playback||pending);
     consent.hidden=!pending;get('[data-age-row]').hidden=eligible;get('[data-privacy-row]').hidden=privacyAccepted;
     get<HTMLButtonElement>('[data-continue]').disabled=accepting||(!eligible&&!age.checked)||(!privacyAccepted&&!privacy.checked);
@@ -80,7 +84,7 @@ export function mountHostedEden(host:HTMLElement) {
     }catch{if(id===eligibilityRevision){eligible=false;privacyAccepted=false;}}
     controls();
   }
-  function needConsent(action:'send'|'dictate'){
+  function needConsent(action:'send'|'dictate'|'live'){
     if(denied){notify('Eden is for adults 19 or older. The directory is available to everyone.');return true;}
     if(eligible&&privacyAccepted)return false;
     pending=action;retry=false;notify();controls();consent.scrollIntoView({block:'nearest'});
@@ -105,7 +109,7 @@ export function mountHostedEden(host:HTMLElement) {
       if(id!==generation)return;
       if(!privacyAccepted&&privacy.checked){privacyAccepted=true;store(noticeKey,EDEN_NOTICE_VERSION);}
       pending=undefined;accepting=false;controls();
-      if(action==='dictate')void dictate();else void send();
+      if(action==='live')void openLive();else if(action==='dictate')void dictate();else void send();
     }catch(e){if(id===generation)notify(e instanceof Error&&e.constructor===Error?e.message:'Eden could not start. Please try again.');}
     finally{if(id===generation){accepting=false;controls();}}
   }
@@ -114,9 +118,10 @@ export function mountHostedEden(host:HTMLElement) {
     if(correlationId)headers['x-eden-correlation-id']=correlationId;
     const res=await fetch('/api/v1/eden/hosted/'+path,{method:'POST',credentials:'same-origin',cache:'no-store',referrerPolicy:'no-referrer',headers,body:JSON.stringify(data),signal:AbortSignal.any([AbortSignal.timeout(26000),...(signal?[signal]:[])])});
     if(!res.ok){
-      const code=(await (path==='speech'?res.clone():res).json().catch(()=>null))?.error?.code;
+      const code=(await (path==='speech'||path.startsWith('live/')?res.clone():res).json().catch(()=>null))?.error?.code;
       if(res.status===401){session=undefined;expires=0;}
       if(code==='AGE_ACKNOWLEDGMENT_REQUIRED'){eligible=false;privacyAccepted=false;store(noticeKey,'');age.checked=false;privacy.checked=false;}
+      if(path.startsWith('live/'))return res;
       if(path==='speech')return res; // The voice player handles speech limits independently of text/actions.
       if(code==='EDEN_REGION_UNAVAILABLE'||code==='EDEN_DISABLED'||code==='EDEN_SESSION_UNAVAILABLE')navigationOnly=true;
       throw Error(res.status===429?'Gemini is busy. Please wait a moment, then try again.':code==='AGE_ACKNOWLEDGMENT_REQUIRED'?'Adult access expired. Try again to renew it.':navigationOnly?'AI chat is unavailable. You can still use page commands.':'Eden could not complete that request. You can try again or use the page controls.');
@@ -142,12 +147,12 @@ export function mountHostedEden(host:HTMLElement) {
   function stopTurn(){if(turn){turn.abort();turn=undefined;generation++;endSession();portrait.state('idle');}controls();}
   function forget(){
     clearTimeout(forgetTimer);generation++;eligibilityRevision++;cancelConsent();retry=false;
-    stopDictation();stopPlayback();stopTurn();endSession();conversation.clear();clearEdenRememberedSearch();
+    live?.end();stopDictation();stopPlayback();stopTurn();endSession();conversation.clear();clearEdenRememberedSearch();
     log.replaceChildren();input.value='';lastReply=undefined;get('.eden-unread').hidden=true;portrait.state('idle');notify();controls();
   }
   function touch(){clearTimeout(forgetTimer);forgetTimer=setTimeout(forget,15*60_000);}
   async function send(){
-    const text=input.value.trim();if(!text||turn||dictation||accepting||pending)return;
+    const text=input.value.trim();if(!text||turn||dictation||accepting||pending||liveActive||liveLoading)return;
     touch();stopPlayback();if(needConsent('send'))return;
     const controller=new AbortController();turn=controller;retry=false;const id=++generation;
     portrait.state('thinking');notify('Connecting…');controls();
@@ -164,6 +169,7 @@ export function mountHostedEden(host:HTMLElement) {
     }finally{if(turn===controller){turn=undefined;controls();}}
   }
   async function dictate(){
+    if(liveActive||liveLoading)return;
     if(dictation){stopDictation();notify('Dictation canceled.');return;}
     if(turn||pending||accepting)return;
     stopPlayback();touch();if(needConsent('dictate'))return;
@@ -185,6 +191,7 @@ export function mountHostedEden(host:HTMLElement) {
     finally{if(dictation===controller){dictation=undefined;portrait.state('idle');controls();}}
   }
   async function read(preview=false){
+    if(liveActive||liveLoading)return;
     if(!preview&&!lastReply)return;stopDictation();stopPlayback();touch();
     const controller=new AbortController();playback=controller;controls();notify('Preparing voice…');
     try{
@@ -201,6 +208,21 @@ export function mountHostedEden(host:HTMLElement) {
     }catch(e){if(!controller.signal.aborted)notify(e instanceof HostedVoiceError?e.message:'Voice playback is unavailable. You can read the reply here.');}
     finally{if(playback===controller){portrait.playbackEnded();playback=undefined;controls();}}
   }
+  async function openLive(){
+    if(liveActive||liveLoading||turn||playback||dictation||needConsent('live'))return;
+    liveLoading=true;const epoch=generation;controls();
+    try{
+      const {mountHostedLive}=await import('./hosted-live');
+      if(generation!==epoch||panel.hidden)return;
+      live??=mountHostedLive(host,{request,session:startSession,portrait,changed:active=>{liveActive=active;controls();},
+        release:callId=>{if(session)void fetch('/api/v1/eden/hosted/live/end',{method:'POST',credentials:'same-origin',keepalive:true,
+          headers:{'Content-Type':'application/json',Authorization:'Bearer '+session},body:JSON.stringify({callId,noticeVersion:EDEN_NOTICE_VERSION})}).catch(()=>{});}
+      });
+      live.prompt();
+    }catch{notify('Voice calls are unavailable. You can still type.');}
+    finally{liveLoading=false;controls();}
+  }
+  host.querySelector('[data-live-start]')?.addEventListener('click',()=>void openLive());
   function layout(){
     const open=!panel.hidden,modal=open&&expanded&&mobile.matches;
     document.body.classList.toggle('eden-assistant-expanded',expanded&&open);panel.setAttribute('aria-modal',String(modal));
@@ -213,7 +235,7 @@ export function mountHostedEden(host:HTMLElement) {
   function show(open:boolean,focus=true){
     panel.hidden=!open;launch.hidden=open;portrait.show(open);if(open)get('.eden-unread').hidden=true;launch.setAttribute('aria-expanded',String(open));document.body.classList.toggle('eden-assistant-open',open);
     if(open){touch();void refreshEligibility();context();if(focus)get('[data-expand]').focus({preventScroll:true});}
-    else{stopDictation();stopPlayback();cancelConsent();notify();if(showingSettings)showSettings(false);launch.focus({preventScroll:true});}
+    else{live?.end();stopDictation();stopPlayback();cancelConsent();notify();if(showingSettings)showSettings(false);launch.focus({preventScroll:true});}
     layout();controls();
   }
   function keydown(e:KeyboardEvent){
@@ -246,7 +268,7 @@ export function mountHostedEden(host:HTMLElement) {
   input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();void send();}});
   panel.addEventListener('keydown',keydown);mobile.addEventListener('change',layout);window.visualViewport?.addEventListener('resize',layout);window.visualViewport?.addEventListener('scroll',layout);
   document.addEventListener('visibilitychange',hide);
-  window.addEventListener('pagehide',()=>{forget();portrait.dispose();if(inertApp)inertApp.inert=priorInert;unsubscribe();window.speechSynthesis?.removeEventListener('voiceschanged',populateVoices);document.removeEventListener('visibilitychange',hide);mobile.removeEventListener('change',layout);window.visualViewport?.removeEventListener('resize',layout);window.visualViewport?.removeEventListener('scroll',layout);},{once:true});
+  window.addEventListener('pagehide',()=>{forget();live?.dispose();portrait.dispose();if(inertApp)inertApp.inert=priorInert;unsubscribe();window.speechSynthesis?.removeEventListener('voiceschanged',populateVoices);document.removeEventListener('visibilitychange',hide);mobile.removeEventListener('change',layout);window.visualViewport?.removeEventListener('resize',layout);window.visualViewport?.removeEventListener('scroll',layout);},{once:true});
   window.addEventListener('pageshow',e=>{if(e.persisted)location.reload();});
   controls();if(new URLSearchParams(location.search).get('eden')==='1')show(true,false);
 }

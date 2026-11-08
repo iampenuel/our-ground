@@ -28,6 +28,12 @@ export function renderHostedPanel(panel: HTMLElement) {
         <button type="button" class="eden-text" data-preview>Preview device voice</button>
       </section>
     </div>
+    ${import.meta.env.VITE_EDEN_HOSTED_LIVE==='true'?`<section class="eden-live-strip" aria-label="Voice call">
+      <button class="eden-text" type="button" data-live-start>Talk to Eden</button>
+      <div data-live-consent hidden><p>During a call, your microphone audio goes directly to Google. Google may use it for product improvement and human review. Avoid personal or medical information. Our Ground does not save call audio or transcripts.</p><button data-live-confirm type="button">Agree and start call</button> <button data-live-cancel type="button">Cancel</button></div>
+      <div data-live-actions hidden><span data-live-clock aria-label="Time remaining"></span>
+        <button data-live-mute type="button">Mute</button> <button data-live-interrupt type="button">Interrupt</button> <button data-live-end type="button">End call</button>
+      </div><span role="status" data-live-state></span></section>`:''}
     <p class="eden-state" role="status" aria-live="polite" aria-atomic="true" hidden></p>
     <form class="eden-composer"><label class="eden-sr-only" for="eden-command">Message Eden</label>
       <div class="eden-input"><textarea id="eden-command" rows="1" maxlength="${EDEN_MAX_COMMAND_LENGTH}" placeholder="Message Eden…" aria-describedby="eden-input-help"></textarea>

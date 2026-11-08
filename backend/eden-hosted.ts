@@ -1,3 +1,5 @@
+import {createHostedLive} from './eden-hosted-live.ts';
+import {EdenLiveError} from './eden-live.ts';
 import {createHash,randomBytes,randomUUID} from 'node:crypto';
 import type {Dependencies} from './app.ts';
 import {adultSessionNonce} from './adult-access.ts';
@@ -54,6 +56,8 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
     }
   };
   const agent=createEdenAgent(env,{repository:deps.repo,directoryCity:deps.directoryCity,hostedTurns:turns,create:options.create});
+  const liveEnabled=env.VITE_EDEN_HOSTED_LIVE==='true'&&env.VERCEL_ENV==='preview'&&env.VERCEL_PROJECT_ID===stagingProjectId;
+  const live=createHostedLive(store,agent,env.GEMINI_API_KEY??'');
   return async function handle(request:Request,path:string){
     // This is an ephemeral turn ID, never an auth token, session ID or content hash.
     const requestedId=request.headers.get('x-eden-correlation-id');
@@ -70,7 +74,7 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
       if(!nonce)reject(403,'AGE_ACKNOWLEDGMENT_REQUIRED','Acknowledge the age requirement to continue.');
       if(request.headers.get('x-vercel-ip-country')!=='US')reject(403,'EDEN_REGION_UNAVAILABLE','EDEN is available to adults using this demo in the United States.');
       if(!ready())reject(403,'EDEN_DISABLED','Hosted EDEN is unavailable.');
-      if(path==='status'&&request.method==='GET')return response({available:true,engine:'gemini',agentAvailable:true,speechAvailable:Boolean(speechModel),voice:EDEN_SPEECH_VOICE,speechModel:speechModel??null,rawAudioAccepted:false,liveTokensAvailable:false,noticeVersion:EDEN_NOTICE_VERSION});
+      if(path==='status'&&request.method==='GET')return response({available:true,engine:'gemini',agentAvailable:true,speechAvailable:Boolean(speechModel),voice:EDEN_SPEECH_VOICE,speechModel:speechModel??null,rawAudioAccepted:false,liveTokensAvailable:liveEnabled,noticeVersion:EDEN_NOTICE_VERSION});
       const origin=new URL(request.url).origin;
       if(request.method!=='POST'||request.headers.get('origin')!==origin)reject(403,'EDEN_ORIGIN_REQUIRED','Use the assistant on this site.');
       const binding=hash(origin+'|'+nonce);
@@ -80,13 +84,20 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         if(body.noticeVersion!==EDEN_NOTICE_VERSION||body.acknowledged!==true)reject(403,'EDEN_NOTICE_REQUIRED','Review the privacy notice first.');
         await admit(store,binding,'session',5,3600);
         const sessionToken=token(),expiresAt=new Date(Date.now()+seconds*1000).toISOString();
-        if(await store(['SET',key('session',hash(sessionToken)),binding,'EX',String(seconds),'NX'])!=='OK')reject(503,'EDEN_SESSION_UNAVAILABLE','Please try again.');
+        if(await store(['SET',key('session',hash(sessionToken)),binding+'|'+Date.parse(expiresAt),'EX',String(seconds),'NX'])!=='OK')reject(503,'EDEN_SESSION_UNAVAILABLE','Please try again.');
         return response({sessionToken,expiresAt,noticeVersion:EDEN_NOTICE_VERSION});
       }
       const credential=/^Bearer ([A-Za-z0-9_-]{43})$/.exec(request.headers.get('authorization')??'')?.[1];
       if(!validToken(credential))reject(401,'EDEN_SESSION_REQUIRED','Start an EDEN session.');
       const session=hash(credential!),sessionKey=key('session',session);
-      if(await store(['GET',sessionKey])!==binding)reject(401,'EDEN_SESSION_EXPIRED','Start an EDEN session.');
+      const storedBinding=await store(['GET',sessionKey]);
+      if(typeof storedBinding!=='string'||storedBinding.split('|')[0]!==binding)reject(401,'EDEN_SESSION_EXPIRED','Start an EDEN session.');
+      if(path.startsWith('live/')){
+        if(!liveEnabled)reject(403,'EDEN_LIVE_DISABLED','Calls are unavailable here.');
+        const result=await live(path,body,session,binding,Number(String(storedBinding).split('|')[1]),request.signal);
+        if(await store(['GET',sessionKey])!==storedBinding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
+        return response(result);
+      }
       if(path==='end'){fields(body,[]);await store(['DEL',sessionKey]);return response({ended:true});}
       const now=new Date(), day=now.toISOString().slice(0,10), minute=Math.floor(now.getTime()/60000);
       async function capacity(tts:boolean){
@@ -111,7 +122,7 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         if(body.noticeVersion!==EDEN_NOTICE_VERSION||!context||context.directory!=='public'||context.synthetic)reject(422,'EDEN_INVALID_REQUEST','Use the current public page.');
         await capacity(false);
         const decision=await agent.understand(body.symbols,context,body.controls,body.previous,request.signal);
-        if(await store(['GET',sessionKey])!==binding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
+        if(await store(['GET',sessionKey])!==storedBinding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
         return response(await withSpeech(decision,'reply' in decision?decision.reply:undefined));
       }
       if(path==='plan'){
@@ -120,7 +131,7 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         if(input.intent.goal==='check-open-now'&&input.context.selectedIndex!==input.intent.ordinal)reject(409,'EDEN_SELECTION_CHANGED','Select the clinic again before asking about its hours.');
         await capacity(false);
         const result=await agent.begin(input,session,request.signal);
-        if(await store(['GET',sessionKey])!==binding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
+        if(await store(['GET',sessionKey])!==storedBinding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
         return response(await withSpeech(result,'clarification' in result?result.clarification.question:undefined));
       }
       if(path==='result'){
@@ -129,7 +140,7 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         if(!context||context.directory!=='public'||context.synthetic||!validToken(body.turnToken)||body.noticeVersion!==EDEN_NOTICE_VERSION||!['done','failed'].includes(String(body.outcome)))return response({error:{code:'EDEN_INVALID_RESULT',message:'Use the current listing selection.'}},422);
         await capacity(false);
         const result=await agent.complete({turnToken:body.turnToken,outcome:body.outcome as 'done'|'failed',noticeVersion:EDEN_NOTICE_VERSION,resourceIds:context.resourceIds,context},session,request.signal);
-        if(await store(['GET',sessionKey])!==binding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
+        if(await store(['GET',sessionKey])!==storedBinding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
         return response(await withSpeech(result,result.reply));
       }
       if(path==='speech'){
@@ -139,7 +150,7 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         if(typeof reply!=='string')reject(409,'EDEN_SPEECH_EXPIRED','Choose a current verified answer.');
         await capacity(true);
         const audio=await (options.speech??synthesizePublicSpeech)(reply as string,speechModel!,env.GEMINI_API_KEY!,request.signal);
-        if(await store(['GET',sessionKey])!==binding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
+        if(await store(['GET',sessionKey])!==storedBinding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
         return new Response(new Uint8Array(audio.data),{headers:{...cacheHeaders,'Content-Type':'audio/wav','X-Eden-Speech-Voice':EDEN_SPEECH_VOICE,
           'X-Eden-Speech-Model':speechModel!,...(audio.reportedModel?{'X-Eden-Speech-Provider-Model':audio.reportedModel}:{}),
           'X-Eden-Speech-Text-SHA256':hash(reply as string)}});
@@ -160,7 +171,7 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         if(quota.retryAfterSeconds!==undefined)result.headers.set('Retry-After',String(quota.retryAfterSeconds));
         return result;
       }
-      if(error instanceof EdenSpeechError || error instanceof RequestInputError) return response({error:{code:error.code,message:error.message}},error.status);
+      if(error instanceof EdenLiveError || error instanceof EdenSpeechError || error instanceof RequestInputError) return response({error:{code:error.code,message:error.message}},error.status);
       return response({error:{code:'EDEN_UNAVAILABLE',message:'The assistant is temporarily unavailable.'}},503);
     }
   };
