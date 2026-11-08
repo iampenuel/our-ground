@@ -519,6 +519,9 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
         if(!item)return{status:'clarify',message:'That result number is not available. Choose a number from the current list.'};
         if(action.type==='details'){
           if(item.kind!=='directory')return{status:'clarify',message:'This mapped lead has no directory details. Review its source in the results list.'};
+          // This action now owns scrolling to the listing. A search may still
+          // have its results-section reveal queued for the next animation frame.
+          searchReveal.cancel();
           await performEdenVisibleAction({resultKey:item.key,operation:'details'},'Open the verified public result','press',signal,async stepSignal=>{
             const cancel=()=>resourceLoads.cancel();stepSignal.addEventListener('abort',cancel,{once:true});
             try{await openResource(item.record.id,true);}finally{stepSignal.removeEventListener('abort',cancel);}
@@ -528,6 +531,7 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
           return{status:'done',message:state.mode==='demo'?`Opened sample details for result ${action.index}. This listing is invented for the demonstration.`:`Opened public details for result ${action.index}. Check the listed source and confirm details directly.`,synthetic:state.mode==='demo'};
         }
         if(state.mode==='demo'&&!options.syntheticDemo)return{status:'clarify',message:'Fictional examples are not shown on the public map. You can open their details instead.'};
+        searchReveal.cancel();
         await performEdenVisibleAction({resultKey:item.key,operation:'select'},'Select the public result','press',signal,()=>{state.view='map';showMap();selectResult(item.key);updateUrl();publishEdenApplication();});
         return{status:'done',message:`Selected result ${action.index}. ${mapFailed?'The map is unavailable; use the selected list result.':mapLoading?'The map is loading.':map?'The map shows the same selection.':'The selected result is available in the list.'}`,synthetic:state.mode==='demo'};
       }

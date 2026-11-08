@@ -54,11 +54,16 @@ try{
   const screens=[];
   await capture.send('Page.startScreencast',{format:'jpeg',quality:77,maxWidth:1440,maxHeight:850,everyNthFrame:2});
   capture.on('Page.screencastFrame',f=>{if(screens.length<180)screens.push({t:f.metadata.timestamp,data:f.data});void capture.send('Page.screencastFrameAck',{sessionId:f.sessionId}).catch(()=>{});});
-  const search=await p.evaluate(async()=>{const {applyEdenPublicAction}=await import('/src/eden/live-actions.ts');
-    return applyEdenPublicAction({type:'search',category:'healthcare',city:'harrisburg-pa',radius:10},{publicDirectory:true,signal:new AbortController().signal});
+  // A tool chain may claim the listing before the next animation frame. Keep
+  // both operations in the same browser task with no driver or rendering wait.
+  const {search,details}=await p.evaluate(async()=>{
+    const {applyEdenPublicAction}=await import('/src/eden/live-actions.ts');
+    const options={publicDirectory:true,signal:new AbortController().signal};
+    const search=await applyEdenPublicAction({type:'search',category:'healthcare',city:'harrisburg-pa',radius:10},options);
+    const details=search.status==='done'?await applyEdenPublicAction({type:'details',index:1},options):null;
+    return {search,details};
   });
   assert.equal(search.status,'done');assert.equal(searches.length,1);
-  const details=await p.evaluate(async()=>{const {applyEdenPublicAction}=await import('/src/eden/live-actions.ts');return applyEdenPublicAction({type:'details',index:1},{publicDirectory:true,signal:new AbortController().signal});});
   assert.equal(details.status,'done');await p.getByText('Selected resource',{exact:true}).waitFor();
   await capture.send('Page.stopScreencast');
   const hits=await p.evaluate(()=>window.edenZoomHits);assert(hits.length>=6);
