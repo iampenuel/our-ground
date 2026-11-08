@@ -17,15 +17,12 @@ export function renderVercelSecurityConfig(base:VercelSecurityConfig,authOrigin?
   if(authOrigin && cspAuthOrigin(authOrigin)!==authOrigin)throw Error('Select an exact HTTPS Supabase project origin.');
   const config=structuredClone(base);
   config.git={...config.git,deploymentEnabled:false};
-  const commandPages=['/:page(support|discover|give|organizations|about|privacy)?','/resources/:id'];
-  const commandHeaders=[
-    {key:'Permissions-Policy',value:'camera=(), microphone=(self), on-device-speech-recognition=(self), geolocation=(self), payment=()'},
-    {key:'Content-Security-Policy',value:browserSecurityHeaders({https:true,authOrigin})['Content-Security-Policy'].replace("media-src 'none'",'media-src blob:')}
-  ];
+  const documentHeaders=browserSecurityHeaders({https:true,authOrigin});
+  documentHeaders['Permissions-Policy']='camera=(), microphone=(self), on-device-speech-recognition=(self), geolocation=(self), payment=()';
+  documentHeaders['Content-Security-Policy']=documentHeaders['Content-Security-Policy'].replace("media-src 'none'",'media-src blob:');
   config.headers=[
-    {source:'/(.*)',headers:Object.entries(browserSecurityHeaders({https:true,authOrigin})).map(([key,value])=>({key,value}))},
-    ...privatePaths.map(source=>({source,headers:Object.entries(privateDocumentHeaders).map(([key,value])=>({key,value}))})),
-    ...commandPages.map(source=>({source,headers:commandHeaders}))
+    {source:'/(.*)',headers:Object.entries(documentHeaders).map(([key,value])=>({key,value}))},
+    ...privatePaths.map(source=>({source,headers:Object.entries(privateDocumentHeaders).map(([key,value])=>({key,value}))}))
   ];
   return config;
 }
