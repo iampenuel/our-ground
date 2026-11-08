@@ -1,76 +1,64 @@
-/** A verifier issues a random, expiring code only after a 19+ threshold check.
- * Redis stores its digest; the application never collects evidence of age. */
-const cookieName = '__Host-og-adult';
-const sessionSeconds = 8 * 3600;
-type Config = { ADULT_SESSION_SECRET?: string; UPSTASH_REDIS_REST_URL?: string; UPSTASH_REDIS_REST_TOKEN?: string };
-const encoder = new TextEncoder();
-function base64(bytes: ArrayBuffer) {
-  return btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-}
-async function key(config: Config) {
-  if (!config.ADULT_SESSION_SECRET || config.ADULT_SESSION_SECRET.length < 43) throw Error('Eligibility unavailable');
+// A host-bound signed session records a self-declared age threshold only.
+const cookieName='__Host-og-audience';
+const maxSeconds=8*3600;
+const encoder=new TextEncoder();
+type Config={ADULT_SESSION_SECRET?:string};
+type Decision='19plus'|'under19';
+const url64=(bytes:ArrayBuffer)=>btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+async function signingKey(config:Config){
+  if(!config.ADULT_SESSION_SECRET||config.ADULT_SESSION_SECRET.length<43)throw Error('Age check unavailable');
   return crypto.subtle.importKey('raw',encoder.encode(config.ADULT_SESSION_SECRET),{name:'HMAC',hash:'SHA-256'},false,['sign','verify']);
 }
-export async function eligible(request: Request, config: Config) {
-  const cookie = request.headers.get('cookie')?.split(';').map(x=>x.trim()).find(x=>x.startsWith(cookieName+'='))?.slice(cookieName.length+1);
-  const match = /^(\d{10})\.([a-zA-Z0-9_-]{22})\.([a-zA-Z0-9_-]{43})$/.exec(cookie ?? '');
-  if (!match) return false;
-  const now = Math.floor(Date.now()/1000), exp = Number(match[1]);
-  if (exp <= now || exp > now+sessionSeconds) return false;
-  const signature = Uint8Array.from(atob(match[3].replace(/-/g,'+').replace(/_/g,'/')+'='),c=>c.charCodeAt(0));
-  return crypto.subtle.verify('HMAC',await key(config), signature, encoder.encode([new URL(request.url).origin,'19',match[1],match[2]].join('|')));
+const payload=(origin:string,token:string)=>encoder.encode('audience-v1|'+origin+'|'+token);
+async function decisionFor(request:Request,config:Config):Promise<Decision|null>{
+  const value=request.headers.get('Cookie')?.split(';').map(s=>s.trim()).find(s=>s.startsWith(cookieName+'='))?.slice(cookieName.length+1);
+  const parts=/^(19plus|under19)\.(\d{10})\.([A-Za-z0-9_-]{22})\.([A-Za-z0-9_-]{43})$/.exec(value??'');
+  const now=Math.floor(Date.now()/1000);
+  if(!parts||Number(parts[2])<=now||Number(parts[2])>now+maxSeconds)return null;
+  const mac=Uint8Array.from(atob(parts[4].replace(/-/g,'+').replace(/_/g,'/')+'='),c=>c.charCodeAt(0));
+  if(!await crypto.subtle.verify('HMAC',await signingKey(config),mac,payload(new URL(request.url).origin,parts.slice(1,4).join('.'))))return null;
+  return parts[1] as Decision;
 }
-export async function codeKey(origin: string, code: string) {
-  return 'og:adult:v1:'+base64(await crypto.subtle.digest('SHA-256',encoder.encode(origin+'|'+code)));
+export async function eligible(request:Request,config:Config){return await decisionFor(request,config)==='19plus';}
+async function mint(origin:string,decision:Decision,config:Config){
+  const token=[decision,Math.floor(Date.now()/1000)+maxSeconds,url64(crypto.getRandomValues(new Uint8Array(16)).buffer)].join('.');
+  const mac=url64(await crypto.subtle.sign('HMAC',await signingKey(config),payload(origin,token)));
+  return `${cookieName}=${token}.${mac}; Path=/; HttpOnly; Secure; SameSite=Strict`;
 }
-export async function redis(config: Config, command: string[]) {
-  const url = new URL(config.UPSTASH_REDIS_REST_URL ?? '');
-  if (url.protocol!=='https:' || !url.hostname.endsWith('.upstash.io') || url.username || url.password || url.search || url.pathname!=='/' || !config.UPSTASH_REDIS_REST_TOKEN) throw Error('Eligibility unavailable');
-  const response=await fetch(url,{method:'POST',headers:{Authorization:'Bearer '+config.UPSTASH_REDIS_REST_TOKEN,'Content-Type':'application/json'},body:JSON.stringify(command),signal:AbortSignal.timeout(4000),redirect:'error',cache:'no-store'});
-  if(!response.ok)throw Error('Eligibility unavailable');
-  const data=await response.json();
-  if(data.error)throw Error('Eligibility unavailable');
-  return data.result;
+const esc=(s:string)=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+function safePath(s:string|null){return s&&s.startsWith('/')&&!s.startsWith('//')&&!/[\\\u0000-\u001f]/.test(s)?s:'/';}
+const privacy='Our Ground uses a signed browser session cookie to remember your age acknowledgment. We do not collect a birth date, identity document or selfie. EDEN’s voice commands use on-device English recognition where supported. Google receives only approved directory commands and published facts. Google’s unpaid service may use those inputs and outputs for product improvement and human review. Private reports go to the sole directory operator. Leave out identifying or sensitive information.';
+const terms='Our Ground is a directory demo for people aged 19 and older. You may search for yourself or for someone else. Published information can change. Confirm hours, availability and eligibility directly with the listed organization. EDEN provides resource navigation and does not provide medical advice.';
+function page(title:string,content:string,status=200){
+  return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title} · Our Ground</title><link rel="stylesheet" href="/eligibility.css"></head><body><main><p>Our Ground</p><h1>${title}</h1>${content}<nav aria-label="Site policies"><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></nav></main></body></html>`,{status,headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'private, no-store','Referrer-Policy':'no-referrer','X-Robots-Tag':'noindex'}});
 }
-function redirectPath(value: string|null) {
-  if(!value || !value.startsWith('/') || value.startsWith('//') || /[\\\u0000-\u001f]/.test(value))return '/';
-  return value;
+const gate=(back:string)=>page('For adults 19 and older',`<p>You can search for yourself or on someone else’s behalf. Are you 19 or older?</p><form method="post" action="/eligibility"><input type="hidden" name="return" value="${esc(back)}"><button name="age" value="19plus">Yes, I am 19 or older</button> <button name="age" value="under19">I am under 19</button></form><p>Your choice is remembered for this browser session.</p>`);
+const under=()=>page('Our Ground is for adults 19 and older','<p>You cannot enter this demo. An adult can search on your behalf.</p>',403);
+const deny=(status:number)=>Response.json({error:{code:status===403?'AGE_ACKNOWLEDGMENT_REQUIRED':'AGE_CHECK_UNAVAILABLE'}},{status,headers:{'Cache-Control':'private, no-store'}});
+async function form(request:Request){
+  const reader=request.body?.getReader();if(!reader)return null;
+  const parts:Uint8Array[]=[];let size=0;
+  while(true){const r=await reader.read();if(r.done)break;size+=r.value.length;if(size>2048){await reader.cancel();return null;}parts.push(r.value);}
+  return new URLSearchParams(await new Blob(parts as BlobPart[]).text());
 }
-function gatePage(back:string, message='', status=200) {
-  const esc=(s:string)=>s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-  return new Response(`<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Age verification · Our Ground</title><style>body{margin:0;background:#f6f4ec;color:#163a30;font:1.125rem/1.55 system-ui}main{max-width:34rem;margin:8vh auto;padding:1.5rem}h1{font:2.5rem Georgia,serif}input,button{font:inherit;padding:.65em;max-width:100%;box-sizing:border-box}button{background:#163a30;color:white;border:0;margin-top:.7em}label,input{display:block}input:focus,button:focus{outline:3px solid #976e16;outline-offset:3px}</style><main><p>Our Ground</p><h1>Age verification</h1><p>Our Ground is for adults aged 19 or older. You can search for yourself or on someone else’s behalf.</p><p>For this limited launch, the operator gives you a one-time code after checking that you meet the age requirement. Our Ground does not collect your birth date or identity documents.</p>${message?`<p role="alert">${esc(message)}</p>`:''}<form method="post" action="/eligibility"><input type="hidden" name="return" value="${esc(back)}"><label for="code">Access code</label><input id="code" name="code" required maxlength="32" autocomplete="one-time-code" autocapitalize="none" spellcheck="false"><button type="submit">Continue</button></form><form method="post" action="/eligibility"><button name="under" value="yes">I am under 19</button></form></main></html>`,{status,headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'private, no-store','Referrer-Policy':'no-referrer','X-Robots-Tag':'noindex'}});
-}
-function denyAPI(status:number) {
-  return Response.json({error:{code:status===403?'AGE_VERIFICATION_REQUIRED':'ELIGIBILITY_UNAVAILABLE'}},{status,headers:{'Cache-Control':'private, no-store'}});
-}
-export async function adultGate(request:Request, config:Config, consume=redis):Promise<Response|null> {
+export async function adultGate(request:Request,config:Config):Promise<Response|null>{
   const url=new URL(request.url);
-  try {
-    if(url.pathname!=='/eligibility'){
-      if(await eligible(request,config))return null;
-      if(url.pathname.startsWith('/api/') || !['GET','HEAD'].includes(request.method))return denyAPI(403);
-      return gatePage(redirectPath(url.pathname+url.search));
+  try{
+    if(url.pathname==='/eligibility.css')return new Response('body{margin:0;background:#f6f4ec;color:#163a30;font:1.125rem/1.55 system-ui}main{max-width:34rem;margin:8vh auto;padding:1.5rem}h1{font:2.5rem Georgia,serif}button{font:inherit;color:white;background:#163a30;border:0;border-radius:.3em;padding:.7em;margin:.3em .3em .3em 0}a{color:inherit}button:focus-visible,a:focus-visible{outline:3px solid #976e16;outline-offset:4px}',{headers:{'Content-Type':'text/css','Cache-Control':'public,max-age=3600'}});
+    const current=await decisionFor(request,config);
+    if(request.method==='GET' && url.pathname==='/terms')return page('Terms',`<p>${terms}</p><a href="/">Return to Our Ground</a>`);
+    if(request.method==='GET' && url.pathname==='/privacy' && current!=='19plus')return page('Privacy',`<p>${privacy}</p><a href="/">Return to Our Ground</a>`);
+    if(url.pathname==='/eligibility' && request.method==='POST'){
+      if(request.headers.get('origin')!==url.origin||!request.headers.get('content-type')?.startsWith('application/x-www-form-urlencoded'))return deny(403);
+      if(current==='under19')return under();
+      const fields=await form(request),age=fields?.get('age');
+      if(age!=='19plus'&&age!=='under19')return deny(403);
+      const response=age==='under19'?under():new Response(null,{status:303,headers:{Location:new URL(safePath(fields?.get('return')??null),url.origin).href,'Cache-Control':'private,no-store'}});
+      response.headers.set('Set-Cookie',await mint(url.origin,age,config));return response;
     }
-    if(request.method==='GET'||request.method==='HEAD')return gatePage(redirectPath(url.searchParams.get('return')));
-    if(request.method!=='POST'||request.headers.get('origin')!==url.origin)return denyAPI(403);
-    if(!request.headers.get('content-type')?.startsWith('application/x-www-form-urlencoded'))return denyAPI(403);
-    // Bounded stream prevents oversized anonymous form bodies, even without Content-Length.
-    const reader=request.body?.getReader();if(!reader)return denyAPI(403);
-    const chunks:Uint8Array[]=[];let size=0;
-    while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>2048){await reader.cancel();return denyAPI(403);}chunks.push(value);}
-    const fields=new URLSearchParams(await new Blob(chunks as BlobPart[]).text());
-    const back=redirectPath(fields.get('return'));
-    if(fields.get('under')==='yes'){
-      const response=gatePage('/','You must be at least 19 to use Our Ground.',403);
-      response.headers.set('Set-Cookie',cookieName+'=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict');
-      return response;
-    }
-    const code=fields.get('code')?.trim()??'';
-    if(!/^[A-Za-z0-9_-]{32}$/.test(code))return gatePage(back,'Enter a valid, unused code from the operator.',403);
-    const exp=Math.floor(Date.now()/1000)+sessionSeconds;
-    const nonce=base64(crypto.getRandomValues(new Uint8Array(16)).buffer);
-    const signature=base64(await crypto.subtle.sign('HMAC',await key(config),encoder.encode([url.origin,'19',exp,nonce].join('|'))));
-    if(await consume(config,['GETDEL',await codeKey(url.origin,code)])!=='19+')return gatePage(back,'This code is invalid, expired or already used.',403);
-    return new Response(null,{status:303,headers:{Location:new URL(back,url.origin).href,'Cache-Control':'private, no-store','Set-Cookie':`${cookieName}=${exp}.${nonce}.${signature}; Path=/; Max-Age=${sessionSeconds}; HttpOnly; Secure; SameSite=Strict`}});
-  }catch{return url.pathname.startsWith('/api/')?denyAPI(503):gatePage('/','Age verification is temporarily unavailable. Please try again later.',503);}
+    if(current==='19plus' && /^\/(account|auth|staff)(\/|$)/.test(url.pathname))return page('Directory demo','<p>Organization account access is closed. <a href="/support">Find support</a>.</p>',404);
+    if(current==='19plus')return url.pathname==='/eligibility'?new Response(null,{status:303,headers:{Location:'/', 'Cache-Control':'private,no-store'}}):null;
+    if(url.pathname.startsWith('/api/')||!['GET','HEAD'].includes(request.method))return deny(403);
+    return current==='under19'?under():gate(safePath(url.pathname+url.search));
+  }catch{return url.pathname.startsWith('/api/')?deny(503):page('Age check unavailable','<p>Please try again later.</p>',503);}
 }

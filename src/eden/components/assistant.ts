@@ -1,3 +1,4 @@
+import {mountHostedEden} from '../hosted-assistant.ts';
 import {edenLiveModelContext} from '../../../shared/eden-live.ts';
 import './assistant.css';
 import {EDEN_CITIES,EDEN_MAX_COMMAND_LENGTH,EDEN_NOTICE_VERSION} from '../../../shared/eden-assistant.ts';
@@ -21,7 +22,7 @@ import {mountEdenDevelopmentDiagnostics,recordEdenDevelopmentIssue,parseEdenDeve
 import type {EdenDevelopmentCapacity} from '../development-diagnostics.ts';
 
 type Status={agentAvailable:boolean;speechAvailable:boolean;liveAvailable:boolean;localOwnerAvailable:boolean;reviewerCodeRequired:boolean;evaluationData?:'fictional_demo'|'public_directory';noticeVersion:string;capacity?:EdenDevelopmentCapacity};
-export type EdenAssistantOptions={voiceAllowed?:boolean;open?:boolean;prepareReviewScenario?:(id:EdenReviewScenarioId,signal:AbortSignal)=>Promise<void>};
+export type EdenAssistantOptions={hostedCommands?:boolean;voiceAllowed?:boolean;open?:boolean;prepareReviewScenario?:(id:EdenReviewScenarioId,signal:AbortSignal)=>Promise<void>};
 const statusLabels:Record<EdenState,string>={idle:'',listening:'',thinking:'Thinking…',searching:'Searching…',speaking:'Speaking',success:'',clarifying:'A little more information',unable:'Unable to complete this request'};
 /** All accepted turns invoke Gemini. Local parsing reduces input for privacy;
  * it never supplies an assistant answer or executes a substitute conversation. */
@@ -40,6 +41,7 @@ export function mountEdenAssistant(options:EdenAssistantOptions={}){
   <form class="eden-composer" hidden><label class="eden-sr-only" for="eden-command">Message Eden</label><div class="eden-input"><textarea id="eden-command" rows="1" maxlength="${EDEN_MAX_COMMAND_LENGTH}" placeholder="Message Eden…" aria-describedby="eden-input-help"></textarea><div class="eden-composer-actions"><button type="button" class="eden-icon" data-voice aria-label="Voice muted. Turn voice on" aria-pressed="true" hidden>♩</button><button type="button" class="eden-text" data-speak hidden>Play confirmation</button><button type="button" class="eden-send eden-stop" data-stop-response aria-label="Stop response" hidden>■</button><button type="button" class="eden-send eden-stop" data-stop aria-label="Stop voice" hidden>■</button><button type="submit" class="eden-send" data-send aria-label="Send request">↑</button></div></div><p id="eden-input-help">Please leave out personal, medical and financial details.</p></form>
   <footer class="eden-footer"><button type="button" class="eden-text" data-reset>New chat</button><button type="button" class="eden-call-start" data-call hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h4l2 5-3 2a15 15 0 0 0 6 6l2-3 5 2v4a2 2 0 0 1-2 2C10 21 3 14 3 5a2 2 0 0 1 2-2Z"/></svg>Call Eden</button><details class="eden-privacy"><summary>Privacy &amp; motion</summary><div><p>Eden uses Gemini to plan permitted actions and explain listing information. Conversation stays in this tab’s memory until reset or expiry. Google’s processing is separate. <a href="/privacy#edenPrivacyTitle">Privacy details</a>.</p><label><input type="checkbox" data-motion> Reduce character motion</label></div></details></footer></section>`;
   document.body.append(host);
+  if(options.hostedCommands){mountHostedEden(host);return;}
   const developmentDiagnostics=mountEdenDevelopmentDiagnostics(()=>{void loadStatus();});
   const get=<T extends HTMLElement>(selector:string)=>host.querySelector<T>(selector)!;
   const launch=get<HTMLButtonElement>('.eden-launch'),panel=get('#eden-panel'),input=get<HTMLTextAreaElement>('#eden-command'),log=get('.eden-log'),stateText=get('.eden-state');

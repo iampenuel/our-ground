@@ -190,6 +190,32 @@
           "value": "no-referrer"
         }
       ]
+    },
+    {
+      "source": "/:page(support|discover|give|organizations|about|privacy)?",
+      "headers": [
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(self), on-device-speech-recognition=(self), geolocation=(self), payment=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-elem 'self'; style-src-attr 'none'; img-src 'self' data: blob: https://maps.geoapify.com; font-src 'self'; worker-src 'self' blob:; connect-src 'self' https://api.geoapify.com https://maps.geoapify.com; manifest-src 'self'; frame-src 'none'; media-src blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+        }
+      ]
+    },
+    {
+      "source": "/resources/:id",
+      "headers": [
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(self), on-device-speech-recognition=(self), geolocation=(self), payment=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-elem 'self'; style-src-attr 'none'; img-src 'self' data: blob: https://maps.geoapify.com; font-src 'self'; worker-src 'self' blob:; connect-src 'self' https://api.geoapify.com https://maps.geoapify.com; manifest-src 'self'; frame-src 'none'; media-src blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+        }
+      ]
     }
   ]
 }

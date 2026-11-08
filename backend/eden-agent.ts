@@ -8,13 +8,18 @@ import { EDEN_AGENT_CLARIFICATION_QUESTIONS, validateEdenAgentAction, validateEd
 import type { EdenAgentPlanResponse, EdenAgentContext, EdenAgentReplyResponse, EdenAgentRequest, EdenAgentResourceId, EdenAgentResultRequest } from '../shared/eden-agent.ts';
 import type { EdenSpeechPhrase } from '../shared/eden-speech.ts';
 import { createEdenProvider, EdenProviderError } from './eden-provider.ts';
-import type { EdenModelRequest } from './eden-provider.ts';
+import type { EdenModelRequest, EdenTextModel } from './eden-provider.ts';
 import type { Repository } from './app.ts';
 import { EDEN_LIVE_TOOL_DEFINITIONS } from '../shared/eden-live.ts';
 import { edenPublicPageFacts } from '../shared/eden-public-pages.ts';
 
 export type EdenAgentRepository = Pick<Repository, 'search' | 'detail'>;
-export type EdenAgentOptions = { repository?: EdenAgentRepository; directoryCity?: DirectoryCityLookup; now?: () => number; create?: (payload: EdenModelRequest, signal: AbortSignal) => Promise<unknown> };
+export interface EdenHostedTurnStore {
+  model: EdenTextModel;
+  save(key:string, turn:Pending):Promise<void>;
+  take(key:string, binding:string):Promise<Pending|null>;
+}
+export type EdenAgentOptions = { hostedTurns?: EdenHostedTurnStore; repository?: EdenAgentRepository; directoryCity?: DirectoryCityLookup; now?: () => number; create?: (payload: EdenModelRequest, signal: AbortSignal) => Promise<unknown> };
 export const EDEN_AGENT_TURN_TTL_MS = 120_000;
 export const EDEN_AGENT_ACTION_TOOL = 'perform_public_resource_action';
 export const EDEN_AGENT_REPLY_TOOL = 'compose_verified_reply';
@@ -161,11 +166,12 @@ function contextFacts(context:EdenAgentContext):Fact[]{
 }
 
 export function createEdenAgent(environment: Record<string, string | undefined>, options: EdenAgentOptions = {}) {
-  const env = { ...environment }, providerStatus = createEdenProvider(env).status, now = options.now ?? Date.now;
+  const env = { ...environment }, localStatus = createEdenProvider(env).status, now = options.now ?? Date.now;
+  const providerStatus = options.hostedTurns ? () => ({available:true,model:options.hostedTurns!.model}) : localStatus;
   const pending = new Map<string, Pending>();
   const operations = new Map<string, { controller: AbortController; done: Promise<void>; complete: () => void }>();
   let client: GoogleGenAI | undefined;
-  const directory = env.BACKEND_DATA_MODE === 'postgres' && env.ALLOW_DEMO_DATA === 'false' && env.EDEN_LOCAL_DIRECTORY_ENABLED === 'true'
+  const directory = env.BACKEND_DATA_MODE === 'postgres' && env.ALLOW_DEMO_DATA === 'false' && (options.hostedTurns || env.EDEN_LOCAL_DIRECTORY_ENABLED === 'true')
     && env.DATABASE_URL && options.repository && options.directoryCity ? createEdenDirectory(options.repository,options.directoryCity) : undefined;
   const status = () => ({ available: providerStatus().available && Boolean(options.repository) &&
     (Boolean(directory) || env.BACKEND_DATA_MODE === 'demo' && env.ALLOW_DEMO_DATA === 'true'), dataKind: directory ? 'public_directory' as const : 'fictional_demo' as const });
@@ -350,7 +356,9 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       const query = queryFor(action, request.context), expectedIds = directory ? undefined : await idsFor(query);
       active.signal.throwIfAborted();
       const turnToken = randomBytes(32).toString('base64url');
-      pending.set(hash(turnToken), { binding, expiresAt: now() + EDEN_AGENT_TURN_TTL_MS, request, action, query, expectedIds });
+      const item = { binding, expiresAt: now() + EDEN_AGENT_TURN_TTL_MS, request, action, query, expectedIds };
+      if (options.hostedTurns) await options.hostedTurns.save(hash(turnToken), item);
+      else pending.set(hash(turnToken), item);
       return { engine: 'gemini', turnToken, action };
       } finally { active.finish(); }
     },
@@ -358,7 +366,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       if (!status().available) throw new EdenProviderError('EDEN_DISABLED', 403);
       purge();
       const result = validateEdenAgentResultRequest(value), key = result ? hash(result.turnToken) : '';
-      const item = pending.get(key);
+      const item = options.hostedTurns && result ? await options.hostedTurns.take(key,binding) : pending.get(key);
       if (!result || !item || item.binding !== binding || item.expiresAt <= now()) throw new EdenProviderError('EDEN_AGENT_TURN_EXPIRED', 409);
       const active = operation(binding, signal);
       try {
@@ -390,6 +398,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       else if(!failed&&orientation)requirements.requiredFactIds.push('platform-purpose','platform-actions');
       else if (!failed && (item.action.type==='read-page'||item.action.type==='navigate-public')) requirements.requiredFactIds.push('page-'+confirmedContext.page+'-1');
       if (!failed && item.action.type==='read-hours') requirements.requiredFactIds.push('hours-unverified');
+      if (!failed && options.hostedTurns && item.action.type==='read-hours') requirements.requiredFactIds.push(`resource-${item.action.index}-title`);
       if (!failed && directory && item.action.type==='read-hours') requirements.requiredFactIds.push(`resource-${item.action.index}-hours`);
       if (!failed && (item.action.type === 'search' || item.action.type === 'radius')) requirements.requiredFactIds.push('result-count');
       if (!failed && item.action.type === 'radius') requirements.requiredFactIds.push('search-radius');
