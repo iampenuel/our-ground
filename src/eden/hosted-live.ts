@@ -1,5 +1,5 @@
 import {EDEN_NOTICE_VERSION} from '../../shared/eden-assistant.ts';
-import {edenLiveModelContext,validateEdenLiveContext,validateEdenLiveTokenResponse} from '../../shared/eden-live.ts';
+import {edenLiveModelContext,validateEdenLiveContext,validateHostedLiveClock} from '../../shared/eden-live.ts';
 import {currentHostedContext} from './hosted-conversation.ts';
 import {createEdenLiveToolExecutor} from './live-actions.ts';
 import {createEdenLiveSession,EdenLiveServiceError,type EdenLiveSnapshot} from './live/session.ts';
@@ -59,14 +59,21 @@ export function mountHostedLive(host:HTMLElement,o:Options){
   async function api(path:string,body:unknown,signal:AbortSignal){
     const r=await o.request(path,body,signal);
     if(r.ok)return r.json();
+    throw await serviceError(r);
+  }
+  async function serviceError(r:Response){
     const code=(await r.json().catch(()=>null))?.error?.code;
-    throw new EdenLiveServiceError(code==='EDEN_LIVE_PROVIDER_QUOTA'?'rate-limit-or-quota':r.status===429?'local-limit':r.status===403||r.status===401?'access':'application',r.status,code);
+    return new EdenLiveServiceError(code==='EDEN_LIVE_PROVIDER_QUOTA'?'rate-limit-or-quota':r.status===429?'local-limit':r.status===403||r.status===401?'access':'application',r.status,code);
   }
   const live=createEdenLiveSession({
     allowSpokenInterruption:true,getContext:publicContext,
     async getToken(req,signal){
       if(!await o.session(signal))throw new EdenLiveServiceError('access',403);
-      const credential=validateEdenLiveTokenResponse(await api('live/token',{...req,noticeVersion:EDEN_NOTICE_VERSION,liveAudioAcknowledged:true},signal));
+      const start=performance.now();
+      const response=await o.request('live/token',{...req,noticeVersion:EDEN_NOTICE_VERSION,liveAudioAcknowledged:true},signal);
+      if(!response.ok)throw await serviceError(response);
+      const body=await response.json();
+      const credential=validateHostedLiveClock(body,response.headers.get('Date'),performance.now()-start);
       if(!credential)throw new EdenLiveServiceError('application',503);
       if(callId!==credential.callId){
         callId=credential.callId;

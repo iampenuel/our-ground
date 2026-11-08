@@ -15,6 +15,7 @@ export async function applyEdenPublicAction(value: EdenAction, options: { signal
   const action=validateEdenAction(value),expected=options.expectedRevision??edenPageRevision();
   if(!action||options.signal.aborted)return{status:'unavailable',message:'This action is unavailable.'};
   if(expected!==edenPageRevision())return{status:'clarify',message:'The page changed. Please try the action again.'};
+  if(action.type==='show-map'){const {applyPageControlResult}=await import('./page-controls.ts');return applyPageControlResult(edenPageContext().page==='resource'?'back-to-map':'show-map',options.signal);}
   if(action.type==='navigate-public'){const{navigateEdenPublicPage}=await import('./public-navigation.ts');await presentEdenNavigation(action.page,options.signal,signal=>navigateEdenPublicPage(action.page,{signal,evaluationData:options.evaluationData,publicDirectory:options.publicDirectory}));return edenLocalPageContext().route===action.page?{status:'done',message:'The public page is open.'}:{status:'unavailable',message:'The requested page could not be opened.'};}
   if(action.type==='search'||action.type==='navigate-support'){
     if(!['support','resource'].includes(edenPageContext().page)){

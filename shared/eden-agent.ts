@@ -264,6 +264,7 @@ export function reduceEdenAgentInput(raw: unknown, context: EdenAgentContext, pe
     case 'details': case 'select': intent = { goal: 'inspect-resource', ordinal: action.index, view: action.type === 'details' ? 'details' : 'map' }; break;
     case 'refine': intent = { goal: 'change-category', category: action.category }; break;
     case 'read-page':intent={goal:'explain-page'};break;
+    case 'show-map':return {status:'unsupported',message:'Use the directory map control.'}; // Host surface and Live tools validate this control separately.
     case 'navigate-public':intent={goal:'navigate-public',page:action.page};break;
     case 'read-hours':intent={goal:'check-open-now',ordinal:action.index};break;
     default: intent = { goal: action.type };

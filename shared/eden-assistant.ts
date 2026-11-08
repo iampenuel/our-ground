@@ -91,6 +91,7 @@ export type EdenLocalOnlyAction =
   | { type: 'read-results' }
   | { type: 'clear-filters' }
   | { type: 'read-page' }
+  | { type: 'show-map' }
   | { type: 'navigate-public'; page:EdenPublicDestination }
   | { type: 'read-hours'; index:number };
 export type EdenAction =
@@ -159,7 +160,7 @@ export function validateEdenAction(value: unknown): EdenAction | null {
         ? { type: action.type, index: action.index } : null;
     case 'help':
       return only(action, ['type']) ? { type: 'help' } : null;
-    case 'navigate-support': case 'read-results': case 'clear-filters': case 'read-page':
+    case 'navigate-support': case 'read-results': case 'clear-filters': case 'read-page': case 'show-map':
       return only(action, ['type']) ? { type: action.type } : null;
     case 'navigate-public':return only(action,['type','page'])&&isEdenPublicDestination(action.page)?{type:'navigate-public',page:action.page}:null;
     default: return null;
@@ -172,7 +173,7 @@ export function validateEdenProviderAction(value: unknown): EdenProviderAction |
   // server's incoming provider boundary. City removal happens locally, explicitly.
   if (!action || owns(action, 'city')) return null;
   const safe = validateEdenAction(action);
-  if (!safe || ['navigate-support','read-results','clear-filters','read-page','read-hours','navigate-public'].includes(safe.type)) return null;
+  if (!safe || ['navigate-support','read-results','clear-filters','read-page','read-hours','navigate-public','show-map'].includes(safe.type)) return null;
   return safe as EdenProviderAction;
 }
 
@@ -182,7 +183,7 @@ export function validateEdenProviderAction(value: unknown): EdenProviderAction |
  */
 export function providerEdenAction(action: EdenAction): EdenProviderAction {
   const safe = validateEdenAction(action);
-  if (!safe || safe.type === 'navigate-support' || safe.type === 'read-results' || safe.type === 'clear-filters'||safe.type==='read-page'||safe.type==='read-hours'||safe.type==='navigate-public') throw new Error('Invalid EDEN action.');
+  if (!safe || safe.type === 'navigate-support' || safe.type === 'read-results' || safe.type === 'clear-filters'||safe.type==='read-page'||safe.type==='read-hours'||safe.type==='navigate-public'||safe.type==='show-map') throw new Error('Invalid EDEN action.');
   if (safe.type !== 'search') return safe;
   return { type: 'search', category: safe.category, ...(safe.radius !== undefined ? { radius: safe.radius } : {}) };
 }

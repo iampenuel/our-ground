@@ -40,6 +40,7 @@ const outcomeMessages: Record<EdenAction['type'], string> = {
   select: 'The resource is selected.',
   refine: 'Your search filters have been updated.',
   'clear-filters': 'Your search filters have been cleared.',
+  'show-map': 'The map section is open. Check its status for available locations.',
   'read-results': 'Your current results are ready to review.',
   'navigate-support': 'Find Support is open.',
   help: 'You can search for resources or ask about listed results.',
@@ -157,6 +158,7 @@ function confirmDirectoryAction(action:EdenAction,before:EdenAgentContext,after:
   if (before.directory !== 'public' || after?.directory !== 'public') return reject();
   if (query && (after.searchState !== 'ready' || !['support','resource'].includes(after.page) ||
     after.cityId !== query.cityId || after.category !== query.category || after.radius !== query.radius)) return reject();
+  if(action.type==='show-map'&&(after.page!=='support'||!after.mapState||after.mapState==='not-shown'))return reject();
   if (action.type === 'details' || action.type === 'select' || action.type === 'read-hours') {
     if (!ids[action.index-1] || before.resourceIds[action.index-1] !== ids[action.index-1]) return reject();
     if ((action.type !== 'read-hours' || before.selectedIndex !== undefined) && after.selectedIndex !== action.index) return reject();
@@ -334,7 +336,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       const action = validateEdenAction(value), context = validateEdenAgentContext(contextValue);
       if (action?.type === 'read-hours' && context?.selectedIndex !== undefined && action.index !== context.selectedIndex) throw new EdenProviderError('EDEN_AGENT_CONTEXT_CHANGED',409);
       if (!action || !context || !modeMatches(context) || (action.type === 'search' && (!action.city || !action.radius))
-        || (['radius', 'refine', 'details', 'select', 'read-results', 'clear-filters','read-hours'].includes(action.type) && !displayedQuery(context))
+        || (['radius', 'refine', 'details', 'select', 'read-results', 'clear-filters','read-hours','show-map'].includes(action.type) && !displayedQuery(context))
         || ((action.type === 'details' || action.type === 'select'||action.type==='read-hours') && action.index > context.resultCount)) throw new EdenProviderError('EDEN_LIVE_INVALID_ACTION', 422);
       const beforeQuery = displayedQuery(context);
       if (action.type !== 'clear-filters' && !same(await idsFor(beforeQuery), context.resourceIds)) throw new EdenProviderError('EDEN_AGENT_CONTEXT_CHANGED', 409);
