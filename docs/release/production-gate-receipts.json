@@ -438,7 +438,7 @@
     "backup_steward": null,
     "alternate_recovery_custodian_tested": false,
     "private_postlaunch_backup_destination_approved": false,
-    "new_production_checkpoint_off_device": false,
+    "new_production_checkpoint_off_device": true,
     "approval_to_promote": false,
     "public_gemini": false
   },
@@ -524,7 +524,7 @@
     "public_id_digests_match": true,
     "restricted_steward_acl_preserved": true,
     "private_operational_records": 0,
-    "off_device_copy": false
+    "off_device_copy": true
   },
   "production_hold_transaction": {
     "source_ref": "amcqkonluwavilekgjww",
@@ -708,5 +708,12 @@
     "owner_acknowledged_in_release_conversation": true,
     "public_form_sends_email": false,
     "address_displayed_in_pinned_ui": false
+  },
+  "production_off_device_copy": {
+    "destination": "/Volumes/Penuel Back/Our Ground Backups/production-directory-20261108T033638Z/directory.dump.gpg",
+    "sha256": "d3504ee9bf740cadb09e239d786aaa0f6cc973a0e975e244705e9b4ed1f1143c",
+    "bytes": 12372855,
+    "verified_after_copy": true,
+    "included_keys_or_credentials": false
   }
 }
