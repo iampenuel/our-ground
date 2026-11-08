@@ -10,6 +10,7 @@ export interface EdenPageAdapter {
   context(): EdenPageContext;
   presentation?():Partial<EdenLocalPageContext>;
   submit?(signal:AbortSignal):Promise<EdenActionResult>;
+  back?(signal:AbortSignal):EdenActionResult;
   execute(action: EdenAction, signal: AbortSignal): Promise<EdenActionResult>;
 }
 let active: EdenPageAdapter | undefined;
@@ -64,6 +65,11 @@ export function registerEdenPage(adapter: EdenPageAdapter) {
 export async function executeDirectoryControl(signal:AbortSignal):Promise<EdenActionResult> {
   if(signal.aborted || publicRoute()!=='support' || !active?.submit) return {status:'unavailable',message:'The search control is unavailable on this page.'};
   return active.submit(signal);
+}
+export function closeEdenPublicDetails(signal:AbortSignal):EdenActionResult {
+  signal.throwIfAborted();
+  if(publicRoute()!=='support'||!active?.back)return{status:'unavailable',message:'The public details view is unavailable.'};
+  return active.back(signal);
 }
 export function edenActionLabel(action: EdenAction) {
   if(action.type==='navigate-support')return'Open Find Support';

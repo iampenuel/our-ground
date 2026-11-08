@@ -21,7 +21,7 @@ export function renderHostedPanel(panel: HTMLElement) {
       <section class="eden-settings" id="eden-settings" aria-labelledby="eden-settings-title" hidden>
         <h3 id="eden-settings-title" tabindex="-1">Privacy &amp; voice</h3>
         <p>Google processes approved requests and may use them for product improvement and human review. Keep personal, medical and financial details out of chat.</p>
-        <p>Dictation requires on-device English recognition. Review the words in your draft before sending. Our Ground does not record or store audio.</p>
+        <p>Dictation requires on-device English recognition. Review the words in your draft before sending. Our Ground does not record or store microphone audio. Read reply uses Aoede for eligible public answers. To use a device voice instead, select it below.</p>
         <p>Chat history stays in this page’s memory. New chat clears it. <a href="/privacy#edenPrivacyTitle">Full privacy details</a></p>
         <label for="eden-read-voice">Read replies with</label><select id="eden-read-voice"></select>
         <button type="button" class="eden-text" data-preview>Preview device voice</button>

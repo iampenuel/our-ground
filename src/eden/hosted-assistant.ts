@@ -2,8 +2,9 @@ import {EDEN_NOTICE_VERSION} from '../../shared/eden-assistant.ts';
 import {clearEdenRememberedSearch,edenLocalPageContext,subscribeEdenApplication} from './application-bridge.ts';
 import {createHostedConversation} from './hosted-conversation.ts';
 import {hearOneCommand,localEnglishVoices,prepareLocalRecognition} from './command-voice.ts';
+import {mountHostedPortrait} from './runtime/hosted-portrait.ts';
 import {renderHostedPanel} from './hosted-panel.ts';
-import {readHostedReply} from './hosted-playback.ts';
+import {HostedVoiceError,readHostedReply} from './hosted-playback.ts';
 
 const noticeKey='og.eden.notice',voiceKey='og.eden.deviceVoice';
 const pageNames={home:'Our Ground',support:'Find Support',give:'Give Support',organizations:'For Organizations',about:'About',privacy:'Privacy',discover:'Discovery',resource:'Resource details'};
@@ -14,6 +15,7 @@ export function mountHostedEden(host:HTMLElement) {
   const get=<T extends HTMLElement>(s:string)=>host.querySelector<T>(s)!;
   const panel=get('#eden-panel'),launch=get<HTMLButtonElement>('.eden-launch');
   host.classList.add('eden-hosted');renderHostedPanel(panel);
+  const portrait=mountHostedPortrait(host);
   const input=get<HTMLTextAreaElement>('#eden-command'),status=get('.eden-state'),log=get('.eden-log'),body=get('.eden-body');
   const mic=get<HTMLButtonElement>('[data-call]'),voiceSelect=get<HTMLSelectElement>('#eden-read-voice');
   const age=get<HTMLInputElement>('[data-adult]'),privacy=get<HTMLInputElement>('[data-hosted-consent]');
@@ -57,8 +59,12 @@ export function mountHostedEden(host:HTMLElement) {
   }
   function populateVoices(){
     const voices=localEnglishVoices();
-    voiceSelect.replaceChildren(new Option('Automatic',''),...voices.map(v=>new Option(v.name,v.voiceURI)));
-    voiceSelect.value=voices.some(v=>v.voiceURI===voicePreference)?voicePreference:'';
+    voiceSelect.replaceChildren(new Option('Eden · Aoede (Google)',''),...voices.map(v=>new Option('Device · '+v.name,v.voiceURI)));
+    if(voicePreference&&!voices.some(v=>v.voiceURI===voicePreference)){
+      const missing=new Option('Selected device voice unavailable',voicePreference);
+      missing.disabled=true;voiceSelect.add(missing);
+    }
+    voiceSelect.value=voicePreference;
     get<HTMLButtonElement>('[data-preview]').disabled=!voices.length;
   }
   async function refreshEligibility(){
@@ -100,8 +106,9 @@ export function mountHostedEden(host:HTMLElement) {
     }catch(e){if(id===generation)notify(e instanceof Error&&e.constructor===Error?e.message:'Eden could not start. Please try again.');}
     finally{if(id===generation){accepting=false;controls();}}
   }
-  async function request(path:string,data:unknown,signal?:AbortSignal){
+  async function request(path:string,data:unknown,signal?:AbortSignal,correlationId?:string){
     const headers:Record<string,string>={'Content-Type':'application/json'};if(session)headers.Authorization='Bearer '+session;
+    if(correlationId)headers['x-eden-correlation-id']=correlationId;
     const res=await fetch('/api/v1/eden/hosted/'+path,{method:'POST',credentials:'same-origin',cache:'no-store',referrerPolicy:'no-referrer',headers,body:JSON.stringify(data),signal:AbortSignal.any([AbortSignal.timeout(26000),...(signal?[signal]:[])])});
     if(!res.ok){
       const code=(await res.json().catch(()=>null))?.error?.code;
@@ -126,28 +133,28 @@ export function mountHostedEden(host:HTMLElement) {
     const prior=session;session=undefined;expires=0;
     if(prior)void fetch('/api/v1/eden/hosted/end',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json',Authorization:'Bearer '+prior},body:'{}',keepalive:true}).catch(()=>{});
   }
-  function stopDictation(){dictation?.abort();dictation=undefined;controls();}
-  function stopPlayback(){playback?.abort();playback=undefined;controls();}
-  function stopTurn(){if(turn){turn.abort();turn=undefined;generation++;endSession();}controls();}
+  function stopDictation(){if(dictation){dictation.abort();dictation=undefined;portrait.state('idle');}controls();}
+  function stopPlayback(){playback?.abort();playback=undefined;portrait.playbackEnded();controls();}
+  function stopTurn(){if(turn){turn.abort();turn=undefined;generation++;endSession();portrait.state('idle');}controls();}
   function forget(){
     clearTimeout(forgetTimer);generation++;eligibilityRevision++;cancelConsent();retry=false;
     stopDictation();stopPlayback();stopTurn();endSession();conversation.clear();clearEdenRememberedSearch();
-    log.replaceChildren();input.value='';lastReply=undefined;get('.eden-unread').hidden=true;notify();controls();
+    log.replaceChildren();input.value='';lastReply=undefined;get('.eden-unread').hidden=true;portrait.state('idle');notify();controls();
   }
   function touch(){clearTimeout(forgetTimer);forgetTimer=setTimeout(forget,15*60_000);}
   async function send(){
     const text=input.value.trim();if(!text||turn||dictation||accepting||pending)return;
     touch();stopPlayback();if(needConsent('send'))return;
     const controller=new AbortController();turn=controller;retry=false;const id=++generation;
-    notify('Connecting…');controls();
+    portrait.state('thinking');notify('Connecting…');controls();
     try{
       const aiAvailable=await startSession(controller.signal);controller.signal.throwIfAborted();
       message(text,true);input.value='';notify(aiAvailable?'Thinking…':'AI chat is unavailable. Checking page commands…');
-      const result=await conversation.run({text,signal:controller.signal,request,onStatus:(label:string)=>{if(id!==generation)return;if(label==='Using the page control…'&&mobile.matches&&!panel.hidden)show(false);notify(label);},aiAvailable});
-      if(id!==generation)return;lastReply=result;message(result.reply);if(panel.hidden)get('.eden-unread').hidden=false;notify(aiAvailable?'':'AI chat is unavailable. Page commands still work.');
+      const result=await conversation.run({text,signal:controller.signal,request,onStatus:(label:string)=>{if(id!==generation)return;if(label==='Using the page control…'){portrait.state('searching');if(mobile.matches&&!panel.hidden)show(false);}notify(label);},aiAvailable});
+      if(id!==generation)return;portrait.state(result.outcome==='confirmed'?'success':result.outcome==='clarification'?'clarifying':'unable');lastReply=result;message(result.reply);if(panel.hidden)get('.eden-unread').hidden=false;notify(aiAvailable?'':'AI chat is unavailable. Page commands still work.');
     }catch(e){
       if(id===generation&&!controller.signal.aborted){
-        if(!input.value)input.value=text;retry=true;
+        portrait.state('unable');if(!input.value)input.value=text;retry=true;
         notify(e instanceof Error&&e.constructor===Error?e.message:'Eden could not connect. Your draft is ready to retry.');
       }
     }finally{if(turn===controller){turn=undefined;controls();}}
@@ -163,25 +170,32 @@ export function mountHostedEden(host:HTMLElement) {
         prepareLocalRecognition(setup,()=>notify('Preparing the English language pack…')),
         new Promise<never>((_,reject)=>setup.addEventListener('abort',()=>reject(Error('English voice setup did not finish. You can type or try the microphone again.')),{once:true}))
       ]);
-      controller.signal.throwIfAborted();notify('Listening…');
-      const words=await hearOneCommand(ctor,controller.signal,interim=>{if(dictation===controller)notify(interim?'Listening: '+interim:'Listening…');});
+      controller.signal.throwIfAborted();notify('Starting the microphone…');
+      const words=await hearOneCommand(ctor,controller.signal,interim=>{if(dictation===controller)notify(interim?'Listening: '+interim:'Listening…');},()=>{if(dictation===controller){portrait.state('listening');notify('Listening…');}});
       controller.signal.throwIfAborted();
       if(words){
         input.value=[input.value.trim(),words].filter(Boolean).join(' ').slice(0,input.maxLength);
         notify('Review your draft, then send.');input.focus({preventScroll:true});
       }else notify('No speech heard. Tap the microphone to try again or type a message.');
     }catch(e){if(!controller.signal.aborted)notify(e instanceof Error&&e.constructor===Error?e.message:'Dictation is unavailable. You can still type.');}
-    finally{if(dictation===controller){dictation=undefined;controls();}}
+    finally{if(dictation===controller){dictation=undefined;portrait.state('idle');controls();}}
   }
   async function read(preview=false){
     if(!preview&&!lastReply)return;stopDictation();stopPlayback();touch();
     const controller=new AbortController();playback=controller;controls();notify('Preparing voice…');
     try{
-      const answer=preview?{reply:'This is the voice for Eden’s replies.',speechTicket:undefined}:lastReply!;
-      await readHostedReply(answer.reply,answer.speechTicket,voicePreference,request,controller.signal,source=>notify(source==='device'?'Reading with your device voice…':'Reading with Aoede…'));
+      const answer=preview?{reply:'This is a preview of your device voice.'}:lastReply!;
+      const preference=preview?(voicePreference||localEnglishVoices()[0]?.voiceURI):voicePreference;
+      if(preview&&!preference)throw new HostedVoiceError('No installed English device voice is available.');
+      await readHostedReply(answer,preference??'',request,controller.signal,source=>{
+        if(playback!==controller||controller.signal.aborted)return;
+        portrait.playbackStarted();notify(source==='device'?'Reading with your device voice…':'Reading with Aoede…');
+      },level=>{if(playback===controller&&!controller.signal.aborted)portrait.level(level);},()=>{
+        if(playback===controller){portrait.playbackEnded();notify('Waiting for audio…');}
+      });
       if(!controller.signal.aborted)notify();
-    }catch{if(!controller.signal.aborted)notify('Voice playback is unavailable. You can read the reply here.');}
-    finally{if(playback===controller){playback=undefined;controls();}}
+    }catch(e){if(!controller.signal.aborted)notify(e instanceof HostedVoiceError?e.message:'Voice playback is unavailable. You can read the reply here.');}
+    finally{if(playback===controller){portrait.playbackEnded();playback=undefined;controls();}}
   }
   function layout(){
     const open=!panel.hidden,modal=open&&expanded&&mobile.matches;
@@ -193,7 +207,7 @@ export function mountHostedEden(host:HTMLElement) {
     if(viewport){host.style.setProperty('--eden-viewport-height',viewport.height+'px');host.style.setProperty('--eden-viewport-top',viewport.offsetTop+'px');}
   }
   function show(open:boolean,focus=true){
-    panel.hidden=!open;launch.hidden=open;if(open)get('.eden-unread').hidden=true;launch.setAttribute('aria-expanded',String(open));document.body.classList.toggle('eden-assistant-open',open);
+    panel.hidden=!open;launch.hidden=open;portrait.show(open);if(open)get('.eden-unread').hidden=true;launch.setAttribute('aria-expanded',String(open));document.body.classList.toggle('eden-assistant-open',open);
     if(open){touch();void refreshEligibility();context();if(focus)get('[data-expand]').focus({preventScroll:true});}
     else{stopDictation();stopPlayback();cancelConsent();notify();if(showingSettings)showSettings(false);launch.focus({preventScroll:true});}
     layout();controls();
@@ -228,7 +242,7 @@ export function mountHostedEden(host:HTMLElement) {
   input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();void send();}});
   panel.addEventListener('keydown',keydown);mobile.addEventListener('change',layout);window.visualViewport?.addEventListener('resize',layout);window.visualViewport?.addEventListener('scroll',layout);
   document.addEventListener('visibilitychange',hide);
-  window.addEventListener('pagehide',()=>{forget();if(inertApp)inertApp.inert=priorInert;unsubscribe();window.speechSynthesis?.removeEventListener('voiceschanged',populateVoices);document.removeEventListener('visibilitychange',hide);mobile.removeEventListener('change',layout);window.visualViewport?.removeEventListener('resize',layout);window.visualViewport?.removeEventListener('scroll',layout);},{once:true});
+  window.addEventListener('pagehide',()=>{forget();portrait.dispose();if(inertApp)inertApp.inert=priorInert;unsubscribe();window.speechSynthesis?.removeEventListener('voiceschanged',populateVoices);document.removeEventListener('visibilitychange',hide);mobile.removeEventListener('change',layout);window.visualViewport?.removeEventListener('resize',layout);window.visualViewport?.removeEventListener('scroll',layout);},{once:true});
   window.addEventListener('pageshow',e=>{if(e.persisted)location.reload();});
   controls();if(new URLSearchParams(location.search).get('eden')==='1')show(true,false);
 }

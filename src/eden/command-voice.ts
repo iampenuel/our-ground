@@ -4,6 +4,7 @@ type Recognition = {
   start():void; abort():void;
   onresult:((event:{resultIndex:number;results:ArrayLike<RecognitionResult>})=>void)|null;
   onerror:((event:{error:string})=>void)|null;
+  onstart:(()=>void)|null;
   onend:(()=>void)|null;
 };
 type LocalRecognizer = {
@@ -37,7 +38,7 @@ export async function prepareLocalRecognition(signal?:AbortSignal,onDownload?:()
 }
 
 /** One user-initiated utterance. Interim text is feedback, never a submitted turn. */
-export function hearOneCommand(ctor:LocalRecognizer,signal:AbortSignal,onInterim?:(text:string)=>void):Promise<string> {
+export function hearOneCommand(ctor:LocalRecognizer,signal:AbortSignal,onInterim?:(text:string)=>void,onStart?:()=>void):Promise<string> {
   return new Promise((resolve,reject)=>{
     const rec=new ctor();rec.lang='en-US';rec.processLocally=true;rec.continuous=false;rec.interimResults=true;
     if(!rec.processLocally){reject(Error('Local voice processing is unavailable.'));return;}
@@ -45,12 +46,13 @@ export function hearOneCommand(ctor:LocalRecognizer,signal:AbortSignal,onInterim
     const timer=setTimeout(()=>finish(),30_000);
     function finish(text?:string,error?:Error){
       if(finished)return;finished=true;clearTimeout(timer);signal.removeEventListener('abort',abort);
-      rec.onend=rec.onerror=rec.onresult=null;
+      rec.onstart=rec.onend=rec.onerror=rec.onresult=null;
       try{rec.abort();}catch{/* Browser already released the microphone. */}
       if(error)reject(error);else resolve(text?.trim()??'');
     }
     function abort(){finish(undefined,new DOMException('Voice ended','AbortError'));}
     signal.addEventListener('abort',abort,{once:true});if(signal.aborted){abort();return;}
+    rec.onstart=()=>{if(!finished&&!signal.aborted)onStart?.();};
     rec.onresult=event=>{
       const results=Array.from(event.results);
       const final=results.filter(r=>r.isFinal).map(r=>r[0].transcript.trim()).join(' ');

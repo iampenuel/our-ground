@@ -66,7 +66,8 @@ export function createEdenLauncherPortraitMount(overrides: Partial<LauncherLoade
       // blinks; this never invents yaw, stretches the face or changes its export.
       // The profile variant owns its independent feature transforms.
       if (!options.profile) node.style.rotate = `${(Math.sin(elapsed * .65) * .16).toFixed(4)}deg`;
-      frame = requestAnimationFrame(animate);
+      // The layered profile owns its animation loop after reveal.
+      if (!options.profile || !painted) frame = requestAnimationFrame(animate);
     };
     const sync = () => {
       if (disposed) return;

@@ -178,6 +178,9 @@ function cityCorrection(text:string, category:EdenCategory|undefined, radius:Ede
   }
   const [affirmed,excluded,...extra]=text.replace(prefix,'').split(/(?:,?\s+|,)not\s+/);
   const city=known(affirmed);
+  // "I meant" also corrects the subject, category, listing or page. Only
+  // unmatched place-like choices should trigger the city/state question.
+  if(!city && /\b(?:introduc(?:e|ing|tion)|intro|yourself|your self|yourslef|who (?:you are|are you)|what you can do|your (?:name|role|purpose)|capabilities|assistant|map|list|listing|result|page|give|giving|donor|donation|organization|healthcare|food|radius|miles)\b/.test(affirmed))return;
   if(!city || extra.length || (excluded!==undefined && (
     !/^[a-z]+(?:[ -][a-z]+){0,2}$/.test(cityKey(excluded)) ||
     /\b(?:and|or|but|not)\b/.test(excluded)||known(excluded)?.id===city.id)))return clarify;

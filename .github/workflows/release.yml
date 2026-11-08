@@ -44,4 +44,5 @@ jobs:
           for i in {1..30}; do curl -fsS 127.0.0.1:4199 -o /dev/null && break; sleep 1; done
           node tests/release-browser.mjs
           node tests/eden-recovery-browser.mjs
+          node tests/eden-pointer-browser.mjs
           node tests/organization-oauth-browser.mjs

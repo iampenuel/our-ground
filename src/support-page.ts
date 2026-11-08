@@ -25,6 +25,7 @@ import { createSearchReveal, revealResultInPanel } from './support-scroll';
 import {fetchPublicResource,mountCorrectionReports,resourceUsefulFacts} from './support-resource-context';
 import {supportSummary, sourceAvailability} from './support-summary';
 import type {MappedStatus} from './support-summary';
+import {performEdenVisibleAction} from './eden/visible-action.ts';
 import {registerEdenPage,publishEdenApplication} from './eden/application-bridge';
 import {EDEN_CITIES} from '../shared/eden-assistant.ts';
 import type {EdenAction,EdenCityId} from '../shared/eden-assistant.ts';
@@ -507,38 +508,43 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
       const selectedIndex=items.findIndex(item=>item.key===selection.current());
       return{cityId:city?.id,loading:projectedState(current),hasFilter:Boolean(state.keyword.trim()),mapVisible:state.view==='map'&&!mapFailed,mapState:state.view!=='map'?'not-shown':mapFailed?'unavailable':mapLoading?'loading':map?'ready':'not-shown',selectedIndex:selectedIndex>=0?selectedIndex+1:undefined,results:items.slice(0,20).map((item,index)=>({index:index+1,...(item.kind==='directory'?{id:item.record.id}:{}),title:item.kind==='directory'?item.record.title:item.record.name,selected:item.key===selection.current(),kind:item.kind==='directory'?'directory':'mapped'}))};
     },
+    back(signal:AbortSignal){signal.throwIfAborted();if(disposed||!state.resource)return{status:'unavailable',message:'No public listing details are open.'};closeResource();return{status:state.resource?'unavailable':'done',message:state.resource?'The details could not close.':'Returned to the matching results.'};},
     async execute(action:EdenAction,signal:AbortSignal){
       if(!disposed&&!signal.aborted&&action.type==='read-results')return readResults();
       if(disposed||signal.aborted||!ready||resolving)return{status:'unavailable',message:'The search page is getting ready. Please try again.'};
       if(action.type==='help')return{status:'done',message:'Try finding food in Harrisburg, changing the distance to 25 miles, or opening details for result 1.'};
-      if(action.type==='navigate-support'){el<HTMLInputElement>('locationInput').focus();return{status:'done',message:'You’re in Find Support. Choose a location or continue with the current search.'};}
+      if(action.type==='navigate-support'){await performEdenVisibleAction('location','Focus the location field','focus',signal,()=>el<HTMLInputElement>('locationInput').focus());return{status:'done',message:'You’re in Find Support. Choose a location or continue with the current search.'};}
       if(action.type==='details'||action.type==='select'){
         const item=visible[action.index-1];
         if(!item)return{status:'clarify',message:'That result number is not available. Choose a number from the current list.'};
         if(action.type==='details'){
           if(item.kind!=='directory')return{status:'clarify',message:'This mapped lead has no directory details. Review its source in the results list.'};
-          const cancel=()=>resourceLoads.cancel();signal.addEventListener('abort',cancel,{once:true});
-          try{await openResource(item.record.id,true);}finally{signal.removeEventListener('abort',cancel);}
+          await performEdenVisibleAction({resultKey:item.key,operation:'details'},'Open the verified public result','press',signal,async stepSignal=>{
+            const cancel=()=>resourceLoads.cancel();stepSignal.addEventListener('abort',cancel,{once:true});
+            try{await openResource(item.record.id,true);}finally{stepSignal.removeEventListener('abort',cancel);}
+          });
           if(signal.aborted)return{status:'unavailable',message:'That details request was interrupted.'};
           if(activeResource?.id!==item.record.id)return{status:'unavailable',message:'Those public details could not be loaded. The search list is still available.'};
           return{status:'done',message:state.mode==='demo'?`Opened sample details for result ${action.index}. This listing is invented for the demonstration.`:`Opened public details for result ${action.index}. Check the listed source and confirm details directly.`,synthetic:state.mode==='demo'};
         }
         if(state.mode==='demo'&&!options.syntheticDemo)return{status:'clarify',message:'Fictional examples are not shown on the public map. You can open their details instead.'};
-        state.view='map';showMap();selectResult(item.key);updateUrl();publishEdenApplication();
+        await performEdenVisibleAction({resultKey:item.key,operation:'select'},'Select the public result','press',signal,()=>{state.view='map';showMap();selectResult(item.key);updateUrl();publishEdenApplication();});
         return{status:'done',message:`Selected result ${action.index}. ${mapFailed?'The map is unavailable; use the selected list result.':mapLoading?'The map is loading.':map?'The map shows the same selection.':'The selected result is available in the list.'}`,synthetic:state.mode==='demo'};
       }
       if(action.type==='search'&&action.city){
         const city=EDEN_CITIES.find(item=>item.id===action.city)!;
-        el<HTMLInputElement>('locationInput').value=city.query;locationControl.invalidate();selectedLocation=null;state.location=city.query;
+        await performEdenVisibleAction('location','Apply '+city.label+' to the location field','press',signal,()=>{el<HTMLInputElement>('locationInput').value=city.query;locationControl.invalidate();selectedLocation=null;state.location=city.query;});
       }
       if(!el<HTMLInputElement>('locationInput').value.trim())return{status:'clarify',message:'Choose a city first. Try “Find food in Harrisburg,” or use the location field.'};
-      state={...state,intent:undefined};if(action.type==='search'||action.type==='clear-filters'){state.keyword='';el<HTMLInputElement>('keywordInput').value='';}
-      if(action.type==='search'||action.type==='refine'){state.category=action.category;state.term=defaultTerm(action.category);categories();}
-      if(action.type==='radius'||(action.type==='search'&&action.radius))el<HTMLSelectElement>('radiusInput').value=String(action.radius);
+      state={...state,intent:undefined};if(action.type==='search'||action.type==='clear-filters'){if(state.keyword){await performEdenVisibleAction('keyword','Clear the current results filter','press',signal,()=>{state.keyword='';el<HTMLInputElement>('keywordInput').value='';});}}
+      if(action.type==='search'||action.type==='refine'){await performEdenVisibleAction({category:action.category},'Choose '+action.category+' support','press',signal,()=>{state.category=action.category;state.term=defaultTerm(action.category);categories();});}
+      if(action.type==='radius'||(action.type==='search'&&action.radius))await performEdenVisibleAction('radius','Set the search distance','press',signal,()=>{el<HTMLSelectElement>('radiusInput').value=String(action.radius);});
       const cancel=()=>{searches.cancel();resolutions.cancel();outcome={phase:'idle'};results.removeAttribute('aria-busy');resolving=false;submissionControls();announce('Search interrupted. You can search again.');publishEdenApplication();};
-      signal.addEventListener('abort',cancel,{once:true});
       const directoryCity=state.mode==='real'?EDEN_CITIES.find(c=>c.query===el<HTMLInputElement>('locationInput').value)?.id:undefined;
-      try{await submitSearch(false,true,directoryCity);}finally{signal.removeEventListener('abort',cancel);}
+      await performEdenVisibleAction('submit','Search the public directory','press',signal,async stepSignal=>{
+        stepSignal.addEventListener('abort',cancel,{once:true});
+        try{await submitSearch(false,true,directoryCity);}finally{stepSignal.removeEventListener('abort',cancel);}
+      });
       if(signal.aborted||disposed)return{status:'unavailable',message:'That action was interrupted. You can continue with the search controls.'};
       if(currentOutcome().phase!=='complete')return readResults();
       if(!center||directoryUnavailable)return{status:'unavailable',message:'The search could not finish. Review the search page for available options and try again.'};

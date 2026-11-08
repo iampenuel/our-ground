@@ -1,4 +1,4 @@
-import {createHash,randomBytes} from 'node:crypto';
+import {createHash,randomBytes,randomUUID} from 'node:crypto';
 import type {Dependencies} from './app.ts';
 import {adultSessionNonce} from './adult-access.ts';
 import {stagingProjectId} from './staging-limiter.ts';
@@ -8,6 +8,7 @@ import {EDEN_TEXT_MODELS,EdenProviderError} from './eden-provider.ts';
 import {EDEN_TTS_MODELS,EdenSpeechError,synthesizePublicSpeech} from './eden-speech.ts';
 import {boundedJsonObject,RequestInputError} from './request-safety.ts';
 import {EDEN_NOTICE_VERSION} from '../shared/eden-assistant.ts';
+import {EDEN_SPEECH_VOICE} from '../shared/eden-speech.ts';
 import {validateEdenAgentRequest,validateEdenAgentContext} from '../shared/eden-agent.ts';
 
 const seconds=900;
@@ -18,24 +19,11 @@ type Environment=Record<string,string|undefined>;
 type Store=(command:string[])=>Promise<unknown>;
 type Options={store?:Store;create?:EdenAgentOptions['create'];speech?:typeof synthesizePublicSpeech};
 const cacheHeaders={'Cache-Control':'private, no-store','CDN-Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'};
-function response(data:unknown,status=200){return Response.json(data,{status,headers:cacheHeaders});}
+function jsonResponse(data:unknown,status=200){return Response.json(data,{status,headers:cacheHeaders});}
 const reject=(status:number,code:string,message:string):never=>{throw new RequestInputError(status,code,message);};
 function fields(body:Record<string,unknown>,allowed:string[]){
   if(Object.keys(body).length!==allowed.length || !allowed.every(field=>Object.hasOwn(body,field))) reject(422,'EDEN_INVALID_REQUEST','Use a supported directory command.');
 }
-/** Keep Aoede answers brief by selecting exact, server-verified source extracts.
- * Raw page content and arbitrary browser text never enter a speech request. */
-function spokenReply(sources: {id:string;text:string}[]) {
-  const hours=sources.find(f=>/^resource-\d+-hours$/.test(f.id));
-  const title=sources.find(f=>/^resource-\d+-title$/.test(f.id));
-  const outcome=sources.find(f=>f.id==='outcome');
-  const page=sources.find(f=>f.id.startsWith('page-'));
-  const count=sources.find(f=>f.id==='result-count');
-  const selected=hours ? [title,hours] : title ? [count??outcome,title] : [outcome,page??count];
-  return selected.filter((f):f is {id:string;text:string}=>Boolean(f))
-    .map(f=>/[.!?]$/.test(f.text)?f.text:f.text+'.').join(' ');
-}
-
 /** Apply shared counters across serverless instances. The service has no paid failover. */
 async function admit(store:Store,id:string,bucket:string,limit:number,ttl:number){
   const count=await store(['EVAL',"local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],ARGV[1]) end; return n",'1','og:adult:eden:v1:rate:'+bucket+':'+id,String(ttl)]);
@@ -63,13 +51,22 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
   };
   const agent=createEdenAgent(env,{repository:deps.repo,directoryCity:deps.directoryCity,hostedTurns:turns,create:options.create});
   return async function handle(request:Request,path:string){
+    // This is an ephemeral turn ID, never an auth token, session ID or content hash.
+    const requestedId=request.headers.get('x-eden-correlation-id');
+    const correlationId=requestedId && /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(requestedId)?requestedId:randomUUID();
+    const response=(data:unknown,status=200)=>{
+      const result=jsonResponse(data,status);
+      result.headers.set('x-eden-correlation-id',correlationId);
+      if(status===200 && textModel && ['understand','plan','result'].includes(path))result.headers.set('x-eden-text-model',textModel);
+      return result;
+    };
     try{
       // Vercel overwrites x-vercel-ip-country. Only the verified deployment runtime may serve these routes.
       const nonce=await adultSessionNonce(request,env);
       if(!nonce)reject(403,'AGE_ACKNOWLEDGMENT_REQUIRED','Acknowledge the age requirement to continue.');
       if(request.headers.get('x-vercel-ip-country')!=='US')reject(403,'EDEN_REGION_UNAVAILABLE','EDEN is available to adults using this demo in the United States.');
       if(!ready())reject(403,'EDEN_DISABLED','Hosted EDEN is unavailable.');
-      if(path==='status'&&request.method==='GET')return response({available:true,engine:'gemini',agentAvailable:true,speechAvailable:Boolean(speechModel),voice:'Aoede',rawAudioAccepted:false,liveTokensAvailable:false,noticeVersion:EDEN_NOTICE_VERSION});
+      if(path==='status'&&request.method==='GET')return response({available:true,engine:'gemini',agentAvailable:true,speechAvailable:Boolean(speechModel),voice:EDEN_SPEECH_VOICE,speechModel:speechModel??null,rawAudioAccepted:false,liveTokensAvailable:false,noticeVersion:EDEN_NOTICE_VERSION});
       const origin=new URL(request.url).origin;
       if(request.method!=='POST'||request.headers.get('origin')!==origin)reject(403,'EDEN_ORIGIN_REQUIRED','Use the assistant on this site.');
       const binding=hash(origin+'|'+nonce);
@@ -93,6 +90,16 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         await admit(store,String(minute),tts?'provider-speech-minute':'provider-text-minute',tts?3:12,65);
         await admit(store,day,tts?'speech-day':'text-day',tts?10:150,86460);
       }
+      // Only validated server output may acquire a one-time speech ticket. The
+      // speech endpoint accepts no transcript, text, resource IDs or audio.
+      async function withSpeech<T extends object>(answer:T, text?:string) {
+        if (!speechModel || !text || text.length>1200 || /[<>@\x00-\x1f]|https?:|www\./i.test(text)) return answer;
+        const speechTicket=token();
+        try {
+          if(await store(['SET',key('speech',session+':'+hash(speechTicket)),text,'EX','60','NX'])==='OK')return {...answer,speechTicket};
+        } catch { /* A speech outage must preserve the verified text reply. */ }
+        return answer;
+      }
       if(path==='understand'){
         fields(body,['symbols','context','controls','previous','noticeVersion']);
         const context=validateEdenAgentContext(body.context);
@@ -100,7 +107,7 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         await capacity(false);
         const decision=await agent.understand(body.symbols,context,body.controls,body.previous,request.signal);
         if(await store(['GET',sessionKey])!==binding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
-        return response(decision);
+        return response(await withSpeech(decision,'reply' in decision?decision.reply:undefined));
       }
       if(path==='plan'){
         const input=validateEdenAgentRequest(body);
@@ -109,7 +116,7 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         await capacity(false);
         const result=await agent.begin(input,session,request.signal);
         if(await store(['GET',sessionKey])!==binding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
-        return response(result);
+        return response(await withSpeech(result,'clarification' in result?result.clarification.question:undefined));
       }
       if(path==='result'){
         fields(body,['turnToken','context','noticeVersion','outcome']);
@@ -118,11 +125,7 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         await capacity(false);
         const result=await agent.complete({turnToken:body.turnToken,outcome:body.outcome as 'done'|'failed',noticeVersion:EDEN_NOTICE_VERSION,resourceIds:context.resourceIds,context},session,request.signal);
         if(await store(['GET',sessionKey])!==binding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
-        const speechTicket=token();
-        // Optional speech degradation must never discard a verified text answer.
-        let audioReady=false;
-        try { audioReady=Boolean(speechModel) && await store(['SET',key('speech',session+':'+hash(speechTicket)),spokenReply(result.sources),'EX','60','NX'])==='OK'; }catch{/* Text remains available. */}
-        return response(audioReady?{...result,speechTicket}:result);
+        return response(await withSpeech(result,result.reply));
       }
       if(path==='speech'){
         fields(body,['speechTicket']);
@@ -132,13 +135,15 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         await capacity(true);
         const audio=await (options.speech??synthesizePublicSpeech)(reply as string,speechModel!,env.GEMINI_API_KEY!,request.signal);
         if(await store(['GET',sessionKey])!==binding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
-        return new Response(new Uint8Array(audio.data),{headers:{...cacheHeaders,'Content-Type':'audio/wav'}});
+        return new Response(new Uint8Array(audio.data),{headers:{...cacheHeaders,'Content-Type':'audio/wav','X-Eden-Speech-Voice':EDEN_SPEECH_VOICE,
+          'X-Eden-Speech-Model':speechModel!,...(audio.reportedModel?{'X-Eden-Speech-Provider-Model':audio.reportedModel}:{}),
+          'X-Eden-Speech-Text-SHA256':hash(reply as string)}});
       }
       return response({error:{code:'EDEN_ROUTE_UNAVAILABLE',message:'Use the directory assistant.'}},404);
     }catch(error){
       if(error instanceof EdenProviderError){
         // A bounded error enum and model name only. SDK errors may contain keys or input.
-        console.warn('eden.provider',JSON.stringify({code:error.code,model:textModel,status:error.status}));
+        console.warn('eden.provider',JSON.stringify({code:error.code,model:textModel,status:error.status,correlationId}));
         const result=response({error:{code:error.code,message:error.status===429?'Gemini is temporarily busy. Try again in a moment.':'Gemini could not complete this request. The public page controls are available.'}},error.status);
         if(error.status===429) result.headers.set('Retry-After','30');
         return result;

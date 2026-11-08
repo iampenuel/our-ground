@@ -11,8 +11,7 @@ import { createEdenProvider, EdenProviderError } from './eden-provider.ts';
 import type { EdenModelRequest, EdenTextModel } from './eden-provider.ts';
 import type { Repository } from './app.ts';
 import { EDEN_LIVE_TOOL_DEFINITIONS } from '../shared/eden-live.ts';
-import { conversationChoices, socialWords, validSocialText, validSymbols, isEdenSurface, type EdenSurface } from '../shared/eden-conversation.ts';
-import { validateEdenAgentIntent } from '../shared/eden-agent.ts';
+import { conversationChoices, profileFacts, profileReply, validateConversationMemory, socialWords, validSocialText, validSymbols, isEdenSurface, type EdenSurface } from '../shared/eden-conversation.ts';
 import { edenPublicPageFacts } from '../shared/eden-public-pages.ts';
 
 export type EdenAgentRepository = Pick<Repository, 'search' | 'detail'>;
@@ -288,20 +287,25 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
     status,
     async understand(symbols:unknown, contextValue:unknown, controls:unknown, previousValue:unknown, signal:AbortSignal) {
       const context=validateEdenAgentContext(contextValue);
-      const previous=previousValue===null?undefined:validateEdenAgentIntent(previousValue);
+      const previous=previousValue===null?undefined:validateConversationMemory(previousValue);
       if(!context || !modeMatches(context) || !validSymbols(symbols) || !Array.isArray(controls) || controls.length>12 || !controls.every(isEdenSurface) || previous===null)throw new EdenProviderError('EDEN_INVALID_AGENT_REQUEST',422);
       const choices=conversationChoices(symbols,context,controls as EdenSurface[],previous);
       const {resourceIds:_ids,...publicContext}=context;
       const keys=choices.map((_,index)=>'choice-'+index);
-      const args=object(await invoke({signals:symbols, previous_public_intent:previous, page:publicContext, available_controls:controls, social_words:socialWords, choices:choices.map((choice,i)=>({id:keys[i],...choice}))},
-        'You are Eden, the Our Ground guide. Interpret the visitor’s ordered public concepts in context. A correction replaces the old city: use the named intended city, not a city following negation. Respect map versus list and scroll versus opening a listing. Prefer a conversational greeting or thanks for small talk. For joining as an organization, choose the organizations page. Choose clarify when intent or city is ambiguous. Do not invent facts. Choose exactly one listed id. This is only a proposal. The app validates and executes actions and confirms their result. When choosing a greet or thanks message, write a short friendly greeting or reply in social_text (max 220 characters). Use only social_words and plain punctuation, e.g. Hi there! How can I help you today? Do not describe a service as available or promise anything. The clarify choice opens an application-owned clarifying question. For every other choice omit social_text.',
+      const args=object(await invoke({signals:symbols, previous_public_intent:previous, page:publicContext, available_controls:controls, social_words:socialWords, assistant_profile:profileFacts, choices:choices.map((choice,i)=>({id:keys[i],...choice}))},
+        'You are Eden, the Our Ground guide. Interpret the visitor’s ordered public concepts in context. A correction replaces the old city: use the named intended city, not a city following negation. Distinguish a request to introduce yourself (identity) or explain your own capabilities from a donor request. A request verb is not a donation. A correction about Eden’s identity is not a city question. Choose search-and-open when the visitor explicitly requests both the search and a numbered result; the website will independently confirm both. Back then map from a resource detail uses back-to-map, not an arbitrary history destination. Respect map versus list and scroll versus opening a listing. Prefer a conversational greeting or thanks for small talk. For joining as an organization, choose the organizations page. Choose clarify when intent or city is ambiguous. Do not invent facts. Choose exactly one listed id. This is only a proposal. The app validates and executes actions and confirms their result. When choosing a greet or thanks message, write a short friendly greeting or reply in social_text (max 220 characters). Use only social_words and plain punctuation, e.g. Hi there! How can I help you today? Do not describe a service as available or promise anything. The clarify choice opens an application-owned clarifying question. Identity and capabilities use the verified assistant_profile. Select the listed profile choice with the most helpful focus (search, tour or limits). Return only the choice ID for profile answers.',
         'choose_public_step',{type:'object',properties:{choice:{type:'string',enum:keys},social_text:{type:'string'}},additionalProperties:false,required:['choice']},signal));
       if(!args || Object.keys(args).some(k=>k!=='choice'&&k!=='social_text') || typeof args.choice!=='string' || !keys.includes(args.choice))throw new EdenProviderError('EDEN_INVALID_AGENT_ACTION',502);
       const choice=choices[keys.indexOf(args.choice)];
+      if(choice.kind==='message'&&(choice.key==='identity'||choice.key==='capabilities')){
+        const reply=profileReply(choice.key,choice.focus,symbols.includes('correction'));
+        if(!reply)throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT',502);
+        return {engine:'gemini' as const,choice,reply};
+      }
       if(choice.kind==='message'&&choice.key==='clarify'){
         // Gemini selected the clarification tool. Its question comes from the UI's
         // public vocabulary; arbitrary tool prose cannot disclose text or make claims.
-        const reply=symbols.includes('correction')||previous?.goal==='clarify-search'&&previous.missing==='city'
+        const reply=symbols.includes('correction')||previous && 'goal' in previous && previous.goal==='clarify-search'&&previous.missing==='city'
           ? 'Which city would you like to search?' : 'Would you like to find support, give support, or learn about organizations?';
         return {engine:'gemini' as const,choice,reply};
       }

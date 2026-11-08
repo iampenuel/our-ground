@@ -75,7 +75,7 @@ test('provider sends only the literal phrase to one standard Aoede audio request
   assert.deepEqual(inspectEdenWav(result.data), { durationSeconds: 0.2, sampleRate: 24000 });
   assert.deepEqual(sent, [{
     model: 'gemini-3.8-flash-lite-tts',
-    input: [{ type: 'user_input', content: [{ type: 'text', text: EDEN_SPEECH_PHRASES.search_ready, annotations: [{ type: 'speech_metadata', style: 'warm, patient, conversational' }] }] }],
+    input: [{ type: 'user_input', content: [{ type: 'text', text: EDEN_SPEECH_PHRASES.search_ready, annotations: [{ type: 'speech_metadata', style: 'warm, welcoming, lightly cheerful and professional; speak clearly at a natural conversational pace' }] }] }],
     response_format: { type: 'audio', mime_type: 'audio/wav', sample_rate: 24000 },
     generation_config: { speech_config: [{ voice: 'Aoede' }] }, store: false, automatic_continuation: false,
   }]);

@@ -13,6 +13,9 @@ export function applicationConfig({mode,command,isPreview}:ConfigEnv, hostedVoic
   const port = Number(env.API_PORT ?? 8787);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('API_PORT must be a valid local port.');
   const development=command==='serve'&&!isPreview;
+  // Keep the browser Host when proxying: the API signs age cookies and checks
+  // the POST Origin against that exact origin, including its development port.
+  const apiProxy={target:'http://127.0.0.1:'+port,changeOrigin:false};
   const authOrigin=fixtureBuild?env.VITE_SUPABASE_URL?.replace(/\/$/,''):exactBuildAuthOrigin(env);
   const headers=browserSecurityHeaders({https:false,authOrigin,development,fixtureAuth:fixtureBuild});
   const protectPrivateDocuments=(server:any)=>{server.middlewares.use((request:any,response:any,next:()=>void)=>{
@@ -40,7 +43,7 @@ export function applicationConfig({mode,command,isPreview}:ConfigEnv, hostedVoic
   });};
   return {
     // Other entry builds must not reload an open review conversation.
-    server:{headers,proxy:{'/api/v1':'http://127.0.0.1:'+port,'/eligibility':'http://127.0.0.1:'+port},watch:{ignored:['**/dist/**','**/dist-eden/**','**/dist-eden-assistant/**']}},
+    server:{headers,proxy:{'/api/v1':apiProxy,'/eligibility':apiProxy},watch:{ignored:['**/dist/**','**/dist-eden/**','**/dist-eden-assistant/**']}},
     preview:{headers},
     plugins:[{
       name:'our-ground-private-document-cache',

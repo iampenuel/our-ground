@@ -65,7 +65,7 @@ export async function synthesizePublicSpeech(text:string, model:EdenTtsModel, se
   combined.throwIfAborted();
   const payload: EdenSpeechModelRequest = {
     model,
-    input: [{ type: 'user_input', content: [{ type: 'text', text, annotations: [{ type: 'speech_metadata', style: 'warm, patient, conversational' }] }] }],
+    input: [{ type: 'user_input', content: [{ type: 'text', text, annotations: [{ type: 'speech_metadata', style: 'warm, welcoming, lightly cheerful and professional; speak clearly at a natural conversational pace' }] }] }],
     response_format: { type: 'audio', mime_type: 'audio/wav', sample_rate: 24000 },
     generation_config: { speech_config: [{ voice: EDEN_SPEECH_VOICE }] },
     store: false,
@@ -90,5 +90,7 @@ export async function synthesizePublicSpeech(text:string, model:EdenTtsModel, se
     || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(audio.data)) throw new EdenSpeechError('SPEECH_INVALID_AUDIO', 503);
   const data = Uint8Array.from(Buffer.from(audio.data, 'base64'));
   if (!inspectEdenWav(data)) throw new EdenSpeechError('SPEECH_INVALID_AUDIO', 503);
-  return { mimeType: 'audio/wav' as const, data };
+  const reportedModel=typeof body.model==='string'?body.model.replace(/^models\//,''):undefined;
+  return { mimeType: 'audio/wav' as const, data,
+    ...(reportedModel && EDEN_TTS_MODELS.some(allowed=>reportedModel===allowed||reportedModel.startsWith(allowed+'-')) && /^gemini-[a-z0-9-]{1,64}$/.test(reportedModel) ? {reportedModel} : {}) };
 }

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {randomBytes} from 'node:crypto';
+import {createHash,randomBytes} from 'node:crypto';
 import {adultGate} from '../backend/adult-access.ts';
 import {createHostedEden} from '../backend/eden-hosted.ts';
 import {EDEN_NOTICE_VERSION as noticeVersion} from '../shared/eden-assistant.ts';
@@ -101,7 +101,11 @@ test('two instances complete a command for the newly selected clinic and speak o
   const wire=JSON.stringify(captured);
   for(const excluded of ['never leave device','excluded source prose',rows[0].id,rows[1].id,'40.123','-76.138','Unit health clinic','audioData','correction_reports'])assert(!wire.includes(excluded));
   assert.equal((await a(req('speech',{speechTicket,privateText:'sensitive'},{headers}),'speech')).status,422);
-  assert.equal((await a(req('speech',{speechTicket},{headers}),'speech')).status,200);assert.equal(audio.length,1);assert.match(audio[0],/Unit health clinic B.*no structured hours/);assert.doesNotMatch(audio[0],/clinic A|Monday/);
+  const voice=await a(req('speech',{speechTicket},{headers}),'speech');
+  assert.equal(voice.status,200);assert.deepEqual(audio,[reply]);
+  assert.equal(voice.headers.get('X-Eden-Speech-Voice'),'Aoede');
+  assert.equal(voice.headers.get('X-Eden-Speech-Model'),'gemini-3.8-flash-lite-tts');
+  assert.equal(voice.headers.get('X-Eden-Speech-Text-SHA256'),createHash('sha256').update(reply).digest('hex'));
   assert.equal((await a(req('speech',{speechTicket},{headers}),'speech')).status,409);
   assert.equal((await b(req('end',{},{headers}),'end')).status,200);
   assert.equal((await a(req('plan',{}, {headers}),'plan')).status,401);
@@ -116,4 +120,33 @@ test('independent signed browser sessions have independent allowances and cannot
   for(let i=0;i<4;i++)assert.equal((await start(first)).status,200);
   assert.equal((await start(first)).status,429);
   assert.equal((await start(second)).status,200);
+});
+
+test('a verified public identity reply owns a one-use Aoede grant tied to its session',async()=>{
+  const spoken=[];
+  const handle=createHostedEden(deps,env,{store:memory(),create:async payload=>{
+    const choices=JSON.parse(payload.input).choices;
+    const profile=choices.find(c=>c.kind==='message'&&c.key==='identity'&&c.focus==='tour');
+    assert(profile);
+    return {status:'requires_action',steps:[{type:'function_call',id:'fixture',name:payload.tools[0].name,arguments:{choice:profile.id}}]};
+  },speech:async text=>{spoken.push(text);return {data:new Uint8Array([1,2]),mimeType:'audio/wav'};}});
+  async function open(){
+    const headers={cookie:await cookie()};
+    const {sessionToken}=await (await handle(req('session',{acknowledged:true,noticeVersion},{headers}),'session')).json();
+    return {...headers,Authorization:'Bearer '+sessionToken};
+  }
+  const first=await open(),second=await open();
+  const correlationId='1286a58a-913a-4f45-aa76-5daf09bc5671';
+  const interpreted=await handle(req('understand',{
+    symbols:['identity'],context:ctx,controls:[],previous:null,noticeVersion,
+  },{headers:{...first,'x-eden-correlation-id':correlationId}}),'understand');
+  assert.equal(interpreted.headers.get('x-eden-correlation-id'),correlationId);
+  assert.equal(interpreted.headers.get('x-eden-text-model'),'gemini-3.5-flash-lite');
+  const {reply,speechTicket}=await interpreted.json();
+  assert.match(reply,/Eden/i);assert.match(speechTicket,/^[A-Za-z0-9_-]{43}$/);
+  const say=headers=>handle(req('speech',{speechTicket},{headers}),'speech');
+  assert.equal((await say(second)).status,409);
+  assert.equal((await say(first)).status,200);
+  assert.equal((await say(first)).status,409);
+  assert.deepEqual(spoken,[reply]);
 });
