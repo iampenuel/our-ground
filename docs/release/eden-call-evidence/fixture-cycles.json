@@ -19,7 +19,25 @@
     }
   ],
   "status": "PASS",
-  "pcmPackets": 1378,
+  "character": {
+    "states": [
+      "idle",
+      "speaking",
+      "idle",
+      "listening",
+      "thinking",
+      "listening",
+      "idle",
+      "listening",
+      "idle",
+      "speaking",
+      "idle",
+      "listening",
+      "idle"
+    ],
+    "renderer": "svg-profile"
+  },
+  "pcmPackets": 1379,
   "streamEnds": 1,
   "unansweredTurnKeptConnection": true,
   "closeCodes": [

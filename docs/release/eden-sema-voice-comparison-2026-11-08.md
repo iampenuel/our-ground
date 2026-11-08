@@ -1,5 +1,7 @@
 # SEMA and Eden voice architecture · November 8, 2026
 
+This report records the earlier recovery checkpoint. For the subsequent hosted call implementation, exact deployed SHA and physical acceptance status, see the [Eden call recovery report](eden-call-recovery-2026-11-08.md).
+
 **Finding.** SEMA is a useful reference for turn-taking and tool authorization. Its Live transport streams microphone audio to Google. Hosted Eden currently keeps dictation on the device and sends bounded public concepts to its text model; “Read reply” separately requests speech for an already verified answer. Making Eden conversational over a live microphone would change both the privacy boundary and how the service consumes quota.
 
 **Source verification.** GitHub CLI returned private SEMA HEAD [7175581dee3193303316e3dc51a767606734eebf](https://github.com/iampenuel/sema/tree/7175581dee3193303316e3dc51a767606734eebf). The six requested GitHub blob IDs matched that commit in the local object database. This review examined committed source without reading credentials, opening a microphone, making a provider request, or changing SEMA. Eden references below describe [deployed application source 3fbf44a](https://github.com/iampenuel/our-ground/tree/3fbf44adf2c638da44b1c26bed97a21f2e854ce3).

@@ -1,5 +1,7 @@
 # Eden conversational intelligence, voice, character and live cursor · November 8, 2026
 
+This report records the earlier recovery checkpoint. For the subsequent hosted call implementation, exact deployed SHA and physical acceptance status, see the [Eden call recovery report](eden-call-recovery-2026-11-08.md).
+
 This pass continues `codex/eden-ux-recovery-20261108` and draft PR #3. The approved character appearance, typed public action permissions, privacy boundary, organization authorization and protected-staging release policy remain in place. Production is not an authorized target.
 
 ## Root causes and implementation

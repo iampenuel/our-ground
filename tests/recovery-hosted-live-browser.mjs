@@ -21,7 +21,17 @@ p.on('response',async r=>{const u=new URL(r.url());if(u.origin===origin&&u.pathn
 p.on('websocket',ws=>{
  if(new URL(ws.url()).hostname!=='generativelanguage.googleapis.com')return;
  ws.on('framesent',({payload})=>{const m=JSON.parse(String(payload));if(m.setup){receipt.requestedModel=m.setup.model;receipt.requestedVoice=m.setup.generationConfig?.speechConfig?.voiceConfig?.prebuiltVoiceConfig?.voiceName;}
- if(m.realtimeInput?.audio)receipt.audioInputChunks++;});
+ if(m.realtimeInput?.audio){
+   receipt.audioInputChunks++;
+   // Count signal-bearing PCM packets, then discard them. This harness only
+   // supplies prewritten public fixtures; no raw packet goes into diagnostics.
+   const b=Buffer.from(m.realtimeInput.audio.data,'base64');let energy=0;
+   for(let i=0;i+1<b.length;i+=2)energy+=(b.readInt16LE(i)/32768)**2;
+   const rms=Math.sqrt(energy/Math.max(1,b.length/2));
+   receipt.sentSignal??={};const step=receipt.sentSignal[activeStep]??={packets:0,nonSilent:0,maxRms:0};
+   step.packets++;if(rms>.015)step.nonSilent++;step.maxRms=Math.max(step.maxRms,rms);
+ }});
+
  ws.on('framereceived',({payload})=>{const m=JSON.parse(String(payload)),c=m.serverContent;
  if(m.setupComplete)receipt.setupComplete=true;
  if(c?.interrupted){interruptedResponseEnding=true;receipt.providerInterruptions=(receipt.providerInterruptions??0)+1;output='';}
@@ -34,6 +44,7 @@ p.on('websocket',ws=>{
 });
 await p.addInitScript(()=>{
  const g=window;g.qaWire={sockets:0,policy:[],close:[]};document.addEventListener('securitypolicyviolation',e=>g.qaWire.policy.push(e.effectiveDirective));const Native=WebSocket;g.WebSocket=class extends Native{constructor(...args){super(...args);g.qaWire.sockets++;this.addEventListener('close',e=>g.qaWire.close.push(e.code));}};g.qaTracks=[];g.qaHits=[];g.qaStates=[];g.qaPlayback=[];
+ g.qaCharacterStates=[];new MutationObserver(events=>{for(const e of events){const s=e.target.dataset.edenState;if(s&&g.qaCharacterStates.at(-1)!==s)g.qaCharacterStates.push(s);}}).observe(document,{subtree:true,attributes:true,attributeFilter:['data-eden-state']});
  g.qaMarks=[];g.qaMaxOutput=0;
  new MutationObserver(events=>{for(const e of events)if(e.target instanceof HTMLElement){
     g.qaMarks.push({attribute:e.attributeName,on:e.target.hasAttribute(e.attributeName),atMs:performance.now()});
@@ -134,7 +145,7 @@ try{
      await p.waitForFunction(()=>document.querySelector('[data-live-state]')?.textContent==='Eden is speaking'&&window.qaCurrentOutput>.015&&document.querySelector('[data-card-key^="directory:"]'),null,{timeout:65000});
      receipt.interruptStart=await p.locator('[data-live-state]').innerText();
      receipt.searchTranscribed=expectedInput.search.test(input)||receipt.turns.some(t=>expectedInput.search.test(t.input));
-     assert(receipt.searchTranscribed,'Search must be transcribed before its response is interrupted');
+     assert(receipt.searchTranscribed&&receipt.sentSignal?.search?.nonSilent>0,'Search must reach Google as non-silent PCM and be transcribed before interruption');
    }else reply=await speak(name);
    receipt.observations??={};
    if(name==='identity')receipt.observations.identity=/Eden|Our Ground/i.test(reply);
@@ -147,7 +158,7 @@ try{
    if(name==='map')receipt.observations.map=await p.locator('#showSupportMap').getAttribute('aria-expanded')==='true'&&await p.locator('[data-resource-content]:visible').count()===0;
  }
  receipt.cursor=await p.evaluate(()=>window.qaHits);
- if(receipt.turns.some(t=>t.step==='search'))assert(receipt.cursor.length>=5&&receipt.cursor.every(e=>e.landed));
+ if(receipt.observations.search)assert(receipt.cursor.length>=5&&receipt.cursor.every(e=>e.landed),'Cursor did not land inside every observed public action target');
  await p.screenshot({path:join(out,'voice-action.jpg'),quality:83});
  const ended=p.waitForResponse(r=>new URL(r.url()).pathname.endsWith('/hosted/live/end'));
  await p.locator('[data-live-end]').click();receipt.endHTTP=(await ended).status();assert.equal(receipt.endHTTP,200);assert.equal(await p.locator('[data-live-state]').innerText(),'Call ended');
@@ -160,12 +171,21 @@ try{
  }
  assert(Object.values(receipt.observations).every(Boolean),'One or more requested actions were not confirmed');
  assert.equal(await p.evaluate(()=>window.qaWire.sockets),1);assert((await p.evaluate(()=>window.qaMaxOutput))>.015);
+ receipt.characterStates=await p.evaluate(()=>window.qaCharacterStates);assert(receipt.characterStates.includes('speaking'));
  receipt.status='PASS';
 }catch(e){process.exitCode=1;receipt.failedAt=activeStep;receipt.failure=String(e.message).split('\n')[0].slice(0,240);receipt.ui=await p.locator('[data-live-state]').innerText().catch(()=>'');}
 finally{
- receipt.diagnostics=await p.evaluate(()=>JSON.parse(document.querySelector('[data-live-diagnostic]')?.dataset.liveDiagnostic??'[]')).catch(()=>[]);
  receipt.partialProviderInput=input.slice(0,160); // Test-generated public phrases only.
- receipt.playerPeakRms=await p.evaluate(()=>window.qaMaxOutput).catch(()=>0);receipt.paintMarks=await p.evaluate(()=>window.qaMarks).catch(()=>[]);receipt.cursorPhases=await p.evaluate(()=>window.qaStates).catch(()=>[]);receipt.wire=await p.evaluate(()=>window.qaWire).catch(()=>null);if(await p.locator('[data-live-end]').isVisible().catch(()=>false))await p.locator('[data-live-end]').click().catch(()=>{});
+ receipt.playerPeakRms=await p.evaluate(()=>window.qaMaxOutput).catch(()=>0);
+ receipt.cursor??=await p.evaluate(()=>window.qaHits).catch(()=>[]);
+ receipt.paintMarks=await p.evaluate(()=>window.qaMarks).catch(()=>[]);receipt.cursorPhases=await p.evaluate(()=>window.qaStates).catch(()=>[]);
+ if(await p.locator('[data-live-end]').isVisible().catch(()=>false)){
+   const released=p.waitForResponse(r=>new URL(r.url()).pathname.endsWith('/hosted/live/end'),{timeout:8000}).then(r=>r.status()).catch(()=>null);
+   await p.locator('[data-live-end]').click().catch(()=>{});receipt.endHTTP=await released;
+ }
+ receipt.diagnostics=await p.evaluate(()=>JSON.parse(document.querySelector('[data-live-diagnostic]')?.dataset.liveDiagnostic??'[]')).catch(()=>[]);
+ receipt.micReleased=await p.evaluate(()=>window.qaTracks.length>0&&window.qaTracks.every(t=>t.readyState==='ended')).catch(()=>false);
+ receipt.wire=await p.evaluate(()=>window.qaWire).catch(()=>null);
  const data=await p.evaluate(async()=>{if(!window.qaRecorder)return null;window.qaRecorder.stop();return await window.qaBytes;}).catch(()=>null);
  if(data){await writeFile(join(out,'call-audio.webm'),Buffer.from(data,'base64'));receipt.audioCaptureStartMs=audioStartAt;}
  await ctx.close();if(video)await rename(await video.path(),join(out,'call-screen.webm'));await browser.close();

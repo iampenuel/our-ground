@@ -37,6 +37,9 @@ try{
    ws.onClose(code=>{if(Number.isInteger(code))events.push(code);});
  });
  await p.addInitScript(()=>{
+   window.fixtureStates=[];
+   new MutationObserver(recs=>{for(const r of recs){const s=r.target.dataset.edenState;if(s&&window.fixtureStates.at(-1)!==s)window.fixtureStates.push(s);}})
+     .observe(document,{subtree:true,attributes:true,attributeFilter:['data-eden-state']});
    window.fixtureTracks=[];navigator.mediaDevices.getUserMedia=async()=>{
      const ctx=new AudioContext();await ctx.resume();const dest=ctx.createMediaStreamDestination();
      window.fixtureTracks.push(...dest.stream.getTracks());
@@ -69,6 +72,8 @@ try{
    receipt.cycles.push({cycle:i+1,allTracksEnded:true,activeLeases:leases.size,sockets,minted});
  }
  assert.equal(sockets,2);assert.equal(minted,2);assert.equal(streamEnds,1);
+ receipt.character=await p.evaluate(()=>({states:window.fixtureStates,renderer:document.querySelector('[data-eden-portrait]')?.dataset.edenPortrait}));
+ assert(receipt.character.states.includes('speaking'));assert.equal(receipt.character.renderer,'svg-profile');
  receipt.status='PASS';receipt.pcmPackets=packets;receipt.streamEnds=streamEnds;receipt.unansweredTurnKeptConnection=true;
  receipt.closeCodes=events;
 }catch(e){receipt.failure=String(e.message).split('\n')[0].slice(0,150);process.exitCode=1;}

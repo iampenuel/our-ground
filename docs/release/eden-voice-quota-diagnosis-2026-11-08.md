@@ -1,5 +1,7 @@
 # Eden voice quota diagnosis · November 8, 2026
 
+This report records the earlier recovery checkpoint. For the subsequent hosted call implementation, exact deployed SHA and physical acceptance status, see the [Eden call recovery report](eden-call-recovery-2026-11-08.md).
+
 **The first HTTP 429 cannot be classified retrospectively.** Its response body and Retry-After were not retained, and the hosted minute counters expired. The staging daily speech counter was 3/10 after that failure, which excludes that particular application daily ceiling. One deliberately spaced retry with the same authorized key, model and Aoede succeeded. No further synthesis was requested for this diagnosis.
 
 **Google's dashboard now establishes a separate project limit.** Read-only signed-in Chrome inspection matched the masked key suffix to the authorized local Our Ground key and identified **Our Ground – EDEN**, project `gen-lang-client-0351735652`, **Free tier**. The authorized recovery-branch secret was provisioned from that local key. Vercel does not return its sensitive Preview plaintext in an environment pull; no new extraction or direct runtime-key comparison is claimed. [Sanitized dashboard receipt](eden-live-action-evidence/provider-quota-dashboard.json).
