@@ -2,7 +2,7 @@ import type { Repository } from './app.ts';
 import type { DirectoryCityLookup } from './directory-city.ts';
 import type { EdenCategory, EdenCityId, EdenRadius } from '../shared/eden-assistant.ts';
 import { isImportedResourceId } from '../shared/eden-agent.ts';
-import type { ResourceCard } from '../shared/contracts.ts';
+import type { ResourceCard, ResourceDetail } from '../shared/contracts.ts';
 import { validPoint } from '../shared/us-location.ts';
 import { EdenProviderError } from './eden-provider.ts';
 
@@ -24,6 +24,18 @@ function imported(row: unknown): ResourceCard {
     !validPoint(r.location?.latitude,r.location?.longitude) || typeof r.title !== 'string' || !r.title.trim() || /[<>\u0000-\u001f\u007f]/u.test(r.title)) return reject();
   return r;
 }
+const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+function listedHours(raw: unknown, position: number): Fact {
+  const times = Array.isArray(raw) ? raw.filter((row): row is ResourceDetail['hours'][number] =>
+    row && Number.isInteger(row.weekday) && weekdays[row.weekday] &&
+    [row.opens_at, row.closes_at].every(time => typeof time === 'string' && /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(time))) : [];
+  const entries = times.slice().sort((a,b) => a.weekday-b.weekday || a.opens_at.localeCompare(b.opens_at))
+    .map(row => weekdays[row.weekday]+' '+row.opens_at.slice(0,5)+'–'+row.closes_at.slice(0,5));
+  return {id: `resource-${position}-hours`, text: entries.length
+    ? `Listing ${position} publishes these hours: ${entries.join(', ')}. Confirm current hours directly.`
+    : `The directory has no structured hours for listing ${position}. Contact the provider to confirm hours.`};
+}
 /** Same restricted public repository and point as the list. No arbitrary
  * client ID is looked up; only an ordinal confirmed in a fresh page of results. */
 export function createEdenDirectory(repo: Pick<Repository,'search'|'detail'>, locate: DirectoryCityLookup) {
@@ -39,10 +51,11 @@ export function createEdenDirectory(repo: Pick<Repository,'search'|'detail'>, lo
       return {ids:rows.map(r=>r.id),total:result.total};
     },
     async facts(id: string, position: number): Promise<Fact[]> {
-      const r = imported(await repo.detail(id,false));
+      const detail = await repo.detail(id,false);
+      const r = imported(detail);
       if (r.id !== id) return reject();
       const p = r.provenance!, date = new Date(p.source_updated_at).toISOString().slice(0,10);
-      return [{id:`resource-${position}-title`,text:r.title.slice(0,160)},
+      return [listedHours((detail as ResourceDetail).hours, position), {id:`resource-${position}-title`,text:r.title.slice(0,160)},
         {id:`resource-${position}-summary`,text:`Listed by ${sources.get(p.source_id)}. Source updated ${date}. ${p.verification_status==='stale_or_needs_review'?'This record needs review.':'Current operation is not independently verified.'}`}];
     },
   };

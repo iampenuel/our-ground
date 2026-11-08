@@ -27,7 +27,7 @@ root.innerHTML = isAbout ? `
         <div class="about-audiences">
           <article><span class="step-number" aria-hidden="true">01</span><div><h3>For residents</h3><p>Explore food assistance and healthcare resources across the United States. Listings vary by area. Compare practical details and confirm information with the provider before visiting.</p><a class="og-text-link" href="/support">Explore resources ${arrow}</a></div></article>
           <article><span class="step-number" aria-hidden="true">02</span><div><h3>For people who want to give</h3><p>Find organizations and learn where to start. Contribution arrangements happen directly with providers; Our Ground does not process donations.</p><a class="og-text-link" href="/give">Ways to give support ${arrow}</a></div></article>
-          <article><span class="step-number" aria-hidden="true">03</span><div><h3>For organizations</h3><p>Representatives can find their public listing and review its source. Organization onboarding is currently closed.</p><a class="og-text-link" href="/organizations">For organizations ${arrow}</a></div></article>
+          <article><span class="step-number" aria-hidden="true">03</span><div><h3>For organizations</h3><p>Representatives can find their public listing and report corrections. Organization onboarding is currently closed.</p><a class="og-text-link" href="/organizations">For organizations ${arrow}</a></div></article>
         </div>
       </section>
       <section class="about-steps" aria-labelledby="howTitle">
@@ -35,7 +35,7 @@ root.innerHTML = isAbout ? `
         <div class="about-step-grid">
           <article><h3>Start close to home.</h3><p>Choose a U.S. city and state or five-digit ZIP, then narrow your search by category and distance.</p></article>
           <article><h3>Understand your options.</h3><p>Read the available service, location, hours and eligibility information. Missing or unconfirmed details are identified.</p></article>
-          <article><h3>Confirm before you go.</h3><p>For sourced listings, contact the provider to check current details.</p></article>
+          <article><h3>Confirm before you go.</h3><p>For sourced listings, contact the provider to check current details. Report a correction when something needs attention.</p></article>
         </div>
       </section>
       <section class="about-prototype" aria-labelledby="todayTitle">

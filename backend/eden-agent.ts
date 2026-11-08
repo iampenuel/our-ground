@@ -8,13 +8,18 @@ import { EDEN_AGENT_CLARIFICATION_QUESTIONS, validateEdenAgentAction, validateEd
 import type { EdenAgentPlanResponse, EdenAgentContext, EdenAgentReplyResponse, EdenAgentRequest, EdenAgentResourceId, EdenAgentResultRequest } from '../shared/eden-agent.ts';
 import type { EdenSpeechPhrase } from '../shared/eden-speech.ts';
 import { createEdenProvider, EdenProviderError } from './eden-provider.ts';
-import type { EdenModelRequest } from './eden-provider.ts';
+import type { EdenModelRequest, EdenTextModel } from './eden-provider.ts';
 import type { Repository } from './app.ts';
 import { EDEN_LIVE_TOOL_DEFINITIONS } from '../shared/eden-live.ts';
 import { edenPublicPageFacts } from '../shared/eden-public-pages.ts';
 
 export type EdenAgentRepository = Pick<Repository, 'search' | 'detail'>;
-export type EdenAgentOptions = { repository?: EdenAgentRepository; directoryCity?: DirectoryCityLookup; now?: () => number; create?: (payload: EdenModelRequest, signal: AbortSignal) => Promise<unknown> };
+export interface EdenHostedTurnStore {
+  model: EdenTextModel;
+  save(key:string, turn:Pending):Promise<void>;
+  take(key:string, binding:string):Promise<Pending|null>;
+}
+export type EdenAgentOptions = { hostedTurns?: EdenHostedTurnStore; repository?: EdenAgentRepository; directoryCity?: DirectoryCityLookup; now?: () => number; create?: (payload: EdenModelRequest, signal: AbortSignal) => Promise<unknown> };
 export const EDEN_AGENT_TURN_TTL_MS = 120_000;
 export const EDEN_AGENT_ACTION_TOOL = 'perform_public_resource_action';
 export const EDEN_AGENT_REPLY_TOOL = 'compose_verified_reply';
@@ -142,7 +147,7 @@ function confirmDirectoryAction(action:EdenAction,before:EdenAgentContext,after:
     after.cityId !== query.cityId || after.category !== query.category || after.radius !== query.radius)) return reject();
   if (action.type === 'details' || action.type === 'select' || action.type === 'read-hours') {
     if (!ids[action.index-1] || before.resourceIds[action.index-1] !== ids[action.index-1]) return reject();
-    if (action.type !== 'read-hours' && after.selectedIndex !== action.index) return reject();
+    if ((action.type !== 'read-hours' || before.selectedIndex !== undefined) && after.selectedIndex !== action.index) return reject();
     if (action.type === 'details' && after.page !== 'resource') return reject();
   }
 }
@@ -161,11 +166,12 @@ function contextFacts(context:EdenAgentContext):Fact[]{
 }
 
 export function createEdenAgent(environment: Record<string, string | undefined>, options: EdenAgentOptions = {}) {
-  const env = { ...environment }, providerStatus = createEdenProvider(env).status, now = options.now ?? Date.now;
+  const env = { ...environment }, localStatus = createEdenProvider(env).status, now = options.now ?? Date.now;
+  const providerStatus = options.hostedTurns ? () => ({available:true,model:options.hostedTurns!.model}) : localStatus;
   const pending = new Map<string, Pending>();
   const operations = new Map<string, { controller: AbortController; done: Promise<void>; complete: () => void }>();
   let client: GoogleGenAI | undefined;
-  const directory = env.BACKEND_DATA_MODE === 'postgres' && env.ALLOW_DEMO_DATA === 'false' && env.EDEN_LOCAL_DIRECTORY_ENABLED === 'true'
+  const directory = env.BACKEND_DATA_MODE === 'postgres' && env.ALLOW_DEMO_DATA === 'false' && (options.hostedTurns || env.EDEN_LOCAL_DIRECTORY_ENABLED === 'true')
     && env.DATABASE_URL && options.repository && options.directoryCity ? createEdenDirectory(options.repository,options.directoryCity) : undefined;
   const status = () => ({ available: providerStatus().available && Boolean(options.repository) &&
     (Boolean(directory) || env.BACKEND_DATA_MODE === 'demo' && env.ALLOW_DEMO_DATA === 'true'), dataKind: directory ? 'public_directory' as const : 'fictional_demo' as const });
@@ -276,6 +282,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
     async prepareLiveAction(value: unknown, contextValue: unknown) {
       if (!status().available) throw new EdenProviderError('EDEN_DISABLED', 403);
       const action = validateEdenAction(value), context = validateEdenAgentContext(contextValue);
+      if (action?.type === 'read-hours' && context?.selectedIndex !== undefined && action.index !== context.selectedIndex) throw new EdenProviderError('EDEN_AGENT_CONTEXT_CHANGED',409);
       if (!action || !context || !modeMatches(context) || (action.type === 'search' && (!action.city || !action.radius))
         || (['radius', 'refine', 'details', 'select', 'read-results', 'clear-filters','read-hours'].includes(action.type) && !displayedQuery(context))
         || ((action.type === 'details' || action.type === 'select'||action.type==='read-hours') && action.index > context.resultCount)) throw new EdenProviderError('EDEN_LIVE_INVALID_ACTION', 422);
@@ -349,7 +356,9 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       const query = queryFor(action, request.context), expectedIds = directory ? undefined : await idsFor(query);
       active.signal.throwIfAborted();
       const turnToken = randomBytes(32).toString('base64url');
-      pending.set(hash(turnToken), { binding, expiresAt: now() + EDEN_AGENT_TURN_TTL_MS, request, action, query, expectedIds });
+      const item = { binding, expiresAt: now() + EDEN_AGENT_TURN_TTL_MS, request, action, query, expectedIds };
+      if (options.hostedTurns) await options.hostedTurns.save(hash(turnToken), item);
+      else pending.set(hash(turnToken), item);
       return { engine: 'gemini', turnToken, action };
       } finally { active.finish(); }
     },
@@ -357,7 +366,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       if (!status().available) throw new EdenProviderError('EDEN_DISABLED', 403);
       purge();
       const result = validateEdenAgentResultRequest(value), key = result ? hash(result.turnToken) : '';
-      const item = pending.get(key);
+      const item = options.hostedTurns && result ? await options.hostedTurns.take(key,binding) : pending.get(key);
       if (!result || !item || item.binding !== binding || item.expiresAt <= now()) throw new EdenProviderError('EDEN_AGENT_TURN_EXPIRED', 409);
       const active = operation(binding, signal);
       try {
@@ -384,11 +393,19 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
         for (let index = 0; index < currentIds.length; index++) if (featured(index,selected)) facts.push(...await recordFacts(currentIds[index], index + 1));
       }
       if (!failed && item.action.type==='read-hours') facts.push(hoursFact());
+      // Gemini already planned the action. Read the selected record directly for this factual reply.
+      if (!failed && directory && options.hostedTurns && item.action.type==='read-hours') {
+        const prefix=`resource-${item.action.index}-`;
+        const title=facts.find(f=>f.id===prefix+'title'),hours=facts.find(f=>f.id===prefix+'hours');
+        if(!title||!hours)throw new EdenProviderError('EDEN_AGENT_RESULT_UNCONFIRMED',409);
+        return {engine:'gemini',reply:title.text+'. '+hours.text,sources:[title,hours],phrase:phrase(item.action,false)};
+      }
       const requirements: CompositionRequirements = { requiredFactIds: ['outcome'], requiredOneOfFactIds: [] };
       if (!failed && giving){facts.push({id:'giving-next',text:'Would you like me to open Give Support?'});requirements.requiredFactIds.push('giving-purpose','giving-boundary','giving-next');}
       else if(!failed&&orientation)requirements.requiredFactIds.push('platform-purpose','platform-actions');
       else if (!failed && (item.action.type==='read-page'||item.action.type==='navigate-public')) requirements.requiredFactIds.push('page-'+confirmedContext.page+'-1');
       if (!failed && item.action.type==='read-hours') requirements.requiredFactIds.push('hours-unverified');
+      if (!failed && directory && item.action.type==='read-hours') requirements.requiredFactIds.push(`resource-${item.action.index}-hours`);
       if (!failed && (item.action.type === 'search' || item.action.type === 'radius')) requirements.requiredFactIds.push('result-count');
       if (!failed && item.action.type === 'radius') requirements.requiredFactIds.push('search-radius');
       if (!failed && item.action.type === 'details') {

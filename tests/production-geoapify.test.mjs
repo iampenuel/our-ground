@@ -1,9 +1,11 @@
+import {fixtureRequest} from './eligible-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {geoCity,geoFeature} from './geoapify-fixtures.mjs';
 
 test('Production environment reaches Redis through the real API entrypoint and returns complete JSON',async()=>{
   Object.assign(process.env,{VERCEL:'1',NODE_ENV:'production',BACKEND_DATA_MODE:'disabled',GEOAPIFY_ENABLED:'true',GEOAPIFY_LIVE_APPROVED:'true',GEOAPIFY_SERVER_API_KEY:'private-server-fixture',UPSTASH_REDIS_REST_URL:'https://runtime-fixture.upstash.io',UPSTASH_REDIS_REST_TOKEN:'private-redis-fixture'});
+  const eligibleRequest=await fixtureRequest('https://local');
   const oldFetch=globalThis.fetch,oldLog=console.error;
   const calls=[],logs=[];let admission=[1,0];
   console.error=value=>logs.push(JSON.parse(value));
@@ -20,9 +22,9 @@ test('Production environment reaches Redis through the real API entrypoint and r
   };
   try {
     const {GET}=await import('../api/index.ts');
-    const status=await GET(new Request('https://local/api/index?path=geoapify/status'));
+    const status=await GET(eligibleRequest('https://local/api/index?path=geoapify/status'));
     assert.deepEqual(await status.json(),{enabled:true,provider:'geoapify'});
-    const request=()=>new Request('https://local/api/index?path=geoapify/places&q=Harrisburg&term=food_assistance&radius_miles=10',{headers:{'x-vercel-forwarded-for':'192.0.2.1'}});
+    const request=()=>eligibleRequest('https://local/api/index?path=geoapify/places&q=Harrisburg&term=food_assistance&radius_miles=10',{headers:{'x-vercel-forwarded-for':'192.0.2.1'}});
     let response=await GET(request());assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/application\/json/);
     const body=await response.json();assert.equal(body.status,'results');assert.equal(body.items.length,1);
     assert.equal(calls.filter(h=>h==='runtime-fixture.upstash.io').length,3);assert.equal(calls.filter(h=>h==='api.geoapify.com').length,2);

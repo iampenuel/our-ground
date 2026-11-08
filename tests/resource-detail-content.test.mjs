@@ -36,7 +36,7 @@ test('sparse HRSA details omit repeated boilerplate and oversized empty sections
  assert.equal(meaningfulResourceDescription(resource),null);
  assert.match(html,/HRSA-listed health center\.<\/p>/);assert.doesNotMatch(html,/id="services"|detail-sidebar|Before you visit|institution-media|healthcare-support\.webp/);
  assert.equal((html.match(/Hours not listed/g)||[]).length,1);assert.match(html,/Eligibility not listed/);assert.match(html,/Costs not listed/);
- assert.match(html,/123 Example Street/);assert.match(html,/tel:6175550100/);assert.match(html,/Source &amp; verification/);assert.doesNotMatch(html,/id="correctionForm"|Report an issue/);
+ assert.match(html,/123 Example Street/);assert.match(html,/tel:6175550100/);assert.match(html,/Source &amp; verification/);assert.match(html,/id="correctionForm"/);
  assert.equal((html.match(/<img /g)||[]).length,1);assert.match(html,/healthcare-detail-symbol\.png/);
  assert.doesNotMatch(html,/Dental care|Vaccinations|Mental-health services|service is free/);
 });
@@ -57,7 +57,7 @@ test('fictional details retain explicit safety notice and never map or expose co
  const html=resourceDetailContent({...resource,data_kind:'fictional_demo'}, {mapAvailable:true});
  assert.match(html,/Fictional example — not a real service. Do not visit/);assert.match(html,/Contact and directions are disabled/);
  assert.doesNotMatch(html,/tel:|href="https:\/\/example.org|maps\/dir|id="detailMap"|id="locationHeading"/);
- assert.doesNotMatch(html,/id="correctionForm"|Report an issue/);assert.match(html,/healthcare-detail-symbol\.png/);
+ assert.match(html,/id="correctionForm"/);assert.match(html,/healthcare-detail-symbol\.png/);
 });
 test('review-needed status remains visible and source dates keep their actual meaning',()=>{
  const html=resourceDetailContent({...resource,provenance:{...resource.provenance,verification_status:'stale_or_needs_review'}},{mapAvailable:true});
@@ -67,7 +67,7 @@ test('review-needed status remains visible and source dates keep their actual me
 });
 test('Find Support cards have no imagery, keep direct actions and expand only meaningful details in context',()=>{
  const card={...resource,distance_miles:2},html=supportCards([{kind:'directory',key:'directory:'+resource.id,record:card}],null,'/support?category=healthcare');
- assert.doesNotMatch(html,/<img|resource-symbol|institution-media|support.webp/);assert.match(html,/Directions/);assert.match(html,/tel:6175550100/);assert.match(html,/Website/);assert.doesNotMatch(html,/About this location|href="\/resources\//);assert.match(html,/Copy resource link/);assert.doesNotMatch(html,/Report incorrect information|data-resource-report/);
+ assert.doesNotMatch(html,/<img|resource-symbol|institution-media|support.webp/);assert.match(html,/Directions/);assert.match(html,/tel:6175550100/);assert.match(html,/Website/);assert.doesNotMatch(html,/About this location|href="\/resources\//);assert.match(html,/Copy resource link/);assert.match(html,/Report incorrect information/);
  assert.match(html,/data-resource-open=.*?>View source record<\/a>/);
  const facts=resourceUsefulFacts({...resource,provenance:{...resource.provenance,source_record_id:'public<site>'}});
  assert.match(facts,/HRSA · Record public&lt;site&gt;/);assert.match(facts,/confirm services, hours and availability/);assert.doesNotMatch(facts,/<h4>Hours|<site>/);

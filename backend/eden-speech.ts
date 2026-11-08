@@ -45,43 +45,50 @@ export function createEdenSpeechProvider(env: Record<string, string | undefined>
     if (!secret || secret !== secret.trim() || /\s/.test(secret) || secret.length < 12 || secret.length > 4096) return { ...base, available: false, reason: 'key-missing' };
     return { ...base, available: true, reason: 'available' };
   };
-  let client: GoogleGenAI | undefined;
   return {
     status,
     async generate(phrase, signal) {
       // Runtime checks remain necessary even when TypeScript callers know the enum.
       if (!isEdenSpeechPhrase(phrase)) throw new EdenSpeechError('INVALID_SPEECH_PHRASE', 422);
       if (!status().available || !approvedModel) throw new EdenSpeechError('SPEECH_DISABLED', 503);
-      const timeout = AbortSignal.timeout(12_000), combined = AbortSignal.any([timeout, ...(signal ? [signal] : [])]);
-      combined.throwIfAborted();
-      const payload: EdenSpeechModelRequest = {
-        model: approvedModel,
-        input: [{ type: 'user_input', content: [{ type: 'text', text: EDEN_SPEECH_PHRASES[phrase], annotations: [{ type: 'speech_metadata', style: 'warm, patient, conversational' }] }] }],
-        response_format: { type: 'audio', mime_type: 'audio/wav', sample_rate: 24000 },
-        generation_config: { speech_config: [{ voice: EDEN_SPEECH_VOICE }] },
-        store: false,
-        automatic_continuation: false,
-      };
-      let response: unknown;
-      try {
-        if (options.create) response = await options.create(payload, combined);
-        else {
-          client ??= new GoogleGenAI({ apiKey: secret, apiVersion:'v1beta', enterprise: false, vertexai: false, httpOptions: { baseUrl: 'https://generativelanguage.googleapis.com', timeout: 12_000, retryOptions: { attempts: 1 } } });
-          response = await client.interactions.create(payload, { retries: { strategy: 'none' }, signal: combined, timeout_ms: 12_000 });
-        }
-        combined.throwIfAborted();
-      } catch (error) {
-        // Never expose or log SDK exceptions, prompt content, API keys or URLs.
-        const e = object(error), code = Number(e.status ?? e.code);
-        throw new EdenSpeechError(code === 429 ? 'SPEECH_QUOTA_EXHAUSTED' : 'SPEECH_PROVIDER_UNAVAILABLE', code === 429 ? 429 : 503);
-      }
-      const body = object(response), audio = object(body.output_audio);
-      if (body.status !== 'completed' || (audio.mime_type !== undefined && audio.mime_type !== 'audio/wav')
-        || typeof audio.data !== 'string' || audio.data.length > Math.ceil(EDEN_SPEECH_MAX_BYTES / 3) * 4
-        || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(audio.data)) throw new EdenSpeechError('SPEECH_INVALID_AUDIO', 503);
-      const data = Uint8Array.from(Buffer.from(audio.data, 'base64'));
-      if (!inspectEdenWav(data)) throw new EdenSpeechError('SPEECH_INVALID_AUDIO', 503);
-      return { mimeType: 'audio/wav', data };
+      return synthesizePublicSpeech(EDEN_SPEECH_PHRASES[phrase], approvedModel, secret!, signal, options);
     },
   };
+}
+
+
+/** Caller must supply a fixed local phrase or a server-produced, verified public reply.
+ * This function is never a free-text request handler. */
+export async function synthesizePublicSpeech(text:string, model:EdenTtsModel, secret:string, signal?:AbortSignal, options:EdenSpeechOptions={}) {
+  if (!text.trim() || text.length>1200 || !EDEN_TTS_MODELS.includes(model)) throw new EdenSpeechError('SPEECH_INVALID_REPLY',422);
+  const timeout = AbortSignal.timeout(12_000), combined = AbortSignal.any([timeout, ...(signal ? [signal] : [])]);
+  combined.throwIfAborted();
+  const payload: EdenSpeechModelRequest = {
+    model,
+    input: [{ type: 'user_input', content: [{ type: 'text', text, annotations: [{ type: 'speech_metadata', style: 'warm, patient, conversational' }] }] }],
+    response_format: { type: 'audio', mime_type: 'audio/wav', sample_rate: 24000 },
+    generation_config: { speech_config: [{ voice: EDEN_SPEECH_VOICE }] },
+    store: false,
+    automatic_continuation: false,
+  };
+  let response: unknown;
+  try {
+    if (options.create) response = await options.create(payload, combined);
+    else {
+      const client = new GoogleGenAI({ apiKey: secret, apiVersion:'v1beta', enterprise: false, vertexai: false, httpOptions: { baseUrl: 'https://generativelanguage.googleapis.com', timeout: 12_000, retryOptions: { attempts: 1 } } });
+      response = await client.interactions.create(payload, { retries: { strategy: 'none' }, signal: combined, timeout_ms: 12_000 });
+    }
+    combined.throwIfAborted();
+  } catch (error) {
+    // Never expose or log SDK exceptions, prompt content, API keys or URLs.
+    const e = object(error), code = Number(e.status ?? e.code);
+    throw new EdenSpeechError(code === 429 ? 'SPEECH_QUOTA_EXHAUSTED' : 'SPEECH_PROVIDER_UNAVAILABLE', code === 429 ? 429 : 503);
+  }
+  const body = object(response), audio = object(body.output_audio);
+  if (body.status !== 'completed' || (audio.mime_type !== undefined && audio.mime_type !== 'audio/wav')
+    || typeof audio.data !== 'string' || audio.data.length > Math.ceil(EDEN_SPEECH_MAX_BYTES / 3) * 4
+    || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(audio.data)) throw new EdenSpeechError('SPEECH_INVALID_AUDIO', 503);
+  const data = Uint8Array.from(Buffer.from(audio.data, 'base64'));
+  if (!inspectEdenWav(data)) throw new EdenSpeechError('SPEECH_INVALID_AUDIO', 503);
+  return { mimeType: 'audio/wav' as const, data };
 }

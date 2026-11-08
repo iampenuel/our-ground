@@ -91,3 +91,19 @@ test('historical Harrisburg HRSA coordinates and service IDs survive refinement 
     const map=await agent.reconcileLiveAction({type:'select',index:1},after,'done',{...after,mapState:'ready'});assert.equal(map.outcome,'done');
   }
 });
+
+test('hours follow the current clinic selection and stale indices are rejected',async()=>{
+  const nextId='bbbbbbbb-1111-5111-8111-bbbbbbbbbbbb';
+  const rows=[{...record,hours:[{weekday:1,opens_at:'09:00',closes_at:'17:00'}]}, {...record,id:nextId,hours:[]}];
+  const repository={search:async()=>({total:2,items:rows}),detail:async id=>rows.find(row=>row.id===id)};
+  const agent=createEdenAgent(env,{repository,directoryCity:locate});
+  const prev={...support(rows.map(row=>row.id)),selectedIndex:1}, current={...prev,selectedIndex:2};
+  const action={type:'read-hours',index:2};
+  const proposed=reduceEdenAgentInput('What are this clinic’s hours?',current);
+  assert.deepEqual(proposed.intent,{goal:'check-open-now',ordinal:2});
+  await assert.rejects(agent.prepareLiveAction({type:'read-hours',index:1},current));
+  const result=await agent.reconcileLiveAction(action,current,'done',current);
+  assert.match(result.facts.find(f=>f.id==='resource-2-hours').text,/no structured hours/);
+  assert.match((await agent.inspectLiveContext(prev)).facts.find(f=>f.id==='resource-1-hours').text,/Monday 09:00–17:00/);
+  await assert.rejects(agent.reconcileLiveAction(action,current,'done',prev));
+});

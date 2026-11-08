@@ -24,7 +24,7 @@ const defaults: LauncherLoaders = {
     return loadEdenRive(canvas, options?.profile ? '/assets/eden/approved-profile/eden-launcher.riv' : undefined, signal, options);
   },
   async loadSvg(signal) {
-    const response = await fetch('/assets/eden/rig/eden-layered.svg', { signal, credentials: 'omit', referrerPolicy: 'no-referrer' });
+    const response = await fetch('/assets/eden/rig/eden-layered.svg', { signal, credentials: 'same-origin', referrerPolicy: 'no-referrer' });
     if (!response.ok) throw new Error('Portrait unavailable.');
     const parsed = new DOMParser().parseFromString(await response.text(), 'image/svg+xml');
     signal.throwIfAborted();

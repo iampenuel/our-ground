@@ -86,16 +86,17 @@ test('private no-store and no-referrer headers still resist both explicit writeH
   }
 });
 
-test('Vercel and generated staging headers contain no public WASM or media exception',()=>{
+test('deployed documents permit same-origin microphone input and blob playback without a Google browser connection',()=>{
   const base=JSON.parse(fs.readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
   assert.deepEqual(vercelSecurityConfigProblems(base),[]);
   const sources=['/(.*)','/account','/account/:path*','/staff/:path*','/auth/:path*','/api/:path*'];
   for(const auth of [undefined,'https://exampleproject.supabase.co']){
     const config=renderVercelSecurityConfig(base,auth);
     assert.deepEqual(config.headers.map(rule=>rule.source),sources);assert.equal(config.git.deploymentEnabled,false);
-    assert.deepEqual(config.rewrites,base.rewrites);assert(!JSON.stringify(config).includes('wasm-unsafe-eval'));assert(!JSON.stringify(config).includes('media-src blob:'));
-    assert.deepEqual(Object.fromEntries(config.headers[0].headers.map(({key,value})=>[key,value])),browserSecurityHeaders({https:true,authOrigin:auth}));
-    for(const rule of config.headers.slice(1))assert.deepEqual(Object.fromEntries(rule.headers.map(({key,value})=>[key,value])),privateDocumentHeaders);
+    assert.deepEqual(config.rewrites,base.rewrites);assert(!JSON.stringify(config).includes('wasm-unsafe-eval'));assert(!JSON.stringify(config).includes('wss://generativelanguage.googleapis.com'));
+    const headers=Object.fromEntries(config.headers[0].headers.map(({key,value})=>[key,value]));
+    assert.match(headers['Permissions-Policy'],/microphone=\(self\)/);assert.match(headers['Content-Security-Policy'],/media-src blob:/);assert.match(headers['Content-Security-Policy'],/frame-src 'none'/);
+    for(const rule of config.headers.slice(1,6))assert.deepEqual(Object.fromEntries(rule.headers.map(({key,value})=>[key,value])),privateDocumentHeaders);
     const widened=structuredClone(config);widened.headers.push({source:'/support',headers:[{key:'Content-Security-Policy',value:resourcePolicy(auth).replace("script-src 'self';","script-src 'self' 'wasm-unsafe-eval';")}]});
     assert(vercelSecurityConfigProblems(widened,auth).length>0);
   }

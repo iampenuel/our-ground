@@ -14,7 +14,7 @@ test('reviewed candidate config grants exactly the build Auth host and preserves
   const config=renderVercelSecurityConfig(base,auth);
   assert.deepEqual(vercelSecurityConfigProblems(config,auth),[]);assert.deepEqual(config.rewrites,base.rewrites);assert.equal(config.git.deploymentEnabled,false);
   const policy=config.headers[0].headers.find(h=>h.key==='Content-Security-Policy').value;
-  assert.equal(policy,resourcePolicy(auth));assert(!policy.includes('*.supabase.co'));assert(!JSON.stringify(config).includes('publishable_'));
+  assert.equal(policy,resourcePolicy(auth).replace("media-src 'none'",'media-src blob:'));assert(!policy.includes('*.supabase.co'));assert(!JSON.stringify(config).includes('publishable_'));
 });
 test('security config validation rejects wildcard/other Auth hosts, report-only substitution and private override',()=>{
   for(const change of [c=>{c.headers[0].headers.find(h=>h.key==='Content-Security-Policy').value=resourcePolicy('https://otherfixtureproject.supabase.co');},c=>{c.headers[0].headers.find(h=>h.key==='Content-Security-Policy').value+='; connect-src *';},c=>{c.headers[0].headers.find(h=>h.key==='Content-Security-Policy').key='Content-Security-Policy-Report-Only';},c=>{c.headers[1].headers.find(h=>h.key==='Referrer-Policy').value='unsafe-url';},c=>{c.headers.push({source:'/support',headers:[{key:'Content-Security-Policy',value:'default-src *'}]});},c=>{c.git.deploymentEnabled=true;}]){

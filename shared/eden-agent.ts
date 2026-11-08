@@ -10,6 +10,15 @@ export const EDEN_AGENT_RESOURCE_IDS = ['11111111-1111-4111-8111-111111111111', 
 export type EdenAgentResourceId = string;
 export const isImportedResourceId = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value);
 export type EdenAgentContext = EdenPageContext & { directory?: 'public'; cityId?: EdenCityId; resourceIds: EdenAgentResourceId[]; selectedIndex?:number; searchState?:'idle'|'loading'|'ready'|'error';mapState?:'not-shown'|'loading'|'ready'|'unavailable' };
+
+/** A map finishing its tiles does not change which published listing a command describes. */
+export function sameDirectoryView(a:EdenAgentContext,b:EdenAgentContext|null,includeMapState=false):boolean {
+  return b!==null && a.page===b.page && a.category===b.category && a.cityId===b.cityId &&
+    a.radius===b.radius && a.directory===b.directory && a.synthetic===b.synthetic &&
+    a.searchState===b.searchState && a.resultCount===b.resultCount && a.selectedIndex===b.selectedIndex &&
+    a.resourceIds.length===b.resourceIds.length && a.resourceIds.every((id,i)=>id===b.resourceIds[i]) &&
+    (!includeMapState||a.mapState===b.mapState);
+}
 export type EdenAgentIntent =
   | { goal: 'find-resources'; category: EdenCategory; cityId: EdenCityId; radius?: EdenRadius }
   | { goal: 'adjust-distance'; radius: EdenRadius }
@@ -174,6 +183,17 @@ export function reduceEdenAgentInput(raw: unknown, context: EdenAgentContext, pe
   if(navigation){const pages:Record<string,EdenPublicDestination>={'give support':'give','for organizations':'organizations',organizations:'organizations','about':'about','about our ground':'about',privacy:'privacy','privacy policy':'privacy',home:'home',homepage:'home','find support':'support',support:'support'};return{status:'supported',intent:{goal:'navigate-public',page:pages[navigation[1]]}};}
   if(/^(?:show(?: me)?|focus|select) (?:that|this|the selected) (?:resource|place|listing|one) on (?:the )?map$/.test(normalized))return safe.selectedIndex?{status:'supported',intent:{goal:'inspect-resource',ordinal:safe.selectedIndex,view:'map'}}:{status:'clarify',message:'Select a current resource or name its result number first.'};
   if(/^(?:is|check if) (?:(?:this|that|the selected) (?:resource|place|listing)|it) open (?:right )?now$/.test(normalized))return safe.selectedIndex?{status:'supported',intent:{goal:'check-open-now',ordinal:safe.selectedIndex}}:{status:'clarify',message:'Which current result should I check?'};
+  // Local English recognition can omit possessive apostrophes or choose “these clinics”.
+  const asksForHours=[
+    /^(?:what are|what is|what's|what're|tell me) (?:this|that|the|these|those|the selected) (?:clinic|listing|resource)(?:'s|s'?)? (?:opening |office |operating )?(?:hours|ours)$/,
+    /^(?:what are|what is|what's|tell me) (?:its|their|the) (?:opening |office |operating )?hours$/,
+    /^(?:what are )?(?:the )?(?:opening |office |operating )?hours (?:for|of|at) (?:this|that|the selected) (?:clinic|listing|resource)$/,
+    /^(?:clinic |opening |office )?hours$/
+  ].some(pattern=>pattern.test(normalized));
+  if (asksForHours) {
+    return safe.selectedIndex ? {status:'supported',intent:{goal:'check-open-now',ordinal:safe.selectedIndex}}
+      : {status:'clarify',message:'Select the clinic you want to check first.'};
+  }
   const statewide=/^(?:find|show(?: me)?|search(?: for)?) (food(?: resources?| support| assistance)?|health ?care(?: resources?| support)?|medical clinics?) (?:in|across|throughout) pennsylvania$/.exec(normalized);
   if(statewide)return{status:'supported',intent:{goal:'clarify-search',missing:'city',category:/^(?:health|medical)/.test(statewide[1])?'healthcare':'food'}};
   if (/^(?:find|show(?: me)?|search(?: for)?) (?:places|resources|support) (?:in|across|throughout) pennsylvania$/.test(normalized)) {

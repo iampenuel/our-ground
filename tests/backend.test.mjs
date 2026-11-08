@@ -95,24 +95,14 @@ test('text validation matches database limits and rejects null required text', a
     assert.equal(response.status, 409);
   }
 });
-test('discovery-only rejects a valid anonymous report without storing it', async () => {
+test('anonymous correction report is accepted without account', async () => {
   const { send, reports } = setup();
   const response = await send('correction-reports', {
     method: 'POST', headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ service_id: serviceId, reason_code: 'wrong_hours' })
   });
-  assert.equal(response.status, 403);
-  assert.equal((await response.json()).error.code, 'CORRECTIONS_CLOSED');
-  assert.deepEqual(reports, []);
-});
-test('rewritten correction submissions are rejected before consuming their body', async () => {
-  const request = new Request('https://example.test/api/index?path=correction-reports', {
-    method: 'POST', headers: {'Content-Type': 'application/json'}, body: 'invalid JSON'
-  });
-  const response = await handleApi(request, {});
-  assert.equal(response.status, 403);
-  assert.equal((await response.json()).error.code, 'CORRECTIONS_CLOSED');
-  assert.equal(request.bodyUsed, false);
+  assert.equal(response.status, 202);
+  assert.deepEqual(reports, ['wrong_hours']);
 });
 test('demo repository supports geographic search, staff maintenance, hide and correction visibility', async () => {
   const repo = new DemoRepository(editorId);
@@ -131,7 +121,7 @@ test('demo repository supports geographic search, staff maintenance, hide and co
   await repo.updateService(serviceId,await repo.account(editorId),1,{status:'hidden'});
   assert.equal((await send('resources/' + serviceId)).status, 404);
   const report = await send('correction-reports', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ service_id: serviceId, reason_code: 'closed' }) });
-  assert.equal(report.status, 403);
+  assert.equal(report.status, 404);
   const staffView = await send('services/' + serviceId, { headers: { authorization: 'Bearer editor' } });
   assert.equal((await staffView.json()).version, 2);
 });

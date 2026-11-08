@@ -20,7 +20,7 @@ if (redirect) {
   if (assistant) void import('./eden/components/assistant').then(({ mountEdenAssistant }) => {
     const localReview = import.meta.env.DEV && import.meta.env.MODE === 'eden-review'
       && ['127.0.0.1', 'localhost', '[::1]'].includes(window.location.hostname);
-    mountEdenAssistant({ voiceAllowed: localReview });
+    mountEdenAssistant({ voiceAllowed: localReview, hostedCommands: import.meta.env.PROD });
   });
 
   if (path === '/demo') {
