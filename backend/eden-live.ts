@@ -9,8 +9,8 @@ import { buildEdenLiveConfig } from '../shared/eden-live.ts';
 export const EDEN_LIVE_MODEL = 'gemini-3.8-live' as const;
 export const EDEN_LIVE_LIMITS = Object.freeze({ maxCallSeconds: 300, connectSeconds: 60, minCallSeconds: 15, mintsPerSession: 3, mintsPerDay: 6, timeoutMs: 12_000, maxRememberedNonces: 100 });
 export class EdenLiveError extends Error {
-  code: string; status: number;
-  constructor(code: string, status = 503) { super('The voice call is unavailable. Please try again after the current call limit or continue with text.'); this.code = code; this.status = status; }
+  code: string; status: number; retryAfterSeconds?:number;
+  constructor(code: string, status = 503, retryAfterSeconds?:number) { super('The voice call is unavailable. Please try again after the current call limit or continue with text.'); this.code = code; this.status = status; this.retryAfterSeconds=retryAfterSeconds; }
 }
 export type EdenLiveToken = {
   token: string; callId: string; expiresAt: string; newSessionExpiresAt: string;

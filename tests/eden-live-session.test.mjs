@@ -418,9 +418,9 @@ test('transport distinguishes malformed JSON, provider error, application callba
       const closed=[],abort=new AbortController();
       const pending=connectEdenLive(token(),{message:value=>{if(kind==='application-handler'&&value.serverContent)throw new Error('Private UI exception must not escape.');},closed:value=>closed.push(value)},abort.signal);
       const socket=sockets.at(-1);socket.onopen();socket.onmessage({data:'{"setupComplete":{}}'});await pending;
-      if(kind==='socket-close')socket.onclose({code:1006,reason:'Private provider close reason'});
+      if(kind==='socket-close'){socket.onerror();socket.onclose({code:1006,reason:'Private provider close reason'});}
       else socket.onmessage({data:kind==='invalid-message'?'{invalid':kind==='provider-error'?'{"error":{"message":"Private provider error"}}':'{"serverContent":{}}'});
-      await settle();assert.deepEqual(closed,[{kind,...(kind==='socket-close'?{code:1006}:kind==='provider-error'?{providerCategory:'provider-other'}:{})}]);assert.equal(socket.closed,true);assert.doesNotMatch(JSON.stringify(closed),/Private/);abort.abort();
+      await settle();assert.deepEqual(closed,[{kind,...(kind==='socket-close'?{code:1006,closeReason:'other'}:kind==='provider-error'?{providerCategory:'provider-other'}:{})}]);assert.equal(socket.closed,true);assert.doesNotMatch(JSON.stringify(closed),/Private/);abort.abort();
     }
   }finally{if(original)Object.defineProperty(globalThis,'WebSocket',original);else delete globalThis.WebSocket;}
 });

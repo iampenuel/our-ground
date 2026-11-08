@@ -1,4 +1,5 @@
 import {createHash,randomBytes} from 'node:crypto';
+import {RELEASE_LIVE_RESERVATION} from './eden-live-reservation.ts';
 import {issueEdenLiveToken,EdenLiveError} from './eden-live.ts';
 import {createEdenAgent} from './eden-agent.ts';
 import {EDEN_LIVE_MAX_CALL_SECONDS,isEdenLiveCallId,validateEdenLiveTokenRequest,validateEdenLiveToolCall,validateEdenLiveContext} from '../shared/eden-live.ts';
@@ -41,23 +42,43 @@ export function createHostedLive(store:Store,agent:Agent,secret:string,issue=iss
       const ttl=Math.ceil((deadline-Date.now())/1000);
       if(!Number.isFinite(ttl)||ttl<15)invalid('EDEN_LIVE_SESSION_EXPIRING',401);
       if(!await reserve('nonce:'+binding+':'+request.nonce,'1',ttl))invalid('EDEN_LIVE_NONCE_REUSED',409);
-      if(request.callId){
-        if(!await reserve('resume:'+call,'1',ttl))invalid('EDEN_LIVE_RESUME_DENIED',409);
-      }else{
-        if(!await reserve('owner:'+binding,call,ttl))invalid('EDEN_LIVE_CALL_ACTIVE',409);
-        if(!await reserve('slot:1',call,ttl)&&!await reserve('slot:2',call,ttl))invalid('EDEN_LIVE_CALL_ACTIVE',409);
-        if(!await reserve(callKey(call),String(deadline),ttl))invalid('EDEN_LIVE_CALL_ACTIVE',409);
+      let owned=false,slot:string|undefined;
+      const providerSeat=call+':'+deadline;
+      const release=(name:string,expected:string)=>store(['EVAL',RELEASE_LIVE_RESERVATION,'1',key(name),expected]);
+      try{
+        if(request.callId){
+          if(!await reserve('resume:'+call,'1',ttl))invalid('EDEN_LIVE_RESUME_DENIED',409);
+        }else{
+          if(!await reserve('owner:'+binding,call,ttl))invalid('EDEN_LIVE_CALL_ACTIVE',409);
+          owned=true;
+          for(const name of ['slot:1','slot:2'])if(await reserve(name,providerSeat,ttl)){slot=name;break;}
+          if(!slot){
+            const seats=await Promise.all([get('slot:1'),get('slot:2')]);
+            const wait=Math.min(...seats.map(value=>typeof value==='string'&&/^[-\w]{43}:\d{13}$/.test(value)?Math.max(1,Math.ceil((Number(value.slice(44))-Date.now())/1000)):EDEN_LIVE_MAX_CALL_SECONDS));
+            throw new EdenLiveError('EDEN_LIVE_CAPACITY',429,Math.min(wait,EDEN_LIVE_MAX_CALL_SECONDS));
+          }
+          if(!await reserve(callKey(call),String(deadline),ttl))invalid('EDEN_LIVE_CALL_ACTIVE',409);
+        }
+        await limit('session:'+session,3,900);
+        await limit('project:'+new Date().toISOString().slice(0,10),6,86460);
+        const token=await issue(secret,call,deadline,true,signal,request.resumeHandle?{handle:request.resumeHandle}:undefined);
+        await expiry(call);
+        return token;
+      }catch(error){
+        // A rejected mint never delivered a credential to the browser. Its
+        // provisional seat is reusable; attempts still count toward abuse limits.
+        if(owned)await Promise.all([release('owner:'+binding,call),store(['DEL',key(callKey(call))]),...(slot?[release(slot,providerSeat)]:[])]);
+        throw error;
       }
-      await limit('session:'+session,3,900);
-      await limit('project:'+new Date().toISOString().slice(0,10),6,86460);
-      const token=await issue(secret,call,deadline,true,signal,request.resumeHandle?{handle:request.resumeHandle}:undefined);
-      await expiry(call);
-      return token;
     }
     const id=body.callId;
     if(!isEdenLiveCallId(id)||body.noticeVersion!==EDEN_NOTICE_VERSION)throw new EdenLiveError('EDEN_LIVE_INVALID_REQUEST',422);
     if(path==='live/end'&&only(body,['noticeVersion','callId'])){
-      await store(['DEL',key(callKey(id))]);return {ended:true};
+      // Only a session holding this call may release its visitor reservation.
+      // Keep the independent provider seat until the issued credential expires.
+      if(await store(['GETDEL',key(callKey(id))])!==null)
+        await store(['EVAL',RELEASE_LIVE_RESERVATION,'1',key('owner:'+binding),id]);
+      return {ended:true};
     }
     const ttl=Math.ceil(((await expiry(id))-Date.now())/1000);
     if(!ctx||ctx.directory!=='public'||ctx.synthetic||typeof body.id!=='string'||!/^[\w.:-]{1,128}$/.test(body.id))throw new EdenLiveError('EDEN_LIVE_INVALID_TOOL',422);

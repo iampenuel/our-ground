@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+import {RELEASE_LIVE_RESERVATION} from './eden-live-reservation.ts';
 import postgres from 'postgres';
 import {stagingLimitConfig} from './staging-limiter.ts';
 
@@ -13,12 +14,14 @@ export async function stagingEdenStore(env:Env,command:string[]) {
   if (!key||!/^og:adult:eden:v1:(session|speech|turn|rate|live):[\w:.\-]{1,220}$/.test(key))throw Error('Unsupported staging ticket');
   let op=cmd,value='',ttl=0;
   if(cmd==='EVAL'&&command.length===5&&command[2]==='1'&&key.startsWith('og:adult:eden:v1:rate:')){op='COUNT';ttl=Number(command[4]);}
+  else if(cmd==='EVAL'&&command.length===5&&command[1]===RELEASE_LIVE_RESERVATION&&command[2]==='1'&&key.startsWith('og:adult:eden:v1:live:')&&/^[A-Za-z0-9_-]{43}(?::[0-9]{13})?$/.test(command[4])){op='RELEASE';value=command[4];}
   else if(cmd==='SET'&&command.length===6&&command[3]==='EX'&&command[5]==='NX'){value=command[2];ttl=Number(command[4]);}
   else if(!(['GET','GETDEL','DEL'].includes(cmd)&&command.length===2))throw Error('Unsupported staging operation');
   if(!Number.isSafeInteger(ttl)||Buffer.byteLength(value)>32768)throw Error('Invalid ticket');
   const digest=createHash('sha256').update(key).digest('hex');
   let sql=clients.get(env);
   if(!sql){sql=postgres(config.connection,{max:2,prepare:false,ssl:config.ssl,connect_timeout:3,idle_timeout:10,connection:{statement_timeout:2000},onnotice:()=>{}});clients.set(env,sql);}
+  if(op==='RELEASE'){const [row]=await sql`select eden_staging_limits.live_release(${digest},${value}) as result`;return Number(row.result);}
   const [row]=await sql`select eden_staging_limits.eden_op(${op},${digest},${value},${ttl}) as result`;
   return op==='COUNT'?Number(row.result):cmd==='DEL'?(row.result===null?0:1):row.result;
 }

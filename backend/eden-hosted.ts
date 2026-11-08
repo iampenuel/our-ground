@@ -171,7 +171,11 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         if(quota.retryAfterSeconds!==undefined)result.headers.set('Retry-After',String(quota.retryAfterSeconds));
         return result;
       }
-      if(error instanceof EdenLiveError || error instanceof EdenSpeechError || error instanceof RequestInputError) return response({error:{code:error.code,message:error.message}},error.status);
+      if(error instanceof EdenLiveError || error instanceof EdenSpeechError || error instanceof RequestInputError){
+        const result=response({error:{code:error.code,message:error.message}},error.status);
+        if(error instanceof EdenLiveError&&error.retryAfterSeconds)result.headers.set('Retry-After',String(error.retryAfterSeconds));
+        return result;
+      }
       return response({error:{code:'EDEN_UNAVAILABLE',message:'The assistant is temporarily unavailable.'}},503);
     }
   };

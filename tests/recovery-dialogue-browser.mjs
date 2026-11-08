@@ -12,6 +12,7 @@ const out=process.env.RECOVERY_IMAGES??'docs/release/eden-next-verification';awa
 const captureOnly=process.env.RECOVERY_DIALOGUE_CAPTURE_ONLY==='1',record=process.env.RECOVERY_DIALOGUE_RECORD==='1';
 if(captureOnly)assert(record,'Capture-only requires a real browser recording');
 const receiptName=captureOnly?'dialogue-cursor-capture.json':'dialogue.json';
+const finalAcceptance=process.env.RECOVERY_DIALOGUE_SEVEN==='1';
 const report={base,sha,scope:captureOnly?'compound-recording':'dialogue',steps:[],errors:[],status:'FAIL'};
 const browser=await chromium.launch({channel:'chrome',args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 try{
@@ -62,7 +63,8 @@ try{
      ['identity','Who are you?','identity'],['introduction','Give me an intro of who you are.','identity'],
      ['correction','I meant introduce yourself, not the donation page.','identity'],['capabilities','What can you actually help me do?','capabilities'],
    ]){
-     const step=await ask(name,input);assert.equal(step.route,'/');assert.equal(step.trace.proposedAction,topic);
+     if(finalAcceptance&&['introduction','correction'].includes(name))continue;
+     const step=await ask(name,finalAcceptance&&name==='capabilities'?'What can you help me do?':input);assert.equal(step.route,'/');assert.equal(step.trace.proposedAction,topic);
      assert.equal(step.trace.output,'model-approved-facts');assert.match(step.reply,topic==='identity'?/Eden.*Our Ground.*assistant/:/public directory|explore a listing|show results/i);
      assert(step.requests.some(r=>r.endpoint==='understand')&&!step.requests.some(r=>r.endpoint==='plan'));
    }
@@ -71,7 +73,14 @@ try{
    const first=p.locator('[data-card-key^="directory:"]').first(),title=(await first.locator('.discovery-select > span:not([class])').innerText()).trim();
    const detail=await ask('first visible result','Show me the first result.');assert.equal(detail.trace.proposedAction,'details');assert(detail.reply.includes(title));
    assert(await p.locator('[data-resource-content]:visible').count()>0);
-   const back=await ask('return to map','Go back and show the map.');assert.equal(back.trace.proposedAction,'back-to-map');
+   if(finalAcceptance){
+     const food=await ask('correct category','Actually, I meant food support.');
+     assert(['search','refine'].includes(food.trace.proposedAction));assert.match(food.reply,/food|pantry|pantries/i);
+     assert.equal(await p.locator('#locationInput').inputValue(),'Harrisburg, PA');
+     const page=await ask('describe current page',"Can you explain what's on this page?");
+     assert.equal(page.trace.proposedAction,'read-page');assert.match(page.reply,/support|results|directory|food|map/i);
+   }
+   const back=await ask('return to map',finalAcceptance?'Go back and show me the map.':'Go back and show the map.');assert(['back-to-map',...(finalAcceptance?['show-map']:[])].includes(back.trace.proposedAction));
    assert.equal(await p.locator('[data-resource-content]:visible').count(),0);
    assert.equal(await p.locator('#showSupportMap').getAttribute('aria-expanded'),'true');
  }

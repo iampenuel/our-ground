@@ -182,3 +182,5 @@
 .eden-live-strip [data-live-confirm],.eden-live-strip [data-live-mute][aria-pressed="true"]{background:var(--og-green);color:white}
 .eden-live-strip [data-live-clock]{margin-right:.2rem}
 .eden-live-strip [data-live-state]{display:block}.eden-live-strip [data-live-clock]{font-variant-numeric:tabular-nums}
+
+.eden-live-strip [data-live-details]{overflow-wrap:anywhere}.eden-live-strip [data-live-details] summary{cursor:pointer}

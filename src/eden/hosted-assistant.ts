@@ -138,9 +138,10 @@ export function mountHostedEden(host:HTMLElement) {
       signal.throwIfAborted();session=res.sessionToken;expires=expiry;return true;
     }catch(e){signal.throwIfAborted();if(navigationOnly)return false;throw e;}
   }
+  let callRelease:Promise<number>|undefined;
   function endSession(){
     const prior=session;session=undefined;expires=0;
-    if(prior)void fetch('/api/v1/eden/hosted/end',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json',Authorization:'Bearer '+prior},body:'{}',keepalive:true}).catch(()=>{});
+    if(prior)void Promise.resolve(callRelease).catch(()=>{}).then(()=>fetch('/api/v1/eden/hosted/end',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json',Authorization:'Bearer '+prior},body:'{}',keepalive:true})).catch(()=>{});
   }
   function stopDictation(){if(dictation){dictation.abort();dictation=undefined;portrait.state('idle');}controls();}
   function stopPlayback(){playback?.abort();playback=undefined;portrait.playbackEnded();controls();}
@@ -215,8 +216,8 @@ export function mountHostedEden(host:HTMLElement) {
       const {mountHostedLive}=await import('./hosted-live');
       if(generation!==epoch||panel.hidden)return;
       live??=mountHostedLive(host,{request,session:startSession,portrait,changed:active=>{liveActive=active;controls();},
-        release:callId=>{if(session)void fetch('/api/v1/eden/hosted/live/end',{method:'POST',credentials:'same-origin',keepalive:true,
-          headers:{'Content-Type':'application/json',Authorization:'Bearer '+session},body:JSON.stringify({callId,noticeVersion:EDEN_NOTICE_VERSION})}).catch(()=>{});}
+        release:(callId,reference)=>{if(!session)return Promise.resolve(401);return callRelease=fetch('/api/v1/eden/hosted/live/end',{method:'POST',credentials:'same-origin',keepalive:true,signal:AbortSignal.timeout(6000),
+          headers:{'Content-Type':'application/json','x-eden-correlation-id':reference,Authorization:'Bearer '+session},body:JSON.stringify({callId,noticeVersion:EDEN_NOTICE_VERSION})}).then(r=>r.status);}
       });
       live.prompt();
     }catch{notify('Voice calls are unavailable. You can still type.');}

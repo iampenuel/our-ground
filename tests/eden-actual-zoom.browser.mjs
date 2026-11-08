@@ -35,6 +35,13 @@ try{
   const actual=await settings.evaluate(async()=>{await new Promise(resolve=>chrome.settingsPrivate.setDefaultZoom(2,resolve));return await new Promise(resolve=>chrome.settingsPrivate.getDefaultZoom(resolve));});
   assert.equal(actual,2);await p.bringToFront();await p.waitForFunction(dpr=>devicePixelRatio>=dpr*1.99,before.dpr);
   const zoomed=await p.evaluate(()=>({width:innerWidth,height:innerHeight,dpr:devicePixelRatio,visualScale:visualViewport.scale,scrollWidth:document.documentElement.scrollWidth}));
+  const gutter=await p.evaluate(()=>['header .og-brand','#home-title','#community-title'].map(q=>document.querySelector(q).getBoundingClientRect().left));
+  assert(Math.max(...gutter)-Math.min(...gutter)<=1,'200% homepage gutter mismatch: '+gutter);
+  await p.goto(base+'/about');await p.locator('header .og-brand').waitFor();
+  for(let i=0;i<8&&!await p.locator('header .og-brand').evaluate(e=>e===document.activeElement);i++)await p.keyboard.press('Tab');
+  const brand=p.locator('header .og-brand');assert(await brand.evaluate(el=>el===document.activeElement&&el.matches(':focus-visible')&&getComputedStyle(el).outlineStyle!=='none'));
+  await brand.press('Enter');await p.locator('#home-title').waitFor();
+  evidence.push(['local-wordmark-actual-200.jpg',await p.screenshot({type:'jpeg',quality:82})]);
   await p.locator('.eden-launch').click();
   const shell=await p.evaluate(()=>{const rect=s=>{const r=document.querySelector(s).getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};};
     return {panel:rect('#eden-panel'),composer:rect('.eden-composer'),send:rect('[data-send]'),caution:rect('#eden-input-help'),portrait:document.querySelector('#eden-assistant').dataset.edenPortrait,frames:Number(document.querySelector('.eden-portrait svg').dataset.profileFrames)};
@@ -76,7 +83,7 @@ try{
   await p.locator('.eden-launch').click();await p.waitForFunction(n=>Number(document.querySelector('.eden-portrait svg')?.dataset.profileFrames)>n,shell.frames);
   const screen=await capture.send('Page.captureScreenshot',{format:'jpeg',quality:78,fromSurface:true});
   evidence.push(['local-cursor-actual-200-panel.jpg',Buffer.from(screen.data,'base64')]);
-  const report={scope:'local directory and age-status transport fixtures, actual page controls and approved portrait; no Gemini requests',zoom:actual,before,zoomed,shell,searchCount:searches.length,modelCalls,confirmedDetails:details.status,hits,status:'PASS'};
+  const report={scope:'local directory and age-status transport fixtures, actual page controls and approved portrait; no Gemini requests',zoom:actual,before,zoomed,gutter,keyboardHome:true,shell,searchCount:searches.length,modelCalls,confirmedDetails:details.status,hits,status:'PASS'};
   evidence.push(['local-cursor-actual-200.json',JSON.stringify(report,null,2)+'\n']);console.log(JSON.stringify(report));
 }finally{await ctx?.close();await server.close();await rm(scratch,{recursive:true,force:true});}
 for(const [name,data] of evidence)await writeFile(join(out,name),data);

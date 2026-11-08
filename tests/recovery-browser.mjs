@@ -22,6 +22,15 @@ try{
    receipt.accessibility.push({view:label,route,violations});}
   }
   await p.goto(base);await p.locator('h1').first().waitFor();
+  const gutter=await p.evaluate(()=>['header .og-brand','#home-title','#community-title'].map(q=>document.querySelector(q).getBoundingClientRect().left));
+  assert(Math.max(...gutter)-Math.min(...gutter)<=1,'Homepage gutter mismatch: '+gutter);
+  await shot('homepage-'+label);
+  await p.goto(base+'/about');await p.locator('header .og-brand').waitFor();
+  for(let i=0;i<8&&!await p.locator('header .og-brand').evaluate(e=>e===document.activeElement);i++)await p.keyboard.press('Tab');
+  const brand=p.getByRole('link',{name:'Our Ground home'}).first();
+  assert(await brand.evaluate(el=>el===document.activeElement&&el.matches(':focus-visible')&&getComputedStyle(el).outlineStyle!=='none'));
+  await brand.press('Enter');await p.locator('#home-title').waitFor();assert.equal(new URL(p.url()).pathname,'/');
+  receipt.wordmark??=[];receipt.wordmark.push({view:label,gutter,keyboardHome:true});
   await p.locator('.eden-launch').click();await p.locator('#eden-command').waitFor();
   const geometry=await p.evaluate(()=>{const panel=document.querySelector('#eden-panel').getBoundingClientRect(),input=document.querySelector('#eden-command').getBoundingClientRect();
    return {width:innerWidth,scrollWidth:document.documentElement.scrollWidth,panelInside:panel.left>=-1&&panel.right<=innerWidth+1&&panel.bottom<=innerHeight+1&&panel.top>=-1,composerInside:input.top>panel.top&&input.bottom<=panel.bottom,transcript:document.querySelector('.eden-body').clientHeight};});

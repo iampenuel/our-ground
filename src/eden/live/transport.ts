@@ -3,7 +3,17 @@ import type { EdenLiveTokenResponse } from '../../../shared/eden-live.ts';
 
 export interface LiveConnection { send(value: unknown): void; close(): void }
 export type LiveProviderCategory = 'none' | 'rate-limit-or-quota' | 'overload' | 'authentication' | 'invalid-request' | 'provider-other';
-export type LiveTransportClose = {kind: 'socket-close' | 'socket-error' | 'invalid-message' | 'provider-error' | 'application-handler'; code?: number; providerStatus?:number; providerCategory?:LiveProviderCategory};
+export type LiveCloseReason='no-detail'|'policy'|'authentication'|'quota'|'overload'|'protocol'|'other';
+export function classifyLiveClose(reason:string):LiveCloseReason{
+  if(!reason)return 'no-detail';
+  if(/unauth|permission|credential|expired token/i.test(reason))return 'authentication';
+  if(/quota|exhaust|rate limit/i.test(reason))return 'quota';
+  if(/overload|unavailable/i.test(reason))return 'overload';
+  if(/policy/i.test(reason))return 'policy';
+  if(/protocol|invalid argument|unsupported/i.test(reason))return 'protocol';
+  return 'other';
+}
+export type LiveTransportClose = {closeReason?:LiveCloseReason;kind: 'socket-close' | 'socket-error' | 'invalid-message' | 'provider-error' | 'application-handler'; code?: number; providerStatus?:number; providerCategory?:LiveProviderCategory};
 function providerFailure(value:unknown):LiveTransportClose {
   const input=value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};
   const status=Number.isInteger(input.code)&&Number(input.code)>=400&&Number(input.code)<=599?Number(input.code):undefined;
@@ -22,9 +32,10 @@ export function connectEdenLive(token: EdenLiveTokenResponse, callbacks: LiveCon
     const socket = new WebSocket(`${ENDPOINT}?access_token=${encodeURIComponent(token.token)}`);
     socket.binaryType = 'arraybuffer';
     let closed = false, ready = false, chain = Promise.resolve();
+    let errorDeadline:ReturnType<typeof setTimeout>|undefined;
     const connection: LiveConnection = {
       send(value) { if (closed || !ready || socket.readyState !== WebSocket.OPEN || socket.bufferedAmount > 128_000) throw new Error('Voice connection unavailable.'); socket.send(JSON.stringify(value)); },
-      close() { if (closed) return; closed = true; signal.removeEventListener('abort', cancel); socket.onmessage = null; socket.onerror = null; socket.onclose = null; try { socket.close(1000, 'Call ended'); } catch { /* Already closed. */ } reject(new Error('Call ended.')); },
+      close() { if (closed) return; closed = true; clearTimeout(errorDeadline); signal.removeEventListener('abort', cancel); socket.onmessage = null; socket.onerror = null; socket.onclose = null; try { socket.close(1000, 'Call ended'); } catch { /* Already closed. */ } reject(new Error('Call ended.')); },
     };
     const cancel = () => connection.close(); signal.addEventListener('abort', cancel, {once: true});
     const failure = (detail: LiveTransportClose) => { if (closed) return; connection.close(); try { callbacks.closed(detail); } catch { /* Cleanup must not recursively expose callback exceptions. */ } };
@@ -44,8 +55,9 @@ export function connectEdenLive(token: EdenLiveTokenResponse, callbacks: LiveCon
         try { callbacks.message(record); } catch { failure({kind:'application-handler'}); }
       }).catch(() => failure({kind:'invalid-message'}));
     };
-    socket.onerror = () => failure({kind:'socket-error'});
-    socket.onclose = event => failure({kind:'socket-close', ...(Number.isInteger(event.code) && event.code >= 1000 && event.code <= 4999 ? {code:event.code} : {})});
+    // Chrome emits a detail-free error before the informative close event.
+    socket.onerror = () => {errorDeadline??=setTimeout(()=>failure({kind:'socket-error'}),500);};
+    socket.onclose = event => failure({kind:'socket-close',closeReason:classifyLiveClose(event.reason), ...(Number.isInteger(event.code) && event.code >= 1000 && event.code <= 4999 ? {code:event.code} : {})});
     if (signal.aborted) connection.close();
   });
 }
