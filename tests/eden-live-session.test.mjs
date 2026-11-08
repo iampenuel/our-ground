@@ -442,6 +442,10 @@ test('a provider interruption followed by a separate old turnComplete preserves 
     await h.controller.start({microphoneConsent:true});h.audio();h.playback(true);
     assert(h.controller.snapshot.microphoneForwarding);h.speech();
     assert.equal(h.controller.snapshot.phase,'listening');
+    h.audio(); // In-flight audio from the old response, before Google acknowledges the interruption.
+    assert.equal(h.controller.snapshot.phase,'listening');assert(h.controller.snapshot.forwarding);
+    assert.equal(h.controller.snapshot.diagnostic.spokenInterruptions,1);
+    assert.equal(h.connections[0].sent.filter(v=>v.realtimeInput?.audioStreamEnd).length,0);
     h.message({serverContent:{interrupted:true}});
     h.message({serverContent:{turnComplete:true}});await settle();
     assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.controller.snapshot.diagnostic.failure,'none');

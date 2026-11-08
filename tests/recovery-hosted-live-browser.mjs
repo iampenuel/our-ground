@@ -46,7 +46,7 @@ await p.addInitScript(()=>{
     connect.call(this,capture);g.qaOutput=capture.stream;
     const analyser=this;const values=new Float32Array(analyser.fftSize);g.qaLevelTimer=setInterval(()=>{
       analyser.getFloatTimeDomainData(values);let sum=0;for(const v of values)sum+=v*v;
-      g.qaMaxOutput=Math.max(g.qaMaxOutput,Math.sqrt(sum/values.length));
+      g.qaCurrentOutput=Math.sqrt(sum/values.length);g.qaMaxOutput=Math.max(g.qaMaxOutput,g.qaCurrentOutput);
     },50);
   }
   return result;
@@ -75,16 +75,21 @@ async function waitListening(){
  await p.waitForFunction(()=>document.querySelector('[data-live-state]')?.textContent==='Listening'||(!document.querySelector('[data-live-start]')?.hidden&&document.querySelector('[data-live-state]')?.textContent),null,{timeout:60000});
  assert.equal(await p.locator('[data-live-state]').innerText(),'Listening');
 }
-async function speak(label){
- activeStep=label;const before=receipt.providerTurns;
+const expectedInput={identity:/who.*you/i,capabilities:/help/i,search:/Harrisburg/i,details:/first.*result/i,food:/food/i,page:/page/i,map:/map/i};
+async function utter(label){
+ activeStep=label;
  const bytes=await readFile(join(process.env.EDEN_QA_SPEECH_DIR,label+'.wav'));
  await p.evaluate(raw=>window.qaSay(raw),bytes.toString('base64'));
+}
+async function speak(label){
+ const before=receipt.turns.length;await utter(label);
  const deadline=Date.now()+65000;
- while(receipt.providerTurns===before&&Date.now()<deadline){
+ const matching=()=>receipt.turns.slice(before).find(v=>expectedInput[label].test(v.input)&&v.reply.trim());
+ while(!matching()&&Date.now()<deadline){
    if(await p.locator('[data-live-start]').isVisible())throw Error('Call ended: '+await p.locator('[data-live-state]').innerText());
    await new Promise(resolve=>setTimeout(resolve,250));
  }
- assert(receipt.providerTurns>before,'No completed provider turn for '+label);await waitListening();
+ assert(matching(),'Missing spoken input and response for '+label);await waitListening();return matching().reply;
 }
 try{
  await p.goto(origin);
@@ -104,25 +109,38 @@ try{
    for(const box of await p.locator('.eden-consent input:visible').all())await box.check();await p.locator('[data-continue]').click();
  }
  await p.locator('[data-live-confirm]').waitFor();assert.equal(await p.evaluate(()=>window.qaTracks.length),0);
+ // One explicit admission-denied fixture proves retry in the same document.
+ // It does not mint a credential, reach Google, or count as a real call.
+ const denied=origin+'/api/v1/eden/hosted/live/token';
+ await p.route(denied,route=>route.fulfill({status:409,json:{error:{code:'EDEN_LIVE_CALL_ACTIVE'}}}),{times:1});
+ await p.locator('[data-live-confirm]').click();await p.locator('[data-live-details]:visible').waitFor();
+ const attempt=await p.evaluate(()=>JSON.parse(document.querySelector('[data-live-diagnostic]').dataset.liveDiagnostic).at(-1));
+ assert.equal(attempt.service,'EDEN_LIVE_CALL_ACTIVE');assert.equal(attempt.tokenHTTP,409);assert.equal(attempt.microphoneActive,false);
+ assert(await p.evaluate(()=>window.qaTracks.length===1&&window.qaTracks[0].readyState==='ended'));
+ receipt.deniedRetryFixture={http:409,stage:attempt.failure,stoppedTrack:true,reference:attempt.reference};
+ await p.locator('[data-live-start]').click();await p.locator('[data-live-confirm]').waitFor();
  activeStep='introduction';await p.locator('[data-live-confirm]').click();
- await p.waitForFunction(()=>window.qaOutput&&window.qaDest,null,{timeout:18000});audioStartAt=await p.evaluate(()=>performance.now());await p.evaluate(()=>window.qaRecord());
+ await p.waitForFunction(()=>window.qaOutput&&window.qaDest&&window.qaTracks.length===2&&window.qaTracks.at(-1).readyState==='live',null,{timeout:18000});audioStartAt=await p.evaluate(()=>performance.now());await p.evaluate(()=>window.qaRecord());
  const interrupt=process.env.EDEN_QA_INTERRUPT==='1';
- if(interrupt){
-   const limit=Date.now()+20000;while(receipt.audioOutputChunks<2&&Date.now()<limit)await new Promise(done=>setTimeout(done,30));
-   await p.waitForFunction(()=>window.qaMaxOutput>.015,null,{timeout:15000});
-   receipt.interruptStart=await p.locator('[data-live-state]').innerText();
-   await speak('identity');
-   receipt.interruptReply=receipt.turns.at(-1)?.reply;
- }else await waitListening();
+ await waitListening();
  assert(receipt.setupComplete&&receipt.audioOutputChunks>0);
  await p.locator('[data-live-mute]').click();assert.equal(await p.locator('[data-live-mute]').getAttribute('aria-pressed'),'true');await p.locator('[data-live-mute]').click();receipt.muteUnmute=true;
  for(const name of (process.env.EDEN_QA_TURNS??'identity,search,details').split(',')){
-   if(!(interrupt&&name==='identity'))await speak(name);
-   const reply=receipt.turns.at(-1).reply;
+   let reply='';
+   if(interrupt&&name==='search'){
+     await utter('search');
+     // Interrupt the *spoken result*, after its authorized action, rather than
+     // treating an introduction ending during an utterance as an answer.
+     await p.waitForFunction(()=>document.querySelector('[data-live-state]')?.textContent==='Eden is speaking'&&window.qaCurrentOutput>.015&&document.querySelector('[data-card-key^="directory:"]'),null,{timeout:65000});
+     receipt.interruptStart=await p.locator('[data-live-state]').innerText();
+     receipt.searchTranscribed=expectedInput.search.test(input)||receipt.turns.some(t=>expectedInput.search.test(t.input));
+     assert(receipt.searchTranscribed,'Search must be transcribed before its response is interrupted');
+   }else reply=await speak(name);
    receipt.observations??={};
    if(name==='identity')receipt.observations.identity=/Eden|Our Ground/i.test(reply);
    if(name==='capabilities')receipt.observations.capabilities=/directory|resource|healthcare|support/i.test(reply);
    if(name==='search')receipt.observations.search=new URL(p.url()).pathname==='/support'&&await p.locator('#locationInput').inputValue()==='Harrisburg, PA';
+   if(name==='details'&&interrupt)receipt.interruptReply=reply;
    if(name==='details')receipt.observations.details=await p.locator('[data-card-key^="directory:"]').first().locator('[data-resource-content]:visible').count()>0;
    if(name==='food')receipt.observations.food=await p.locator('[data-need="food"][aria-pressed="true"],[data-category="food"][aria-pressed="true"]').count()>0;
    if(name==='page')receipt.observations.page=/support|food|search|results|resource|map/i.test(reply)&&!receipt.tools.includes('unknown');
@@ -135,7 +153,11 @@ try{
  await p.locator('[data-live-end]').click();receipt.endHTTP=(await ended).status();assert.equal(receipt.endHTTP,200);assert.equal(await p.locator('[data-live-state]').innerText(),'Call ended');
  receipt.micReleased=await p.evaluate(()=>window.qaTracks.length>0&&window.qaTracks.every(t=>t.readyState==='ended'));assert(receipt.micReleased);
  assert.equal(receipt.requestedVoice,'Aoede');assert(receipt.audioInputChunks>0&&receipt.audioOutputChunks>0);assert.deepEqual(receipt.errors,[]);
- if(interrupt)assert(receipt.providerInterruptions>0&&/Eden|Our Ground/i.test(receipt.interruptReply),'Spoken interruption did not produce a confirmed new identity turn');
+ if(interrupt){
+   const d=await p.evaluate(()=>JSON.parse(document.querySelector('[data-live-diagnostic]').dataset.liveDiagnostic).at(-1));
+   assert(d.spokenInterruptions>0||receipt.providerInterruptions>0,'No audible local or acknowledged provider interruption');
+   assert(receipt.turns.some(t=>expectedInput.details.test(t.input))&&receipt.observations.details&&receipt.interruptReply.trim(),'Follow-up did not open the requested result');
+ }
  assert(Object.values(receipt.observations).every(Boolean),'One or more requested actions were not confirmed');
  assert.equal(await p.evaluate(()=>window.qaWire.sockets),1);assert((await p.evaluate(()=>window.qaMaxOutput))>.015);
  receipt.status='PASS';

@@ -27,7 +27,7 @@ type ToolField = 'id' | 'name' | 'args' | 'partialArgs' | 'willContinue';
 type ToolArgField = 'type' | 'category' | 'city' | 'radius' | 'index' | 'page' | 'missing' | 'cityId' | 'area';
 type ShapeType = 'absent' | 'null' | 'object' | 'array' | 'string' | 'number' | 'boolean' | 'other';
 export type EdenLiveToolShape = {status: 'invalid-call' | 'missing-id' | 'invalid-id' | 'unrecognized-name' | 'extra-fields' | 'args-not-object' | 'args-invalid'; knownFields: ToolField[]; unknownKeyCount: number; name: EdenLiveToolCall['name'] | 'unrecognized'; idType: ShapeType; idLength: number; idRegexValid: boolean; argsType: ShapeType; argFields: ToolArgField[]; unknownArgKeyCount: number; partialArgsPresent: boolean; partialArgsCount: number; willContinue: 'absent' | 'true' | 'false' | 'invalid'};
-export type EdenLiveDiagnostic = {failure: EdenLiveFailure; preparation: 'not-started' | LiveMicrophonePreparation | 'audio-output-pending'; lastEvent: 'none' | 'preparing' | 'token' | 'setup' | 'message' | 'audio' | 'generation-complete' | 'turn-complete' | 'waiting-for-input' | 'tool' | 'closed' | 'recovering'; connections: number; messages: number; audioChunks: number; generationComplete: number; turnComplete: number; toolCalls: number; toolCallsReceived: number; rejectedArguments: number; inputChunks: number; recoveries: number; closeCode?: number; closeReason?:LiveTransportClose['closeReason']; setupComplete?:boolean; failurePhase?:EdenLivePhase; retryAfterSeconds?:number; toolShape?: EdenLiveToolShape;callRef:string;model:typeof import('../../../shared/eden-live.ts').EDEN_LIVE_MODEL;connectionGeneration:number;startedAt:number;appDeadline:number;tokenExpiresAt:number;inputContext:LiveAudioContextState;outputContext:LiveAudioContextState;toolsStarted:number;toolsCompleted:number;toolsFailed:number;pendingTools:number;waitingForInput:number;playbackStarts:number;playbackEnds:number;decodedChunks:number;resumable:boolean;goAwaySeconds?:number;providerCategory:LiveProviderCategory;providerStatus?:number;serviceCategory?:EdenLiveServiceCategory;serviceStatus?:number;serviceCode?:string;endReason?:'user'|'hidden'|'app-expiry'|'turn-limit';timeline:LiveTimelineEvent[]};
+export type EdenLiveDiagnostic = {failure: EdenLiveFailure; preparation: 'not-started' | LiveMicrophonePreparation | 'audio-output-pending'; lastEvent: 'none' | 'preparing' | 'token' | 'setup' | 'message' | 'audio' | 'generation-complete' | 'turn-complete' | 'waiting-for-input' | 'tool' | 'closed' | 'recovering'; connections: number; messages: number; audioChunks: number; generationComplete: number; turnComplete: number; toolCalls: number; toolCallsReceived: number; rejectedArguments: number; inputChunks: number; recoveries: number; closeCode?: number; closeReason?:LiveTransportClose['closeReason']; setupComplete?:boolean; spokenInterruptions?:number; failurePhase?:EdenLivePhase; retryAfterSeconds?:number; toolShape?: EdenLiveToolShape;callRef:string;model:typeof import('../../../shared/eden-live.ts').EDEN_LIVE_MODEL;connectionGeneration:number;startedAt:number;appDeadline:number;tokenExpiresAt:number;inputContext:LiveAudioContextState;outputContext:LiveAudioContextState;toolsStarted:number;toolsCompleted:number;toolsFailed:number;pendingTools:number;waitingForInput:number;playbackStarts:number;playbackEnds:number;decodedChunks:number;resumable:boolean;goAwaySeconds?:number;providerCategory:LiveProviderCategory;providerStatus?:number;serviceCategory?:EdenLiveServiceCategory;serviceStatus?:number;serviceCode?:string;endReason?:'user'|'hidden'|'app-expiry'|'turn-limit';timeline:LiveTimelineEvent[]};
 export type EdenLiveSnapshot = {phase: EdenLivePhase; microphoneActive: boolean; forwarding: boolean; microphoneForwarding: boolean; microphoneMuted: boolean; speakerMuted: boolean; reason?: string; diagnostic?: EdenLiveDiagnostic};
 export type EdenLiveTranscript = {role: 'user' | 'assistant'; text: string; final: boolean; turnId: string};
 export type EdenLiveToolCall = SharedLiveToolCall;
@@ -94,7 +94,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
   let introPlayed = false, introducing = false, complete = false, discardOutput = false, receivedAudio = false, drainGeneration = 0, pendingTools = 0;
   let resumeHandle: string | undefined, pendingResumeHandle: string | undefined, voiceMs = 0, silenceMs = 0, userActive = false;
   let onsetVoicedMs = 0, onsetGapMs = 0;
-  let previousOutputSettled=false,responseBegun=false,interruptedTurnEnding=false;
+  let previousOutputSettled=false,responseBegun=false,interruptedTurnEnding=false,playbackActive=false;
   let inputText = '', outputText = '';
   let timers = new Set<ReturnType<typeof setTimeout>>(), responseTimer: ReturnType<typeof setTimeout> | undefined;
   let seenMessages = new WeakSet<object>();
@@ -103,7 +103,9 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
   const ledger = new Map<string, {signature: string; response?: Record<string, unknown>; sentEpoch?: number; cancelled: boolean; abort: AbortController}>();
   let actionQueue = Promise.resolve();
   const active = () => Boolean(abort && !abort.signal.aborted && !disposed);
-  const duringPlayback=()=>options.allowSpokenInterruption===true && (phase==='speaking'||phase==='introducing')&&diagnostic.playbackStarts>diagnostic.playbackEnds;
+  // A network gap between adjacent PCM packets must not discard the middle of
+  // a visitor's word. Keep capture open throughout an audible response.
+  const duringPlayback=()=>options.allowSpokenInterruption===true&&(phase==='speaking'||phase==='introducing')&&diagnostic.playbackStarts>0;
   const forwarding = () => active() && (phase === 'listening'||duringPlayback()) && !micMuted && Boolean(microphone?.active) && !deps.document.hidden && pendingTools === 0;
   const snapshot = (): EdenLiveSnapshot => ({phase, microphoneActive: Boolean(microphone?.active), forwarding: forwarding(), microphoneForwarding: forwarding(), microphoneMuted: micMuted, speakerMuted, ...(reason ? {reason} : {}), diagnostic:{...diagnostic,pendingTools,resumable:Boolean(resumeHandle),timeline:diagnostic.timeline.map(item=>({...item}))}});
   const publish = () => { microphone?.setForwarding?.(forwarding()); if (!disposed) options.onState(snapshot()); };
@@ -116,7 +118,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
   function clearResponseTimer() { cancelTimer(responseTimer); responseTimer = undefined; }
   function expectResponse(epoch = generation) { clearResponseTimer(); responseTimer = timer(() => { if (active() && epoch === generation) fail('Eden did not receive playable voice in time. You can continue by text.','response-timeout'); }, 25_000); }
   function cleanup() {
-    interruptedTurnEnding=false;generation++; connectionEpoch++; drainGeneration++; abort?.abort(); abort = undefined; connectionAbort?.abort(); connectionAbort = undefined;
+    interruptedTurnEnding=false;playbackActive=false;generation++; connectionEpoch++; drainGeneration++; abort?.abort(); abort = undefined; connectionAbort?.abort(); connectionAbort = undefined;
     for (const id of timers) clearTimeout(id); timers.clear(); responseTimer = undefined;
     microphone?.stop(); microphone = undefined; connection?.close(); connection = undefined; output?.close(); output = undefined;
     encoder.clear(); onsetVoicedMs = 0; onsetGapMs = 0; ledger.clear(); pendingTools = 0; actionQueue = Promise.resolve(); resumeHandle = undefined; pendingResumeHandle = undefined;
@@ -192,6 +194,10 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
           if (onsetVoicedMs >= LOCAL_SPEECH_ONSET_MS) {
             const voiced = onsetVoicedMs;
             if(duringPlayback()){
+              // Old provider packets can arrive after local output was cut.
+              // They belong to the previous turn until its wire boundary.
+              interruptedTurnEnding=!complete;
+              if(playbackActive)diagnostic.spokenInterruptions=(diagnostic.spokenInterruptions??0)+1;
               drainGeneration++;output?.stop();clearResponseTimer();
               introducing=false;introPlayed=true;listening();
             }
@@ -333,9 +339,9 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     // a late final must remain a caption, not restart processing or its timer.
     if (input?.text && turn > 0) transcript('user', input.text, input.finished === true);
     else if (interim?.text && typeof interim.text === 'string') options.onTranscript({role: 'user', text: (inputText + interim.text).slice(0,4000), final: false, turnId: `${token?.callId ?? 'live'}:${turn}`});
-    if (spoken?.text) { if (!complete) beginResponse(); transcript('assistant', spoken.text, spoken.finished === true); }
+    if (!interruptedTurnEnding&&spoken?.text) { if (!complete) beginResponse(); transcript('assistant', spoken.text, spoken.finished === true); }
     const parts = record(content?.modelTurn)?.parts;
-    if (Array.isArray(parts)) for (const part of parts) {
+    if (!interruptedTurnEnding&&Array.isArray(parts)) for (const part of parts) {
       const inline = record(record(part)?.inlineData);
       if (inline) {
         diagnostic.audioChunks++; diagnostic.lastEvent = 'audio';
@@ -414,7 +420,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     diagnostic = freshDiagnostic();diagnostic.callRef='eden-local-'+(++callSequence);diagnostic.startedAt=deps.now();previousOutputSettled=false;responseBegun=false; diagnostic.preparation = 'permission-pending'; diagnostic.lastEvent = 'preparing';
     phase = 'connecting'; reason = 'Waiting for microphone permission. Check the browser microphone prompt.'; micMuted = false; speakerMuted = false; turns = 0; turn = 0; recoveries = 0; introPlayed = false; introducing = false; complete = false; discardOutput = false; receivedAudio = false; voiceMs = 0; silenceMs = 0; userActive = false;
     deps.document.addEventListener('visibilitychange', visibility); window.addEventListener('pagehide', pagehide);
-    output = deps.output(level => { if (active()) options.onAudioLevel(speakerMuted ? 0 : level); }, playing => { if(!active())return;if(playing){diagnostic.playbackStarts++;trace('playback-start');}else{diagnostic.playbackEnds++;trace('playback-end');}if(pendingTools)return;if (playing) setPhase(introducing ? 'introducing' : 'speaking'); else if (phase === 'speaking' && !complete) setPhase('processing'); },state=>contextState('output',state));
+    output = deps.output(level => { if (active()) options.onAudioLevel(speakerMuted ? 0 : level); }, playing => { if(!active()||playing===playbackActive)return;playbackActive=playing;if(playing){diagnostic.playbackStarts++;trace('playback-start');}else{diagnostic.playbackEnds++;trace('playback-end');}if(pendingTools)return;if (playing) setPhase(introducing ? 'introducing' : 'speaking'); else if (phase === 'speaking' && !complete&&!options.allowSpokenInterruption) setPhase('processing');else publish(); },state=>contextState('output',state));
     microphone = deps.microphone(microphoneFrame, () => fail('The microphone stopped. Text is still available.','microphone-stream'),state=>contextState('input',state)); publish();
     try {
       let outputReady = false, microphoneStage: LiveMicrophonePreparation = 'permission-pending';

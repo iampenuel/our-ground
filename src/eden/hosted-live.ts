@@ -78,7 +78,7 @@ export function mountHostedLive(host:HTMLElement,o:Options){
         remember({reference:correlation,model:d.model,phase:s.phase,stage:d.failurePhase??s.phase,failure:d.failure,
           preparation:d.preparation,tokenHTTP:tokenStatus,service:d.serviceCode,serviceHTTP:d.serviceStatus,
           setup:d.setupComplete===true,closeCode:d.closeCode,closeReason:d.closeReason,provider:d.providerCategory,providerHTTP:d.providerStatus,
-          lastEvent:d.lastEvent,inputChunks:d.inputChunks,audioChunks:d.audioChunks,playbacks:d.playbackStarts,microphoneActive:s.microphoneActive,ended:d.endReason});
+          lastEvent:d.lastEvent,inputChunks:d.inputChunks,audioChunks:d.audioChunks,playbacks:d.playbackStarts,spokenInterruptions:d.spokenInterruptions??0,microphoneActive:s.microphoneActive,ended:d.endReason});
         details.hidden=s.phase!=='error'&&s.phase!=='permission-required';
       }
     }
