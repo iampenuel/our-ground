@@ -34,7 +34,7 @@ All routes below are under `/api/v1`.
 | `POST /resources/search` | Nearby search without precise coordinates in URLs | Public, published records only |
 | `GET /resources` | `/support` list and current-page map markers | Public, published records only |
 | `GET /resources/:id` | `/resources/:id` | Public, published records only |
-| `POST /correction-reports` | Resource detail report form | Anonymous |
+| `POST /correction-reports` | Private correction intake closed | Returns 403 before reading the body |
 | `GET /me` | `/account` | Valid Supabase session |
 | `GET /services` | `/account` assigned service list | Only records the caller can edit |
 | `GET /services/:id` | `/staff/services/:id` | Assigned organization editor or admin |
@@ -56,14 +56,7 @@ GET /api/v1/resources?lat=40.2732&lng=-76.8867&category=food&radius_miles=10&pag
 
 A public detail adds description, listed hours, eligibility, cost, contact and provenance. The UI escapes stored text, rejects unsafe URL schemes and suppresses all fictional contact actions. A source-recorded date is not verification or current availability. The map and list show the same API page; if map tiles fail, list results remain usable.
 
-```http
-POST /api/v1/correction-reports
-Content-Type: application/json
-
-{"service_id":"11111111-1111-4111-8111-111111111111","reason_code":"wrong_hours","description":"Example correction."}
-```
-
-HTTP 202 returns `{"id":"...","status":"open","message":"Thank you. The report was received."}`. Reasons: `wrong_hours`, `closed`, `wrong_contact`, `wrong_eligibility`, `wrong_location`, `other`. Description is optional, max 1,000 characters. No name, email or personal circumstances are requested. Reports do not automatically alter listings and report text is not public.
+Public correction intake is closed in this release. `POST /api/v1/correction-reports` returns HTTP 403 with code `CORRECTIONS_CLOSED` before reading the request body or accessing the repository.
 
 Staff load `GET /services/:id` to obtain the current version, then send:
 

@@ -1,6 +1,5 @@
 import {resourceSupportUrl} from './support-model.ts';
 import type { SupportResult } from './support-model.ts';
-import {geoapifyFeedbackUrl} from '../shared/geoapify.ts';
 import { geoSources } from './geoapify-view.ts';
 import { mappedCategoryLabel, sourceWebsite, sourcePhone, coordinateDirections } from '../shared/place-evidence.ts';
 const esc = (value:string) => value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
@@ -62,9 +61,9 @@ export function supportCards(items:SupportResult[], selected:string|null, return
     const detailLabel=!mapped&&item.record.detail_level==='substantive'?'About this location':imported&&provenance?.source_record_id?'View source record':null;
     const active=Boolean(resourceId&&options.activeResource===resourceId);
     const share=resourceId?resourceSupportUrl(returnUrl,resourceId):null;
-    const suppliedFeedback=mapped?sourceWebsite(item.record.source_feedback_url):null;
-    const feedback=suppliedFeedback&&(/^https:\/\/www\.openstreetmap\.org\/(node|way|relation)\/[1-9]\d*$/.test(suppliedFeedback)||suppliedFeedback===geoapifyFeedbackUrl)?suppliedFeedback:geoapifyFeedbackUrl;
-    const feedbackHtml=mapped?`<details class="support-report"><summary>Report mapped information</summary><p>This location is maintained by an external map source. Source feedback is handled externally; it does not enter Our Ground’s directory review process.</p>${external(feedback,feedback===geoapifyFeedbackUrl?'Contact Geoapify about this mapped listing':'View and correct the OpenStreetMap source')}<p class="discovery-note">You can also use the listed contact actions to check information directly.</p></details>`:'';
+    const mapSource = mapped ? sourceWebsite(item.record.source_feedback_url) : null;
+    const sourceRecord = mapSource && /^https:\/\/www\.openstreetmap\.org\/(node|way|relation)\/[1-9]\d*$/.test(mapSource)
+      ? external(mapSource, 'View map source') : '';
     return `<article class="result-card discovery-card" data-card-key="${esc(item.key)}" data-selected="${selected===item.key}" aria-labelledby="resultTitle${options.linked?'linked':''}${index}">
       <div class="support-card-heading"><div><span class="result-category">${esc(category)}</span>
       <h3 id="resultTitle${options.linked?'linked':''}${index}"><button type="button" class="discovery-select" data-result-key="${esc(item.key)}" aria-pressed="${selected===item.key}">${options.linked?'':`<span class="discovery-number" aria-hidden="true">${index+1}</span>`}<span>${esc(name)}</span><span class="visually-hidden">${demo?' — select record':' — select location on map'}</span></button></h3></div></div>
@@ -72,11 +71,10 @@ export function supportCards(items:SupportResult[], selected:string|null, return
       ${mapped?'':`<p class="support-card-summary">${esc(summary)}</p>`}
       <p class="support-card-verification">${verification}</p>
       ${demo?'<p class="support-card-warning">Not a visitable location. Contact and directions unavailable.</p>':''}
-      <details class="support-card-source"><summary>Source &amp; dates</summary>${mapped?geoSources(item.record.attributions):provenanceHtml||'<p>Source date not supplied.</p>'}</details>
+      <details class="support-card-source"><summary>Source &amp; dates</summary>${mapped?geoSources(item.record.attributions)+sourceRecord:provenanceHtml||'<p>Source date not supplied.</p>'}</details>
       <div class="support-card-actions">${actions}</div>
       ${giving ? givingDetails(item,listedGivingWebsite,phone) : ''}
-      ${resourceId?`<div class="support-card-secondary">${detailLabel?`<a href="${esc(share!)}" data-resource-open="${esc(resourceId)}" aria-expanded="${active}" aria-controls="resourceFacts-${esc(resourceId)}">${detailLabel}</a>`:''}<button type="button" data-copy-resource="${esc(resourceId)}" data-resource-url="${esc(share!)}">Copy resource link</button></div><div data-resource-content="${esc(resourceId)}" id="resourceFacts-${esc(resourceId)}" class="support-resource-facts"${active?'':' hidden'}></div><p class="support-resource-message" data-resource-copy-status="${esc(resourceId)}" role="status"></p><details class="support-report" data-resource-report="${esc(resourceId)}"><summary>Report incorrect information</summary><div data-correction-slot></div></details>`:''}
-      ${feedbackHtml}
+      ${resourceId?`<div class="support-card-secondary">${detailLabel?`<a href="${esc(share!)}" data-resource-open="${esc(resourceId)}" aria-expanded="${active}" aria-controls="resourceFacts-${esc(resourceId)}">${detailLabel}</a>`:''}<button type="button" data-copy-resource="${esc(resourceId)}" data-resource-url="${esc(share!)}">Copy resource link</button></div><div data-resource-content="${esc(resourceId)}" id="resourceFacts-${esc(resourceId)}" class="support-resource-facts"${active?'':' hidden'}></div><p class="support-resource-message" data-resource-copy-status="${esc(resourceId)}" role="status"></p>`:''}
     </article>`;
   }).join('');
 }

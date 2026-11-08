@@ -40,16 +40,17 @@ test('real Supabase database and confirmed sessions: public records and legacy a
     });
     // Explicit owner assignment for this disposable organization only.
     await owner`insert into app_private.organization_memberships(organization_id,user_id,role) values (${org},${editor.id},'editor')`;
-    await t.test('search → detail → report writes to the actual database',async()=>{
+    await t.test('search and detail work while direct reporting stays closed',async()=>{
       const place=await send('places/resolve?q=17101'); assert.equal(place.status,200);
       const search=await send('resources?lat=40.2732&lng=-76.8867&radius_miles=5&category=food&q='+tag);
       assert.equal(search.status,200); const found=await search.json(); assert.equal(found.total,1); assert.equal(found.items[0].id,service);
       const detail=await send('resources/'+service); assert.equal(detail.status,200); const record=await detail.json();
       assert.equal(record.data_kind,'fictional_demo'); assert.equal(record.contact.directions_url,null);
       const response=await send('correction-reports',null,{method:'POST',body:JSON.stringify({service_id:service,reason_code:'wrong_hours',description:tag})});
-      assert.equal(response.status,202); const report=await response.json();
-      const [saved]=await owner`select service_id,description from app_private.correction_reports where id=${report.id}`;
-      assert.equal(saved.service_id,service); assert.equal(saved.description,tag);
+      assert.equal(response.status,403);
+      assert.equal((await response.json()).error.code,'CORRECTIONS_CLOSED');
+      const [saved]=await owner`select count(*)::int as count from app_private.correction_reports where service_id=${service}`;
+      assert.equal(saved.count,0);
     });
     await t.test('anonymous, invalid-token and unrelated-account edits are denied',async()=>{
       const patch={method:'PATCH',body:JSON.stringify({expected_version:1,summary:'Unauthorized'})};
