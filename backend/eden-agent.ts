@@ -393,12 +393,18 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
         for (let index = 0; index < currentIds.length; index++) if (featured(index,selected)) facts.push(...await recordFacts(currentIds[index], index + 1));
       }
       if (!failed && item.action.type==='read-hours') facts.push(hoursFact());
+      // Gemini already planned the action. Read the selected record directly for this factual reply.
+      if (!failed && directory && options.hostedTurns && item.action.type==='read-hours') {
+        const prefix=`resource-${item.action.index}-`;
+        const title=facts.find(f=>f.id===prefix+'title'),hours=facts.find(f=>f.id===prefix+'hours');
+        if(!title||!hours)throw new EdenProviderError('EDEN_AGENT_RESULT_UNCONFIRMED',409);
+        return {engine:'gemini',reply:title.text+'. '+hours.text,sources:[title,hours],phrase:phrase(item.action,false)};
+      }
       const requirements: CompositionRequirements = { requiredFactIds: ['outcome'], requiredOneOfFactIds: [] };
       if (!failed && giving){facts.push({id:'giving-next',text:'Would you like me to open Give Support?'});requirements.requiredFactIds.push('giving-purpose','giving-boundary','giving-next');}
       else if(!failed&&orientation)requirements.requiredFactIds.push('platform-purpose','platform-actions');
       else if (!failed && (item.action.type==='read-page'||item.action.type==='navigate-public')) requirements.requiredFactIds.push('page-'+confirmedContext.page+'-1');
       if (!failed && item.action.type==='read-hours') requirements.requiredFactIds.push('hours-unverified');
-      if (!failed && options.hostedTurns && item.action.type==='read-hours') requirements.requiredFactIds.push(`resource-${item.action.index}-title`);
       if (!failed && directory && item.action.type==='read-hours') requirements.requiredFactIds.push(`resource-${item.action.index}-hours`);
       if (!failed && (item.action.type === 'search' || item.action.type === 'radius')) requirements.requiredFactIds.push('result-count');
       if (!failed && item.action.type === 'radius') requirements.requiredFactIds.push('search-radius');

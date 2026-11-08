@@ -4,7 +4,7 @@ import {randomBytes} from 'node:crypto';
 import {adultGate} from '../backend/adult-access.ts';
 import {createHostedEden} from '../backend/eden-hosted.ts';
 import {EDEN_NOTICE_VERSION as noticeVersion} from '../shared/eden-assistant.ts';
-import {sameDirectoryView} from '../shared/eden-agent.ts';
+import {reduceEdenAgentInput,sameDirectoryView} from '../shared/eden-agent.ts';
 
 test('map readiness preserves a listing answer while a manual pin change invalidates it',()=>{
   const view={page:'resource',directory:'public',synthetic:false,cityId:'harrisburg',category:'healthcare',
@@ -14,6 +14,18 @@ test('map readiness preserves a listing answer while a manual pin change invalid
   for(const change of [{selectedIndex:2},{resourceIds:['clinic-b','clinic-a']},{cityId:'philadelphia'},
     {page:'about'},{searchState:'loading'},{resultCount:0}])assert(!sameDirectoryView(view,{...view,...change}));
   assert(!sameDirectoryView(view,null));
+});
+
+test('on-device hours transcriptions use the current clinic and exclude appended private text',()=>{
+  const view={page:'resource',directory:'public',synthetic:false,cityId:'harrisburg-pa',category:'healthcare',radius:25,
+    searchState:'ready',resultCount:2,resourceIds:['11111111-1111-5111-8111-111111111111','22222222-2222-5222-8222-222222222222'],selectedIndex:2};
+  for(const query of ['What are this clinic’s hours?', 'What are these clinics hours', 'What are this clinics ours?',
+    'What are the hours for this clinic?', 'What are its hours?', 'Clinic hours']){
+    assert.deepEqual(reduceEdenAgentInput(query,view),{status:'supported',intent:{goal:'check-open-now',ordinal:2}},query);
+  }
+  const {selectedIndex,...noSelection}=view;
+  assert.equal(reduceEdenAgentInput('What are its hours?',noSelection).status,'clarify');
+  assert.notEqual(reduceEdenAgentInput('What are its hours? My home address is 123 Example Lane.',view).status,'supported');
 });
 
 const origin='https://protected.example';
@@ -83,6 +95,7 @@ test('two instances complete a command for the newly selected clinic and speak o
   const finish={context:ctx,noticeVersion,turnToken:plan.turnToken,outcome:'done'};
   const result=await b(req('result',finish,{headers}),'result');
   assert.equal(result.status,200);const {reply,speechTicket}=await result.json();
+  assert.equal(captured.length,1,'hours need one genuine model plan and a direct read of the selected listing');
   assert.match(reply,/Unit health clinic B/);assert.match(reply,/no structured hours for listing 2/);assert.doesNotMatch(reply,/clinic A|Monday/);
   assert.equal((await b(req('result',finish,{headers}),'result')).status,409);
   const wire=JSON.stringify(captured);

@@ -2,7 +2,7 @@ import {EDEN_NOTICE_VERSION} from '../../shared/eden-assistant.ts';
 import {reduceEdenAgentInput,sameDirectoryView,validateEdenAgentContext,validateEdenAgentActionResponse} from '../../shared/eden-agent.ts';
 import {edenLocalPageContext,edenPageContext,subscribeEdenApplication} from './application-bridge.ts';
 import {applyEdenPublicAction} from './live-actions.ts';
-import {hearOneCommand,prepareLocalRecognition,speakLocalReply} from './command-voice.ts';
+import {hearOneCommand,localEnglishVoice,prepareLocalRecognition,speakLocalReply} from './command-voice.ts';
 
 function currentContext(){
   const page=edenPageContext(),view=edenLocalPageContext();
@@ -25,11 +25,15 @@ export function mountHostedEden(host:HTMLElement) {
   const notice=document.createElement('p');notice.className='eden-command-notice';notice.id='eden-mic-privacy';
   notice.textContent='This is a demo. Use public directory information only. Please leave out names, private images, medical details, and home addresses. Voice uses on-device English recognition. Only recognized directory commands and published listing facts go to Google. Microphone audio and unrecognized speech stay on this device.';
   footer.before(notice);voice.setAttribute('aria-describedby',notice.id);voice.textContent='Talk to EDEN';voice.hidden=false;
-  const dock=document.createElement('button');dock.type='button';dock.hidden=true;dock.className='eden-end-voice';dock.textContent='End Eden voice';host.append(dock);
+  const dock=document.createElement('button');dock.type='button';dock.hidden=true;dock.className='eden-end-voice';dock.textContent='End Eden voice';dock.setAttribute('aria-label','End Eden voice');host.append(dock);
   get('.eden-privacy').querySelector('p')!.textContent='Eden can search, open listings, and describe public directory information. The current conversation stays in this tab until you end it.';
   let session:string|undefined,expires=0,busy=false,generation=0,voiceCall:AbortController|undefined,turn:AbortController|undefined;
   let audio:HTMLAudioElement|undefined,expanded=false;
-  function notify(text:string){status.hidden=!text;status.textContent=text;}
+  function notify(text:string){
+    status.hidden=!text;status.textContent=text;
+    const phase=text.includes('listening')?'Listening':text.includes('speaking')?'Speaking':'Working';
+    dock.textContent=phase+' · End voice';
+  }
   function message(text:string,user=false){const row=document.createElement('div');row.className='eden-message'+(user?' command':'');row.textContent=text;row.setAttribute('aria-label',user?'You':'Eden');log.append(row);while(log.childElementCount>16)log.firstElementChild!.remove();row.scrollIntoView({block:'nearest'});}
   function controls(){voice.disabled=!ack.checked||busy&&!voiceCall;get<HTMLButtonElement>('[data-send]').disabled=busy||!ack.checked||!input.value.trim();voice.textContent=voiceCall?'End voice':'Talk to EDEN';dock.hidden=!(voiceCall&&panel.hidden);}
   async function request(path:string,body:unknown,signal?:AbortSignal){
@@ -45,15 +49,20 @@ export function mountHostedEden(host:HTMLElement) {
     if(typeof res.sessionToken!=='string'||!Number.isFinite(Date.parse(res.expiresAt)))throw Error('Eden could not start a verified session.');
     signal.throwIfAborted();session=res.sessionToken;expires=Date.parse(res.expiresAt);
   }
-  async function speak(text:string,ticket:string|undefined,signal:AbortSignal){
+  async function speak(text:string,ticket:string|undefined,signal:AbortSignal,recognizedAt:number){
+    function playbackStarted(voice:'aoede'|'on-device'){
+      host.dataset.voiceOutput=voice;host.dataset.voiceLatencyMs=String(Math.round(performance.now()-recognizedAt));
+      notify(voice==='aoede'?'Eden is speaking with Aoede.':'Eden is speaking with the device voice.');
+    }
     if(ticket){
       try{
-        const res=await request('speech',{speechTicket:ticket},signal);
+        const synthesisSignal=localEnglishVoice()?AbortSignal.any([signal,AbortSignal.timeout(4500)]):signal;
+        const res=await request('speech',{speechTicket:ticket},synthesisSignal);
         if(!res.headers.get('content-type')?.startsWith('audio/'))throw Error('Audio unavailable');
         const src=URL.createObjectURL(await res.blob());signal.throwIfAborted();
         try{
           const element=new Audio(src);audio=element;
-          element.onplaying=()=>{host.dataset.voiceOutput='aoede';notify('Eden is speaking with Aoede.');};
+          element.onplaying=()=>playbackStarted('aoede');
           await new Promise<void>((resolve,reject)=>{
             const stopped=()=>{element.pause();reject(new DOMException('Voice ended','AbortError'));};
             signal.addEventListener('abort',stopped,{once:true});
@@ -63,13 +72,18 @@ export function mountHostedEden(host:HTMLElement) {
         }finally{URL.revokeObjectURL(src);audio=undefined;}
       }catch{signal.throwIfAborted();}
     }
-    await speakLocalReply(text,signal,()=>{host.dataset.voiceOutput='on-device';notify('Eden is speaking with the device voice.');});
+    await speakLocalReply(text,signal,()=>playbackStarted('on-device'));
   }
   async function command(raw:string,speakAnswer=false){
     if(busy)return;
+    const recognizedAt=performance.now();
     const before=currentContext();if(!before)throw Error('Use a current directory search or start with a city.');
     const reduced=reduceEdenAgentInput(raw,before);
-    if(reduced.status!=='supported'){notify(reduced.message);return;}
+    if(reduced.status!=='supported'){
+      message(reduced.message);notify(reduced.message);
+      if(speakAnswer&&voiceCall)await speakLocalReply(reduced.message,voiceCall.signal,()=>notify('Eden is speaking with the device voice.')).catch(()=>{});
+      return;
+    }
     const id=++generation,controller=new AbortController();turn=controller;busy=true;controls();
     try{
       const initialURL=location.href,includeMapState=reduced.intent.goal==='explain-page';
@@ -104,7 +118,7 @@ export function mountHostedEden(host:HTMLElement) {
         if(selection.signal.aborted||!stillCurrent()){message(changedMessage);notify('');return;}
         if(result.engine!=='gemini'||typeof result.reply!=='string'||!result.reply)throw Error('Eden could not verify the listing information.');
         message(result.reply);notify('');
-        if(speakAnswer){notify('Eden is speaking.');await speak(result.reply,result.speechTicket,AbortSignal.any([controller.signal,selection.signal]));}
+        if(speakAnswer){notify('Eden is speaking.');await speak(result.reply,result.speechTicket,AbortSignal.any([controller.signal,selection.signal]),recognizedAt);}
       }catch(error){
         if(!selection.signal.aborted)throw error;
         if(id===generation){message(changedMessage);notify('');}

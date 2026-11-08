@@ -47,9 +47,12 @@ export function hearOneCommand(ctor:LocalRecognizer,signal:AbortSignal):Promise<
     try{rec.start();}catch{finish(undefined,Error('The microphone could not start. You can still type your request.'));}
   });
 }
+export function localEnglishVoice(){
+  return window.speechSynthesis?.getVoices().find(v=>v.localService && /^en(?:-|$)/i.test(v.lang));
+}
 export async function speakLocalReply(text:string,signal:AbortSignal,onStart:()=>void) {
   const synthesis=window.speechSynthesis;
-  const voice=synthesis?.getVoices().find(v=>v.localService && /^en(?:-|$)/i.test(v.lang));
+  const voice=localEnglishVoice();
   if(!voice)throw Error('Audio output is unavailable. Eden’s answer is shown in the chat.');
   await new Promise<void>((resolve,reject)=>{
     const utterance=new SpeechSynthesisUtterance(text);utterance.voice=voice;utterance.onstart=onStart;

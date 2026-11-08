@@ -183,7 +183,14 @@ export function reduceEdenAgentInput(raw: unknown, context: EdenAgentContext, pe
   if(navigation){const pages:Record<string,EdenPublicDestination>={'give support':'give','for organizations':'organizations',organizations:'organizations','about':'about','about our ground':'about',privacy:'privacy','privacy policy':'privacy',home:'home',homepage:'home','find support':'support',support:'support'};return{status:'supported',intent:{goal:'navigate-public',page:pages[navigation[1]]}};}
   if(/^(?:show(?: me)?|focus|select) (?:that|this|the selected) (?:resource|place|listing|one) on (?:the )?map$/.test(normalized))return safe.selectedIndex?{status:'supported',intent:{goal:'inspect-resource',ordinal:safe.selectedIndex,view:'map'}}:{status:'clarify',message:'Select a current resource or name its result number first.'};
   if(/^(?:is|check if) (?:(?:this|that|the selected) (?:resource|place|listing)|it) open (?:right )?now$/.test(normalized))return safe.selectedIndex?{status:'supported',intent:{goal:'check-open-now',ordinal:safe.selectedIndex}}:{status:'clarify',message:'Which current result should I check?'};
-  if (/^what are (?:this|that|the selected) (?:clinic|listing|resource)(?:['’]s)? hours[?]?$/.test(normalized)) {
+  // Local English recognition can omit possessive apostrophes or choose “these clinics”.
+  const asksForHours=[
+    /^(?:what are|what is|what's|what're|tell me) (?:this|that|the|these|those|the selected) (?:clinic|listing|resource)(?:'s|s'?)? (?:opening |office |operating )?(?:hours|ours)$/,
+    /^(?:what are|what is|what's|tell me) (?:its|their|the) (?:opening |office |operating )?hours$/,
+    /^(?:what are )?(?:the )?(?:opening |office |operating )?hours (?:for|of|at) (?:this|that|the selected) (?:clinic|listing|resource)$/,
+    /^(?:clinic |opening |office )?hours$/
+  ].some(pattern=>pattern.test(normalized));
+  if (asksForHours) {
     return safe.selectedIndex ? {status:'supported',intent:{goal:'check-open-now',ordinal:safe.selectedIndex}}
       : {status:'clarify',message:'Select the clinic you want to check first.'};
   }
