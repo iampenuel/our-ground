@@ -44,10 +44,13 @@ test('CSP rejects injected origins and grants only one exact configured Auth fet
   assert(!resourcePolicy().includes('ws:'));assert(!resourcePolicy().includes("'unsafe-inline'"));
   const isolatedFixture=browserSecurityHeaders({authOrigin:'http://127.0.0.1:18789',fixtureAuth:true})['Content-Security-Policy'];assert(isolatedFixture.includes('http://127.0.0.1:18789'));assert(!isolatedFixture.includes('ws:'));assert(!isolatedFixture.includes("'unsafe-inline'"));
 });
-test('Vercel configuration has equivalent future security controls and no-store private paths',()=>{
+test('Vercel permits same-origin directory voice and retains no-store private paths',()=>{
   const config=JSON.parse(fs.readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
   const global=Object.fromEntries(config.headers.find(h=>h.source==='/(.*)').headers.map(h=>[h.key,h.value]));
-  assert.deepEqual(global,browserSecurityHeaders({https:true}));
+  const expected=browserSecurityHeaders({https:true});
+  expected['Permissions-Policy']='camera=(), microphone=(self), on-device-speech-recognition=(self), geolocation=(self), payment=()';
+  expected['Content-Security-Policy']=resourcePolicy().replace("media-src 'none'",'media-src blob:');
+  assert.deepEqual(global,expected);
   for(const route of ['/account','/account/:path*','/staff/:path*','/auth/:path*','/api/:path*']){const h=config.headers.find(x=>x.source===route);assert(h);assert.deepEqual(Object.fromEntries(h.headers.map(x=>[x.key,x.value])),privateDocumentHeaders);}
   assert.equal(config.git.deploymentEnabled,false);
 });
