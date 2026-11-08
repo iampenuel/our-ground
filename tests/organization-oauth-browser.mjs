@@ -27,10 +27,25 @@ try {
     await mkdir(evidence,{recursive:true});
     await page.screenshot({path:join(evidence,name+'.png')});
   }
-  let user = {id:'aaaa0000-0000-4000-8000-000000000001',email:'reviewer@example.invalid',
+  const user = {id:'aaaa0000-0000-4000-8000-000000000001',email:'reviewer@example.invalid',
     email_confirmed_at:'2026-01-02T00:00:00Z',created_at:'2026-01-02T00:00:00Z',aud:'authenticated'};
   const enc = value => Buffer.from(JSON.stringify(value)).toString('base64url');
-  let token = enc({alg:'HS256',typ:'JWT'})+'.'+enc({sub:user.id,role:'authenticated',exp:Math.floor(Date.now()/1000)+3600})+'.c2ln';
+  const outsider = {...user,id:'bbbb0000-0000-4000-8000-000000000002',email:'outsider@example.invalid'};
+  const issued = new Map(), accountReads = new Set();
+  function issue(principal,lifetime) {
+    const payload={sub:principal.id,role:'authenticated',jti:String(issued.size+1),exp:Math.floor(Date.now()/1000)+lifetime};
+    const jwt=enc({alg:'HS256',typ:'JWT'})+'.'+enc(payload)+'.c2ln';
+    issued.set(jwt,principal);
+    return jwt;
+  }
+  function bearer(route) {
+    const match=/^Bearer (\S+)$/.exec(route.request().headers().authorization??'');
+    const jwt=match?.[1], principal=issued.get(jwt);
+    assert(principal,'The request must carry a token issued by the fixture provider');
+    return {jwt,principal};
+  }
+  const initialToken=issue(user,3600);
+  let refreshedToken;
   const claims = [];
   let administrator = false;
   let challenge, exchanges = 0, refreshes = 0, loads = 0, appLogout = 0, providerLogout = 0;
@@ -45,47 +60,54 @@ try {
     }
     if (url.pathname === '/auth/v1/token') {
       const data = route.request().postDataJSON();
+      let accessToken;
       if (url.searchParams.get('grant_type') === 'refresh_token') {
         assert.equal(data.refresh_token,'local-test-refresh');
         refreshes++;
-        token = enc({alg:'HS256',typ:'JWT'})+'.'+enc({sub:user.id,exp:Math.floor(Date.now()/1000)+7200})+'.c2ln';
+        accessToken=refreshedToken=issue(user,7200);
       } else {
         assert.equal(url.searchParams.get('grant_type'),'pkce');
         assert.equal(data.auth_code,'synthetic_single_use_code');
         assert.equal(createHash('sha256').update(data.code_verifier).digest('base64url'),challenge);
-        exchanges++;
+        exchanges++;accessToken=initialToken;
       }
-      return route.fulfill({json:{user,access_token:token,refresh_token:'local-test-refresh',expires_in:3600,
+      return route.fulfill({json:{user,access_token:accessToken,refresh_token:'local-test-refresh',expires_in:3600,
         token_type:'bearer',provider_token:'provider-token-never-store'}});
     }
     if (url.pathname === '/auth/v1/logout') {
+      assert.equal(bearer(route).principal.id,outsider.id);
       providerLogout++;
       assert.equal(url.searchParams.get('scope'),'local');
       return route.fulfill({json:{}});
     }
-    if (url.pathname === '/auth/v1/user') return route.fulfill({json:user});
+    if (url.pathname === '/auth/v1/user') return route.fulfill({json:bearer(route).principal});
     throw new Error('Unexpected synthetic provider path '+url.pathname);
   });
   await context.route(origin+'/api/v1/**',async route => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith('/org/status')) return route.fulfill({json:{configured:true,email_enabled:false}});
     if (path.endsWith('/org/account')) {
-      assert.equal(route.request().headers().authorization,'Bearer '+token);
-      loads++;
-      return route.fulfill({json:{id:user.id,role:administrator?'admin':'user',organizations:[],claims,listings:[],revisions:[]}});
+      // A read already in flight can arrive after refresh or a cross-tab sign-in.
+      // Its own issued credential determines which principal and data it sees.
+      const {jwt,principal}=bearer(route);
+      accountReads.add(jwt);loads++;
+      return route.fulfill({json:{id:principal.id,role:administrator&&principal===user?'admin':'user',organizations:[],
+        claims:principal===user?claims:[],listings:[],revisions:[]}});
     }
     if (path.endsWith('/org/claims')) {
       assert.equal(route.request().method(),'POST');
-      assert.equal(route.request().headers().authorization,'Bearer '+token);
+      const {jwt,principal}=bearer(route);
+      assert(principal===user&&jwt===refreshedToken,'Claim submission must use the refreshed first identity');
       claims.push({...route.request().postDataJSON(),id:'fixture-claim',status:'pending',created_at:'2026-11-08T12:00:00Z'});
       return route.fulfill({status:202,json:{status:'pending'}});
     }
     if (path.endsWith('/org/session/logout')) {
-      assert.equal(route.request().headers().authorization,'Bearer '+token);
+      assert.equal(bearer(route).principal.id,outsider.id);
       appLogout++; return route.fulfill({json:{signed_out:true}});
     }
     if (path.endsWith('/org/admin')) {
-      if (administrator) return route.fulfill({json:{claims:[],revisions:[],listings:[],memberships:[],audit:[]}});
+      const {principal}=bearer(route);
+      if (administrator && principal===user) return route.fulfill({json:{claims:[],revisions:[],listings:[],memberships:[],audit:[]}});
       return route.fulfill({status:403,json:{error:{code:'ACCESS_DENIED',message:'Administrator access is required.'}}});
     }
     return route.fulfill({json:{}});
@@ -108,6 +130,7 @@ try {
   });
   await page.reload(); await page.locator('#accountWorkspace').waitFor();
   assert.equal(refreshes,1);
+  assert(accountReads.has(initialToken)&&accountReads.has(refreshedToken),'Account reads must use both initial and refreshed credentials');
   assert(loads >= 2,'session survives reload with a fresh server authorization check');
   await page.locator('[name=organization_name]').fill('Fictional verification organization');
   await page.locator('[name=location]').fill('Synthetic location, Harrisburg, PA');
@@ -129,16 +152,22 @@ try {
   await adminView.locator('#adminWorkspace').waitFor();
   await page.goto(origin+'/account');
   await page.locator('#accountWorkspace').waitFor();
-  user = {...user,id:'bbbb0000-0000-4000-8000-000000000002',email:'outsider@example.invalid'};
-  administrator = false;
-  token = enc({alg:'HS256',typ:'JWT'})+'.'+enc({sub:user.id,exp:Math.floor(Date.now()/1000)+3600})+'.c2ln';
+  await page.locator('#adminLink').waitFor();
+  await page.locator('#claimList').getByText('Pending review').waitFor();
+  // Keep the first user's admin grant active: only the second user's session
+  // can explain why this previously authorized workspace becomes inaccessible.
+  const outsiderToken=issue(outsider,3600);
   await page.evaluate(async (access_token)=>{
     const {authClient} = await import('/src/backend-client.ts');
     const {error} = await authClient().auth.setSession({access_token,refresh_token:'second-test-refresh'});
     if (error) throw error;
-  },token);
+  },outsiderToken);
   await adminView.getByText('Administrator access is required.').waitFor();
   assert(await adminView.locator('#adminWorkspace').isHidden());
+  await page.locator('#accountStatus[data-state=success]').filter({hasText:/Request organization access below/}).waitFor();
+  assert(accountReads.has(outsiderToken),'Current workspace must be fetched under the second identity');
+  assert(await page.locator('#adminLink').isHidden());
+  assert.equal(await page.locator('#claimList').getByText('Pending review').count(),0,'Prior user claim must leave the current workspace');
   await page.getByRole('button',{name:'Sign out'}).click();
   await page.getByRole('button',{name:'Continue with Google'}).waitFor();
   assert(await page.locator('#accountWorkspace').isHidden());

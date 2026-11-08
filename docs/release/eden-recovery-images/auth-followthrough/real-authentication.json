@@ -47,7 +47,7 @@
     {
       "name": "Assigned organization permissions",
       "status": "BLOCKED",
-      "reason": "Read-only staging audit: zero active approved listing assignments, assigned representatives, and application administrators. No permissions were granted for testing."
+      "reason": "Read-only check of the actual tested Google identity: confirmed active ordinary user, no organization memberships, listing bindings or pending claims. No distinct confirmed reviewer and no active approved listing assignments are available. No permissions were granted for testing."
     },
     {
       "name": "Automatic refresh after real token expiry",
