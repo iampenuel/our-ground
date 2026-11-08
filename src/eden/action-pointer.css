@@ -3,6 +3,14 @@
 #eden-action-pointer .eden-operation-pointer{position:absolute;inset:0;pointer-events:none;width:100%;height:100%}
 #eden-action-pointer .showcase-pointer-cursor{pointer-events:none}
 #eden-action-pointer .showcase-pointer-cursor-label{color:#fff;background:#171717;border:1px solid #fff;font:600 11px/1.3 system-ui,sans-serif;letter-spacing:.06em}
+/* Keep the rendered label and its lag inside the viewport even when the
+   authorized target is near an edge. Percentages use the label's own box;
+   the arrow's transform and its application target stay unchanged. */
+#eden-action-pointer .showcase-pointer-cursor-label-anchor{
+  transform:translate3d(
+    clamp(calc(6px - var(--cursor-x) - 19px),var(--label-dx,0px),calc(100dvw - var(--cursor-x) - 19px - 100% - 6px)),
+    clamp(calc(6px - var(--cursor-y) - 27px),var(--label-dy,0px),calc(100dvh - var(--cursor-y) - 27px - 100% - 6px)),0);
+}
 #eden-action-pointer .showcase-pointer-cursor-arrow{filter:none}
 [data-cursor-hover="eden"]{outline:2px solid #425e50;outline-offset:3px}
 [data-cursor-press="eden"]{outline-color:#171717}
