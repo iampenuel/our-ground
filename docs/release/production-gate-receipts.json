@@ -1,0 +1,712 @@
+{
+  "production": {
+    "name": "ourground",
+    "id": "prj_4li6QnqulPgPbJpxMW2L9hczDNrS",
+    "accountId": "team_7zBDrVIlwYth2sXkAbBPcbYw",
+    "framework": "vite",
+    "nodeVersion": "24.x",
+    "git": null,
+    "protection": {
+      "deploymentType": "all_except_custom_domains"
+    },
+    "liveTarget": "dpl_HDGZQZYaJXyu5KK54NyJiNi4nTv4"
+  },
+  "staging": {
+    "name": "ourground-staging",
+    "id": "prj_eU9xRSetSQYTbkAce2cYIR5zx8c2",
+    "accountId": "team_7zBDrVIlwYth2sXkAbBPcbYw",
+    "framework": "vite",
+    "nodeVersion": "24.x",
+    "git": null,
+    "protection": {
+      "deploymentType": "all_except_custom_domains"
+    },
+    "liveTarget": null
+  },
+  "production_build": {
+    "source": "04fbdeb7793710bec14a1e6f91ca38a4916488d2",
+    "project": "prj_4li6QnqulPgPbJpxMW2L9hczDNrS",
+    "team": "team_7zBDrVIlwYth2sXkAbBPcbYw",
+    "archive_sha256": "40c7374aac752b2ddcdb7ab100891a30afd694aec31f770920ec86a27c4d540c",
+    "target": "production",
+    "packaged_files": 463,
+    "hashed_static_assets": 128
+  },
+  "production_flags": {
+    "project": "prj_4li6QnqulPgPbJpxMW2L9hczDNrS",
+    "live": "dpl_HDGZQZYaJXyu5KK54NyJiNi4nTv4",
+    "production_only": {
+      "BACKEND_DATA_MODE": "postgres",
+      "GEOGRAPHIC_REFERENCE_ENABLED": "true",
+      "ALLOW_DEMO_DATA": "false",
+      "EDEN_GEMINI_MODE": "disabled",
+      "ACCOUNT_EMAIL_AUTH_ENABLED": "false",
+      "ACCOUNT_ALLOWED_ORIGINS": "https://ourground.vercel.app",
+      "RATE_LIMIT_BACKEND": "redis"
+    },
+    "added": [
+      "BACKEND_DATA_MODE",
+      "GEOGRAPHIC_REFERENCE_ENABLED",
+      "ALLOW_DEMO_DATA",
+      "EDEN_GEMINI_MODE",
+      "ACCOUNT_EMAIL_AUTH_ENABLED",
+      "ACCOUNT_ALLOWED_ORIGINS",
+      "RATE_LIMIT_BACKEND"
+    ],
+    "checked_at": "2026-11-08T02:50:19.245Z"
+  },
+  "anonymous_access": [
+    {
+      "host": "ourground.vercel.app",
+      "path": "/",
+      "status": 200,
+      "redirect_host": null,
+      "content_type": "text/html; charset=utf-8",
+      "cache_control": "public, max-age=0, must-revalidate"
+    },
+    {
+      "host": "ourground.vercel.app",
+      "path": "/api/v1/health",
+      "status": 200,
+      "redirect_host": null,
+      "content_type": "application/json",
+      "cache_control": "no-store"
+    },
+    {
+      "host": "ourground-cfiaqimgw-penuels-projects-aa802b06.vercel.app",
+      "path": "/",
+      "status": 302,
+      "redirect_host": "vercel.com",
+      "content_type": "text/plain",
+      "cache_control": "no-store, max-age=0"
+    },
+    {
+      "host": "ourground-cfiaqimgw-penuels-projects-aa802b06.vercel.app",
+      "path": "/api/v1/health",
+      "status": 302,
+      "redirect_host": "vercel.com",
+      "content_type": "text/plain",
+      "cache_control": "no-store, max-age=0"
+    },
+    {
+      "host": "ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+      "path": "/",
+      "status": 302,
+      "redirect_host": "vercel.com",
+      "content_type": "text/plain",
+      "cache_control": "no-store, max-age=0"
+    },
+    {
+      "host": "ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+      "path": "/api/v1/health",
+      "status": 302,
+      "redirect_host": "vercel.com",
+      "content_type": "text/plain",
+      "cache_control": "no-store, max-age=0"
+    }
+  ],
+  "pinned_staging_inventory": {
+    "timestamp": "2026-11-08T02:35:54.009Z",
+    "project": "ourground-staging",
+    "size": {
+      "bytes": 122861235
+    },
+    "auth": {
+      "current_user": "our_ground_api",
+      "read_reports": false,
+      "submit": true
+    },
+    "public_rows": [
+      {
+        "source_id": "hrsa-health-centers",
+        "n": 16417,
+        "ids_hash": "b79bbd4124a8413925a3afaafe08908665db9b7c2db7998b71ae6c80b845ed8c"
+      },
+      {
+        "source_id": "hud-housing-counselors",
+        "n": 508,
+        "ids_hash": "98d252069e1e55d2c8411b2dc72a4b65ac84341b81cd004578eab9569a3a6420"
+      },
+      {
+        "source_id": "pgc-food-assistance",
+        "n": 60,
+        "ids_hash": "321bfeb1f954f96752a1701f786b8dc21f0866d5b551e3670fc357ba9bb31f11"
+      },
+      {
+        "source_id": "philly-food-sites",
+        "n": 324,
+        "ids_hash": "d488fbec1eaff81d533732ecd98c443c7dec0e4d8703b60b0f9c24074c78765b"
+      },
+      {
+        "source_id": "seattle-food-resources",
+        "n": 209,
+        "ids_hash": "0565d12b188b9f084228167b8905566f716ef4c6ed23f4f109e90ddfa10c78c1"
+      }
+    ],
+    "migration_digest": "c116016003b6068609ed385620b4124d6295d22ae7557c8e39aeec5d7cf1038a",
+    "receipt_digest": "262d2e6933b12b4cb1387c17f65d25b1518b2d23618db5866f5eca7e25d4f9ad",
+    "postal": 33791,
+    "active_holds": 34,
+    "restore_matches": true
+  },
+  "independent_seed_rehearsal": {
+    "inventory": {
+      "hrsa-health-centers": 16417,
+      "hud-housing-counselors": 508,
+      "pgc-food-assistance": 60,
+      "philly-food-sites": 324,
+      "seattle-food-resources": 209
+    },
+    "database_bytes": 108598975,
+    "headroom_vs_500MB": 391401025,
+    "postal": 33791,
+    "journal_digest": "c116016003b6068609ed385620b4124d6295d22ae7557c8e39aeec5d7cf1038a",
+    "source_digest": "262d2e6933b12b4cb1387c17f65d25b1518b2d23618db5866f5eca7e25d4f9ad",
+    "runtime_search": true
+  },
+  "packaged_correction_drill": {
+    "exact_commit": "04fbdeb7793710bec14a1e6f91ca38a4916488d2",
+    "environment": "packaged production handler, isolated TLS DB and local Redis via test-only REST adapter",
+    "submitted": 202,
+    "invalid_report": 422,
+    "raw_queue_denied": true,
+    "review_group_can_read_target": true,
+    "resolved": true,
+    "actor": "gate_reviewer_fixture",
+    "shared_location_hidden": true,
+    "held_across_republication": true,
+    "append_only_for_steward": true,
+    "public_search_after": 0,
+    "public_detail_after": 404,
+    "redis_down_status": 503,
+    "redis_admissions": 6,
+    "hosted_model_endpoints_disabled": true,
+    "fixture": {
+      "report": "a828563a-6001-4d28-80a5-cb905799fef1",
+      "sid": "6b5eccf4-abc2-46bf-8934-004f256b33bb",
+      "lid": "1f4ebad8-0dc8-4530-b1af-fbeae91a8a18"
+    }
+  },
+  "encrypted_private_recovery_drill": {
+    "environment": "isolated local TLS rehearsal, synthetic private data",
+    "ciphertext_sha256": "9073efb68e24a8dcfdb5bfeb07b600a2351e72ac9dc17c31631ca00e3c76a537",
+    "encrypted_bytes": 12373681,
+    "restored_database": "ourground_recovered_67e3d9afc765",
+    "preserved": {
+      "source_records": 17518,
+      "source_holds": 34,
+      "reviewer": "gate_reviewer_fixture",
+      "action": "suppressed",
+      "case": "RELEASE-FIXTURE-001",
+      "report_status": "resolved",
+      "location_status": "hidden",
+      "held": true,
+      "associated_services": 2,
+      "runtime_read_denied": true,
+      "reviewer_write_denied": true,
+      "reviewer_queue_granted": true,
+      "spatial_index": true
+    },
+    "after_owner_release": "hidden"
+  },
+  "map_key_http": {
+    "commit": "04fbdeb7793710bec14a1e6f91ca38a4916488d2",
+    "probes": [
+      {
+        "request": "style",
+        "headers": "production",
+        "status": 200
+      },
+      {
+        "request": "style",
+        "headers": "foreign",
+        "status": 401
+      },
+      {
+        "request": "style",
+        "headers": "headerless",
+        "status": 200
+      },
+      {
+        "request": "vector tile",
+        "headers": "production",
+        "status": 200,
+        "bytes": 331224,
+        "mime": "application/x-protobuf"
+      },
+      {
+        "request": "vector tile",
+        "headers": "foreign",
+        "status": 401,
+        "bytes": 65,
+        "mime": "application/json; charset=utf-8"
+      },
+      {
+        "request": "vector tile",
+        "headers": "headerless",
+        "status": 200,
+        "bytes": 253592,
+        "mime": "application/x-protobuf"
+      }
+    ]
+  },
+  "map_cors_and_attribution": {
+    "style": {
+      "status": 200,
+      "cors": "*",
+      "mime": "application/json; charset=utf-8",
+      "bytes": 43816
+    },
+    "source": {
+      "status": 200,
+      "cors": "*",
+      "mime": "application/json; charset=utf-8",
+      "bytes": 13576
+    },
+    "tile": {
+      "status": 200,
+      "cors": "*",
+      "mime": "application/x-protobuf",
+      "bytes": 331224
+    },
+    "origin": "https://ourground.vercel.app",
+    "attribution_from_provider": {
+      "geoapify": true,
+      "openmaptiles": true,
+      "openstreetmap": true
+    }
+  },
+  "github": {
+    "owner": "iampenuel",
+    "private": true,
+    "pr": 1,
+    "head": "04fbdeb7793710bec14a1e6f91ca38a4916488d2",
+    "main": "3897dea703a7175e8ec57e1d7ba0f358dafc0221",
+    "state": "OPEN",
+    "mergeable": "MERGEABLE",
+    "auto_merge": false,
+    "merge_commit": true,
+    "squash": true,
+    "rebase": true,
+    "checks": [
+      "SUCCESS",
+      "SUCCESS"
+    ]
+  },
+  "geoapify_dashboard": {
+    "project": "Our Ground Dev",
+    "plan": "Free",
+    "displayed_period_UTC": "2026-10-07 to 2026-11-07",
+    "shared_requests": 494,
+    "shared_credits": 305,
+    "daily_credits": 3000,
+    "added_origin": "https://ourground.vercel.app",
+    "referer_changed": false,
+    "staging_key_changed": false
+  },
+  "production_environment_keys": [
+    {
+      "key": "VITE_GEOAPIFY_BROWSER_KEY",
+      "target": [
+        "production"
+      ],
+      "type": "encrypted"
+    },
+    {
+      "key": "GEOAPIFY_ENABLED",
+      "target": [
+        "production"
+      ],
+      "type": "encrypted"
+    },
+    {
+      "key": "GEOAPIFY_LIVE_APPROVED",
+      "target": [
+        "production"
+      ],
+      "type": "encrypted"
+    },
+    {
+      "key": "GEOAPIFY_SERVER_API_KEY",
+      "target": [
+        "production"
+      ],
+      "type": "sensitive"
+    },
+    {
+      "key": "UPSTASH_REDIS_REST_URL",
+      "target": [
+        "production"
+      ],
+      "type": "sensitive"
+    },
+    {
+      "key": "UPSTASH_REDIS_REST_TOKEN",
+      "target": [
+        "production"
+      ],
+      "type": "sensitive"
+    },
+    {
+      "key": "BACKEND_DATA_MODE",
+      "type": "config",
+      "target": [
+        "production"
+      ]
+    },
+    {
+      "key": "GEOGRAPHIC_REFERENCE_ENABLED",
+      "type": "config",
+      "target": [
+        "production"
+      ]
+    },
+    {
+      "key": "ALLOW_DEMO_DATA",
+      "type": "config",
+      "target": [
+        "production"
+      ]
+    },
+    {
+      "key": "EDEN_GEMINI_MODE",
+      "type": "config",
+      "target": [
+        "production"
+      ]
+    },
+    {
+      "key": "ACCOUNT_EMAIL_AUTH_ENABLED",
+      "type": "config",
+      "target": [
+        "production"
+      ]
+    },
+    {
+      "key": "ACCOUNT_ALLOWED_ORIGINS",
+      "type": "config",
+      "target": [
+        "production"
+      ]
+    },
+    {
+      "key": "RATE_LIMIT_BACKEND",
+      "type": "config",
+      "target": [
+        "production"
+      ]
+    },
+    {
+      "key": "DATABASE_URL",
+      "type": "sensitive",
+      "target": [
+        "production"
+      ]
+    },
+    {
+      "key": "DATABASE_SSL_CA",
+      "type": "sensitive",
+      "target": [
+        "production"
+      ]
+    }
+  ],
+  "replay_source_validation": {
+    "inventory": {
+      "hrsa-health-centers": 16417,
+      "hud-housing-counselors": 508,
+      "pgc-food-assistance": 60,
+      "philly-food-sites": 324,
+      "seattle-food-resources": 209
+    },
+    "database_bytes": 108549823,
+    "headroom_vs_500MB": 391450177,
+    "postal": 33791,
+    "journal_digest": "c116016003b6068609ed385620b4124d6295d22ae7557c8e39aeec5d7cf1038a",
+    "source_digest": "262d2e6933b12b4cb1387c17f65d25b1518b2d23618db5866f5eca7e25d4f9ad",
+    "runtime_search": true
+  },
+  "production_domains": [
+    {
+      "name": "ourground.vercel.app",
+      "verified": true,
+      "redirect": null,
+      "git_branch": null
+    }
+  ],
+  "remaining": {
+    "backup_steward": null,
+    "alternate_recovery_custodian_tested": false,
+    "private_postlaunch_backup_destination_approved": false,
+    "new_production_checkpoint_off_device": false,
+    "approval_to_promote": false,
+    "public_gemini": false
+  },
+  "production_seed": {
+    "inventory": {
+      "hrsa-health-centers": 16417,
+      "hud-housing-counselors": 508,
+      "pgc-food-assistance": 60,
+      "philly-food-sites": 324,
+      "seattle-food-resources": 209
+    },
+    "database_bytes": 111474355,
+    "headroom_vs_500MB": 388525645,
+    "postal": 33791,
+    "journal_digest": "c116016003b6068609ed385620b4124d6295d22ae7557c8e39aeec5d7cf1038a",
+    "source_digest": "262d2e6933b12b4cb1387c17f65d25b1518b2d23618db5866f5eca7e25d4f9ad",
+    "runtime_search": true
+  },
+  "production_runtime": {
+    "ref": "amcqkonluwavilekgjww",
+    "session_pooler": 5432,
+    "transaction_pooler": 6543,
+    "tls_mode": "verify-full",
+    "client_tls_protocol": "TLSv1.3",
+    "runtime_identity": "our_ground_api",
+    "runtime_raw_services": false,
+    "runtime_raw_reports": false,
+    "runtime_steward_schema": false,
+    "runtime_submit": true,
+    "honolulu_10mi_healthcare": 23,
+    "directory_ops_installed": true,
+    "named_steward_memberships": 0,
+    "database_bytes": 111630003,
+    "headroom_vs_500MB": 388369997
+  },
+  "production_host_final": {
+    "inventory": {
+      "hrsa-health-centers": 16417,
+      "hud-housing-counselors": 508,
+      "pgc-food-assistance": 60,
+      "philly-food-sites": 324,
+      "seattle-food-resources": 209
+    },
+    "database_bytes": 111703731,
+    "headroom_vs_500MB": 388296269,
+    "postal": 33791,
+    "journal_digest": "c116016003b6068609ed385620b4124d6295d22ae7557c8e39aeec5d7cf1038a",
+    "source_digest": "262d2e6933b12b4cb1387c17f65d25b1518b2d23618db5866f5eca7e25d4f9ad",
+    "runtime_search": true,
+    "project_ref": "amcqkonluwavilekgjww",
+    "used_spatial_index": "service_locations_point_gix",
+    "empty_production_correction_queue": true,
+    "all_source_id_digests_matched": true,
+    "postgres_version": "17.11",
+    "postgis_version": "3.3.7",
+    "staging_limiter_absent": true,
+    "data_api_enabled": false
+  },
+  "production_recovery": {
+    "source_ref": "amcqkonluwavilekgjww",
+    "source": "independent hosted production",
+    "scope": "directory, source privacy holds, migration receipts and empty operational schema; all private application table data excluded",
+    "target": "isolated local ourground_prod_restore_4ab7f4f8",
+    "archive": "prod-directory-y0kv2ftu/directory.dump.gpg",
+    "ciphertext_sha256": "d3504ee9bf740cadb09e239d786aaa0f6cc973a0e975e244705e9b4ed1f1143c",
+    "encrypted_bytes": 12372855,
+    "elapsed_seconds": 15.3,
+    "restored": {
+      "inventory": {
+        "hrsa-health-centers": 16417,
+        "hud-housing-counselors": 508,
+        "pgc-food-assistance": 60,
+        "philly-food-sites": 324,
+        "seattle-food-resources": 209
+      },
+      "database_bytes": 108656319,
+      "headroom_vs_500MB": 391343681,
+      "postal": 33791,
+      "journal_digest": "c116016003b6068609ed385620b4124d6295d22ae7557c8e39aeec5d7cf1038a",
+      "source_digest": "262d2e6933b12b4cb1387c17f65d25b1518b2d23618db5866f5eca7e25d4f9ad",
+      "runtime_search": true
+    },
+    "public_id_digests_match": true,
+    "restricted_steward_acl_preserved": true,
+    "private_operational_records": 0,
+    "off_device_copy": false
+  },
+  "production_hold_transaction": {
+    "source_ref": "amcqkonluwavilekgjww",
+    "environment": "production database, one uncommitted transaction using isolated random fixture IDs",
+    "runtime_submit": true,
+    "closed_report": true,
+    "audit_actor_recorded": true,
+    "hold_prevented_republication": true,
+    "two_colocated_services": true,
+    "rollback_verified_no_fixture_rows": true
+  },
+  "production_secret_binding": {
+    "project": "prj_4li6QnqulPgPbJpxMW2L9hczDNrS",
+    "ref": "amcqkonluwavilekgjww",
+    "added_production_secret_names": [
+      "DATABASE_URL",
+      "DATABASE_SSL_CA"
+    ],
+    "live_id": "dpl_HDGZQZYaJXyu5KK54NyJiNi4nTv4"
+  },
+  "primary_reviewer": {
+    "primary": "Penuel Stanley-Zebulon",
+    "login": "ourground_reviewer_penuel",
+    "authenticated_empty_review_queue": true,
+    "raw_reports_denied": true,
+    "audit_update_denied": true,
+    "owner_hold_release_denied": true,
+    "backup_reviewer": null
+  },
+  "candidate_http": {
+    "id": "dpl_5WFWzBcT8bsz8icTcfrhYd9xNykY",
+    "url": "https://ourground-4hrtl54xy-penuels-projects-aa802b06.vercel.app",
+    "target": "production",
+    "project": "prj_4li6QnqulPgPbJpxMW2L9hczDNrS",
+    "tests": [
+      {
+        "path": "/ourground-build-evidence.json",
+        "status": 200
+      },
+      {
+        "path": "/",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/health",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/categories",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/locations/suggest",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/locations/retrieve",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/resources/search",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/resources/1973cdfa-2799-5362-a21a-067b11e2fd13",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/locations/suggest",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/locations/retrieve",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/resources/search",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/locations/suggest",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/locations/retrieve",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/resources/search",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/locations/suggest",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/locations/retrieve",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/resources/search",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/eden/session",
+        "status": 403,
+        "error": "EDEN_DISABLED"
+      },
+      {
+        "path": "/api/v1/eden/live/token",
+        "status": 403,
+        "error": "EDEN_DISABLED"
+      },
+      {
+        "path": "/api/v1/eden/speech",
+        "status": 403,
+        "error": "EDEN_DISABLED"
+      },
+      {
+        "path": "/api/v1/correction-reports",
+        "status": 422,
+        "error": "VALIDATION_ERROR"
+      },
+      {
+        "path": "/api/v1/correction-reports",
+        "status": 404,
+        "error": "NOT_FOUND"
+      }
+    ],
+    "commit": "04fbdeb7793710bec14a1e6f91ca38a4916488d2",
+    "manifest_matches": true,
+    "cases": [
+      {
+        "zip": "96813",
+        "category": "healthcare",
+        "total": 23
+      },
+      {
+        "zip": "96813",
+        "category": "food",
+        "total": 0
+      },
+      {
+        "zip": "19104",
+        "category": "food",
+        "total": 310
+      },
+      {
+        "zip": "96813",
+        "category": "community",
+        "total": 1
+      }
+    ],
+    "hosted_redis_admission": "passed via protected search and correction endpoints"
+  },
+  "production_origin_chrome": {
+    "origin": "https://ourground.vercel.app",
+    "style": 200,
+    "source": 200,
+    "tile": 200,
+    "tile_mime": "application/x-protobuf",
+    "tile_bytes": 331224
+  },
+  "production_candidate": {
+    "id": "dpl_5WFWzBcT8bsz8icTcfrhYd9xNykY",
+    "url": "https://ourground-4hrtl54xy-penuels-projects-aa802b06.vercel.app",
+    "project": "prj_4li6QnqulPgPbJpxMW2L9hczDNrS",
+    "creator": "iampenuel",
+    "target": "production",
+    "ready_state": "READY",
+    "aliases": [],
+    "protection": "vercel_authentication",
+    "anonymous_health": 302,
+    "gitCommitSha": "04fbdeb7793710bec14a1e6f91ca38a4916488d2",
+    "primary_alias_after_deploy": "dpl_HDGZQZYaJXyu5KK54NyJiNi4nTv4"
+  },
+  "contact": {
+    "authorized_address": "stanleyzebulonp@gmail.com",
+    "test_reference": "OG-04FBDEB",
+    "inbox_delivery_verified": true,
+    "owner_acknowledged_in_release_conversation": true,
+    "public_form_sends_email": false,
+    "address_displayed_in_pinned_ui": false
+  }
+}
