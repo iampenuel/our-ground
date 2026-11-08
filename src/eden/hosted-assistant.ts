@@ -53,6 +53,7 @@ export function mountHostedEden(host:HTMLElement) {
         const src=URL.createObjectURL(await res.blob());signal.throwIfAborted();
         try{
           const element=new Audio(src);audio=element;
+          element.onplaying=()=>{host.dataset.voiceOutput='aoede';notify('Eden is speaking with Aoede.');};
           await new Promise<void>((resolve,reject)=>{
             const stopped=()=>{element.pause();reject(new DOMException('Voice ended','AbortError'));};
             signal.addEventListener('abort',stopped,{once:true});
@@ -62,7 +63,7 @@ export function mountHostedEden(host:HTMLElement) {
         }finally{URL.revokeObjectURL(src);audio=undefined;}
       }catch{signal.throwIfAborted();}
     }
-    await speakLocalReply(text,signal);
+    await speakLocalReply(text,signal,()=>{host.dataset.voiceOutput='on-device';notify('Eden is speaking with the device voice.');});
   }
   async function command(raw:string,speakAnswer=false){
     if(busy)return;
@@ -103,12 +104,15 @@ export function mountHostedEden(host:HTMLElement) {
     if(voiceCall){stopVoice();return;}if(!ack.checked)return;
     const call=new AbortController();voiceCall=call;controls();
     try{
+      notify('Preparing on-device English recognition…');
       const ctor=await prepareLocalRecognition();await startSession(call.signal);
-      while(!call.signal.aborted){
+      let idleSince=Date.now();
+      while(!call.signal.aborted&&Date.now()-idleSince<90000){
         notify('Eden is listening on this device.');const text=await hearOneCommand(ctor,call.signal);
-        if(!text)break;
-        await command(text,true);
+        if(!text)continue;
+        await command(text,true);idleSince=Date.now();
       }
+      if(!call.signal.aborted)notify('Voice timed out. Talk again or type a request.');
     }catch(e){if(!call.signal.aborted)notify(e instanceof Error?e.message:'Voice stopped. You can type a request.');}
     finally{if(voiceCall===call){voiceCall=undefined;endSession();controls();}}
   }

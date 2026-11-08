@@ -39,17 +39,17 @@ export function hearOneCommand(ctor:LocalRecognizer,signal:AbortSignal):Promise<
     function abort(){finish(undefined,new DOMException('Voice ended','AbortError'));}
     signal.addEventListener('abort',abort,{once:true});if(signal.aborted){abort();return;}
     rec.onresult=event=>{for(let n=event.resultIndex;n<event.results.length;n++){if(event.results[n].isFinal){finish(event.results[n][0].transcript);return;}}};
-    rec.onerror=e=>finish(undefined,Error(e.error==='not-allowed'||e.error==='service-not-allowed'?'Microphone access was denied. You can still type to Eden.':e.error==='no-speech'?'No speech was heard. Start voice again or type your request.':'On-device recognition stopped. You can type your request.'));
+    rec.onerror=e=>e.error==='no-speech'?finish():finish(undefined,Error(e.error==='not-allowed'||e.error==='service-not-allowed'?'Microphone access was denied. You can still type to Eden.':'On-device recognition stopped. You can type your request.'));
     rec.onend=()=>finish();
     try{rec.start();}catch{finish(undefined,Error('The microphone could not start. You can still type your request.'));}
   });
 }
-export async function speakLocalReply(text:string,signal:AbortSignal) {
+export async function speakLocalReply(text:string,signal:AbortSignal,onStart:()=>void) {
   const synthesis=window.speechSynthesis;
   const voice=synthesis?.getVoices().find(v=>v.localService && /^en(?:-|$)/i.test(v.lang));
   if(!voice)throw Error('Audio output is unavailable. Eden’s answer is shown in the chat.');
   await new Promise<void>((resolve,reject)=>{
-    const utterance=new SpeechSynthesisUtterance(text);utterance.voice=voice;
+    const utterance=new SpeechSynthesisUtterance(text);utterance.voice=voice;utterance.onstart=onStart;
     const stop=()=>{synthesis.cancel();reject(new DOMException('Voice ended','AbortError'));};
     const cleanup=()=>signal.removeEventListener('abort',stop);
     if(signal.aborted){stop();return;}signal.addEventListener('abort',stop,{once:true});
