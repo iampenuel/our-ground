@@ -1,0 +1,61 @@
+{
+  "checkedAtUTC": "2026-11-08T18:45:24.623152+00:00",
+  "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "deployedCommit": "86cd4eece01ba8252c28c151af3e73a8f063dfca",
+  "method": "Real Google OAuth in existing Chrome with the registered test user identified in Google Cloud Audience. No mocked identity provider or token exchange.",
+  "tests": [
+    {
+      "name": "Google button and OAuth redirect",
+      "status": "PASS",
+      "observed": "Continue with Google visible. Real Google account chooser and expected staging Supabase callback."
+    },
+    {
+      "name": "Google consent and PKCE callback",
+      "status": "PASS",
+      "observed": "Completed normal name, email and profile consent. Returned through /auth/callback to /account with query cleared and authenticated organization workspace."
+    },
+    {
+      "name": "Session persists on reload",
+      "status": "PASS",
+      "observed": "Reload preserved signed-in unassigned state and no assigned listings."
+    },
+    {
+      "name": "Session available in a second tab",
+      "status": "PASS",
+      "observed": "Second tab loaded the same authenticated unassigned account."
+    },
+    {
+      "name": "Unassigned private listing denial",
+      "status": "PASS",
+      "observed": "Known public HHC listing staff URL returned: The requested organization record is not available to your account. No editor or private record exposed."
+    },
+    {
+      "name": "Unassigned administrator denial",
+      "status": "PASS",
+      "observed": "Administration page returned: Administrator access is required. No request or decision queue exposed."
+    },
+    {
+      "name": "Logout and cross-tab invalidation",
+      "status": "PASS",
+      "observed": "Signing out in the second tab cleared both account workspaces. First tab reported Your session ended. Sign in again to continue."
+    },
+    {
+      "name": "Logout persists on reload",
+      "status": "PASS",
+      "observed": "Reload showed Continue with Google and no authenticated account workspace."
+    },
+    {
+      "name": "Assigned organization permissions",
+      "status": "BLOCKED",
+      "reason": "Read-only staging audit: zero active approved listing assignments, assigned representatives, and application administrators. No permissions were granted for testing."
+    },
+    {
+      "name": "Automatic refresh after real token expiry",
+      "status": "BLOCKED",
+      "reason": "The live session did not expire during this run. Existing SDK refresh tests remain synthetic evidence, not a live expiry test."
+    }
+  ],
+  "retainedSensitiveData": false,
+  "accountClaimsSubmitted": false,
+  "permissionAssignmentsChanged": false
+}

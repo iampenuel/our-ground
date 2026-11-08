@@ -1,5 +1,7 @@
 # Eden recovery candidate · November 8, 2026
 
+**Later authentication follow-through:** [Real Google sign-in, session handling and unassigned authorization verification](eden-auth-recovery-2026-11-08.md). The provider-disabled findings below describe the earlier candidate, before the owner completed OAuth setup.
+
 The working checkout started at `04fbdeb` on `codex/national-release-candidate`. Vercel's production project identified deployment `dpl_5BLDMWteSXZ8ju8VVcfXttiUQBiq`; GitHub PR #2 and the release evidence identify its source as `33574bd`. The recovery branch fast-forwarded to `304036a`, which adds the reviewed About copy on top of that deployed code. The separate `ourground-staging` project has deployment protection. No production cutover is part of this work.
 
 | Reported failure | Root cause in deployed source | Change under review |

@@ -1,5 +1,5 @@
 Recovery PR file manifest compared with base 304036a.
-119 files (includes tests, screenshots and this evidence index).
+136 files (includes tests, screenshots and this evidence index).
 
 .github/workflows/release.yml
 api/index.ts
@@ -13,7 +13,24 @@ backend/eden-staging-store.ts
 backend/env-boundary.mjs
 backend/hosted-store.ts
 backend/staging/002_ephemeral_eden.sql
+docs/release/eden-auth-recovery-2026-11-08.md
 docs/release/eden-recovery-files.txt
+docs/release/eden-recovery-images/auth-followthrough/cross-tab-session-ended.jpg
+docs/release/eden-recovery-images/auth-followthrough/deployment.json
+docs/release/eden-recovery-images/auth-followthrough/directory-results-desktop.jpg
+docs/release/eden-recovery-images/auth-followthrough/eden-consent-desktop.jpg
+docs/release/eden-recovery-images/auth-followthrough/gemini-context.json
+docs/release/eden-recovery-images/auth-followthrough/gemini-on-staging-desktop.jpg
+docs/release/eden-recovery-images/auth-followthrough/gemini.json
+docs/release/eden-recovery-images/auth-followthrough/organization-assignments.json
+docs/release/eden-recovery-images/auth-followthrough/provider-settings.json
+docs/release/eden-recovery-images/auth-followthrough/real-authentication.json
+docs/release/eden-recovery-images/auth-followthrough/real-google-signed-in.jpg
+docs/release/eden-recovery-images/auth-followthrough/run.json
+docs/release/eden-recovery-images/auth-followthrough/staging-smoke.json
+docs/release/eden-recovery-images/auth-followthrough/unassigned-admin-denied.jpg
+docs/release/eden-recovery-images/auth-followthrough/unassigned-listing-denied.jpg
+docs/release/eden-recovery-images/auth-followthrough/unauthenticated-authorization.json
 docs/release/eden-recovery-images/before-desktop.jpg
 docs/release/eden-recovery-images/before-mobile.jpg
 docs/release/eden-recovery-images/directory-desktop.jpg

@@ -1,0 +1,23 @@
+{
+  "base": "https://ourground-staging-nj5lvttm7-penuels-projects-aa802b06.vercel.app",
+  "sha": "86cd4eece01ba8252c28c151af3e73a8f063dfca",
+  "started": "2026-11-08T18:40:41.141Z",
+  "tests": [
+    {
+      "suite": "recovery-context-browser",
+      "code": 0,
+      "signal": null
+    },
+    {
+      "suite": "recovery-gemini-browser",
+      "code": 0,
+      "signal": null
+    },
+    {
+      "suite": "recovery-protected-browser",
+      "code": 0,
+      "signal": null
+    }
+  ],
+  "finished": "2026-11-08T18:45:52.969Z"
+}
