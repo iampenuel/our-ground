@@ -95,17 +95,18 @@ export function mountHostedEden(host:HTMLElement) {
       if(action.status==='done'&&plan.action.type==='search'&&currentContext()?.resultCount)action=await perform({type:'details',index:1});
       const after=currentContext(),confirmedURL=location.href;if(!after)throw Error('The page selection changed. Please try again.');
       const stillCurrent=()=>location.href===confirmedURL&&sameDirectoryView(after,currentContext(),includeMapState);
-      let selectionChanged=false;
-      const unsubscribe=subscribeEdenApplication(()=>{if(!stillCurrent()){selectionChanged=true;controller.abort();}});
+      // Finish the server turn before accepting another command. Only obsolete playback is canceled.
+      const selection=new AbortController();
+      const unsubscribe=subscribeEdenApplication(()=>{if(!stillCurrent())selection.abort();});
       try{
         const result=await (await request('result',{turnToken:plan.turnToken,context:after,outcome:action.status==='done'?'done':'failed',noticeVersion:EDEN_NOTICE_VERSION},controller.signal)).json();
         if(id!==generation)return;
-        if(!stillCurrent()){message(changedMessage);notify('');return;}
+        if(selection.signal.aborted||!stillCurrent()){message(changedMessage);notify('');return;}
         if(result.engine!=='gemini'||typeof result.reply!=='string'||!result.reply)throw Error('Eden could not verify the listing information.');
         message(result.reply);notify('');
-        if(speakAnswer){notify('Eden is speaking.');await speak(result.reply,result.speechTicket,controller.signal);}
+        if(speakAnswer){notify('Eden is speaking.');await speak(result.reply,result.speechTicket,AbortSignal.any([controller.signal,selection.signal]));}
       }catch(error){
-        if(!selectionChanged)throw error;
+        if(!selection.signal.aborted)throw error;
         if(id===generation){message(changedMessage);notify('');}
       }finally{unsubscribe();}
     }finally{if(turn===controller){turn=undefined;busy=false;controls();}}
