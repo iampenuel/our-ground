@@ -72,7 +72,7 @@ await p.addInitScript(()=>{
 });
 const video=p.video();
 async function waitListening(){
- await p.waitForFunction(()=>document.querySelector('[data-live-state]')?.textContent==='Listening'||(!document.querySelector('[data-live-start]')?.hidden&&document.querySelector('[data-live-state]')?.textContent),null,{timeout:60000});
+ await p.waitForFunction(()=>['listening','error','ended','permission-required'].includes(document.querySelector('[data-live-phase]')?.dataset.livePhase),null,{timeout:60000});
  assert.equal(await p.locator('[data-live-state]').innerText(),'Listening');
 }
 const expectedInput={identity:/who.*you/i,capabilities:/help/i,search:/Harrisburg/i,details:/first.*result/i,food:/food/i,page:/page/i,map:/map/i};
@@ -164,6 +164,7 @@ try{
 }catch(e){process.exitCode=1;receipt.failedAt=activeStep;receipt.failure=String(e.message).split('\n')[0].slice(0,240);receipt.ui=await p.locator('[data-live-state]').innerText().catch(()=>'');}
 finally{
  receipt.diagnostics=await p.evaluate(()=>JSON.parse(document.querySelector('[data-live-diagnostic]')?.dataset.liveDiagnostic??'[]')).catch(()=>[]);
+ receipt.partialProviderInput=input.slice(0,160); // Test-generated public phrases only.
  receipt.playerPeakRms=await p.evaluate(()=>window.qaMaxOutput).catch(()=>0);receipt.paintMarks=await p.evaluate(()=>window.qaMarks).catch(()=>[]);receipt.cursorPhases=await p.evaluate(()=>window.qaStates).catch(()=>[]);receipt.wire=await p.evaluate(()=>window.qaWire).catch(()=>null);if(await p.locator('[data-live-end]').isVisible().catch(()=>false))await p.locator('[data-live-end]').click().catch(()=>{});
  const data=await p.evaluate(async()=>{if(!window.qaRecorder)return null;window.qaRecorder.stop();return await window.qaBytes;}).catch(()=>null);
  if(data){await writeFile(join(out,'call-audio.webm'),Buffer.from(data,'base64'));receipt.audioCaptureStartMs=audioStartAt;}

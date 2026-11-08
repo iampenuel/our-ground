@@ -450,7 +450,24 @@ test('a provider interruption followed by a separate old turnComplete preserves 
     h.message({serverContent:{turnComplete:true}});await settle();
     assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.controller.snapshot.diagnostic.failure,'none');
     h.frames(0,44);assert.equal(h.controller.snapshot.phase,'processing');
-    assert.equal(h.connections[0].sent.filter(v=>v.realtimeInput?.audioStreamEnd).length,1);
+    const before=h.controller.snapshot.diagnostic.inputChunks;
+    h.frames(0,4);assert(h.controller.snapshot.diagnostic.inputChunks>before,'automatic VAD keeps its audio stream across the pause');
+    assert.equal(h.connections[0].sent.filter(v=>v.realtimeInput?.audioStreamEnd).length,0);
+    h.controller.setMicrophoneMuted(true);assert.equal(h.connections[0].sent.filter(v=>v.realtimeInput?.audioStreamEnd).length,1);
+    h.controller.setMicrophoneMuted(false);
     h.audio();await h.finish();assert.equal(h.controller.snapshot.phase,'listening');
   }finally{h.cleanup();}
+});
+
+test('one unanswered hosted utterance leaves the same connection available without replaying it',async()=>{
+  const h=harness({options:{allowSpokenInterruption:true}}),original=globalThis.setTimeout,timers=[];try{
+    await h.intro();
+    globalThis.setTimeout=(fn,ms,...args)=>{const id=original(fn,ms,...args);timers.push({ms,run:()=>{clearTimeout(id);fn(...args);}});return id;};
+    h.speech();h.frames(0,44);assert.equal(h.controller.snapshot.phase,'processing');
+    timers.find(t=>t.ms===25000).run();
+    assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.controller.snapshot.diagnostic.unansweredTurns,1);
+    assert(h.controller.snapshot.microphoneForwarding);assert.equal(h.connections.length,1);assert.equal(h.actions.length,0);
+    h.speech();h.frames(0,44);h.audio();await h.finish();
+    assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.requests.length,1);assert.equal(h.releases.length,0);
+  }finally{globalThis.setTimeout=original;h.cleanup();}
 });

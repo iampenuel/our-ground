@@ -54,7 +54,7 @@ export function mountHostedLive(host:HTMLElement,o:Options){
   };
   function update(s:EdenLiveSnapshot){
     const active=!['idle','ended','error','permission-required'].includes(s.phase);
-    actions.hidden=!active;call.hidden=active||!consent.hidden;
+    host.dataset.livePhase=s.phase;actions.hidden=!active;call.hidden=active||!consent.hidden;
     mute.textContent=s.microphoneMuted?'Unmute':'Mute';mute.setAttribute('aria-pressed',String(s.microphoneMuted));
     el('[data-live-interrupt]').hidden=!['introducing','speaking','processing'].includes(s.phase);
     const label=s.reason??labels[s.phase];if(label!==previousStatus){state.textContent=label;previousStatus=label;}
@@ -78,7 +78,7 @@ export function mountHostedLive(host:HTMLElement,o:Options){
         remember({reference:correlation,model:d.model,phase:s.phase,stage:d.failurePhase??s.phase,failure:d.failure,
           preparation:d.preparation,tokenHTTP:tokenStatus,service:d.serviceCode,serviceHTTP:d.serviceStatus,
           setup:d.setupComplete===true,closeCode:d.closeCode,closeReason:d.closeReason,provider:d.providerCategory,providerHTTP:d.providerStatus,
-          lastEvent:d.lastEvent,inputChunks:d.inputChunks,audioChunks:d.audioChunks,playbacks:d.playbackStarts,spokenInterruptions:d.spokenInterruptions??0,microphoneActive:s.microphoneActive,ended:d.endReason});
+          lastEvent:d.lastEvent,completedTurns:d.turnComplete,toolsReceived:d.toolCallsReceived,inputChunks:d.inputChunks,audioChunks:d.audioChunks,playbacks:d.playbackStarts,spokenInterruptions:d.spokenInterruptions??0,unansweredTurns:d.unansweredTurns??0,inputStreamEnds:d.inputStreamEnds??0,microphoneActive:s.microphoneActive,ended:d.endReason});
         details.hidden=s.phase!=='error'&&s.phase!=='permission-required';
       }
     }
