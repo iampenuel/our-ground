@@ -4,6 +4,17 @@ import {randomBytes} from 'node:crypto';
 import {adultGate} from '../backend/adult-access.ts';
 import {createHostedEden} from '../backend/eden-hosted.ts';
 import {EDEN_NOTICE_VERSION as noticeVersion} from '../shared/eden-assistant.ts';
+import {sameDirectoryView} from '../shared/eden-agent.ts';
+
+test('map readiness preserves a listing answer while a manual pin change invalidates it',()=>{
+  const view={page:'resource',directory:'public',synthetic:false,cityId:'harrisburg',category:'healthcare',
+    radius:25,searchState:'ready',mapState:'loading',resultCount:2,resourceIds:['clinic-a','clinic-b'],selectedIndex:1};
+  assert(sameDirectoryView(view,{...view,mapState:'ready'}));
+  assert(!sameDirectoryView(view,{...view,mapState:'ready'},true));
+  for(const change of [{selectedIndex:2},{resourceIds:['clinic-b','clinic-a']},{cityId:'philadelphia'},
+    {page:'about'},{searchState:'loading'},{resultCount:0}])assert(!sameDirectoryView(view,{...view,...change}));
+  assert(!sameDirectoryView(view,null));
+});
 
 const origin='https://protected.example';
 const env={VERCEL:'1',VERCEL_ENV:'production',EDEN_HOSTED_COMMANDS:'enabled',EDEN_GEMINI_FREE_TIER_CONFIRMED:'true',

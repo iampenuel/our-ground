@@ -1,6 +1,6 @@
 import {EDEN_NOTICE_VERSION} from '../../shared/eden-assistant.ts';
-import {reduceEdenAgentInput,validateEdenAgentContext,validateEdenAgentActionResponse} from '../../shared/eden-agent.ts';
-import {edenLocalPageContext,edenPageContext,edenPageRevision} from './application-bridge.ts';
+import {reduceEdenAgentInput,sameDirectoryView,validateEdenAgentContext,validateEdenAgentActionResponse} from '../../shared/eden-agent.ts';
+import {edenLocalPageContext,edenPageContext,subscribeEdenApplication} from './application-bridge.ts';
 import {applyEdenPublicAction} from './live-actions.ts';
 import {hearOneCommand,prepareLocalRecognition,speakLocalReply} from './command-voice.ts';
 
@@ -72,13 +72,16 @@ export function mountHostedEden(host:HTMLElement) {
     if(reduced.status!=='supported'){notify(reduced.message);return;}
     const id=++generation,controller=new AbortController();turn=controller;busy=true;controls();
     try{
-      const revision=edenPageRevision();await startSession(controller.signal);
+      const initialURL=location.href,includeMapState=reduced.intent.goal==='explain-page';
+      const changedMessage='Your selection or search changed. Ask about the current listing.';
+      await startSession(controller.signal);
       message(raw,true);input.value='';notify('Finding the answer…');
       const rawPlan=await (await request('plan',{intent:reduced.intent,context:before,noticeVersion:EDEN_NOTICE_VERSION},controller.signal)).json();
       const plan=validateEdenAgentActionResponse(rawPlan,reduced.intent,before);
       if(!plan)throw Error('Eden could not verify the proposed page action.');
+      if(id!==generation)return;
+      if(location.href!==initialURL||!sameDirectoryView(before,currentContext(),includeMapState)){message(changedMessage);notify('');return;}
       if('clarification' in plan){message(plan.clarification.question);notify('');return;}
-      if(revision!==edenPageRevision()||id!==generation)throw Error('The page changed. Please ask again using the current listing.');
       const options={publicDirectory:true,signal:controller.signal};
       const perform=(action:typeof plan.action)=>{
         if(action.type==='select'||action.type==='details'||action.type==='read-hours'){
@@ -90,12 +93,21 @@ export function mountHostedEden(host:HTMLElement) {
       };
       let action=await perform(plan.action);
       if(action.status==='done'&&plan.action.type==='search'&&currentContext()?.resultCount)action=await perform({type:'details',index:1});
-      const after=currentContext(),confirmed=edenPageRevision();if(!after)throw Error('The page selection changed. Please try again.');
-      const result=await (await request('result',{turnToken:plan.turnToken,context:after,outcome:action.status==='done'?'done':'failed',noticeVersion:EDEN_NOTICE_VERSION},controller.signal)).json();
-      if(id!==generation||confirmed!==edenPageRevision())throw Error('The page changed. Ask again about your current selection.');
-      if(result.engine!=='gemini'||typeof result.reply!=='string'||!result.reply)throw Error('Eden could not verify the listing information.');
-      message(result.reply);notify('');
-      if(speakAnswer){notify('Eden is speaking.');await speak(result.reply,result.speechTicket,controller.signal);}
+      const after=currentContext(),confirmedURL=location.href;if(!after)throw Error('The page selection changed. Please try again.');
+      const stillCurrent=()=>location.href===confirmedURL&&sameDirectoryView(after,currentContext(),includeMapState);
+      let selectionChanged=false;
+      const unsubscribe=subscribeEdenApplication(()=>{if(!stillCurrent()){selectionChanged=true;controller.abort();}});
+      try{
+        const result=await (await request('result',{turnToken:plan.turnToken,context:after,outcome:action.status==='done'?'done':'failed',noticeVersion:EDEN_NOTICE_VERSION},controller.signal)).json();
+        if(id!==generation)return;
+        if(!stillCurrent()){message(changedMessage);notify('');return;}
+        if(result.engine!=='gemini'||typeof result.reply!=='string'||!result.reply)throw Error('Eden could not verify the listing information.');
+        message(result.reply);notify('');
+        if(speakAnswer){notify('Eden is speaking.');await speak(result.reply,result.speechTicket,controller.signal);}
+      }catch(error){
+        if(!selectionChanged)throw error;
+        if(id===generation){message(changedMessage);notify('');}
+      }finally{unsubscribe();}
     }finally{if(turn===controller){turn=undefined;busy=false;controls();}}
   }
   function endSession(){const prev=session;session=undefined;expires=0;if(prev)void fetch('/api/v1/eden/hosted/end',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json',Authorization:'Bearer '+prev},body:'{}',keepalive:true}).catch(()=>{});}

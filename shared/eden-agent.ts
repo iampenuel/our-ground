@@ -10,6 +10,15 @@ export const EDEN_AGENT_RESOURCE_IDS = ['11111111-1111-4111-8111-111111111111', 
 export type EdenAgentResourceId = string;
 export const isImportedResourceId = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value);
 export type EdenAgentContext = EdenPageContext & { directory?: 'public'; cityId?: EdenCityId; resourceIds: EdenAgentResourceId[]; selectedIndex?:number; searchState?:'idle'|'loading'|'ready'|'error';mapState?:'not-shown'|'loading'|'ready'|'unavailable' };
+
+/** A map finishing its tiles does not change which published listing a command describes. */
+export function sameDirectoryView(a:EdenAgentContext,b:EdenAgentContext|null,includeMapState=false):boolean {
+  return b!==null && a.page===b.page && a.category===b.category && a.cityId===b.cityId &&
+    a.radius===b.radius && a.directory===b.directory && a.synthetic===b.synthetic &&
+    a.searchState===b.searchState && a.resultCount===b.resultCount && a.selectedIndex===b.selectedIndex &&
+    a.resourceIds.length===b.resourceIds.length && a.resourceIds.every((id,i)=>id===b.resourceIds[i]) &&
+    (!includeMapState||a.mapState===b.mapState);
+}
 export type EdenAgentIntent =
   | { goal: 'find-resources'; category: EdenCategory; cityId: EdenCityId; radius?: EdenRadius }
   | { goal: 'adjust-distance'; radius: EdenRadius }
