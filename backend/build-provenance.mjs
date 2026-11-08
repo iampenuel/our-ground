@@ -38,7 +38,11 @@ export async function writeBuildEvidence(directory,env,mode='production') {
  // Local fixture builds may use an explicit loopback Auth endpoint. They are
  // deliberately stamped as fixtures and can never pass the staging guard.
  const config=mode==='local-fixture'?{mode,fixture:true}:buildPublicDescriptor(env,mode);
- const evidence={schema_version:1,public_config:config,assets:await assetHashes(directory)};
+ let commit=env.VERCEL_GIT_COMMIT_SHA;
+ if(!commit){
+   try{commit=execFileSync('git',['rev-parse','--verify','HEAD'],{encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();}catch{}
+ }
+ const evidence={schema_version:1,source_commit:/^[a-f0-9]{40}$/.test(commit??'')?commit:null,public_config:config,assets:await assetHashes(directory)};
  await writeFile(join(directory,buildEvidenceName),JSON.stringify(evidence,null,2)+'\n');
  return evidence;
 }
