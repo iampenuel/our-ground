@@ -71,6 +71,11 @@ export const EDEN_AGENT_CONNECTIVE_PHRASES = Object.freeze([
   'Also,',
 ]);
 export const EDEN_AGENT_CONNECTIVES = Object.freeze(EDEN_AGENT_CONNECTIVE_PHRASES.map((text, index) => Object.freeze({ id: `connector-${index + 1}`, text })));
+function connectivesFor(facts: readonly Fact[]) {
+  // An audience page is not a directory listing. Do not attribute its copy to one.
+  return facts.some(fact => fact.id.startsWith('resource-')) ? EDEN_AGENT_CONNECTIVES
+    : EDEN_AGENT_CONNECTIVES.filter(item => !/listing|selected result/i.test(item.text));
+}
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /** Exact cited extracts carry every factual assertion. The model may choose
@@ -119,7 +124,7 @@ export function validateEdenAgentComposition(value: unknown, facts: readonly Fac
       selected.add(fact.id); sources.push({ ...fact });
       pieces.push(fact.text + (/[.!?]$/.test(fact.text) ? '' : '.'));
     } else if (segment.kind === 'connector') {
-      const connective = EDEN_AGENT_CONNECTIVES.find(item => item.id === segment.id);
+      const connective = connectivesFor(facts).find(item => item.id === segment.id);
       if (!connective || ++connectors > 6) return { ok: false, code: 'EDEN_AGENT_COMPOSITION_SOURCE' };
       pieces.push(connective.text);
     } else return { ok: false, code: 'EDEN_AGENT_COMPOSITION_SOURCE' };
@@ -455,12 +460,13 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       if (!failed && item.action.type === 'search' && currentIds.length) requirements.requiredOneOfFactIds.push(facts.filter(fact => /^resource-\d+-title$/.test(fact.id)).map(fact => fact.id));
       if (directory && facts.some(fact => fact.id.startsWith('resource-'))) requirements.requiredFactIds.push('data-kind');
       else if (facts.some(fact => fact.id.startsWith('resource-'))) requirements.requiredOneOfFactIds.push(facts.filter(fact => /fictional|demonstration/i.test(fact.text)).map(fact => fact.id));
+      const connectives = connectivesFor(facts);
       const args = await invoke({ confirmed_outcome: result.outcome, semantic_request: item.request.intent, source_facts: directory ? directoryModelFacts(facts) : facts,
-        connective_phrases: EDEN_AGENT_CONNECTIVES, required_fact_ids: requirements.requiredFactIds, required_one_of_fact_ids: requirements.requiredOneOfFactIds },
+        connective_phrases: connectives, required_fact_ids: requirements.requiredFactIds, required_one_of_fact_ids: requirements.requiredOneOfFactIds },
         'Compose Eden’s concise grounded answer by selecting and ordering segments. A fact segment references an exact source_facts ID; a connector segment references an exact connective_phrases ID. The website renders the selected immutable text, so return no prose or copied text. Include every required_fact_ids entry, and at least one entry from EACH required_one_of_fact_ids group. Select relevant listing facts for the user’s semantic request. Choose the fewest useful facts that satisfy the requirements, usually two or three; maximum six facts and two connectors. Never repeat a fact or a connector. Prefer no connectors to a repeated Also. For page explanations describe actual permitted capabilities; for missing hours say current status is not verified, without guessing. A brief fictional qualifier in a resource title is sufficient; do not repeat a long disclaimer. Order the facts and optional connectors into a readable answer. Never invent an ID, an availability claim, medical advice, or any additional action. If the confirmed outcome failed, select only its outcome fact and optional neutral connectors. Call compose_verified_reply with segments only.',
         EDEN_AGENT_REPLY_TOOL, { type: 'object', additionalProperties: false, required: ['segments'], properties: {
           segments: { type: 'array', minItems: 1, maxItems: 12, items: { type: 'object', additionalProperties: false, required: ['kind', 'id'], properties: {
-            kind: { type: 'string', enum: ['fact', 'connector'] }, id: { type: 'string', enum: [...facts.map(fact => fact.id), ...EDEN_AGENT_CONNECTIVES.map(item => item.id)] },
+            kind: { type: 'string', enum: ['fact', 'connector'] }, id: { type: 'string', enum: [...facts.map(fact => fact.id), ...connectives.map(item => item.id)] },
           } } },
         } }, active.signal);
       const composition = validateEdenAgentComposition(args, facts, requirements);

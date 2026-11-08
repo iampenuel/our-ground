@@ -39,7 +39,7 @@ function generatedReply(payload) {
     if (!ids.includes('resource-1-title')) ids.push('data-kind');
   }
   const facts = ids.map(id => data.source_facts.find(fact => fact.id === id)).filter(Boolean);
-  return { segments: [{ kind: 'connector', id: 'connector-1' }, ...facts.map(fact => ({ kind: 'fact', id: fact.id }))] };
+  return { segments: [{ kind: 'connector', id: data.connective_phrases[0].id }, ...facts.map(fact => ({ kind: 'fact', id: fact.id }))] };
 }
 function fixture(options = {}) {
   const calls = [], repository = options.repository ?? new DemoRepository();
@@ -261,6 +261,14 @@ test('extractive reply validation rejects uncited facts, advice, new numbers and
   assert.equal(validateEdenGroundedReply({ ...valid, citations: ['invented'] }, facts), null);
 });
 
+test('public page copy cannot be attributed to a directory listing', () => {
+  const facts=[{id:'page-give-1',text:'You can support local providers.'}];
+  const requirements={requiredFactIds:['page-give-1'],requiredOneOfFactIds:[]};
+  const segments=[{kind:'connector',id:'connector-1'},{kind:'fact',id:'page-give-1'}];
+  assert.equal(validateEdenAgentComposition({segments},facts,requirements).ok,false);
+  assert.equal(validateEdenAgentComposition({segments:segments.slice(1)},facts,requirements).ok,true);
+});
+
 test('atomic agent admission preserves shared 20-credit session and 40-credit daily budgets', () => {
   let now = start;
   const limits = createEdenLimits({ now: () => now }), token = limits.createSession(origin).sessionToken;
@@ -457,7 +465,7 @@ test('structured composition rejects missing required facts, uncited prose and p
     const checked = validateEdenAgentComposition({ segments: [{ kind: 'fact', id: 'outcome' }, segment] }, facts, requirements);
     assert.deepEqual(checked, { ok: false, code: 'EDEN_AGENT_COMPOSITION_SOURCE' }); assert(!JSON.stringify(checked).includes('synthetic-private-canary'));
   }
-  assert.deepEqual(validateEdenAgentComposition({ segments: [{ kind: 'connector', id: 'connector-1' }] }, facts, requirements), { ok: false, code: 'EDEN_AGENT_COMPOSITION_REQUIRED' });
+  assert.deepEqual(validateEdenAgentComposition({ segments: [{ kind: 'connector', id: 'connector-4' }] }, facts, requirements), { ok: false, code: 'EDEN_AGENT_COMPOSITION_REQUIRED' });
   assert.deepEqual(validateEdenAgentComposition({ segments: [{ kind: 'fact', id: 'outcome' }] }, facts, { requiredFactIds: ['outcome'], requiredOneOfFactIds: [['resource-1-summary', 'resource-1-description']] }), { ok: false, code: 'EDEN_AGENT_COMPOSITION_REQUIRED' });
 });
 

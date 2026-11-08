@@ -169,5 +169,6 @@
   .eden-hosted .eden-composer{padding-inline:.65rem}
   .eden-hosted.eden-short-viewport .eden-panel{overflow:hidden}
   .eden-hosted.eden-short-viewport .eden-body{min-height:0}
+  .eden-hosted.eden-short-viewport .eden-composer>p{display:block}
   .eden-hosted.eden-short-viewport .eden-header{min-height:44px;padding-block:.05rem}
 }
