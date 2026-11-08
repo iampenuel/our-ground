@@ -1,0 +1,25 @@
+{
+  "at": "2026-11-08T21:22:13.668Z",
+  "staging": {
+    "ref": "hrmocmvdmshoghclxyjs",
+    "read_only": "on",
+    "listing_assignments": 0,
+    "memberships": 0,
+    "admins": 0,
+    "published_real": 17520,
+    "published_demo": 0,
+    "org_rls": true,
+    "browser_membership_read": false
+  },
+  "production": {
+    "ref": "amcqkonluwavilekgjww",
+    "read_only": "on",
+    "listing_assignments": 0,
+    "memberships": 0,
+    "admins": 0,
+    "published_real": 17520,
+    "published_demo": 0,
+    "org_rls": true,
+    "browser_membership_read": false
+  }
+}

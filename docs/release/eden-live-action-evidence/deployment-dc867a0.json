@@ -1,0 +1,19 @@
+{
+  "origin": "https://ourground-staging-1xu38v5q3-penuels-projects-aa802b06.vercel.app",
+  "sha": "dc867a07efce5f725f923fcd20922230f9e98f5a",
+  "deployment": "dpl_EJqomsiBsiNHKL8XKH8KRyuM3vDw",
+  "status": "PASS",
+  "assets": 134,
+  "anonymous": [
+    {
+      "path": "/",
+      "status": 302
+    },
+    {
+      "path": "/api/v1/eden/hosted/status",
+      "status": 302
+    }
+  ],
+  "fixture": false,
+  "checkedAtUTC": "2026-11-08T21:17:00.091Z"
+}

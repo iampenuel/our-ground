@@ -1,0 +1,213 @@
+{
+  "scope": "local directory and age-status transport fixtures, actual page controls and approved portrait; no Gemini requests",
+  "zoom": 2,
+  "before": {
+    "width": 1440,
+    "height": 703,
+    "dpr": 2
+  },
+  "zoomed": {
+    "width": 720,
+    "height": 351,
+    "dpr": 4,
+    "visualScale": 1,
+    "scrollWidth": 720
+  },
+  "gutter": [
+    30,
+    30,
+    30
+  ],
+  "keyboardHome": true,
+  "shell": {
+    "panel": {
+      "x": 8,
+      "y": 8,
+      "width": 704,
+      "height": 335.5
+    },
+    "composer": {
+      "x": 9,
+      "y": 217.95703125,
+      "width": 702,
+      "height": 86.9453125
+    },
+    "send": {
+      "x": 651.6015625,
+      "y": 229.3515625,
+      "width": 44,
+      "height": 44
+    },
+    "caution": {
+      "x": 23.3984375,
+      "y": 283.94921875,
+      "width": 673.203125,
+      "height": 17.7578125
+    },
+    "portrait": "svg-profile",
+    "frames": 7
+  },
+  "searchCount": 1,
+  "modelCalls": 0,
+  "confirmedDetails": "done",
+  "hits": [
+    {
+      "target": {
+        "page": "support"
+      },
+      "rect": {
+        "x": 30,
+        "y": 299.59375,
+        "width": 234.3828125,
+        "height": 52
+      },
+      "cssTip": {
+        "x": 147.09501284360886,
+        "y": 321.1575038135052
+      },
+      "cursorLayoutOrigin": {
+        "x": 147.19000244140625,
+        "y": 321.29998779296875
+      },
+      "label": {
+        "left": 166.19000244140625,
+        "top": 321.7265625,
+        "right": 215.59234619140625,
+        "bottom": 345.5
+      },
+      "frontElement": "A",
+      "uid": "e6369eed-ffd5-48c0-b1f9-157e7c0007cb"
+    },
+    {
+      "target": "location",
+      "rect": {
+        "x": 94.3984375,
+        "y": 307.5234375,
+        "width": 555.19921875,
+        "height": 44
+      },
+      "cssTip": {
+        "x": 371.9062880575657,
+        "y": 325.1194321066141
+      },
+      "cursorLayoutOrigin": {
+        "x": 372,
+        "y": 325.260009765625
+      },
+      "label": {
+        "left": 391,
+        "top": 321.7265625,
+        "right": 440.40234375,
+        "bottom": 345.5
+      },
+      "frontElement": "locationInput",
+      "uid": "86a1874e-e9ff-4a0a-9d39-44dca99efdb5"
+    },
+    {
+      "target": {
+        "category": "healthcare"
+      },
+      "rect": {
+        "x": 131.953125,
+        "y": 307.22265625,
+        "width": 108.16015625,
+        "height": 44.3984375
+      },
+      "cssTip": {
+        "x": 185.9362307369709,
+        "y": 324.96935489475726
+      },
+      "cursorLayoutOrigin": {
+        "x": 186.02999877929688,
+        "y": 325.1099853515625
+      },
+      "label": {
+        "left": 205.02999877929688,
+        "top": 321.7265625,
+        "right": 254.43234252929688,
+        "bottom": 345.5
+      },
+      "frontElement": "BUTTON",
+      "uid": "a42a4f78-6113-4bc3-9483-b50117dd00ff"
+    },
+    {
+      "target": "radius",
+      "rect": {
+        "x": 524.84765625,
+        "y": 307.421875,
+        "width": 141.75,
+        "height": 44
+      },
+      "cssTip": {
+        "x": 595.6262300610542,
+        "y": 325.0693476498127
+      },
+      "cursorLayoutOrigin": {
+        "x": 595.719970703125,
+        "y": 325.2099914550781
+      },
+      "label": {
+        "left": 614.719970703125,
+        "top": 321.7265625,
+        "right": 664.122314453125,
+        "bottom": 345.5
+      },
+      "frontElement": "radiusInput",
+      "uid": "52a9a59d-d09d-44e8-ad66-9ceed457bc0d"
+    },
+    {
+      "target": "submit",
+      "rect": {
+        "x": 53.3984375,
+        "y": 226.22265625,
+        "width": 613.19921875,
+        "height": 48
+      },
+      "cssTip": {
+        "x": 359.90633096694944,
+        "y": 250.0794943332672
+      },
+      "cursorLayoutOrigin": {
+        "x": 360,
+        "y": 250.22000122070312
+      },
+      "label": {
+        "left": 379,
+        "top": 277.2200012207031,
+        "right": 428.40234375,
+        "bottom": 300.9934387207031
+      },
+      "frontElement": "supportSubmit",
+      "uid": "d900c1a3-5718-4af1-af96-d6fae3a1657c"
+    },
+    {
+      "target": {
+        "resultKey": "directory:828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+        "operation": "details"
+      },
+      "rect": {
+        "x": 62.3984375,
+        "y": 325.7890625,
+        "width": 135.6640625,
+        "height": 25.59765625
+      },
+      "cssTip": {
+        "x": 130.13505934476854,
+        "y": 334.2476057231426
+      },
+      "cursorLayoutOrigin": {
+        "x": 130.22999572753906,
+        "y": 334.3900146484375
+      },
+      "label": {
+        "left": 149.22999572753906,
+        "top": 321.7265625,
+        "right": 198.63233947753906,
+        "bottom": 345.5
+      },
+      "frontElement": "A",
+      "uid": "e6683f29-3558-464a-9709-c2d91a4592db"
+    }
+  ],
+  "status": "PASS"
+}

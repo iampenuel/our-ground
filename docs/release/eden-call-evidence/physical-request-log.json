@@ -1,0 +1,233 @@
+[
+  {
+    "path": "/api/v1/eden/hosted/end",
+    "status": 200,
+    "time": "2026-11-08T21:45:58.782Z",
+    "requestId": "fcd2p-1794174358782-3a9085753937",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/token",
+    "status": 409,
+    "time": "2026-11-08T21:45:53.609Z",
+    "requestId": "l8bmn-1794174353609-caa1fc013aa7",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/session",
+    "status": 200,
+    "time": "2026-11-08T21:45:53.481Z",
+    "requestId": "l8bmn-1794174353481-4295b01fece0",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/audio/eden-live-capture-worklet.js",
+    "status": 304,
+    "time": "2026-11-08T21:45:53.393Z",
+    "requestId": "b5wc6-1794174353393-2925e168c1b6",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/end",
+    "status": 200,
+    "time": "2026-11-08T21:45:44.738Z",
+    "requestId": "fvvds-1794174344738-c8e610107f0b",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/token",
+    "status": 409,
+    "time": "2026-11-08T21:44:21.679Z",
+    "requestId": "rw854-1794174261679-6f8cb01bda9a",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/audio/eden-live-capture-worklet.js",
+    "status": 304,
+    "time": "2026-11-08T21:44:21.593Z",
+    "requestId": "rw854-1794174261593-7f1b1fd416fe",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/token",
+    "status": 409,
+    "time": "2026-11-08T21:44:12.227Z",
+    "requestId": "gqbr9-1794174252227-c51343c1a680",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/session",
+    "status": 200,
+    "time": "2026-11-08T21:44:12.110Z",
+    "requestId": "24g9l-1794174252110-0a32daf38c6c",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/audio/eden-live-capture-worklet.js",
+    "status": 304,
+    "time": "2026-11-08T21:44:12.021Z",
+    "requestId": "tds7n-1794174252021-8009b4769f2c",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/end",
+    "status": 200,
+    "time": "2026-11-08T21:44:08.010Z",
+    "requestId": "4xns5-1794174248010-e607cf93d65d",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/token",
+    "status": 409,
+    "time": "2026-11-08T21:44:05.531Z",
+    "requestId": "cg2b6-1794174245531-3711590d1ab9",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/audio/eden-live-capture-worklet.js",
+    "status": 304,
+    "time": "2026-11-08T21:44:05.440Z",
+    "requestId": "2lcfz-1794174245440-be5b037f668f",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/token",
+    "status": 409,
+    "time": "2026-11-08T21:43:59.782Z",
+    "requestId": "ks4kq-1794174239782-be9976ecb167",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/audio/eden-live-capture-worklet.js",
+    "status": 304,
+    "time": "2026-11-08T21:43:59.709Z",
+    "requestId": "ks4kq-1794174239709-b9e82e2c8ad4",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/end",
+    "status": 200,
+    "time": "2026-11-08T21:43:55.115Z",
+    "requestId": "xfdd6-1794174235115-95c66f90e660",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/token",
+    "status": 200,
+    "time": "2026-11-08T21:43:45.982Z",
+    "requestId": "jdmcl-1794174225982-7680d1556e84",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/session",
+    "status": 200,
+    "time": "2026-11-08T21:43:45.612Z",
+    "requestId": "ntd5n-1794174225612-d16ef5a47566",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/audio/eden-live-capture-worklet.js",
+    "status": 200,
+    "time": "2026-11-08T21:43:45.527Z",
+    "requestId": "ptgjq-1794174225527-e32460e27431",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/end",
+    "status": 200,
+    "time": "2026-11-08T21:42:15.803Z",
+    "requestId": "xth9m-1794174135803-bcdc39e6afeb",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/tool",
+    "status": 200,
+    "time": "2026-11-08T21:42:08.111Z",
+    "requestId": "jnvqw-1794174128111-463d63be1f93",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/tool",
+    "status": 200,
+    "time": "2026-11-08T21:41:53.270Z",
+    "requestId": "spsrq-1794174113270-f3675e133ac9",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/result",
+    "status": 200,
+    "time": "2026-11-08T21:41:41.007Z",
+    "requestId": "qqzs7-1794174101007-be83a687477e",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/tool",
+    "status": 200,
+    "time": "2026-11-08T21:41:32.285Z",
+    "requestId": "gqbr9-1794174092285-0a4d079bda08",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/result",
+    "status": 200,
+    "time": "2026-11-08T21:41:07.258Z",
+    "requestId": "zxwds-1794174067258-3ff1251f6c29",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/tool",
+    "status": 200,
+    "time": "2026-11-08T21:41:04.241Z",
+    "requestId": "rw854-1794174064241-35ab5a5545e7",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/tool",
+    "status": 200,
+    "time": "2026-11-08T21:40:52.556Z",
+    "requestId": "vd29k-1794174052556-22d05c147274",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/result",
+    "status": 200,
+    "time": "2026-11-08T21:40:49.653Z",
+    "requestId": "7cnd7-1794174049653-614329081fa8",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/tool",
+    "status": 200,
+    "time": "2026-11-08T21:40:38.128Z",
+    "requestId": "2lcfz-1794174038128-ac30594e973d",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/audio/eden-live-capture-worklet.js",
+    "status": 200,
+    "time": "2026-11-08T21:39:44.970Z",
+    "requestId": "dhwkf-1794173984970-e66abb6436e8",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/live/token",
+    "status": 200,
+    "time": "2026-11-08T21:39:42.236Z",
+    "requestId": "x6g6v-1794173982236-0d660ccdcf2b",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/api/v1/eden/hosted/session",
+    "status": 200,
+    "time": "2026-11-08T21:39:41.803Z",
+    "requestId": "hm9kd-1794173981803-ee91a2afe510",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  },
+  {
+    "path": "/audio/eden-live-capture-worklet.js",
+    "status": 200,
+    "time": "2026-11-08T21:39:41.645Z",
+    "requestId": "72jt5-1794173981645-67b3079ac2a9",
+    "host": "ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app"
+  }
+]

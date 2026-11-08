@@ -1,0 +1,29 @@
+{
+  "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "6b35db58835b2d4e879338656bc75ef1ad5124bc",
+  "fixture": "local token and provider transport, generated test signal, real compiled browser client",
+  "cycles": [
+    {
+      "cycle": 1,
+      "allTracksEnded": true,
+      "activeLeases": 0,
+      "sockets": 1,
+      "minted": 1
+    },
+    {
+      "cycle": 2,
+      "allTracksEnded": true,
+      "activeLeases": 0,
+      "sockets": 2,
+      "minted": 2
+    }
+  ],
+  "status": "PASS",
+  "pcmPackets": 1378,
+  "streamEnds": 1,
+  "unansweredTurnKeptConnection": true,
+  "closeCodes": [
+    1000,
+    1000
+  ]
+}

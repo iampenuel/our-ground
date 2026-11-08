@@ -1,0 +1,15 @@
+{
+  "at": "2026-11-08T21:47:53.485Z",
+  "scope": "read-only aggregate, no identities or credentials",
+  "available": true,
+  "counts": [],
+  "google_linked_sessions": 1,
+  "retained_session_timings": [
+    {
+      "minutes_between_first_and_latest_issue": "0.0",
+      "retained_refresh_rows": 1,
+      "session_issued_at": "2026-11-08T18:45:51.240Z",
+      "latest_refresh_row_at": "2026-11-08T18:45:51.252Z"
+    }
+  ]
+}

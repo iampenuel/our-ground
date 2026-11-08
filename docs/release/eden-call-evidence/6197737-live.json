@@ -1,0 +1,184 @@
+{
+  "origin": "https://ourground-staging-ays1xomsn-penuels-projects-aa802b06.vercel.app",
+  "sha": "6197737813f41b07b25551785a6d0a185dda5591",
+  "status": "PASS",
+  "audioInputChunks": 4821,
+  "audioOutputChunks": 274,
+  "requestedVoice": "Aoede",
+  "requestedModel": "models/gemini-3.8-live",
+  "wire": {
+    "sockets": 1,
+    "policy": [],
+    "close": []
+  },
+  "http": [
+    {
+      "path": "session",
+      "status": 200
+    },
+    {
+      "path": "live/token",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/result",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/result",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/result",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/end",
+      "status": 200
+    }
+  ],
+  "micReleased": true,
+  "observations": {
+    "identity": true,
+    "capabilities": true,
+    "search": true,
+    "details": true,
+    "food": true,
+    "page": true,
+    "map": true
+  },
+  "cursor": [
+    {
+      "target": {
+        "page": "support"
+      },
+      "landed": true,
+      "atMs": 60922.59999999998
+    },
+    {
+      "target": "location",
+      "landed": true,
+      "atMs": 63305.80000000005
+    },
+    {
+      "target": {
+        "category": "healthcare"
+      },
+      "landed": true,
+      "atMs": 65205.30000000005
+    },
+    {
+      "target": "radius",
+      "landed": true,
+      "atMs": 67087.90000000002
+    },
+    {
+      "target": "submit",
+      "landed": true,
+      "atMs": 69055.09999999998
+    },
+    {
+      "target": "details",
+      "landed": true,
+      "atMs": 86938.09999999998
+    },
+    {
+      "target": "location",
+      "landed": true,
+      "atMs": 115152.40000000002
+    },
+    {
+      "target": {
+        "category": "food"
+      },
+      "landed": true,
+      "atMs": 117103
+    },
+    {
+      "target": "radius",
+      "landed": true,
+      "atMs": 119036.90000000002
+    },
+    {
+      "target": "submit",
+      "landed": true,
+      "atMs": 120985.70000000007
+    }
+  ],
+  "tools": [
+    "perform_public_resource_action",
+    "read_public_page_context",
+    "perform_public_resource_action",
+    "perform_public_resource_action",
+    "perform_public_resource_action",
+    "read_public_page_context",
+    "read_public_page_context"
+  ],
+  "turns": [
+    {
+      "step": "introduction",
+      "input": "",
+      "reply": "Hi! I'm Eden. I can help you find food, healthcare, and community resources. You can ask me something like, 'Find food support near Harrisburg.' What would you like to explore?"
+    },
+    {
+      "step": "identity",
+      "input": "Who are you?",
+      "reply": "I'm Eden, your community-resource navigation assistant. I can help you find information on food, healthcare, and community resources."
+    },
+    {
+      "step": "capabilities",
+      "input": "What can you help me do?",
+      "reply": "I can help you find information on food banks, clinics, and other community support services in your area."
+    },
+    {
+      "step": "search",
+      "input": "Find healthcare in Harrisburg.",
+      "reply": "I found six healthcare resources in Harrisburg. Would you like me to read the list or provide details for a specific one?"
+    },
+    {
+      "step": "details",
+      "input": "Show me the first result.",
+      "reply": "The first result is listed by the HRSA Health Center Program. Please note that current operation is not independently verified, and you should contact the provider to confirm hours and services."
+    },
+    {
+      "step": "food",
+      "input": "Actually, I meant food support.",
+      "reply": "I couldn't find any food support listings in Harrisburg within the current search distance. Would you like to try a different location or increase the search radius?"
+    },
+    {
+      "step": "page",
+      "input": "Can you explain what is on this",
+      "reply": "This page allows you to search for food, healthcare, or community support resources by location and distance. You can filter results and view details for specific listings once they are found."
+    },
+    {
+      "step": "map",
+      "input": "Go back and show me the map.",
+      "reply": "The map is currently unavailable. You can continue to use the resource list and details to explore available information."
+    }
+  ],
+  "scope": "Prior full hosted speech acceptance without deliberate interruption"
+}
