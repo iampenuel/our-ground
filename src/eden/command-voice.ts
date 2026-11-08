@@ -17,6 +17,9 @@ function recognizer():LocalRecognizer|undefined {
 }
 /** Never start recognition unless the browser supports and guarantees local processing. */
 export async function prepareLocalRecognition() {
+  // Check an existing denial before offering the optional language download.
+  const permission=await navigator.permissions?.query({name:'microphone' as PermissionName}).catch(()=>null);
+  if(permission?.state==='denied')throw Error('Microphone access was denied. You can still type to Eden.');
   const ctor=recognizer();
   if(!ctor?.available || !('processLocally' in new ctor()))throw Error('This browser cannot recognize speech on this device. You can type your request.');
   const options={langs:['en-US'],processLocally:true as const};
