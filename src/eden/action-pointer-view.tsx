@@ -16,7 +16,7 @@ export function createEdenPointerView(){
       const left=Math.max(8,rect.left),right=Math.min(innerWidth-8,rect.right),top=Math.max(8,rect.top),bottom=Math.min(innerHeight-8,rect.bottom);
       const to:CursorTarget={target,x:Math.max(0,Math.min(1,((left+right)/2-rect.left)/Math.max(1,rect.width))),y:Math.max(0,Math.min(1,((top+bottom)/2-rect.top)/Math.max(1,rect.height)))};
       const handle=ref.current;if(!handle)throw Error('Pointer renderer unavailable.');
-      await handle.run('eden',[{action:'enter'},kind==='press'?{action:'click',target:to,hoverMs:210}:{action:'hover',target:to}],signal);
+      await handle.run('eden',[{action:'enter',pauseMs:0},kind==='press'?{action:'click',target:to,hoverMs:210}:{action:'hover',target:to}],signal);
     },
     hide(){ref.current?.stop();host.hidden=true;},
     destroy(){root.unmount();host.remove();}

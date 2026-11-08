@@ -94,7 +94,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
   let introPlayed = false, introducing = false, complete = false, discardOutput = false, receivedAudio = false, drainGeneration = 0, pendingTools = 0;
   let resumeHandle: string | undefined, pendingResumeHandle: string | undefined, voiceMs = 0, silenceMs = 0, userActive = false;
   let onsetVoicedMs = 0, onsetGapMs = 0;
-  let previousOutputSettled=false,responseBegun=false;
+  let previousOutputSettled=false,responseBegun=false,interruptedTurnEnding=false;
   let inputText = '', outputText = '';
   let timers = new Set<ReturnType<typeof setTimeout>>(), responseTimer: ReturnType<typeof setTimeout> | undefined;
   let seenMessages = new WeakSet<object>();
@@ -116,7 +116,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
   function clearResponseTimer() { cancelTimer(responseTimer); responseTimer = undefined; }
   function expectResponse(epoch = generation) { clearResponseTimer(); responseTimer = timer(() => { if (active() && epoch === generation) fail('Eden did not receive playable voice in time. You can continue by text.','response-timeout'); }, 25_000); }
   function cleanup() {
-    generation++; connectionEpoch++; drainGeneration++; abort?.abort(); abort = undefined; connectionAbort?.abort(); connectionAbort = undefined;
+    interruptedTurnEnding=false;generation++; connectionEpoch++; drainGeneration++; abort?.abort(); abort = undefined; connectionAbort?.abort(); connectionAbort = undefined;
     for (const id of timers) clearTimeout(id); timers.clear(); responseTimer = undefined;
     microphone?.stop(); microphone = undefined; connection?.close(); connection = undefined; output?.close(); output = undefined;
     encoder.clear(); onsetVoicedMs = 0; onsetGapMs = 0; ledger.clear(); pendingTools = 0; actionQueue = Promise.resolve(); resumeHandle = undefined; pendingResumeHandle = undefined;
@@ -313,7 +313,12 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     if (content?.interrupted === true) {
       discardOutput=true;drainGeneration++;output?.stop();options.onAudioLevel(0);
       if(options.allowSpokenInterruption&&!pendingTools){
-        clearResponseTimer();introducing=false;introPlayed=true;listening();
+        // Gemini may finish the interrupted response in a separate frame.
+        // Preserve the new utterance and its silence timer across both events.
+        interruptedTurnEnding=true;introducing=false;introPlayed=true;
+        if(userActive){complete=false;setPhase(micMuted?'muted':'listening');}
+        else if(phase!=='processing'){clearResponseTimer();listening();}
+
       }
     }
     const cancelled = record(value.toolCallCancellation)?.ids;
@@ -340,7 +345,9 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
       }
     }
     if (content?.generationComplete === true) { diagnostic.generationComplete++; diagnostic.lastEvent = 'generation-complete';trace('generation-complete'); }
-    if (content?.turnComplete === true && !(options.allowSpokenInterruption&&content.interrupted)) {
+    if(content?.turnComplete===true&&interruptedTurnEnding){
+      interruptedTurnEnding=false;discardOutput=false;receivedAudio=false;complete=false;
+    }else if (content?.turnComplete === true) {
       diagnostic.turnComplete++; diagnostic.lastEvent = 'turn-complete';
       trace('turn-complete');
       complete = true;

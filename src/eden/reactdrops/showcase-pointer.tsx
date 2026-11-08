@@ -51,7 +51,7 @@ export type CursorPress = {
 };
 
 export type CursorStep =
-  | { action: 'enter'; at?: CursorTarget }
+  | { action: 'enter'; at?: CursorTarget; pauseMs?: number }
   | { action: 'leave' }
   | ({ action: 'move'; to: CursorTarget } & MoveOptions)
   | ({ action: 'hover'; target: CursorTarget } & MoveOptions)
@@ -627,12 +627,12 @@ export const ShowcasePointer = forwardRef<ShowcasePointerHandle, ShowcasePointer
 
     /* ---------- actions ---------- */
 
-    const enter = async (cancel: Cancel, cursor: CursorRuntime, at?: CursorTarget) => {
+    const enter = async (cancel: Cancel, cursor: CursorRuntime, at?: CursorTarget, pauseMs=450) => {
       if (at) cursor.position = resolve(cursor, at, false).point;
       cursor.label = { ...cursor.position };
       cursor.visible = true;
       setVisible((old) => ({ ...old, [cursor.id]: Math.abs(old[cursor.id] ?? 0) + 1 }));
-      await wait(cancel, 450);
+      if(pauseMs>0)await wait(cancel, pauseMs);
     };
 
     const leave = async (cancel: Cancel, cursor: CursorRuntime) => {
@@ -653,7 +653,7 @@ export const ShowcasePointer = forwardRef<ShowcasePointerHandle, ShowcasePointer
         await enter(cancel, cursor);
       switch (step.action) {
         case 'enter':
-          return enter(cancel, cursor, step.at);
+          return enter(cancel, cursor, step.at,step.pauseMs);
         case 'leave':
           return leave(cancel, cursor);
         case 'wait':

@@ -20,7 +20,7 @@ function harness(overrides={}){
     get started(){return started;},get micStarts(){return micStarts;},get micStopped(){return micStopped;},get outputClosed(){return outputClosed;},get queued(){return queued;},
     message(value,index=connections.length-1){connections[index].callbacks.message(value);},frame(value=.2){onFrame(new Float32Array(1024).fill(value),48000);},
     frames(value,count){for(let i=0;i<count;i++)this.frame(value);},speech(){this.frames(.2,8);},
-    inputState(value){onInputState(value);},outputState(value){onOutputState(value);},
+    playback(value){activity(value);},inputState(value){onInputState(value);},outputState(value){onOutputState(value);},
     flush(){queued=0;for(const resolve of drains.splice(0))resolve();},
     audio(){this.message({serverContent:{modelTurn:{parts:[{inlineData:{data:'AAAA',mimeType:'audio/pcm;rate=24000'}}]}}});},
     async finish(){this.message({serverContent:{turnComplete:true}});this.flush();await settle();},
@@ -435,4 +435,18 @@ test('provider error categories use only fixed RPC codes and never expose the pr
       assert.deepEqual(closed,[{kind:'provider-error',providerCategory:category,providerStatus:code}]);assert.doesNotMatch(JSON.stringify(closed),/private|https|details|RESOURCE_EXHAUSTED/);abort.abort();
     }
   }finally{if(original)Object.defineProperty(globalThis,'WebSocket',original);else delete globalThis.WebSocket;}
+});
+
+test('a provider interruption followed by a separate old turnComplete preserves the new spoken turn',async()=>{
+  const h=harness({options:{allowSpokenInterruption:true}});try{
+    await h.controller.start({microphoneConsent:true});h.audio();h.playback(true);
+    assert(h.controller.snapshot.microphoneForwarding);h.speech();
+    assert.equal(h.controller.snapshot.phase,'listening');
+    h.message({serverContent:{interrupted:true}});
+    h.message({serverContent:{turnComplete:true}});await settle();
+    assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.controller.snapshot.diagnostic.failure,'none');
+    h.frames(0,44);assert.equal(h.controller.snapshot.phase,'processing');
+    assert.equal(h.connections[0].sent.filter(v=>v.realtimeInput?.audioStreamEnd).length,1);
+    h.audio();await h.finish();assert.equal(h.controller.snapshot.phase,'listening');
+  }finally{h.cleanup();}
 });
