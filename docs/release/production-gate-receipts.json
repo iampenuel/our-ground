@@ -715,5 +715,21 @@
     "bytes": 12372855,
     "verified_after_copy": true,
     "included_keys_or_credentials": false
+  },
+  "production_owner_vault_test": {
+    "checkpoint": "production-directory-20261108T033638Z",
+    "ciphertext_sha256": "d3504ee9bf740cadb09e239d786aaa0f6cc973a0e975e244705e9b4ed1f1143c",
+    "result": "PASS",
+    "source": "personal Apple Passwords: fresh Copy Password",
+    "fresh_gpg_home": true,
+    "passphrase_cache_disabled": true,
+    "plaintext_discarded": true,
+    "timestamp": "2026-11-08T04:17:41.781035+00:00",
+    "decryption_ok": true,
+    "integrity_ok": true,
+    "encryption": "GnuPG symmetric AES-256",
+    "vault_item": "Our Ground — Production directory recovery",
+    "storage": "personal Apple Passwords, Password field",
+    "alternate_custodian_tested": false
   }
 }
