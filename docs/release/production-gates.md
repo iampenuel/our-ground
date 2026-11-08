@@ -1,6 +1,6 @@
 # Our Ground production handoff
 
-[Discovery-only candidate](discovery-only.md) is the current protected artifact for owner review. The corrections-enabled candidate and its operating requirements are documented below.
+The [adult demo release](adult-demo.md) supersedes this handoff for deployment and rollback decisions. This document records the earlier national production gates. The [discovery-only candidate](discovery-only.md) is a historical checkpoint.
 
 **November 8, 2026 UTC · GO for controlled testing of the exact production candidate. Public promotion is NO-GO pending reviewer coverage, independent recovery, private backup policy and final owner authorization.** The production database, map, restricted reviewer and monitored mailbox are working. [Gate measurements](production-gate-receipts.json)
 
