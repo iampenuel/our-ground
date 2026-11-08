@@ -28,7 +28,7 @@ def main():
     prefix="begin; set local role our_ground_steward; "
     visible=sql(env,prefix+"select json_build_object('in_queue',exists(select 1 from directory_ops.next_reports() where report_id='"
                 +uid+"'::uuid),'matching',exists(select 1 from directory_ops.read_report('"+uid+"'::uuid) where description='"+args.marker
-                +"' and status='open'),'raw_denied',not has_table_privilege(current_user,'app_private.correction_reports','select')); commit;")
+                +"' and status='open'),'raw_denied',not has_schema_privilege(current_user,'app_private','usage')); commit;")
     observed=json.loads(visible)
     require(all(observed.values()),"The named synthetic report is not safely reviewable; no report was changed.")
     sql(env,prefix+"select directory_ops.resolve_report('"+uid+"'::uuid,'confirmed','ADULT-RC-CHECK'); commit;")

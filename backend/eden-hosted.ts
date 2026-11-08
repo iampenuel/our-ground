@@ -1,6 +1,6 @@
 import {createHash,randomBytes} from 'node:crypto';
 import type {Dependencies} from './app.ts';
-import {eligible} from './adult-access.ts';
+import {adultSessionNonce} from './adult-access.ts';
 import {redis} from './hosted-store.ts';
 import {createEdenAgent, type EdenHostedTurnStore, type EdenAgentOptions} from './eden-agent.ts';
 import {EDEN_TEXT_MODELS,EdenProviderError} from './eden-provider.ts';
@@ -64,13 +64,14 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
   return async function handle(request:Request,path:string){
     try{
       // Vercel overwrites x-vercel-ip-country. Only the verified deployment runtime may serve these routes.
-      if(!(await eligible(request,env)))reject(403,'AGE_ACKNOWLEDGMENT_REQUIRED','Acknowledge the age requirement to continue.');
-      if(request.headers.get('x-vercel-ip-country')!=='US')reject(403,'EDEN_REGION_UNAVAILABLE','EDEN is available to verified adults in the United States.');
+      const nonce=await adultSessionNonce(request,env);
+      if(!nonce)reject(403,'AGE_ACKNOWLEDGMENT_REQUIRED','Acknowledge the age requirement to continue.');
+      if(request.headers.get('x-vercel-ip-country')!=='US')reject(403,'EDEN_REGION_UNAVAILABLE','EDEN is available to adults using this demo in the United States.');
       if(!ready())reject(403,'EDEN_DISABLED','Hosted EDEN is unavailable.');
       if(path==='status'&&request.method==='GET')return response({available:true,engine:'gemini',agentAvailable:true,speechAvailable:Boolean(speechModel),voice:'Aoede',rawAudioAccepted:false,liveTokensAvailable:false,noticeVersion:EDEN_NOTICE_VERSION});
       const origin=new URL(request.url).origin;
       if(request.method!=='POST'||request.headers.get('origin')!==origin)reject(403,'EDEN_ORIGIN_REQUIRED','Use the assistant on this site.');
-      const binding=hash(origin+'|'+request.headers.get('cookie')!.split(';').map(t=>t.trim()).find(t=>t.startsWith('__Host-og-adult=')));
+      const binding=hash(origin+'|'+nonce);
       const body=await boundedJsonObject(request);
       if(path==='session'){
         fields(body,['noticeVersion','acknowledged']);

@@ -10,16 +10,19 @@ async function signingKey(config:Config){
   return crypto.subtle.importKey('raw',encoder.encode(config.ADULT_SESSION_SECRET),{name:'HMAC',hash:'SHA-256'},false,['sign','verify']);
 }
 const payload=(origin:string,token:string)=>encoder.encode('audience-v1|'+origin+'|'+token);
-async function decisionFor(request:Request,config:Config):Promise<Decision|null>{
+async function decisionFor(request:Request,config:Config):Promise<{decision:Decision;nonce:string}|null>{
   const value=request.headers.get('Cookie')?.split(';').map(s=>s.trim()).find(s=>s.startsWith(cookieName+'='))?.slice(cookieName.length+1);
   const parts=/^(19plus|under19)\.(\d{10})\.([A-Za-z0-9_-]{22})\.([A-Za-z0-9_-]{43})$/.exec(value??'');
   const now=Math.floor(Date.now()/1000);
   if(!parts||Number(parts[2])<=now||Number(parts[2])>now+maxSeconds)return null;
   const mac=Uint8Array.from(atob(parts[4].replace(/-/g,'+').replace(/_/g,'/')+'='),c=>c.charCodeAt(0));
   if(!await crypto.subtle.verify('HMAC',await signingKey(config),mac,payload(new URL(request.url).origin,parts.slice(1,4).join('.'))))return null;
-  return parts[1] as Decision;
+  return {decision:parts[1] as Decision,nonce:parts[3]};
 }
-export async function eligible(request:Request,config:Config){return await decisionFor(request,config)==='19plus';}
+export async function adultSessionNonce(request:Request,config:Config){
+  const session=await decisionFor(request,config);
+  return session?.decision==='19plus'?session.nonce:null;
+}
 async function mint(origin:string,decision:Decision,config:Config){
   const token=[decision,Math.floor(Date.now()/1000)+maxSeconds,url64(crypto.getRandomValues(new Uint8Array(16)).buffer)].join('.');
   const mac=url64(await crypto.subtle.sign('HMAC',await signingKey(config),payload(origin,token)));
@@ -45,7 +48,7 @@ export async function adultGate(request:Request,config:Config):Promise<Response|
   const url=new URL(request.url);
   try{
     if(url.pathname==='/eligibility.css')return new Response('body{margin:0;background:#f6f4ec;color:#163a30;font:1.125rem/1.55 system-ui}main{max-width:34rem;margin:8vh auto;padding:1.5rem}h1{font:2.5rem Georgia,serif}button{font:inherit;color:white;background:#163a30;border:0;border-radius:.3em;padding:.7em;margin:.3em .3em .3em 0}a{color:inherit}button:focus-visible,a:focus-visible{outline:3px solid #976e16;outline-offset:4px}',{headers:{'Content-Type':'text/css','Cache-Control':'public,max-age=3600'}});
-    const current=await decisionFor(request,config);
+    const current=(await decisionFor(request,config))?.decision;
     if(request.method==='GET' && url.pathname==='/terms')return page('Terms',`<p>${terms}</p><a href="/">Return to Our Ground</a>`);
     if(request.method==='GET' && url.pathname==='/privacy' && current!=='19plus')return page('Privacy',`<p>${privacy}</p><a href="/">Return to Our Ground</a>`);
     if(url.pathname==='/eligibility' && request.method==='POST'){

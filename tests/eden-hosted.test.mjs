@@ -82,3 +82,14 @@ test('two instances complete a command for the newly selected clinic and speak o
   assert.equal((await b(req('end',{},{headers}),'end')).status,200);
   assert.equal((await a(req('plan',{}, {headers}),'plan')).status,401);
 });
+
+test('independent signed browser sessions have independent allowances and cannot use each other’s EDEN tokens',async()=>{
+  const handle=createHostedEden(deps,env,{store:memory()});
+  const first=await cookie(),second=await cookie();
+  const start=c=>handle(req('session',{noticeVersion,acknowledged:true},{headers:{cookie:c}}),'session');
+  const token=(await (await start(first)).json()).sessionToken;
+  assert.equal((await handle(req('end',{}, {headers:{cookie:second,Authorization:'Bearer '+token}}),'end')).status,401);
+  for(let i=0;i<4;i++)assert.equal((await start(first)).status,200);
+  assert.equal((await start(first)).status,429);
+  assert.equal((await start(second)).status,200);
+});
