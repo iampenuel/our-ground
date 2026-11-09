@@ -1,6 +1,6 @@
 {
-  "sha": "6b35db58835b2d4e879338656bc75ef1ad5124bc",
-  "unit_tests": 748,
+  "sha": "48dd90193cd1fd9ad0f504619f55618c89323402",
+  "unit_tests": 752,
   "failed": 0,
   "skipped": 0,
   "client_typecheck": "PASS",
@@ -11,7 +11,11 @@
   "axe_scans": 13,
   "axe_violations": 0,
   "ci_jobs": [
-    "https://github.com/iampenuel/our-ground/actions/runs/42532327980/job/128889028280",
-    "https://github.com/iampenuel/our-ground/actions/runs/42532332109/job/128889041473"
-  ]
+    "https://github.com/iampenuel/our-ground/actions/runs/42539926095",
+    "https://github.com/iampenuel/our-ground/actions/runs/42539919989"
+  ],
+  "secret_scan_files": 970,
+  "browser_receipt": "See responsive.json for viewport scope.",
+  "dictation_and_read_reply": "PASS, local Chrome with controlled speech events and native permission denial; no hosted TTS request",
+  "actual_chrome_zoom": 2
 }

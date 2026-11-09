@@ -45,7 +45,7 @@
       "height": 17.7578125
     },
     "portrait": "svg-profile",
-    "frames": 7
+    "frames": 8
   },
   "searchCount": 1,
   "modelCalls": 0,
@@ -62,8 +62,8 @@
         "height": 52
       },
       "cssTip": {
-        "x": 147.09501284360886,
-        "y": 321.1575038135052
+        "x": 147.09489997625352,
+        "y": 321.1573442876339
       },
       "cursorLayoutOrigin": {
         "x": 147.19000244140625,
@@ -76,7 +76,7 @@
         "bottom": 345.5
       },
       "frontElement": "A",
-      "uid": "e6369eed-ffd5-48c0-b1f9-157e7c0007cb"
+      "uid": "f55f9795-c4fc-4fbe-a98f-bd0068abccd8"
     },
     {
       "target": "location",
@@ -87,8 +87,8 @@
         "height": 44
       },
       "cssTip": {
-        "x": 371.9062880575657,
-        "y": 325.1194321066141
+        "x": 371.9050227999687,
+        "y": 325.1175377070904
       },
       "cursorLayoutOrigin": {
         "x": 372,
@@ -101,7 +101,7 @@
         "bottom": 345.5
       },
       "frontElement": "locationInput",
-      "uid": "86a1874e-e9ff-4a0a-9d39-44dca99efdb5"
+      "uid": "59473366-3215-495e-b3ff-b1445fc73451"
     },
     {
       "target": {
@@ -114,8 +114,8 @@
         "height": 44.3984375
       },
       "cssTip": {
-        "x": 185.9362307369709,
-        "y": 324.96935489475726
+        "x": 185.9350177884102,
+        "y": 324.9674972355366
       },
       "cursorLayoutOrigin": {
         "x": 186.02999877929688,
@@ -128,7 +128,7 @@
         "bottom": 345.5
       },
       "frontElement": "BUTTON",
-      "uid": "a42a4f78-6113-4bc3-9483-b50117dd00ff"
+      "uid": "ab576c29-3c47-413e-abad-71f89bcd7f6a"
     },
     {
       "target": "radius",
@@ -139,8 +139,8 @@
         "height": 44
       },
       "cssTip": {
-        "x": 595.6262300610542,
-        "y": 325.0693476498127
+        "x": 595.6249980330467,
+        "y": 325.06751641631126
       },
       "cursorLayoutOrigin": {
         "x": 595.719970703125,
@@ -153,7 +153,7 @@
         "bottom": 345.5
       },
       "frontElement": "radiusInput",
-      "uid": "52a9a59d-d09d-44e8-ad66-9ceed457bc0d"
+      "uid": "cebfbbc4-594c-4a9d-bf3e-96f45390e65e"
     },
     {
       "target": "submit",
@@ -164,8 +164,8 @@
         "height": 48
       },
       "cssTip": {
-        "x": 359.90633096694944,
-        "y": 250.0794943332672
+        "x": 359.905035251379,
+        "y": 250.07756074368953
       },
       "cursorLayoutOrigin": {
         "x": 360,
@@ -178,7 +178,7 @@
         "bottom": 300.9934387207031
       },
       "frontElement": "supportSubmit",
-      "uid": "d900c1a3-5718-4af1-af96-d6fae3a1657c"
+      "uid": "1c315f12-840c-4587-8673-d556b365483a"
     },
     {
       "target": {
@@ -192,8 +192,8 @@
         "height": 25.59765625
       },
       "cssTip": {
-        "x": 130.13505934476854,
-        "y": 334.2476057231426
+        "x": 130.1350096285343,
+        "y": 334.24754649698735
       },
       "cursorLayoutOrigin": {
         "x": 130.22999572753906,
@@ -206,7 +206,7 @@
         "bottom": 345.5
       },
       "frontElement": "A",
-      "uid": "e6683f29-3558-464a-9709-c2d91a4592db"
+      "uid": "7ae19ad6-43ac-418c-803a-8ea6a088cb1e"
     }
   ],
   "status": "PASS"

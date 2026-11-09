@@ -123,6 +123,11 @@ test('compound requests bind the ordinal only after the directory search; back/m
   assert.deepEqual(conversationChoices(back,detail,['show-map','back-to-map']).filter(c=>c.kind==='control'),[{kind:'control',control:'back-to-map'}]);
   assert(!conversationChoices(back,detail,['show-map']).some(s=>s.kind==='control'));
   assert(!conversationChoices(projectPublicRequest("Don't go back and show the map."),detail,['back-to-map','show-map']).some(c=>c.control==='back-to-map'));
+  const results={...home,page:'support',category:'food',cityId:'harrisburg-pa',resultCount:0,resourceIds:[]};
+  const returnMap=projectPublicRequest('Go back and show me the map.');
+  assert.deepEqual(conversationChoices(returnMap,results,['show-map','back-to-map']),[{kind:'control',control:'show-map'}]);
+  assert.deepEqual(conversationChoices(returnMap,results,[]),[{kind:'message',key:'clarify'}]);
+  assert(!conversationChoices(projectPublicRequest("Don't go back and show the map."),results,['show-map']).some(c=>c.kind==='control'));
   const negativePlace=conversationChoices(projectPublicRequest('Find healthcare, not Harrisburg.'),{...home,cityId:'harrisburg-pa'},[]);
   assert(!negativePlace.some(c=>c.intent?.cityId==='harrisburg-pa'));
   const negativeDonation=conversationChoices(projectPublicRequest('Not the donation page, please.'),home,[]);

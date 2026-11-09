@@ -34,7 +34,9 @@ try{
  const answers=p.locator('.eden-message[aria-label="Eden"]'),draft=p.locator('#eden-command');
  let started=0;
  async function ask(name,input){
-   if(started)await new Promise(done=>setTimeout(done,Math.max(0,22000-(Date.now()-started))));
+   // A page explanation can spend three real model operations. Leave room
+   // under the eight-operation session minute; never reset the session for QA.
+   if(started)await new Promise(done=>setTimeout(done,Math.max(0,(finalAcceptance?36000:22000)-(Date.now()-started))));
    started=Date.now();
    const index=requests.length,prior=await answers.count()?await answers.last().elementHandle():null;
    await draft.fill(input);await draft.press('Enter');

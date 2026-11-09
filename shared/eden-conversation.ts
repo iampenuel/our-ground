@@ -116,10 +116,13 @@ export function conversationChoices(symbols:string[], context:EdenAgentContext, 
     }
     return profiles;
   }
-  if(affirmative('back')&&affirmative('map')&&context.page==='resource'){
-    if(controls.includes('back-to-map'))choices.push({kind:'control',control:'back-to-map'});
-    return choices;
+  if(affirmative('back')&&affirmative('map')&&symbols.every(v=>['back','map','sequence','inspect','go'].includes(v))){
+    // After a category correction there may no longer be a detail to close.
+    // A registered map control on the results page satisfies the same request.
+    const control=context.page==='resource'?'back-to-map':context.page==='support'?'show-map':undefined;
+    return control&&controls.includes(control)?[{kind:'control',control}]:choices;
   }
+  if(has('negate')&&has('map')&&symbols.every(v=>['negate','back','map','sequence','inspect','go'].includes(v)))return choices;
   if(has('greet'))choices.push({kind:'message',key:'greet'});
   if(has('thanks'))choices.push({kind:'message',key:'thanks'});
   if(has('help','page','read','question','support'))add({goal:'explain-page'});
