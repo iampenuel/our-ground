@@ -1,0 +1,44 @@
+{
+  "origin": "https://ourground-staging-z9lfmd8s0-penuels-projects-aa802b06.vercel.app",
+  "sha": "14975ca9fddaeebcba43891dc1e67b3006c8c146",
+  "status": "PASS",
+  "providerRequests": [],
+  "views": [
+    {
+      "motion": "no-preference",
+      "autoOpen": false,
+      "welcome": "Hi! I’m Eden. I can help you find food, healthcare, and community resources, and guide you around this page. What would you like to explore?",
+      "focus": {
+        "visible": true,
+        "style": "solid",
+        "width": 3
+      },
+      "audio": {
+        "microphoneUses": 0,
+        "audioContexts": 0
+      },
+      "pointer": {
+        "clicks": 0,
+        "rings": 0,
+        "targetOutline": "none",
+        "pointerEvents": "none",
+        "label": "rgb(23, 23, 23)",
+        "agentGreenRulePresent": false
+      }
+    },
+    {
+      "motion": "reduce",
+      "autoOpen": false,
+      "welcome": "Hi! I’m Eden. I can help you find food, healthcare, and community resources, and guide you around this page. What would you like to explore?",
+      "focus": {
+        "visible": true,
+        "style": "solid",
+        "width": 3
+      },
+      "audio": {
+        "microphoneUses": 0,
+        "audioContexts": 0
+      }
+    }
+  ]
+}

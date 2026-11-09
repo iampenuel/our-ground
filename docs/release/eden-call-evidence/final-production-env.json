@@ -1,0 +1,75 @@
+{
+  "project": "ourground",
+  "readOnly": true,
+  "hiddenProductionEnvCount": 0,
+  "requiredVariables": [
+    {
+      "key": "SUPABASE_URL",
+      "present": false
+    },
+    {
+      "key": "VITE_SUPABASE_URL",
+      "present": false
+    },
+    {
+      "key": "SUPABASE_PUBLISHABLE_KEY",
+      "present": false
+    },
+    {
+      "key": "VITE_SUPABASE_PUBLISHABLE_KEY",
+      "present": false
+    },
+    {
+      "key": "VITE_GOOGLE_AUTH_ENABLED",
+      "present": false
+    },
+    {
+      "key": "VITE_ACCOUNT_ALLOWED_ORIGINS",
+      "present": false
+    },
+    {
+      "key": "ACCOUNT_ALLOWED_ORIGINS",
+      "present": true
+    },
+    {
+      "key": "GEOAPIFY_LOCATION_ENABLED",
+      "present": false
+    },
+    {
+      "key": "GEOAPIFY_LOCATION_LIVE_APPROVED",
+      "present": false
+    },
+    {
+      "key": "GEOAPIFY_SERVER_API_KEY",
+      "present": true
+    },
+    {
+      "key": "VITE_EDEN_HOSTED_LIVE",
+      "present": false
+    },
+    {
+      "key": "EDEN_LIVE_PRODUCTION_APPROVED",
+      "present": false
+    }
+  ],
+  "verifiedPublicConfiguration": {
+    "BACKEND_DATA_MODE": "postgres",
+    "ALLOW_DEMO_DATA": "false",
+    "ACCOUNT_ALLOWED_ORIGINS": "https://ourground.vercel.app",
+    "GEOAPIFY_ENABLED": "true",
+    "GEOAPIFY_LIVE_APPROVED": "true"
+  },
+  "productionDeploymentId": "dpl_5BLDMWteSXZ8ju8VVcfXttiUQBiq",
+  "stagingGeoAtFirstDeployment": {
+    "locationEnabled": false,
+    "locationApproved": false,
+    "serverKeyPresent": false
+  },
+  "notes": [
+    "No secret values were retained.",
+    "Geoapify Preview secret transfer requires separate owner approval following automatic approval review rejection.",
+    "Production provider settings and positive organization membership remain unverified."
+  ],
+  "observedOnLocalDate": "2026-11-08",
+  "timezone": "America/New_York"
+}

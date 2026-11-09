@@ -1,0 +1,24 @@
+{
+  "origin": "https://ourground-staging-l7a5pa2cn-penuels-projects-aa802b06.vercel.app",
+  "sha": "fe2c8d691ee7a7fd710b852b264c7c043bdd01fd",
+  "scope": "real location and directory services; fixture Gemini decisions",
+  "cases": [
+    {
+      "input": "Berkeley",
+      "expectedLabel": null,
+      "stage": "complete",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualOutcome": "clarification",
+      "edenDiagnostic": {
+        "outcome": "failed",
+        "plannedCity": "Berkeley",
+        "completedCity": null,
+        "resultCount": 0,
+        "reply": "Choose a more specific location before I describe results."
+      },
+      "edenOutcome": "clarification"
+    }
+  ],
+  "status": "PASS"
+}

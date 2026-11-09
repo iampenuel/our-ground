@@ -1,0 +1,36 @@
+{
+  "origin": "https://ourground-staging-l7a5pa2cn-penuels-projects-aa802b06.vercel.app",
+  "sha": "fe2c8d691ee7a7fd710b852b264c7c043bdd01fd",
+  "scope": "genuine hosted Gemini text and directory actions; no speech synthesis",
+  "steps": [
+    {
+      "name": "berkeley",
+      "trace": {
+        "correlationId": "2d9f9605-6282-4bba-80e8-4bfb1de00de9",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "search",
+        "outcome": "confirmed"
+      },
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200
+        },
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 200
+        }
+      ],
+      "searches": 1,
+      "location": "Berkeley, CA",
+      "reply": "Your search is ready. 131 matching healthcare listings within 10 miles of Berkeley, CA. The first 20 are shown. These are public directory listings, not independently verified operating services. WEST BERKELEY FAMILY PRACTICE."
+    }
+  ],
+  "status": "PASS"
+}
