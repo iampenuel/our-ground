@@ -17,7 +17,7 @@ export type EdenLivePhase = 'idle' | 'permission-required' | 'connecting' | 'int
 export type EdenLiveFailure = 'none' | 'unexpected' | 'permission-pending' | 'microphone-denied' | 'microphone-init' | 'microphone-timeout' | 'microphone-stream' | 'microphone-state' | 'audio-output-init' | 'audio-output-timeout' | 'audio-output-state' | 'token-request' | 'token-invalid' | 'socket-setup' | 'socket-close' | 'socket-error' | 'invalid-message' | 'provider-error' | 'application-handler' | 'recovery-unavailable' | 'public-context' | 'tool-invalid' | 'tool-conflict' | 'tool-limit' | 'tool-response' | 'response-timeout' | 'turn-timeout' | 'audio-format' | 'audio-missing' | 'player-drain';
 export type EdenLiveServiceCategory = LiveProviderCategory | 'local-limit' | 'access' | 'resolver-limit' | 'application';
 const SERVICE_CATEGORIES:EdenLiveServiceCategory[]=['none','rate-limit-or-quota','overload','authentication','invalid-request','provider-other','local-limit','access','resolver-limit','application'];
-const SERVICE_CODES=['EDEN_USAGE_LIMIT','EDEN_SESSION_LIMIT','EDEN_BUSY','EDEN_PROVIDER_QUOTA','EDEN_PROVIDER_UNAVAILABLE','EDEN_LIVE_USAGE_LIMIT','EDEN_LIVE_CALL_ACTIVE','EDEN_LIVE_CAPACITY','EDEN_LIVE_CALL_EXPIRED','EDEN_LIVE_SESSION_EXPIRING','EDEN_LIVE_PROVIDER_QUOTA','EDEN_LIVE_PROVIDER_UNAVAILABLE','EDEN_LIVE_DISABLED','EDEN_LIVE_CANCELLED','EDEN_LIVE_INVALID_TOKEN','EDEN_LIVE_RESUME_DENIED','EDEN_LIVE_TOOL_EXPIRED','EDEN_LIVE_TOOL_LIMIT','EDEN_SESSION_REQUIRED','EDEN_REVIEWER_REQUIRED','EDEN_NOTICE_REQUIRED','EDEN_DISABLED','EDEN_UNAVAILABLE','EDEN_AGENT_UNAVAILABLE','RATE_LIMITED'];
+const SERVICE_CODES=['EDEN_USAGE_LIMIT','EDEN_SESSION_LIMIT','EDEN_BUSY','EDEN_PROVIDER_QUOTA','EDEN_PROVIDER_UNAVAILABLE','EDEN_LIVE_USAGE_LIMIT','EDEN_LIVE_CALL_ACTIVE','EDEN_LIVE_CAPACITY','EDEN_LIVE_SETUP_EXPIRED','EDEN_LIVE_START_THROTTLED','EDEN_LIVE_TEAM_START_LIMIT','EDEN_LIVE_TESTER_START_LIMIT','EDEN_LIVE_PROVIDER_BUDGET','EDEN_LIVE_TESTER_MINT_LIMIT','EDEN_LIVE_POLICY_UNAVAILABLE','EDEN_LIVE_CALL_EXPIRED','EDEN_LIVE_SESSION_EXPIRING','EDEN_LIVE_PROVIDER_QUOTA','EDEN_LIVE_PROVIDER_UNAVAILABLE','EDEN_LIVE_DISABLED','EDEN_LIVE_CANCELLED','EDEN_LIVE_INVALID_TOKEN','EDEN_LIVE_RESUME_DENIED','EDEN_LIVE_TOOL_EXPIRED','EDEN_LIVE_TOOL_LIMIT','EDEN_SESSION_REQUIRED','EDEN_REVIEWER_REQUIRED','EDEN_NOTICE_REQUIRED','EDEN_DISABLED','EDEN_UNAVAILABLE','EDEN_AGENT_UNAVAILABLE','RATE_LIMITED'];
 /** Only validated fixed API categories/codes cross the UI/service boundary. */
 export class EdenLiveServiceError extends Error {
   category:EdenLiveServiceCategory;status?:number;code:string;retryAfterSeconds?:number;
@@ -38,6 +38,7 @@ export type EdenLiveTokenRequest = {nonce: string; context: EdenLiveContext; cal
 export type EdenLiveOptions = {
   allowSpokenInterruption?:boolean;
   getToken(request: EdenLiveTokenRequest, signal: AbortSignal): Promise<EdenLiveTokenResponse>;
+  confirmSetup?(callId:string,signal:AbortSignal):Promise<void>;
   releaseToken?(callId: string): void | Promise<void>;
   getContext(): EdenLiveContext;
   getPendingTask?(): unknown;
@@ -165,7 +166,12 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     if(message===SAFE_FAILURE){
       const category=diagnostic.serviceCategory??diagnostic.providerCategory;
       if(diagnostic.serviceCode==='EDEN_LIVE_CALL_ACTIVE')message='Another call is active for this visitor. End that call before starting a new one.';
-      else if(diagnostic.serviceCode==='EDEN_LIVE_CAPACITY')message='Both protected call slots are reserved. Try again in '+Math.ceil((diagnostic.retryAfterSeconds??600)/60)+' min, or continue by text.';
+      else if(diagnostic.serviceCode==='EDEN_LIVE_CAPACITY')message='The protected call slots are reserved. Try again in '+Math.ceil((diagnostic.retryAfterSeconds??600)/60)+' min, or continue by text.';
+      else if(diagnostic.serviceCode==='EDEN_LIVE_TESTER_START_LIMIT')message='Your tester browser has used or reserved its daily call starts. Pending starts expire shortly; completed starts reset at 00:00 UTC. Text is still available.';
+      else if(diagnostic.serviceCode==='EDEN_LIVE_TEAM_START_LIMIT')message='The staging team has used or reserved its daily call starts. Pending starts expire shortly; completed starts reset at 00:00 UTC. Text is still available.';
+      else if(diagnostic.serviceCode==='EDEN_LIVE_PROVIDER_BUDGET'||diagnostic.serviceCode==='EDEN_LIVE_TESTER_MINT_LIMIT')message='Our Ground’s daily voice testing budget has been reached. It resets at 00:00 UTC. You can continue by text.';
+      else if(diagnostic.serviceCode==='EDEN_LIVE_START_THROTTLED')message='Too many call starts in a short time. Wait a minute before trying again.';
+      else if(diagnostic.serviceCode==='EDEN_LIVE_SETUP_EXPIRED')message='Call setup expired before it could be confirmed. Start a new call here or use text.';
       else if(category==='rate-limit-or-quota')message='Google’s voice service reached a rate or usage limit. Wait before trying again, or use text if available.';
       else if(category==='overload')message='Google’s voice service is temporarily busy. Try again later, or use text if available.';
       else if(category==='local-limit')message='Voice calls have reached their current usage limit. Continue with the page controls or text if available.';
@@ -468,6 +474,11 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     finally { cancelTimer(setupTimer); }
     if (!active() || epoch !== generation || socketEpoch !== connectionEpoch) { candidate.close(); return; }
     connection = candidate;diagnostic.setupComplete=true;
+    if(!resuming&&options.confirmSetup){
+      try{await options.confirmSetup(next.callId,AbortSignal.any([abort!.signal,AbortSignal.timeout(8000)]));}
+      catch(error){serviceFailure(error);throw new LivePreparationFailure('socket-setup');}
+      if(!active()||epoch!==generation||socketEpoch!==connectionEpoch)return;
+    }
     if (resuming) { resumeHandle = undefined; pendingResumeHandle = undefined; introducing = false; introPlayed = true; listening(); }
     else { seedInitialHistory(); introducing = true; complete = false; discardOutput = false; setPhase('introducing'); send({realtimeInput: {text: EDEN_LIVE_INTRODUCTION_PROMPT}}); expectResponse(); }
   }
@@ -477,6 +488,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     trace('closed');diagnostic.closeReason=detail?.closeReason;
     if (detail?.code !== undefined && Number.isInteger(detail.code) && detail.code >= 1000 && detail.code <= 4999) diagnostic.closeCode = detail.code;
     if(detail?.providerCategory&&['none','rate-limit-or-quota','overload','authentication','invalid-request','provider-other'].includes(detail.providerCategory))diagnostic.providerCategory=detail.providerCategory;if(Number.isInteger(detail?.providerStatus)&&Number(detail?.providerStatus)>=400&&Number(detail?.providerStatus)<=599)diagnostic.providerStatus=detail!.providerStatus;
+    if(detail?.closeReason==='quota')diagnostic.providerCategory='rate-limit-or-quota';
     if(diagnostic.providerCategory==='rate-limit-or-quota'||diagnostic.providerCategory==='authentication'||diagnostic.providerCategory==='invalid-request'){fail(SAFE_FAILURE,detail!.kind);return;}
     if (!resumeHandle || !introPlayed || pendingTools || userActive || recoveries >= 1 || deps.now() >= deadline) { fail(SAFE_FAILURE,detail?.kind ?? 'recovery-unavailable'); return; }
     recoveries++; drainGeneration++; output?.stop(); encoder.clear(); connection = undefined; setPhase('reconnecting');

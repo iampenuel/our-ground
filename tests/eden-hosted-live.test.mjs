@@ -2,11 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
 import {createHostedLive} from '../backend/eden-hosted-live.ts';
+import {CONFIRM_LIVE_START,liveCapacity} from '../backend/eden-live-capacity.ts';
 import {RELEASE_LIVE_RESERVATION} from '../backend/eden-live-reservation.ts';
 import {EDEN_NOTICE_VERSION as noticeVersion} from '../shared/eden-assistant.ts';
 
 test('shared call reservations survive instance changes and bind one-use actions to the issuing session',async()=>{
   const entries=new Map(),store=async([op,...a])=>{
+    if(op==='EVAL'&&a[0]===CONFIRM_LIVE_START){if(![a[2],a[3]].every(k=>entries.get(k)===a[4]))return 0;for(const k of [a[2],a[3]])entries.set(k,'ready:'+a[4]);return 1;}
     if(op==='EVAL'&&a[0]===RELEASE_LIVE_RESERVATION){if(entries.get(a[2])!==a[3])return 0;entries.delete(a[2]);return 1;}
     if(op==='EVAL'){const n=Number(entries.get(a[2])??0)+1;entries.set(a[2],n);return n;}
     if(op==='SET'){if(entries.has(a[0]))return null;entries.set(a[0],a[1]);return 'OK';}
@@ -24,6 +26,7 @@ test('shared call reservations survive instance changes and bind one-use actions
   await assert.rejects(use('live/token',{...body,liveAudioAcknowledged:false}),{code:'EDEN_LIVE_INVALID_REQUEST'});
   const issued=await use('live/token',body);
   assert(issued.deadline>Date.now()+599000);await assert.rejects(use('live/token',{...body,nonce:nonce()},'second'),{code:'EDEN_LIVE_CALL_ACTIVE'});
+  await use('live/connected',{callId:issued.callId,noticeVersion});
   const tool={callId:issued.callId,id:'one',noticeVersion,context,name:'perform_public_resource_action',args:{type:'read-page'}};
   await assert.rejects(use('live/tool',tool,'other'),{code:'EDEN_LIVE_CALL_EXPIRED'});
   const grant=await use('live/tool',tool);
@@ -35,6 +38,7 @@ test('shared call reservations survive instance changes and bind one-use actions
   // A provider-side failure before issuing a token returns the provisional slot.
   failMint=true;await assert.rejects(use('live/token',{...body,nonce:nonce()}),/Temporary provider failure/);failMint=false;
   const next=await use('live/token',{...body,nonce:nonce()});
+  await use('live/connected',{callId:next.callId,noticeVersion});
   assert.notEqual(next.callId,issued.callId);
   await use('live/end',{callId:issued.callId,noticeVersion});
   await use('live/end',{callId:next.callId,noticeVersion},'other-session');

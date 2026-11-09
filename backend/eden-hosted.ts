@@ -1,3 +1,5 @@
+import {liveCapacity} from './eden-live-capacity.ts';
+import {EDEN_LIVE_MAX_CALL_SECONDS} from '../shared/eden-live.ts';
 import {createHostedLive} from './eden-hosted-live.ts';
 import {EdenLiveError} from './eden-live.ts';
 import {createHash,randomBytes,randomUUID} from 'node:crypto';
@@ -56,8 +58,9 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
     }
   };
   const agent=createEdenAgent(env,{repository:deps.repo,directoryCity:deps.directoryCity,hostedTurns:turns,create:options.create});
-  const liveEnabled=env.VITE_EDEN_HOSTED_LIVE==='true'&&env.VERCEL_ENV==='preview'&&env.VERCEL_PROJECT_ID===stagingProjectId;
-  const live=createHostedLive(store,agent,env.GEMINI_API_KEY??'');
+  const policy=liveCapacity(env);
+  const liveEnabled=Boolean(policy)&&env.VITE_EDEN_HOSTED_LIVE==='true'&&env.VERCEL_ENV==='preview'&&env.VERCEL_PROJECT_ID===stagingProjectId;
+  const live=createHostedLive(store,agent,env.GEMINI_API_KEY??'',undefined,policy);
   return async function handle(request:Request,path:string){
     // This is an ephemeral turn ID, never an auth token, session ID or content hash.
     const requestedId=request.headers.get('x-eden-correlation-id');
@@ -74,7 +77,7 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
       if(!nonce)reject(403,'AGE_ACKNOWLEDGMENT_REQUIRED','Acknowledge the age requirement to continue.');
       if(request.headers.get('x-vercel-ip-country')!=='US')reject(403,'EDEN_REGION_UNAVAILABLE','EDEN is available to adults using this demo in the United States.');
       if(!ready())reject(403,'EDEN_DISABLED','Hosted EDEN is unavailable.');
-      if(path==='status'&&request.method==='GET')return response({available:true,engine:'gemini',agentAvailable:true,speechAvailable:Boolean(speechModel),voice:EDEN_SPEECH_VOICE,speechModel:speechModel??null,rawAudioAccepted:false,liveTokensAvailable:liveEnabled,noticeVersion:EDEN_NOTICE_VERSION});
+      if(path==='status'&&request.method==='GET')return response({available:true,engine:'gemini',agentAvailable:true,speechAvailable:Boolean(speechModel),voice:EDEN_SPEECH_VOICE,speechModel:speechModel??null,rawAudioAccepted:false,liveTokensAvailable:liveEnabled,...(liveEnabled?{liveTestLimits:{...policy,maxCallSeconds:EDEN_LIVE_MAX_CALL_SECONDS,scope:'signed-tester-browser'}}:{}),noticeVersion:EDEN_NOTICE_VERSION});
       const origin=new URL(request.url).origin;
       if(request.method!=='POST'||request.headers.get('origin')!==origin)reject(403,'EDEN_ORIGIN_REQUIRED','Use the assistant on this site.');
       const binding=hash(origin+'|'+nonce);

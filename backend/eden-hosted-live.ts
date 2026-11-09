@@ -1,4 +1,5 @@
-import {createHash,randomBytes} from 'node:crypto';
+import {createHash,randomBytes,randomInt} from 'node:crypto';
+import {CONFIRM_LIVE_START,liveCapacity,type LiveCapacity} from './eden-live-capacity.ts';
 import {RELEASE_LIVE_RESERVATION} from './eden-live-reservation.ts';
 import {issueEdenLiveToken,EdenLiveError} from './eden-live.ts';
 import {createEdenAgent} from './eden-agent.ts';
@@ -14,16 +15,30 @@ const only=(body:Record<string,unknown>,names:string[])=>names.length===Object.k
 
 // Every reservation is conditional in the shared store. A used provider token cannot
 // be revoked, so the two capacity slots last until the credentials actually expire.
-export function createHostedLive(store:Store,agent:Agent,secret:string,issue=issueEdenLiveToken){
+export function createHostedLive(store:Store,agent:Agent,secret:string,issue=issueEdenLiveToken,policy:LiveCapacity|null=liveCapacity({})){
   const get=(name:string)=>store(['GET',key(name)]);
   const reserve=async(name:string,value:string,ttl:number)=>
     await store(['SET',key(name),value,'EX',String(ttl),'NX'])==='OK';
-  async function limit(scope:string,max:number,ttl:number){
+  const release=(name:string,expected:string)=>store(['EVAL',RELEASE_LIVE_RESERVATION,'1',key(name),expected]);
+  async function permit(prefix:string,max:number,call:string){
+    const offset=randomInt(max);
+    for(let i=0;i<max;i++){const name=prefix+':'+((offset+i)%max);if(await reserve(name,call,90))return name;}
+    return null;
+  }
+  async function limit(scope:string,max:number,ttl:number,code='EDEN_LIVE_USAGE_LIMIT',wait?:number){
     const count=await store(['EVAL',"local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],ARGV[1]) end; return n",'1','og:adult:eden:v1:rate:live:'+hash(scope),String(ttl)]);
     if(typeof count!=='number'||count<1)invalid('EDEN_LIMITER_UNAVAILABLE',503);
-    if(Number(count)>max)invalid('EDEN_LIVE_USAGE_LIMIT',429);
+    if(Number(count)>max)throw new EdenLiveError(code,429,wait);
   }
   return async function handle(path:string,body:Record<string,unknown>,session:string,binding:string,sessionExpiry:number,signal:AbortSignal){
+    if(!policy)throw new EdenLiveError('EDEN_LIVE_POLICY_UNAVAILABLE',503);
+    const now=Date.now(),day=new Date(now).toISOString().slice(0,10),untilReset=Math.max(1,Math.ceil((Date.parse(day+'T00:00:00Z')+86400000-now)/1000));
+    const seats=Array.from({length:policy.seats},(_,i)=>'slot:'+(i+1));
+    const holdsKey=(id:string)=>'holds:'+session+':'+id;
+    async function holds(id:string){
+      const raw=await get(holdsKey(id));if(typeof raw!=='string')return null;
+      const v=JSON.parse(raw);return Array.isArray(v)&&v.length===3&&typeof v[0]==='string'&&typeof v[1]==='string'&&Number.isSafeInteger(v[2])?v as [string,string,number]:null;
+    }
     const ctx=validateEdenLiveContext(body.context);
     const callKey=(id:string)=>'call:'+session+':'+id;
     async function expiry(id:string){
@@ -34,53 +49,80 @@ export function createHostedLive(store:Store,agent:Agent,secret:string,issue=iss
     if(path==='live/token'){
       const request=validateEdenLiveTokenRequest(body);
       if(!request||!ctx||ctx.directory!=='public'||ctx.synthetic)throw new EdenLiveError('EDEN_LIVE_INVALID_REQUEST',422);
-      await limit('attempt:'+binding+':'+Math.floor(Date.now()/60000),4,65);
-      await limit('attempt:all:'+Math.floor(Date.now()/60000),8,65);
+      await limit('attempt:'+binding+':'+Math.floor(now/60000),4,65,'EDEN_LIVE_START_THROTTLED',60);
+      await limit('attempt:all:'+Math.floor(now/60000),8,65,'EDEN_LIVE_START_THROTTLED',60);
       await agent.inspectLiveContext(ctx);
       const call=request.callId??randomBytes(32).toString('base64url');
       const deadline=request.callId?await expiry(call):Math.min(sessionExpiry,Date.now()+EDEN_LIVE_MAX_CALL_SECONDS*1000);
       const ttl=Math.ceil((deadline-Date.now())/1000);
       if(!Number.isFinite(ttl)||ttl<15)invalid('EDEN_LIVE_SESSION_EXPIRING',401);
       if(!await reserve('nonce:'+binding+':'+request.nonce,'1',ttl))invalid('EDEN_LIVE_NONCE_REUSED',409);
-      let owned=false,slot:string|undefined;
+      let owned=false,slot:string|undefined,testerPermit:string|null=null,teamPermit:string|null=null,issued=false;
       const providerSeat=call+':'+deadline;
-      const release=(name:string,expected:string)=>store(['EVAL',RELEASE_LIVE_RESERVATION,'1',key(name),expected]);
       try{
         if(request.callId){
-          if(!await reserve('resume:'+call,'1',ttl))invalid('EDEN_LIVE_RESUME_DENIED',409);
+          if(!await get('started:'+session+':'+call))invalid('EDEN_LIVE_RESUME_DENIED',409);
+          if(await get('resume:'+call))invalid('EDEN_LIVE_RESUME_DENIED',409);
         }else{
           if(!await reserve('owner:'+binding,call,ttl))invalid('EDEN_LIVE_CALL_ACTIVE',409);
           owned=true;
-          for(const name of ['slot:1','slot:2'])if(await reserve(name,providerSeat,ttl)){slot=name;break;}
-          if(!slot){
-            const seats=await Promise.all([get('slot:1'),get('slot:2')]);
-            const wait=Math.min(...seats.map(value=>typeof value==='string'&&/^[-\w]{43}:\d{13}$/.test(value)?Math.max(1,Math.ceil((Number(value.slice(44))-Date.now())/1000)):EDEN_LIVE_MAX_CALL_SECONDS));
-            throw new EdenLiveError('EDEN_LIVE_CAPACITY',429,Math.min(wait,EDEN_LIVE_MAX_CALL_SECONDS));
-          }
-          if(!await reserve(callKey(call),String(deadline),ttl))invalid('EDEN_LIVE_CALL_ACTIVE',409);
+          // A signed visitor retains its fairness allowance across Eden session
+          // refreshes. Only successful setup promotes a tentative start.
+          testerPermit=await permit('start:'+day+':visitor:'+binding,policy.testerStarts,call);
+          if(!testerPermit)throw new EdenLiveError('EDEN_LIVE_TESTER_START_LIMIT',429,untilReset);
+          teamPermit=await permit('start:'+day+':team',policy.teamStarts,call);
+          if(!teamPermit)throw new EdenLiveError('EDEN_LIVE_TEAM_START_LIMIT',429,untilReset);
+          if(!await reserve(callKey(call),String(deadline),ttl)||!await reserve(holdsKey(call),JSON.stringify([testerPermit,teamPermit,now+untilReset*1000]),ttl))invalid('EDEN_LIVE_CALL_ACTIVE',409);
         }
-        await limit('session:'+session,3,900);
-        await limit('project:'+new Date().toISOString().slice(0,10),6,86460);
+        // Every credential, including a resume, has provider-side overlap risk.
+        // End Call cannot revoke a Google token; only an unissued seat is freed.
+        for(const name of seats)if(await reserve(name,providerSeat,ttl)){slot=name;break;}
+        if(!slot){
+          const values=await Promise.all(seats.map(get));
+          const wait=Math.min(...values.map(v=>typeof v==='string'&&/^[-\w]{43}:\d{13}$/.test(v)?Math.max(1,Math.ceil((Number(v.slice(44))-Date.now())/1000)):EDEN_LIVE_MAX_CALL_SECONDS));
+          throw new EdenLiveError('EDEN_LIVE_CAPACITY',429,Math.min(wait,EDEN_LIVE_MAX_CALL_SECONDS));
+        }
+        const testerScope='provider:tester:'+binding+':'+day;
+        // Check both budgets before incrementing either: repeated requests to
+        // an exhausted project must not drain a tester's allowance. The atomic
+        // increments below still enforce both ceilings under concurrent starts.
+        const counts=await Promise.all([testerScope,'project:'+day].map(scope=>store(['GET','og:adult:eden:v1:rate:live:'+hash(scope)])));
+        if(Number(counts[0])>=policy.testerAttempts)throw new EdenLiveError('EDEN_LIVE_TESTER_MINT_LIMIT',429,untilReset);
+        if(Number(counts[1])>=policy.teamAttempts)throw new EdenLiveError('EDEN_LIVE_PROVIDER_BUDGET',429,untilReset);
+        if(request.callId&&!await reserve('resume:'+call,'1',ttl))invalid('EDEN_LIVE_RESUME_DENIED',409);
+        await limit(testerScope,policy.testerAttempts,86460,'EDEN_LIVE_TESTER_MINT_LIMIT',untilReset);
+        // Reuse the legacy project counter, including today's earlier mints.
+        await limit('project:'+day,policy.teamAttempts,86460,'EDEN_LIVE_PROVIDER_BUDGET',untilReset);
         const token=await issue(secret,call,deadline,true,signal,request.resumeHandle?{handle:request.resumeHandle}:undefined);
-        await expiry(call);
+        issued=true;await expiry(call);
         return token;
       }catch(error){
-        // A rejected mint never delivered a credential to the browser. Its
-        // provisional seat is reusable; attempts still count toward abuse limits.
-        if(owned)await Promise.all([release('owner:'+binding,call),store(['DEL',key(callKey(call))]),...(slot?[release(slot,providerSeat)]:[])]);
+        if(owned)await Promise.all([release('owner:'+binding,call),store(['DEL',key(callKey(call))]),store(['DEL',key(holdsKey(call))]),...(testerPermit?[release(testerPermit,call)]:[]),...(teamPermit?[release(teamPermit,call)]:[])]);
+        if(slot&&!issued)await release(slot,providerSeat);
         throw error;
       }
     }
     const id=body.callId;
     if(!isEdenLiveCallId(id)||body.noticeVersion!==EDEN_NOTICE_VERSION)throw new EdenLiveError('EDEN_LIVE_INVALID_REQUEST',422);
+    if(path==='live/connected'&&only(body,['noticeVersion','callId'])){
+      const deadline=await expiry(id);
+      if(await get('started:'+session+':'+id))return {connected:true};
+      const h=await holds(id);
+      if(!h||await store(['EVAL',CONFIRM_LIVE_START,'2',key(h[0]),key(h[1]),id,String(Math.max(1,Math.ceil((h[2]-Date.now())/1000)))])!==1)invalid('EDEN_LIVE_SETUP_EXPIRED',409);
+      await reserve('started:'+session+':'+id,id,Math.max(1,Math.ceil((deadline-Date.now())/1000)));
+      return {connected:true};
+    }
     if(path==='live/end'&&only(body,['noticeVersion','callId'])){
       // Only a session holding this call may release its visitor reservation.
       // Keep the independent provider seat until the issued credential expires.
-      if(await store(['GETDEL',key(callKey(id))])!==null)
-        await store(['EVAL',RELEASE_LIVE_RESERVATION,'1',key('owner:'+binding),id]);
+      if(await store(['GETDEL',key(callKey(id))])!==null){
+        const h=await holds(id);
+        await Promise.all([release('owner:'+binding,id),...(h?[release(h[0],id),release(h[1],id)]:[])]);
+      }
       return {ended:true};
     }
     const ttl=Math.ceil(((await expiry(id))-Date.now())/1000);
+    if(!await get('started:'+session+':'+id))invalid('EDEN_LIVE_SETUP_EXPIRED',409);
     if(!ctx||ctx.directory!=='public'||ctx.synthetic||typeof body.id!=='string'||!/^[\w.:-]{1,128}$/.test(body.id))throw new EdenLiveError('EDEN_LIVE_INVALID_TOOL',422);
     if(path==='live/tool'&&only(body,['noticeVersion','callId','id','name','args','context'])){
       const tool=validateEdenLiveToolCall({id:body.id,name:body.name,args:body.args});

@@ -127,6 +127,10 @@ export function mountHostedLive(host:HTMLElement,o:Options){
       }
       return credential;
     },
+    async confirmSetup(callId,signal){
+      const confirmed=await api('live/connected',{callId,noticeVersion:EDEN_NOTICE_VERSION},signal);
+      if(confirmed?.connected!==true)throw new EdenLiveServiceError('application',503,'EDEN_LIVE_SETUP_EXPIRED');
+    },
     releaseToken:release,
     async onToolCall(tool,signal){
       if(!executor)throw Error('Call ended.');

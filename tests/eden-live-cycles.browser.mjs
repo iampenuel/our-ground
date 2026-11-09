@@ -22,6 +22,7 @@ try{
    if(leases.size)throw Error('Overlapping fixture lease');minted++;const callId=randomBytes(32).toString('base64url');leases.add(callId);
    return r.fulfill({headers:{date:new Date().toUTCString()},json:{token:'auth_tokens/fixture-only',model:EDEN_LIVE_MODEL,voiceName:'Aoede',callId,maxCallSeconds:595,expiresAt:new Date(Date.now()+595000).toISOString(),newSessionExpiresAt:new Date(Date.now()+55000).toISOString(),config:{...buildEdenLiveConfig({directory:true}),...(baseline?{temperature:.3}:{})}}});
  });
+ await p.route(origin+'/api/v1/eden/hosted/live/connected',r=>{assert(leases.has(r.request().postDataJSON().callId));return r.fulfill({json:{connected:true}});});
  await p.route(origin+'/api/v1/eden/hosted/live/end',r=>{assert(leases.delete(r.request().postDataJSON().callId));return r.fulfill({json:{ended:true}});});
  const pcm=Buffer.alloc(9600);for(let i=0;i<pcm.length/2;i++)pcm.writeInt16LE(Math.round(3000*Math.sin(i/12)),i*2);
  await context.routeWebSocket(/wss:\/\/generativelanguage\.googleapis\.com\//,ws=>{

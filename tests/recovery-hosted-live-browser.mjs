@@ -7,6 +7,7 @@ import {chromium} from 'playwright-core';
 import {mkdir,writeFile,readFile,rename} from 'node:fs/promises';
 import {join} from 'node:path';
 import {protectRecoveryOrigin} from './recovery-origin.mjs';
+import {probeOverlap} from './eden-live-overlap-probe.mjs';
 const origin=new URL(process.env.RECOVERY_BASE).origin,out=process.env.RECOVERY_IMAGES,sha=process.env.RECOVERY_SHA;
 assert(out&&/^[a-f0-9]{40}$/.test(sha));
 await mkdir(out,{recursive:true});
@@ -17,6 +18,11 @@ const p=await ctx.newPage();p.setDefaultTimeout(20000);
 const receipt={origin,sha,input:'Locally spoken public phrases injected at browser microphone boundary',status:'FAIL',http:[],audioInputChunks:0,audioOutputChunks:0,providerTurns:0,tools:[],turns:[],errors:[]};
 let interruptedResponseEnding=false,output='',input='',activeStep='loading',audioStartAt=0;
 p.on('pageerror',e=>receipt.errors.push(e.name));
+let overlap;
+p.on('response',r=>{
+ if(process.env.EDEN_QA_TEAM_OVERLAP==='1'&&!overlap&&r.url()===origin+'/api/v1/eden/hosted/live/connected'&&r.status()===200)
+   overlap=probeOverlap(origin,process.env.VERCEL_OIDC_TOKEN,()=>p.evaluate(()=>window.qaWire.sockets===1&&!window.qaWire.close.length)).catch(()=>({status:'FAIL',stage:'probe-transport'}));
+});
 p.on('response',async r=>{const u=new URL(r.url());if(u.origin===origin&&u.pathname.includes('/eden/hosted/'))receipt.http.push({path:u.pathname.split('/hosted/')[1],status:r.status()});if(u.origin===origin&&u.pathname.endsWith('/hosted/live/token')&&r.ok()){const t=await r.json();receipt.tokenCheck={validOnUncorrectedDeviceClock:!!validateEdenLiveTokenResponse(t),validOnIssuerClock:!!validateHostedLiveClock(t,r.headers().date,0),config:!!validateEdenLiveConfig(t.config),fields:Object.keys(t).length,model:t.model,voice:t.voiceName,maxSeconds:t.maxCallSeconds,expiresInMs:Date.parse(t.expiresAt)-Date.now(),connectInMs:Date.parse(t.newSessionExpiresAt)-Date.now()};}});
 p.on('websocket',ws=>{
  if(new URL(ws.url()).hostname!=='generativelanguage.googleapis.com')return;
@@ -198,6 +204,8 @@ try{
  receipt.status='PASS';
 }catch(e){process.exitCode=1;receipt.failedAt=activeStep;receipt.failure=String(e.message).split('\n')[0].slice(0,240);receipt.ui=await p.locator('[data-live-state]').innerText().catch(()=>'');}
 finally{
+ if(process.env.EDEN_QA_TEAM_OVERLAP==='1'){receipt.teamOverlap=await overlap??{status:'BLOCKED',stage:'primary-setup'};
+   if(receipt.teamOverlap.status!=='PASS')process.exitCode=1;}
  receipt.partialProviderInput=input.slice(0,160); // Test-generated public phrases only.
  receipt.partialProviderReply=output.slice(0,400);
  receipt.firstDetailOpen=await p.locator('[data-card-key^="directory:"]').first().locator('[data-resource-content]:visible').count().then(n=>n>0).catch(()=>false);
