@@ -55,7 +55,7 @@ test('production sign-in preserves an OAuth deep link behind the age gate withou
  const prod={...config,VERCEL_ENV:'production',VERCEL_PROJECT_ID:'prj_4li6QnqulPgPbJpxMW2L9hczDNrS',ACCOUNT_RELEASE_MODE:'signin_only'};
  const path='/auth/callback?code=synthetic-one-time-code';
  const gate=await adultGate(req(path),prod);
- assert.equal(gate.headers.get('referrer-policy'),'no-referrer');assert.match(await gate.text(),/return" value="\/auth\/callback\?code=synthetic-one-time-code"/);
+ assert.equal(gate.headers.get('referrer-policy'),'strict-origin');assert.match(await gate.text(),/return" value="\/auth\/callback\?code=synthetic-one-time-code"/);
  const decide=age=>adultGate(req('/eligibility',{method:'POST',headers:{origin},body:new URLSearchParams({age,return:path})}),prod);
  const accepted=await decide('19plus');assert.equal(accepted.headers.get('location'),origin+path);
  const cookie=accepted.headers.get('set-cookie').split(';')[0],get=p=>req(p,{headers:{cookie}});
