@@ -1,6 +1,6 @@
 # Our Ground production cutover — prepared, not executed
 
-**HOLD:** physical Live acceptance has failed on the earlier runtime. See the [current staging evidence and remaining release gates](eden-physical-audio-recovery.md). No production change or merge is authorized.
+**HOLD:** physical Live acceptance failed on the earlier runtime. The [current protected capacity verification](eden-live-team-capacity.md) confirmed two concurrent setups; spoken output after a completed directory action failed. See also the [earlier physical and authentication evidence](eden-physical-audio-recovery.md). No production change or merge is authorized.
 
 Production is **ourground**, project `prj_4li6QnqulPgPbJpxMW2L9hczDNrS`, team `team_7zBDrVIlwYth2sXkAbBPcbYw`. The destination is [ourground.vercel.app](https://ourground.vercel.app). At the read-only inspection it served deployment `dpl_5BLDMWteSXZ8ju8VVcfXttiUQBiq`, immutable host `ourground-mylhs0hjm-penuels-projects-aa802b06.vercel.app`, SHA `33574bd80666d67a26a0765bf42a72fa5627fc7f`. A final read-only Vercel alias lookup confirmed the same production deployment and Git SHA. The anonymous public manifest URL served HTML on this baseline, so it cannot independently attest the commit. Recheck the alias and deployment metadata immediately before cutover. Staging is a different Vercel project and a different database. Promoting a staging deployment is not a production release.
 

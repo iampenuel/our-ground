@@ -1,0 +1,44 @@
+{
+  "before": {
+    "dateUTC": "2026-11-09",
+    "checkedAt": "2026-11-09T01:53:27.549Z",
+    "confirmed": 0,
+    "provisional": 0,
+    "held": 0,
+    "lastexpiryseconds": 0,
+    "attempts": 6
+  },
+  "afterSessions": {
+    "dateUTC": "2026-11-09",
+    "checkedAt": "2026-11-09T01:56:24.984Z",
+    "confirmed": 2,
+    "provisional": 0,
+    "held": 2,
+    "lastexpiryseconds": 495,
+    "attempts": 8
+  },
+  "thirdAdmission": {
+    "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+    "sha": "d4e26c0529698516d4de7c24a1ee755e09ebeb16",
+    "status": "PASS",
+    "seatsBefore": 2,
+    "earliestExpirySeconds": 386,
+    "http": 429,
+    "retrySeconds": 386,
+    "code": "EDEN_LIVE_CAPACITY"
+  },
+  "afterDenial": {
+    "dateUTC": "2026-11-09",
+    "checkedAt": "2026-11-09T01:58:13.186Z",
+    "confirmed": 2,
+    "provisional": 0,
+    "held": 2,
+    "lastexpiryseconds": 387,
+    "attempts": 8
+  },
+  "comparison": {
+    "newGoogleMintAttempts": 2,
+    "newConfirmedCalls": 2,
+    "attemptsChargedToDeniedThirdBrowser": 0
+  }
+}
