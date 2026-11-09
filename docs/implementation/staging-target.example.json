@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "owner_approval_reference": "",
+  "vercel": {
+    "team_id": "REPLACE_ME_EXACT_TEAM_ID",
+    "project_id": "REPLACE_ME_NEW_DEDICATED_STAGING_PROJECT_ID",
+    "deployment_target": "preview",
+    "origin": "https://REPLACE_ME.invalid"
+  },
+  "supabase": {
+    "project_ref": "REPLACE_ME_STAGING_PROJECT_REF",
+    "production_project_ref": "REPLACE_ME_REVIEWED_PRODUCTION_REF",
+    "production_auth_confirmed_unused": false,
+    "production_evidence_reference": ""
+  },
+  "redis": {
+    "isolation": "dedicated-instance",
+    "endpoint_host": "REPLACE_ME.upstash.io"
+  }
+}

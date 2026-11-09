@@ -1,0 +1,67 @@
+{
+  "at": "2026-11-09T12:52:17.071Z",
+  "origin": "https://ourground.vercel.app",
+  "readOnly": true,
+  "checks": [
+    {
+      "path": "/",
+      "method": "GET",
+      "status": 200,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "private, no-store",
+        "strict-transport-security": "max-age=31536000",
+        "content-security-policy": "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-elem 'self'; style-src-attr 'none'; img-src 'self' data: blob: https://maps.geoapify.com; font-src 'self'; worker-src 'self' blob:; connect-src 'self' https://api.geoapify.com https://maps.geoapify.com; manifest-src 'self'; frame-src 'none'; media-src blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+        "x-content-type-options": "nosniff"
+      }
+    },
+    {
+      "path": "/account",
+      "method": "GET",
+      "status": 200,
+      "headers": {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "private, no-store",
+        "strict-transport-security": "max-age=31536000",
+        "content-security-policy": "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-elem 'self'; style-src-attr 'none'; img-src 'self' data: blob: https://maps.geoapify.com; font-src 'self'; worker-src 'self' blob:; connect-src 'self' https://api.geoapify.com https://maps.geoapify.com; manifest-src 'self'; frame-src 'none'; media-src blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+        "x-content-type-options": "nosniff"
+      }
+    },
+    {
+      "path": "/api/v1/org/me",
+      "method": "GET",
+      "status": 403,
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "private, no-store",
+        "strict-transport-security": "max-age=31536000",
+        "content-security-policy": "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-elem 'self'; style-src-attr 'none'; img-src 'self' data: blob: https://maps.geoapify.com; font-src 'self'; worker-src 'self' blob:; connect-src 'self' https://api.geoapify.com https://maps.geoapify.com; manifest-src 'self'; frame-src 'none'; media-src blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+        "x-content-type-options": "nosniff"
+      }
+    },
+    {
+      "path": "/api/v1/locations/status",
+      "method": "GET",
+      "status": 403,
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "private, no-store",
+        "strict-transport-security": "max-age=31536000",
+        "content-security-policy": "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-elem 'self'; style-src-attr 'none'; img-src 'self' data: blob: https://maps.geoapify.com; font-src 'self'; worker-src 'self' blob:; connect-src 'self' https://api.geoapify.com https://maps.geoapify.com; manifest-src 'self'; frame-src 'none'; media-src blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+        "x-content-type-options": "nosniff"
+      }
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "method": "OPTIONS",
+      "status": 403,
+      "headers": {
+        "content-type": "application/json",
+        "cache-control": "private, no-store",
+        "strict-transport-security": "max-age=31536000",
+        "content-security-policy": "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-elem 'self'; style-src-attr 'none'; img-src 'self' data: blob: https://maps.geoapify.com; font-src 'self'; worker-src 'self' blob:; connect-src 'self' https://api.geoapify.com https://maps.geoapify.com; manifest-src 'self'; frame-src 'none'; media-src blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+        "x-content-type-options": "nosniff"
+      }
+    }
+  ]
+}

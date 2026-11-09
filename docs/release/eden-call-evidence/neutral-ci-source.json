@@ -1,0 +1,17 @@
+{
+  "sourceSha": "e58a5521f1f1b36be788916ef0883b8399fd3542",
+  "checks": [
+    {
+      "bucket": "pass",
+      "link": "https://github.com/iampenuel/our-ground/actions/runs/42621464307/job/129174408977",
+      "name": "verify",
+      "state": "SUCCESS"
+    },
+    {
+      "bucket": "pass",
+      "link": "https://github.com/iampenuel/our-ground/actions/runs/42621456785/job/129174379853",
+      "name": "verify",
+      "state": "SUCCESS"
+    }
+  ]
+}

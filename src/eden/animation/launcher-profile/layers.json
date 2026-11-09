@@ -1,0 +1,103 @@
+{
+  "sourceSha256": "d9638364ebe98f041a4011ee7625debac1f6fc708122018325918d7d6e409326",
+  "size": 282,
+  "restPixelDifferences": 0,
+  "pivots": {
+    "head": [
+      151,
+      214
+    ],
+    "body": [
+      143,
+      282
+    ],
+    "hair": [
+      140,
+      94
+    ],
+    "leftEarring": [
+      108,
+      163
+    ],
+    "rightEarring": [
+      200,
+      164
+    ]
+  },
+  "layers": {
+    "background": {
+      "file": "assets/background.png",
+      "pixels": 62325
+    },
+    "body": {
+      "file": "assets/body.png",
+      "pixels": 15730
+    },
+    "head": {
+      "file": "assets/head.png",
+      "pixels": 22714
+    },
+    "eye-left": {
+      "file": "assets/eye-left.png",
+      "pixels": 412
+    },
+    "eye-right": {
+      "file": "assets/eye-right.png",
+      "pixels": 356
+    },
+    "hair-front": {
+      "file": "assets/hair-front.png",
+      "pixels": 2015
+    },
+    "earring-left": {
+      "file": "assets/earring-left.png",
+      "pixels": 433
+    },
+    "earring-right": {
+      "file": "assets/earring-right.png",
+      "pixels": 267
+    }
+  },
+  "eyes": {
+    "left": {
+      "aperture": [
+        131,
+        127,
+        31,
+        20
+      ],
+      "pupilClip": [
+        140,
+        133,
+        22,
+        14
+      ],
+      "lashClip": [
+        0,
+        0,
+        282,
+        135
+      ]
+    },
+    "right": {
+      "aperture": [
+        175,
+        126,
+        26,
+        20
+      ],
+      "pupilClip": [
+        176,
+        132,
+        19,
+        15
+      ],
+      "lashClip": [
+        0,
+        0,
+        282,
+        134
+      ]
+    }
+  }
+}

@@ -1,0 +1,366 @@
+{
+  "origin": "https://ourground-staging-c87obfk6q-penuels-projects-aa802b06.vercel.app",
+  "sha": "08b1685d42b4ec6285433f7d84a5f20aec3c194a",
+  "input": "Locally spoken public phrases injected at browser microphone boundary",
+  "status": "FAIL",
+  "http": [
+    {
+      "path": "session",
+      "status": 200,
+      "atMs": 3340
+    },
+    {
+      "path": "live/token",
+      "status": 409,
+      "atMs": 3347
+    },
+    {
+      "path": "live/token",
+      "status": 200,
+      "atMs": 4789
+    },
+    {
+      "path": "live/connected",
+      "status": 200,
+      "atMs": 5772
+    },
+    {
+      "path": "live/end",
+      "status": 200,
+      "atMs": 95011
+    }
+  ],
+  "audioInputChunks": 4434,
+  "audioOutputChunks": 60,
+  "providerTurns": 2,
+  "tools": [],
+  "turns": [
+    {
+      "step": "introduction",
+      "input": "",
+      "reply": "Hi! I'm Eden. I can help you find food, healthcare, and community resources. You can ask me something like, \"Find food support near Harrisburg.\" What would you like to explore?"
+    },
+    {
+      "step": "identity",
+      "input": "Who are you?",
+      "reply": "I'm Eden, your community-resource navigation assistant. I can help you find public food, healthcare, and community resources."
+    }
+  ],
+  "errors": [],
+  "transportFailures": [],
+  "toolTimeline": [],
+  "workletHTTP": 200,
+  "deniedRetryFixture": {
+    "http": 409,
+    "stage": "token-request",
+    "stoppedTrack": true,
+    "reference": "64d7df96-d17d-4a0c-bafd-d76740ad9de8"
+  },
+  "preflight": {
+    "advance": 0.42133333333333334,
+    "peak": 0.07999999821186066
+  },
+  "tokenCheck": {
+    "validOnUncorrectedDeviceClock": false,
+    "validOnIssuerClock": true,
+    "config": true,
+    "fields": 8,
+    "model": "gemini-3.8-live",
+    "voice": "Aoede",
+    "maxSeconds": 599,
+    "expiresInMs": 518505,
+    "connectInMs": -21340
+  },
+  "temperature": 1,
+  "requestedModel": "models/gemini-3.8-live",
+  "requestedVoice": "Aoede",
+  "providerByStep": {
+    "introduction": {
+      "frames": 76,
+      "input": 0,
+      "interim": 0,
+      "output": 9,
+      "audio": 35,
+      "tools": 0,
+      "waiting": 0,
+      "generated": 1,
+      "completed": 1,
+      "interrupted": 0,
+      "tinyPCM": 1,
+      "outputSamples": 258481,
+      "outputPeak": 0.73089599609375
+    },
+    "identity": {
+      "frames": 57,
+      "input": 1,
+      "interim": 0,
+      "output": 7,
+      "audio": 25,
+      "tools": 0,
+      "waiting": 0,
+      "generated": 1,
+      "completed": 1,
+      "interrupted": 0,
+      "tinyPCM": 1,
+      "outputSamples": 192721,
+      "outputPeak": 0.83685302734375
+    }
+  },
+  "setupComplete": true,
+  "sentSignal": {
+    "introduction": {
+      "packets": 587,
+      "nonSilent": 0,
+      "maxRms": 0
+    },
+    "identity": {
+      "packets": 506,
+      "nonSilent": 26,
+      "maxRms": 0.24218027620588334
+    },
+    "search": {
+      "packets": 3341,
+      "nonSilent": 67,
+      "maxRms": 0.25361207615115644
+    }
+  },
+  "muteUnmute": true,
+  "observations": {
+    "identity": true
+  },
+  "failedAt": "search",
+  "failure": "No meaningful spoken search description before interruption",
+  "ui": "No answer came back for that turn. You can continue speaking or use text.",
+  "partialProviderInput": "",
+  "partialProviderReply": "",
+  "firstDetailOpen": false,
+  "graphPeakByStep": {
+    "introduction": 0.316425907421462,
+    "identity": 0.46418583526428014,
+    "search": 0
+  },
+  "audiblePlaybackMsByStep": {
+    "introduction": 7600,
+    "identity": 6450
+  },
+  "playerPeakRms": 0.46418583526428014,
+  "playerClock": {
+    "initial": 0,
+    "last": 90.47466666666666,
+    "ticks": 1810,
+    "state": "running"
+  },
+  "cursor": [],
+  "paintMarks": [],
+  "cursorPhases": [],
+  "endHTTP": 200,
+  "diagnostics": [
+    {
+      "reference": "64d7df96-d17d-4a0c-bafd-d76740ad9de8",
+      "model": "gemini-3.8-live",
+      "phase": "error",
+      "stage": "connecting",
+      "failure": "token-request",
+      "preparation": "ready",
+      "tokenHTTP": 409,
+      "service": "EDEN_LIVE_CALL_ACTIVE",
+      "serviceHTTP": 409,
+      "setup": false,
+      "provider": "none",
+      "capture": {
+        "workletFrames": 0,
+        "signalFrames": 0,
+        "peakRms": 0,
+        "encoded": 0,
+        "dropped": 0,
+        "sentWithSignal": 0,
+        "firstFrameMs": -1,
+        "lastFrameMs": -1,
+        "firstSentMs": -1,
+        "lastSentMs": -1,
+        "serverStarts": 0,
+        "serverEnds": 0,
+        "inputCaptions": 0,
+        "interimCaptions": 0,
+        "outputCaptions": 0,
+        "serverInterruptions": 0,
+        "suppressedAudio": 0
+      },
+      "deviceAtStop": {
+        "permissionGranted": true,
+        "workletReady": true,
+        "trackEnabled": true,
+        "trackMuted": false,
+        "trackLive": true,
+        "channels": 2,
+        "rate": 48000
+      },
+      "replies": [
+        {
+          "turn": 0,
+          "caption": false,
+          "chunks": 0,
+          "bytes": 0,
+          "samples": 0,
+          "peak": 0,
+          "scheduled": 0,
+          "ended": 0,
+          "graphPeakRms": 0,
+          "renderedMs": 0,
+          "cancelledMs": 0,
+          "generated": false,
+          "completed": false,
+          "interrupted": false,
+          "durationMs": 0,
+          "rms": 0,
+          "nonzeroRatio": 0,
+          "usable": false
+        }
+      ],
+      "generationComplete": 0,
+      "waitingForInput": 0,
+      "lastEvent": "token",
+      "completedTurns": 0,
+      "toolsReceived": 0,
+      "toolHandoffs": [],
+      "inputChunks": 0,
+      "audioChunks": 0,
+      "decodedChunks": 0,
+      "inputContext": "running",
+      "outputContext": "running",
+      "playbacks": 0,
+      "spokenInterruptions": 0,
+      "unansweredTurns": 0,
+      "inputStreamEnds": 0,
+      "microphoneActive": false
+    },
+    {
+      "reference": "e2921035-961c-42b1-9f55-c48f2b9356d8",
+      "model": "gemini-3.8-live",
+      "phase": "ended",
+      "stage": "ended",
+      "failure": "none",
+      "preparation": "ready",
+      "tokenHTTP": 200,
+      "setup": true,
+      "provider": "none",
+      "capture": {
+        "workletFrames": 4165,
+        "signalFrames": 87,
+        "peakRms": 0.2594881591012274,
+        "encoded": 4434,
+        "dropped": 0,
+        "sentWithSignal": 93,
+        "firstFrameMs": 1652,
+        "lastFrameMs": 90556,
+        "firstSentMs": 1652,
+        "lastSentMs": 90556,
+        "serverStarts": 0,
+        "serverEnds": 0,
+        "inputCaptions": 1,
+        "interimCaptions": 0,
+        "outputCaptions": 16,
+        "serverInterruptions": 0,
+        "suppressedAudio": 0
+      },
+      "deviceAtStop": {
+        "permissionGranted": true,
+        "workletReady": true,
+        "trackEnabled": true,
+        "trackMuted": false,
+        "trackLive": true,
+        "channels": 2,
+        "rate": 48000
+      },
+      "replies": [
+        {
+          "turn": 0,
+          "caption": true,
+          "chunks": 35,
+          "bytes": 516962,
+          "samples": 258481,
+          "peak": 0.73089599609375,
+          "scheduled": 34,
+          "ended": 34,
+          "graphPeakRms": 0.31976652069053285,
+          "renderedMs": 10769.999999999998,
+          "cancelledMs": 0,
+          "generated": true,
+          "completed": true,
+          "interrupted": false,
+          "durationMs": 10770,
+          "rms": 0.12254815070126521,
+          "nonzeroRatio": 0.9866179719205667,
+          "usable": true
+        },
+        {
+          "turn": 1,
+          "caption": true,
+          "chunks": 25,
+          "bytes": 385442,
+          "samples": 192721,
+          "peak": 0.83685302734375,
+          "scheduled": 24,
+          "ended": 24,
+          "graphPeakRms": 0.46795696560218475,
+          "renderedMs": 8029.999999999995,
+          "cancelledMs": 0,
+          "generated": true,
+          "completed": true,
+          "interrupted": false,
+          "durationMs": 8030,
+          "rms": 0.14817699848577484,
+          "nonzeroRatio": 0.9905459187115052,
+          "usable": true
+        },
+        {
+          "turn": 2,
+          "caption": false,
+          "chunks": 0,
+          "bytes": 0,
+          "samples": 0,
+          "peak": 0,
+          "scheduled": 0,
+          "ended": 0,
+          "graphPeakRms": 0,
+          "renderedMs": 0,
+          "cancelledMs": 0,
+          "generated": false,
+          "completed": false,
+          "interrupted": false,
+          "durationMs": 0,
+          "rms": 0,
+          "nonzeroRatio": 0,
+          "usable": false
+        }
+      ],
+      "generationComplete": 2,
+      "waitingForInput": 0,
+      "lastEvent": "turn-complete",
+      "completedTurns": 2,
+      "toolsReceived": 0,
+      "toolHandoffs": [],
+      "inputChunks": 4434,
+      "audioChunks": 60,
+      "decodedChunks": 60,
+      "inputContext": "running",
+      "outputContext": "running",
+      "playbacks": 10,
+      "spokenInterruptions": 0,
+      "unansweredTurns": 1,
+      "inputStreamEnds": 1,
+      "microphoneActive": false,
+      "ended": "user",
+      "endHTTP": 200
+    }
+  ],
+  "micReleased": true,
+  "wire": {
+    "sockets": 1,
+    "policy": [],
+    "close": [
+      1000
+    ]
+  },
+  "audioCaptureStartMs": 4205.300000000745
+}

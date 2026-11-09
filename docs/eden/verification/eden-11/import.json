@@ -1,0 +1,422 @@
+{
+  "project": "hrmocmvdmshoghclxyjs",
+  "recorded_at": "2026-11-07T22:58:14.366Z",
+  "baseline": {
+    "role": "postgres",
+    "db": "postgres",
+    "bytes": "66574003",
+    "services": 3,
+    "migrations": 15
+  },
+  "after_bytes": "68146867",
+  "health": {
+    "source_rows": 40,
+    "accepted": 40,
+    "excluded": 0,
+    "exclusion_reasons": {},
+    "states": {
+      "PA": 40
+    },
+    "category": "healthcare",
+    "created": 40,
+    "updated": 0,
+    "needs_review": 0,
+    "privacy_withdrawals": 0,
+    "marked_stale": 0,
+    "checksum": "e67f68397dbb226b8d23bfb5e544be2f7b6c5045ecb83bcc119aa81d0545bcad",
+    "source_updated_at": "2026-11-06T00:00:00.000Z",
+    "full_snapshot": false,
+    "run_id": "10f56dd5-47e0-4b60-89ef-8468c4193313",
+    "dry_run": false
+  },
+  "food": {
+    "source_rows": 404,
+    "accepted": 324,
+    "excluded": 80,
+    "exclusion_reasons": {
+      "inactive": 6,
+      "not_food_assistance": 26,
+      "duplicate_identity": 2,
+      "coordinate_conflict": 45,
+      "unresolved_city_scope": 1
+    },
+    "states": {
+      "PA": 324
+    },
+    "category": "food",
+    "coordinate_quality": {
+      "policy": "regional-food-coordinate-anomalies-v2",
+      "city_anomaly_threshold_miles": 20,
+      "address_point_spread_threshold_miles": 1,
+      "reference_source": "census-gazetteer-2026",
+      "reference_fingerprint": "097f08b95714fbf5b6f86909b75818c51acd1a13652e56642eaed5882b8ccb16",
+      "checked_records": 372,
+      "quarantined_records": 46,
+      "quarantine_reasons": {
+        "unresolved_city_scope": 1,
+        "same_point_conflicting_addresses": 25,
+        "same_address_points_over_1_mile_apart": 31
+      },
+      "unmatched_city_records": 0,
+      "ambiguous_city_records": 0,
+      "unmatched_record_ids": [],
+      "quarantined": [
+        {
+          "record_id": "109",
+          "reasons": [
+            "same_address_points_over_1_mile_apart",
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "111",
+          "reasons": [
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "142",
+          "reasons": [
+            "same_address_points_over_1_mile_apart",
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "146",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "148",
+          "reasons": [
+            "unresolved_city_scope"
+          ]
+        },
+        {
+          "record_id": "167",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "177",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "179",
+          "reasons": [
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "190",
+          "reasons": [
+            "same_address_points_over_1_mile_apart",
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "196",
+          "reasons": [
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "22",
+          "reasons": [
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "23",
+          "reasons": [
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "235",
+          "reasons": [
+            "same_address_points_over_1_mile_apart",
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "24",
+          "reasons": [
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "242",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "243",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "258",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "272",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "275",
+          "reasons": [
+            "same_address_points_over_1_mile_apart",
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "276",
+          "reasons": [
+            "same_address_points_over_1_mile_apart",
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "281",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "294",
+          "reasons": [
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "319",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "321",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "328",
+          "reasons": [
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "331",
+          "reasons": [
+            "same_address_points_over_1_mile_apart",
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "332",
+          "reasons": [
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "334",
+          "reasons": [
+            "same_address_points_over_1_mile_apart",
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "335",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "336",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "340",
+          "reasons": [
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "343",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "354",
+          "reasons": [
+            "same_address_points_over_1_mile_apart",
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "355",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "357",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "358",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "378",
+          "reasons": [
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "384",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "386",
+          "reasons": [
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "387",
+          "reasons": [
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "391",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "392",
+          "reasons": [
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "403",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "68",
+          "reasons": [
+            "same_address_points_over_1_mile_apart"
+          ]
+        },
+        {
+          "record_id": "69",
+          "reasons": [
+            "same_address_points_over_1_mile_apart",
+            "same_point_conflicting_addresses"
+          ]
+        },
+        {
+          "record_id": "93",
+          "reasons": [
+            "same_address_points_over_1_mile_apart",
+            "same_point_conflicting_addresses"
+          ]
+        }
+      ]
+    },
+    "created": 324,
+    "updated": 0,
+    "needs_review": 0,
+    "privacy_withdrawals": 0,
+    "new_coordinate_quarantines": 0,
+    "marked_stale": 0,
+    "checksum": "31d6ad668a6aab26c80f59ea91b7d74628040ede00ea1526ff90f70f6a3f9140",
+    "source_updated_at": "2026-11-05T16:54:29.474Z",
+    "full_snapshot": false,
+    "run_id": "088f5239-f7f6-4ec7-a5a8-68f38a0bfc06",
+    "dry_run": false
+  },
+  "byCity": {
+    "Philadelphia": {
+      "food": 324,
+      "healthcare": 4
+    },
+    "Wellsboro": {
+      "healthcare": 2
+    },
+    "Steelton": {
+      "healthcare": 1
+    },
+    "Harrisburg": {
+      "healthcare": 1
+    },
+    "Mechanicsburg": {
+      "healthcare": 1
+    },
+    "Pittsburgh": {
+      "healthcare": 5
+    },
+    "Allentown": {
+      "healthcare": 2
+    },
+    "Erie": {
+      "healthcare": 4
+    },
+    "Williamsport": {
+      "healthcare": 2
+    },
+    "Johnstown": {
+      "healthcare": 3
+    },
+    "Scranton": {
+      "healthcare": 3
+    },
+    "Reading": {
+      "healthcare": 3
+    },
+    "York": {
+      "healthcare": 2
+    },
+    "Lancaster": {
+      "healthcare": 5
+    },
+    "Huntingdon": {
+      "healthcare": 5
+    }
+  },
+  "checked_public_rows": 367,
+  "verified_fields": [
+    "category",
+    "source ID, URL, date",
+    "PA street/city",
+    "original coordinates",
+    "imported_unverified",
+    "Philadelphia credit and license"
+  ]
+}

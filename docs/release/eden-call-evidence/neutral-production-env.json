@@ -1,0 +1,198 @@
+{
+  "at": "2026-11-09T12:49:07.207Z",
+  "project": "ourground",
+  "readOnly": true,
+  "hiddenProductionEnvCount": 0,
+  "variables": [
+    {
+      "key": "SUPABASE_URL",
+      "present": false
+    },
+    {
+      "key": "VITE_SUPABASE_URL",
+      "present": false
+    },
+    {
+      "key": "SUPABASE_PUBLISHABLE_KEY",
+      "present": false
+    },
+    {
+      "key": "VITE_SUPABASE_PUBLISHABLE_KEY",
+      "present": false
+    },
+    {
+      "key": "VITE_GOOGLE_AUTH_ENABLED",
+      "present": false
+    },
+    {
+      "key": "VITE_ACCOUNT_ALLOWED_ORIGINS",
+      "present": false
+    },
+    {
+      "key": "ACCOUNT_ALLOWED_ORIGINS",
+      "present": true,
+      "type": "encrypted"
+    },
+    {
+      "key": "GEOAPIFY_LOCATION_ENABLED",
+      "present": false
+    },
+    {
+      "key": "GEOAPIFY_LOCATION_LIVE_APPROVED",
+      "present": false
+    },
+    {
+      "key": "GEOAPIFY_SERVER_API_KEY",
+      "present": true,
+      "type": "sensitive"
+    },
+    {
+      "key": "VITE_GEOAPIFY_BROWSER_KEY",
+      "present": true,
+      "type": "encrypted",
+      "restrictionsVerified": false
+    },
+    {
+      "key": "VITE_EDEN_HOSTED_LIVE",
+      "present": false
+    },
+    {
+      "key": "EDEN_LIVE_PRODUCTION_APPROVED",
+      "present": false
+    },
+    {
+      "key": "GEMINI_API_KEY",
+      "present": true,
+      "type": "sensitive"
+    },
+    {
+      "key": "EDEN_HOSTED_COMMANDS",
+      "present": true,
+      "type": "sensitive"
+    },
+    {
+      "key": "EDEN_GEMINI_FREE_TIER_CONFIRMED",
+      "present": true,
+      "type": "sensitive"
+    },
+    {
+      "key": "BACKEND_DATA_MODE",
+      "present": true,
+      "type": "encrypted"
+    },
+    {
+      "key": "ALLOW_DEMO_DATA",
+      "present": true,
+      "type": "encrypted"
+    },
+    {
+      "key": "RATE_LIMIT_BACKEND",
+      "present": true,
+      "type": "encrypted"
+    },
+    {
+      "key": "EDEN_LIVE_TEAM_STARTS_PER_DAY",
+      "present": false
+    },
+    {
+      "key": "EDEN_LIVE_TESTER_STARTS_PER_DAY",
+      "present": false
+    },
+    {
+      "key": "EDEN_LIVE_PROVIDER_ATTEMPTS_PER_DAY",
+      "present": false
+    },
+    {
+      "key": "EDEN_LIVE_TESTER_ATTEMPTS_PER_DAY",
+      "present": false
+    },
+    {
+      "key": "EDEN_LIVE_PROVIDER_SEATS",
+      "present": false
+    }
+  ],
+  "productionAlias": "ourground.vercel.app",
+  "productionDeploymentId": "dpl_5BLDMWteSXZ8ju8VVcfXttiUQBiq",
+  "stagingAlias": "ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "stagingDeploymentId": "dpl_7hMstZkryTKiKGXm2RjhCPDZYRHd",
+  "deploymentIdentity": {
+    "production": {
+      "target": "production",
+      "id": "dpl_5BLDMWteSXZ8ju8VVcfXttiUQBiq",
+      "url": "ourground-mylhs0hjm-penuels-projects-aa802b06.vercel.app",
+      "state": "READY",
+      "project": {
+        "id": "prj_4li6QnqulPgPbJpxMW2L9hczDNrS",
+        "name": "ourground",
+        "framework": "vite"
+      },
+      "sourceCommit": "33574bd80666d67a26a0765bf42a72fa5627fc7f",
+      "sourceBranch": "codex/adult-directory",
+      "gitSource": null
+    },
+    "staging": {
+      "target": "staging",
+      "id": "dpl_7hMstZkryTKiKGXm2RjhCPDZYRHd",
+      "url": "ourground-staging-c87obfk6q-penuels-projects-aa802b06.vercel.app",
+      "state": "READY",
+      "project": {
+        "id": "prj_eU9xRSetSQYTbkAce2cYIR5zx8c2",
+        "name": "ourground-staging",
+        "framework": "vite"
+      },
+      "sourceCommit": "08b1685d42b4ec6285433f7d84a5f20aec3c194a",
+      "sourceBranch": "codex/eden-ux-recovery-20261108",
+      "gitSource": null
+    }
+  },
+  "notes": [
+    "Read-only Vercel metadata used decrypt=false. No secret values retained.",
+    "Missing publishable project configuration prevents browser/provider auth qualification.",
+    "A public production auth key and Supabase management credentials were absent from the inspected existing production owner/runtime configuration. Google provider/Site URL settings remain unverified.",
+    "Owner-reported successful physical Chrome Live acceptance is accepted for the tested Berkeley/community/details/end scenario. Historical failures remain evidence but are not a current rewrite requirement."
+  ],
+  "git": {
+    "repository": "iampenuel/our-ground",
+    "defaultBranch": "main",
+    "pr": 3,
+    "prState": "OPEN",
+    "prDraft": true,
+    "prHead": "d7a12be95e66510c870b8c80da8696ef0784a4e0",
+    "prHeadBranch": "codex/eden-ux-recovery-20261108",
+    "prBaseBranch": "codex/adult-about-copy",
+    "automaticGitDeploymentsEnabled": false,
+    "scope": "Observed before the neutral CSS candidate is committed/deployed. Approved commit identity governs manual cutover."
+  },
+  "productionSourcePolicy": {
+    "liveEnabledByCurrentConfiguration": false,
+    "reason": "VITE_EDEN_HOSTED_LIVE and EDEN_LIVE_PRODUCTION_APPROVED are absent.",
+    "defaultLimits": {
+      "teamStarts": 24,
+      "testerStarts": 6,
+      "teamAttempts": 32,
+      "testerAttempts": 8,
+      "seats": 2,
+      "maxCallSeconds": 600
+    },
+    "providerCapacityVerified": false,
+    "notes": "Production policy defaults are code inspection, not a real production voice test. Sensitive flag values were not decrypted."
+  },
+  "supabaseAuthSettings": {
+    "verified": false,
+    "reason": "The production Vercel environment has no Supabase URL/publishable configuration. Existing production owner/runtime files inspected contain neither a public auth key nor Supabase management token. Provider settings and callback allowlists require the owner supported channel."
+  },
+  "ownerPhysicalAcceptance": {
+    "source": "Latest owner brief",
+    "status": "PASS for tested physical Chrome scenario",
+    "scenario": "Identity, audience, Berkeley search/category clarification/community results, first-listing details, follow-up questions and deliberate end",
+    "noNewLiveSessionConsumed": true
+  },
+  "geoapifyBrowserKey": {
+    "expectedVariable": "VITE_GEOAPIFY_BROWSER_KEY",
+    "present": true,
+    "type": "encrypted",
+    "valueDecrypted": false,
+    "restrictionsVerified": false,
+    "notes": "The existing production browser map key is present. Provider-dashboard origin, referrer and API-scope restrictions remain unverified."
+  }
+}

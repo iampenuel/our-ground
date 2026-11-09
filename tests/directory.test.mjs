@@ -20,10 +20,10 @@ test('fictional records cannot expose contact actions and unsafe sourced URLs ar
 test('database tools refuse mismatched targets and never infer a project from a password',()=>{
   const ref='abcdefghijklmnopqrst';
   const env={SUPABASE_DEV_PROJECT_REF:ref,SUPABASE_URL:'https://'+ref+'.supabase.co'};
-  assert.equal(developmentTarget('postgresql://postgres.'+ref+':secret@aws-1-us-east-1.pooler.supabase.com:5432/postgres',env).ref,ref);
-  assert.throws(()=>developmentTarget('postgresql://postgres.differentproject:secret@aws-1-us-east-1.pooler.supabase.com:5432/postgres',env));
-  assert.throws(()=>developmentTarget('postgresql://postgres.'+ref+':secret@attacker.invalid/postgres',env));
-  assert.throws(()=>developmentTarget('postgresql://postgres:secret@db.'+ref+'.supabase.co/postgres',{...env,SUPABASE_URL:'https://another.supabase.co'}));
+  assert.equal(developmentTarget('postgresql://postgres.'+ref+':REPLACE_ME_TEST_PASSWORD@aws-1-us-east-1.pooler.supabase.com:5432/postgres',env).ref,ref);
+  assert.throws(()=>developmentTarget('postgresql://postgres.differentproject:REPLACE_ME_TEST_PASSWORD@aws-1-us-east-1.pooler.supabase.com:5432/postgres',env));
+  assert.throws(()=>developmentTarget('postgresql://postgres.'+ref+':REPLACE_ME_TEST_PASSWORD@attacker.invalid/postgres',env));
+  assert.throws(()=>developmentTarget('postgresql://postgres:REPLACE_ME_TEST_PASSWORD@db.'+ref+'.supabase.co/postgres',{...env,SUPABASE_URL:'https://another.supabase.co'}));
 });
 test('browser environment guard rejects private credentials without printing their value',()=>{
   const value='postgresql://fixture:private-placeholder@invalid/test';

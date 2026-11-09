@@ -1,6 +1,14 @@
-node_modules/
-dist/
-output/
-.git/
+# Upload current application sources, never local secrets or validation artifacts.
 .env*
+!.env.example
+.git
+.agents
+.codex
+node_modules
+dist
+output
+tmp
+tests/eden-directory-browser.*
+docs
 *.log
+.DS_Store

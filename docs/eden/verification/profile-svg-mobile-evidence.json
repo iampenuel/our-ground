@@ -1,0 +1,41 @@
+{
+  "allOwnedSvg" : true,
+  "captures" : 587,
+  "durationMs" : 33065,
+  "featureFrameEnd" : 3085,
+  "featureFrameStart" : 1108,
+  "picks" : [
+    {
+      "eyeDarkPixels" : 7,
+      "frame" : 2,
+      "gazeCenter" : 41.857142857142854,
+      "label" : "eyes-open",
+      "noseCenter" : 45.25,
+      "timeMs" : 279
+    },
+    {
+      "eyeDarkPixels" : 0,
+      "frame" : 60,
+      "gazeCenter" : 0,
+      "label" : "blink-closed",
+      "noseCenter" : 0,
+      "timeMs" : 3575
+    },
+    {
+      "eyeDarkPixels" : 9,
+      "frame" : 33,
+      "gazeCenter" : 43.444444444444443,
+      "label" : "gaze",
+      "noseCenter" : 44,
+      "timeMs" : 2123
+    },
+    {
+      "eyeDarkPixels" : 7,
+      "frame" : 318,
+      "gazeCenter" : 40.571428571428569,
+      "label" : "head-tilt",
+      "noseCenter" : 47,
+      "timeMs" : 18888
+    }
+  ]
+}

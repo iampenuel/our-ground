@@ -1,0 +1,226 @@
+{
+  "origin": "http://127.0.0.1:4299",
+  "sha": null,
+  "scope": "controlled local location, directory and Gemini responses",
+  "cases": [
+    {
+      "input": "Lanham, Maryland",
+      "expectedLabel": "Lanham, MD",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "Lanham, MD",
+      "manualQuery": "Lanham, MD",
+      "manualCenter": [
+        38.968,
+        -76.863
+      ],
+      "edenCityId": "Lanham, MD",
+      "edenLocation": "Lanham, MD",
+      "edenQuery": "Lanham, MD",
+      "edenCenter": [
+        38.968,
+        -76.863
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 1
+    },
+    {
+      "input": "Harrisburg, Pennsylvania",
+      "expectedLabel": "Harrisburg, PA",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "Harrisburg, PA",
+      "manualQuery": "Harrisburg, PA",
+      "manualCenter": [
+        40.273,
+        -76.886
+      ],
+      "edenCityId": "harrisburg-pa",
+      "edenLocation": "Harrisburg, PA",
+      "edenQuery": "Harrisburg, PA",
+      "edenCenter": [
+        40.273,
+        -76.886
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 1
+    },
+    {
+      "input": "Berkeley, California",
+      "expectedLabel": "Berkeley, CA",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "Berkeley, CA",
+      "manualQuery": "Berkeley, CA",
+      "manualCenter": [
+        37.871,
+        -122.273
+      ],
+      "edenCityId": "Berkeley, CA",
+      "edenLocation": "Berkeley, CA",
+      "edenQuery": "Berkeley, CA",
+      "edenCenter": [
+        37.871,
+        -122.273
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 1
+    },
+    {
+      "input": "Baltimore, Maryland",
+      "expectedLabel": "Baltimore, MD",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "Baltimore, MD",
+      "manualQuery": "Baltimore, MD",
+      "manualCenter": [
+        39.29,
+        -76.612
+      ],
+      "edenCityId": "baltimore-md",
+      "edenLocation": "Baltimore, MD",
+      "edenQuery": "Baltimore, MD",
+      "edenCenter": [
+        39.29,
+        -76.612
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 1
+    },
+    {
+      "input": "New York City, New York",
+      "expectedLabel": "New York, NY",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "New York, NY",
+      "manualQuery": "New York, NY",
+      "manualCenter": [
+        40.713,
+        -74.006
+      ],
+      "edenCityId": "new-york-ny",
+      "edenLocation": "New York, NY",
+      "edenQuery": "New York, NY",
+      "edenCenter": [
+        40.713,
+        -74.006
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 1
+    },
+    {
+      "input": "Philadelphia, Pennsylvania",
+      "expectedLabel": "Philadelphia, PA",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "Philadelphia, PA",
+      "manualQuery": "Philadelphia, PA",
+      "manualCenter": [
+        39.953,
+        -75.164
+      ],
+      "edenCityId": "philadelphia-pa",
+      "edenLocation": "Philadelphia, PA",
+      "edenQuery": "Philadelphia, PA",
+      "edenCenter": [
+        39.953,
+        -75.164
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 1
+    },
+    {
+      "input": "San Francisco, California",
+      "expectedLabel": "San Francisco, CA",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "San Francisco, CA",
+      "manualQuery": "San Francisco, CA",
+      "manualCenter": [
+        37.775,
+        -122.419
+      ],
+      "edenCityId": "San Francisco, CA",
+      "edenLocation": "San Francisco, CA",
+      "edenQuery": "San Francisco, CA",
+      "edenCenter": [
+        37.775,
+        -122.419
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 1
+    },
+    {
+      "input": "San Fransisco, CA",
+      "expectedLabel": "San Francisco, CA",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "San Francisco, CA",
+      "manualQuery": "San Francisco, CA",
+      "manualCenter": [
+        37.775,
+        -122.419
+      ],
+      "edenCityId": "San Fransisco, CA",
+      "edenLocation": "San Francisco, CA",
+      "edenQuery": "San Francisco, CA",
+      "edenCenter": [
+        37.775,
+        -122.419
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 1
+    },
+    {
+      "input": "20706",
+      "expectedLabel": "20706",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "20706",
+      "manualQuery": "20706",
+      "manualCenter": [
+        38.97,
+        -76.85
+      ],
+      "edenCityId": "20706",
+      "edenLocation": "20706",
+      "edenQuery": "20706",
+      "edenCenter": [
+        38.97,
+        -76.85
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 1
+    },
+    {
+      "input": "Berkeley",
+      "expectedLabel": null,
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualOutcome": "clarification",
+      "edenOutcome": "clarification"
+    },
+    {
+      "input": "Monowi, NE",
+      "expectedLabel": "Monowi, NE",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "Monowi, NE",
+      "manualQuery": "Monowi, NE",
+      "manualCenter": [
+        42.83,
+        -98.33
+      ],
+      "edenCityId": "Monowi, NE",
+      "edenLocation": "Monowi, NE",
+      "edenQuery": "Monowi, NE",
+      "edenCenter": [
+        42.83,
+        -98.33
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 0
+    }
+  ],
+  "status": "PASS"
+}

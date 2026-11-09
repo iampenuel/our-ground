@@ -1,0 +1,398 @@
+{
+  "viewport": [
+    1365,
+    880
+  ],
+  "pass": true,
+  "unstarted": true,
+  "actions": [
+    {
+      "type": "read-results",
+      "status": "clarify",
+      "message": "No search has been run yet. Choose a location and search Find Support."
+    },
+    {
+      "type": "read-results",
+      "status": "unavailable",
+      "message": "The search for Food within 10 miles of Harrisburg, PA is still loading. I can read the results when it finishes."
+    },
+    {
+      "type": "search",
+      "status": "done",
+      "message": "The search completed: Food within 10 miles of Harrisburg, PA. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or adjust the filters, or switch to Healthcare."
+    },
+    {
+      "type": "read-results",
+      "status": "done",
+      "message": "The search completed: Food within 10 miles of Harrisburg, PA. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or adjust the filters, or switch to Healthcare."
+    },
+    {
+      "type": "read-results",
+      "status": "done",
+      "message": "The search completed: Food within 10 miles of Harrisburg, PA. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or adjust the filters, or switch to Healthcare."
+    },
+    {
+      "type": "radius",
+      "status": "done",
+      "message": "The search completed: Food within 5 miles of Harrisburg, PA. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or adjust the filters, or switch to Healthcare."
+    },
+    {
+      "type": "read-results",
+      "status": "done",
+      "message": "The search completed: Food within 5 miles of Harrisburg, PA. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or adjust the filters, or switch to Healthcare."
+    },
+    {
+      "type": "refine",
+      "status": "done",
+      "message": "The search completed: Healthcare within 5 miles of Harrisburg, PA. 2 matching directory listings; 2 loaded here. 1. HHC- South Allison Hill; 2. Hamilton Health Center Family Practice at Steelton. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "type": "read-results",
+      "status": "done",
+      "message": "The search completed: Healthcare within 5 miles of Harrisburg, PA. 2 matching directory listings; 2 loaded here. 1. HHC- South Allison Hill; 2. Hamilton Health Center Family Practice at Steelton. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "type": "radius",
+      "status": "done",
+      "message": "The search completed: Healthcare within 10 miles of Harrisburg, PA. 3 matching directory listings; 3 loaded here. 1. HHC- South Allison Hill; 2. Hamilton Health Center Family Practice at Steelton; 3. Sadler Health Center Corporation Mechanicsburg. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "type": "read-results",
+      "status": "done",
+      "message": "The search completed: Healthcare within 10 miles of Harrisburg, PA. 3 matching directory listings; 3 loaded here. 1. HHC- South Allison Hill; 2. Hamilton Health Center Family Practice at Steelton; 3. Sadler Health Center Corporation Mechanicsburg. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "type": "select",
+      "status": "done",
+      "message": "Selected result 1. The map is loading."
+    },
+    {
+      "type": "details",
+      "status": "done",
+      "message": "Opened public details for result 1. Check the listed source and confirm details directly."
+    },
+    {
+      "type": "search",
+      "status": "done",
+      "message": "The search completed: Food within 10 miles of Pittsburgh, PA. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or adjust the filters, or switch to Healthcare."
+    },
+    {
+      "type": "read-results",
+      "status": "done",
+      "message": "The search completed: Food within 10 miles of Pittsburgh, PA. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or adjust the filters, or switch to Healthcare."
+    },
+    {
+      "type": "search",
+      "status": "done",
+      "message": "The search completed: Food within 10 miles of Philadelphia, PA. 323 matching directory listings; 20 loaded here. 1. Solomon Temple; 2. As I Plant This Seed Community Fridge; 3. McClure Elementary School; 4. 10th St. Market (North 10); 5. Small Things Philly Market - Fairhill. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "type": "read-results",
+      "status": "done",
+      "message": "The search completed: Food within 10 miles of Philadelphia, PA. 323 matching directory listings; 20 loaded here. 1. Solomon Temple; 2. As I Plant This Seed Community Fridge; 3. McClure Elementary School; 4. 10th St. Market (North 10); 5. Small Things Philly Market - Fairhill. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "type": "read-results",
+      "status": "clarify",
+      "message": "The filters have changed. Run the search for Food within 10 miles of Philadelphia, PA with keyword “share” before I read its results."
+    },
+    {
+      "type": "read-results",
+      "status": "done",
+      "message": "The search completed: Food within 10 miles of Philadelphia, PA with keyword “share”. 1 matching directory listing; 1 loaded here. 1. Share Community Fridge. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "type": "read-results",
+      "status": "done",
+      "message": "The search completed: Food within 10 miles of Philadelphia, PA with keyword “share”. 1 matching directory listing; 1 loaded here. 1. Share Community Fridge. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "type": "radius",
+      "status": "done",
+      "message": "The search completed: Food within 5 miles of Philadelphia, PA with keyword “share”. 1 matching directory listing; 1 loaded here. 1. Share Community Fridge. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "type": "read-results",
+      "status": "done",
+      "message": "The search completed: Food within 5 miles of Philadelphia, PA with keyword “share”. 1 matching directory listing; 1 loaded here. 1. Share Community Fridge. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "type": "read-results",
+      "status": "done",
+      "message": "The search completed: Food within 5 miles of Philadelphia, PA with keyword “eden13-no-such-pantry”. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or clear the keyword, or switch to Healthcare."
+    },
+    {
+      "type": "read-results",
+      "status": "unavailable",
+      "message": "The search for Food within 5 miles of Philadelphia, PA with keyword “eden13-no-such-pantry” could not finish. No directory count was confirmed. Please retry the search."
+    },
+    {
+      "type": "read-results",
+      "status": "done",
+      "message": "The search completed: Food within 5 miles of Philadelphia, PA with keyword “share”. 1 matching directory listing; 1 loaded here. 1. Share Community Fridge. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "type": "read-results",
+      "status": "unavailable",
+      "message": "The search for Food within 5 miles of Harrisburg, PA was rate-limited. No directory count was confirmed. Try again in 43 seconds."
+    },
+    {
+      "type": "read-results",
+      "status": "done",
+      "message": "The search completed: Food within 5 miles of Harrisburg, PA. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or adjust the filters, or switch to Healthcare."
+    }
+  ],
+  "cases": [
+    {
+      "city": "Harrisburg",
+      "cat": "food",
+      "miles": 10,
+      "total": 0,
+      "keyword": "",
+      "message": "The search completed: Food within 10 miles of Harrisburg, PA. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or adjust the filters, or switch to Healthcare."
+    },
+    {
+      "city": "Harrisburg",
+      "cat": "food",
+      "miles": 10,
+      "total": 0,
+      "keyword": "",
+      "message": "The search completed: Food within 10 miles of Harrisburg, PA. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or adjust the filters, or switch to Healthcare."
+    },
+    {
+      "city": "Harrisburg",
+      "cat": "food",
+      "miles": 5,
+      "total": 0,
+      "keyword": "",
+      "message": "The search completed: Food within 5 miles of Harrisburg, PA. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or adjust the filters, or switch to Healthcare."
+    },
+    {
+      "city": "Harrisburg",
+      "cat": "healthcare",
+      "miles": 5,
+      "total": 2,
+      "keyword": "",
+      "message": "The search completed: Healthcare within 5 miles of Harrisburg, PA. 2 matching directory listings; 2 loaded here. 1. HHC- South Allison Hill; 2. Hamilton Health Center Family Practice at Steelton. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "city": "Harrisburg",
+      "cat": "healthcare",
+      "miles": 10,
+      "total": 3,
+      "keyword": "",
+      "message": "The search completed: Healthcare within 10 miles of Harrisburg, PA. 3 matching directory listings; 3 loaded here. 1. HHC- South Allison Hill; 2. Hamilton Health Center Family Practice at Steelton; 3. Sadler Health Center Corporation Mechanicsburg. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "city": "Pittsburgh",
+      "cat": "food",
+      "miles": 10,
+      "total": 0,
+      "keyword": "",
+      "message": "The search completed: Food within 10 miles of Pittsburgh, PA. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or adjust the filters, or switch to Healthcare."
+    },
+    {
+      "city": "Philadelphia",
+      "cat": "food",
+      "miles": 10,
+      "total": 323,
+      "keyword": "",
+      "message": "The search completed: Food within 10 miles of Philadelphia, PA. 323 matching directory listings; 20 loaded here. 1. Solomon Temple; 2. As I Plant This Seed Community Fridge; 3. McClure Elementary School; 4. 10th St. Market (North 10); 5. Small Things Philly Market - Fairhill. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "city": "Philadelphia",
+      "cat": "food",
+      "miles": 10,
+      "total": 1,
+      "keyword": "share",
+      "message": "The search completed: Food within 10 miles of Philadelphia, PA with keyword “share”. 1 matching directory listing; 1 loaded here. 1. Share Community Fridge. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "city": "Philadelphia",
+      "cat": "food",
+      "miles": 10,
+      "total": 1,
+      "keyword": "share",
+      "message": "The search completed: Food within 10 miles of Philadelphia, PA with keyword “share”. 1 matching directory listing; 1 loaded here. 1. Share Community Fridge. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "city": "Philadelphia",
+      "cat": "food",
+      "miles": 5,
+      "total": 1,
+      "keyword": "share",
+      "message": "The search completed: Food within 5 miles of Philadelphia, PA with keyword “share”. 1 matching directory listing; 1 loaded here. 1. Share Community Fridge. Check each listing’s source and confirm current services directly."
+    },
+    {
+      "city": "Philadelphia",
+      "cat": "food",
+      "miles": 5,
+      "total": 0,
+      "keyword": "eden13-no-such-pantry",
+      "message": "The search completed: Food within 5 miles of Philadelphia, PA with keyword “eden13-no-such-pantry”. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or clear the keyword, or switch to Healthcare."
+    },
+    {
+      "city": "Philadelphia",
+      "cat": "food",
+      "miles": 5,
+      "total": 1,
+      "keyword": "share",
+      "message": "The search completed: Food within 5 miles of Philadelphia, PA with keyword “share”. 1 matching directory listing; 1 loaded here. 1. Share Community Fridge. Check each listing’s source and confirm current services directly."
+    }
+  ],
+  "responses": [
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200,
+      "total": 0,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200,
+      "total": 0,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200,
+      "total": 0,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200,
+      "total": 2,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200,
+      "total": 3,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200,
+      "total": 0,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200,
+      "total": 323,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200,
+      "total": 1,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200,
+      "total": 1,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200,
+      "total": 1,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200,
+      "total": 0,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 422,
+      "code": "VALIDATION_ERROR",
+      "retry": null
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200,
+      "total": 1,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/locations/resolve",
+      "status": 200,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/locations/resolve",
+      "status": 200,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/locations/resolve",
+      "status": 200,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/locations/resolve",
+      "status": 200,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/locations/resolve",
+      "status": 200,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/locations/resolve",
+      "status": 200,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/locations/resolve",
+      "status": 429,
+      "code": "LOCATION_SUBMISSION_LIMIT",
+      "retry": "43"
+    },
+    {
+      "path": "/api/v1/locations/resolve",
+      "status": 200,
+      "retry": null
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200,
+      "total": 0,
+      "retry": null
+    }
+  ],
+  "faults": [
+    {
+      "status": 422,
+      "code": "VALIDATION_ERROR"
+    },
+    {
+      "path": "/api/v1/locations/resolve",
+      "status": 429,
+      "code": "LOCATION_SUBMISSION_LIMIT",
+      "retry": "43",
+      "message": "The search for Food within 5 miles of Harrisburg, PA was rate-limited. No directory count was confirmed. Try again in 43 seconds."
+    }
+  ],
+  "rateRecovery": "The search completed: Food within 5 miles of Harrisburg, PA. Our Ground’s current directory has no matching listings for these filters. Services may still be available in the community. The referral links on this page include Feeding America and 211. You can broaden the radius, or adjust the filters, or switch to Healthcare.",
+  "errorRecovery": true,
+  "map": {
+    "markerToList": true,
+    "listToMarker": true,
+    "opened": "HHC- South Allison Hill"
+  },
+  "stats": {
+    "style_200": 2,
+    "map_asset_200": 6,
+    "tile_200": 5
+  },
+  "errors": [],
+  "credentialSentToOtherOrigins": 0,
+  "observedApiResponses": 34
+}

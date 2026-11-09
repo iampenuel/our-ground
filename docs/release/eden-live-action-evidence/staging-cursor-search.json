@@ -1,0 +1,319 @@
+{
+  "base": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "3fbf44adf2c638da44b1c26bed97a21f2e854ce3",
+  "recording": {
+    "frames": 66,
+    "seconds": 16.28
+  },
+  "events": [
+    {
+      "phase": "target",
+      "operationId": "2fde7037-27e4-4615-92ed-38c9446c464a",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": {
+        "page": "support"
+      },
+      "rect": {
+        "x": 746.125,
+        "y": 18,
+        "width": 79.078125,
+        "height": 44
+      },
+      "cursor": null,
+      "route": "/",
+      "atMs": 5656
+    },
+    {
+      "phase": "execute",
+      "operationId": "2fde7037-27e4-4615-92ed-38c9446c464a",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": {
+        "page": "support"
+      },
+      "rect": {
+        "x": 746.125,
+        "y": 18,
+        "width": 79.078125,
+        "height": 44
+      },
+      "cursor": {
+        "x": 785.66,
+        "y": 40
+      },
+      "route": "/",
+      "atMs": 7217
+    },
+    {
+      "phase": "applied",
+      "operationId": "2fde7037-27e4-4615-92ed-38c9446c464a",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": {
+        "page": "support"
+      },
+      "rect": null,
+      "cursor": {
+        "x": 785.66,
+        "y": 40
+      },
+      "route": "/support",
+      "atMs": 7698
+    },
+    {
+      "phase": "target",
+      "operationId": "590e36b0-d687-4262-b987-4c3cdb32fe66",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": "location",
+      "rect": {
+        "x": 188,
+        "y": 494.296875,
+        "width": 985.109375,
+        "height": 44
+      },
+      "cursor": {
+        "x": 785.66,
+        "y": 40
+      },
+      "route": "/support",
+      "atMs": 7700
+    },
+    {
+      "phase": "execute",
+      "operationId": "590e36b0-d687-4262-b987-4c3cdb32fe66",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": "location",
+      "rect": {
+        "x": 188,
+        "y": 494.296875,
+        "width": 985.109375,
+        "height": 44
+      },
+      "cursor": {
+        "x": 680.55,
+        "y": 516.3
+      },
+      "route": "/support",
+      "atMs": 8706
+    },
+    {
+      "phase": "applied",
+      "operationId": "590e36b0-d687-4262-b987-4c3cdb32fe66",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": "location",
+      "rect": null,
+      "cursor": {
+        "x": 680.55,
+        "y": 516.3
+      },
+      "route": "/support",
+      "atMs": 8707
+    },
+    {
+      "phase": "target",
+      "operationId": "26a0e485-c92d-4cd2-bc32-7644dc7a877d",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": {
+        "category": "healthcare"
+      },
+      "rect": {
+        "x": 225.5625,
+        "y": 677.984375,
+        "width": 108.171875,
+        "height": 44.390625
+      },
+      "cursor": {
+        "x": 680.55,
+        "y": 516.3
+      },
+      "route": "/support",
+      "atMs": 8709
+    },
+    {
+      "phase": "execute",
+      "operationId": "26a0e485-c92d-4cd2-bc32-7644dc7a877d",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": {
+        "category": "healthcare"
+      },
+      "rect": {
+        "x": 225.5625,
+        "y": 677.984375,
+        "width": 108.171875,
+        "height": 44.390625
+      },
+      "cursor": {
+        "x": 279.65,
+        "y": 700.18
+      },
+      "route": "/support",
+      "atMs": 9421
+    },
+    {
+      "phase": "applied",
+      "operationId": "26a0e485-c92d-4cd2-bc32-7644dc7a877d",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": {
+        "category": "healthcare"
+      },
+      "rect": null,
+      "cursor": {
+        "x": 279.65,
+        "y": 700.18
+      },
+      "route": "/support",
+      "atMs": 9422
+    },
+    {
+      "phase": "target",
+      "operationId": "8fab3ace-a4dc-4501-b4cc-e836c8bf94cc",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": "radius",
+      "rect": {
+        "x": 593.765625,
+        "y": 678.171875,
+        "width": 142,
+        "height": 44
+      },
+      "cursor": {
+        "x": 279.65,
+        "y": 700.18
+      },
+      "route": "/support",
+      "atMs": 9423
+    },
+    {
+      "phase": "execute",
+      "operationId": "8fab3ace-a4dc-4501-b4cc-e836c8bf94cc",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": "radius",
+      "rect": {
+        "x": 593.765625,
+        "y": 678.171875,
+        "width": 142,
+        "height": 44
+      },
+      "cursor": {
+        "x": 664.77,
+        "y": 700.17
+      },
+      "route": "/support",
+      "atMs": 10142
+    },
+    {
+      "phase": "applied",
+      "operationId": "8fab3ace-a4dc-4501-b4cc-e836c8bf94cc",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": "radius",
+      "rect": null,
+      "cursor": {
+        "x": 664.77,
+        "y": 700.17
+      },
+      "route": "/support",
+      "atMs": 10142
+    },
+    {
+      "phase": "target",
+      "operationId": "39252a61-6c42-49ed-b40f-4dcfeff29317",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": "submit",
+      "rect": {
+        "x": 1198.109375,
+        "y": 492.109375,
+        "width": 94.890625,
+        "height": 48
+      },
+      "cursor": {
+        "x": 664.77,
+        "y": 700.17
+      },
+      "route": "/support",
+      "atMs": 10142
+    },
+    {
+      "phase": "execute",
+      "operationId": "39252a61-6c42-49ed-b40f-4dcfeff29317",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": "submit",
+      "rect": {
+        "x": 1198.109375,
+        "y": 492.109375,
+        "width": 94.890625,
+        "height": 48
+      },
+      "cursor": {
+        "x": 1245.55,
+        "y": 516.11
+      },
+      "route": "/support",
+      "atMs": 10844
+    },
+    {
+      "phase": "applied",
+      "operationId": "39252a61-6c42-49ed-b40f-4dcfeff29317",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": "submit",
+      "rect": null,
+      "cursor": {
+        "x": 1245.55,
+        "y": 516.11
+      },
+      "route": "/support",
+      "atMs": 11395
+    },
+    {
+      "phase": "target",
+      "operationId": "367d3b6f-d857-4709-82f0-ec4eddc67319",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": {
+        "operation": "details",
+        "isFirstVisibleListing": true
+      },
+      "rect": {
+        "x": 158,
+        "y": 497.96875,
+        "width": 139.859375,
+        "height": 25.59375
+      },
+      "cursor": null,
+      "route": "/support",
+      "atMs": 15642
+    },
+    {
+      "phase": "execute",
+      "operationId": "367d3b6f-d857-4709-82f0-ec4eddc67319",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": {
+        "operation": "details",
+        "isFirstVisibleListing": true
+      },
+      "rect": {
+        "x": 158,
+        "y": 497.96875,
+        "width": 139.859375,
+        "height": 25.59375
+      },
+      "cursor": {
+        "x": 227.93,
+        "y": 510.77
+      },
+      "route": "/support",
+      "atMs": 16644
+    },
+    {
+      "phase": "applied",
+      "operationId": "367d3b6f-d857-4709-82f0-ec4eddc67319",
+      "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+      "target": {
+        "operation": "details",
+        "isFirstVisibleListing": true
+      },
+      "rect": null,
+      "cursor": {
+        "x": 227.93,
+        "y": 510.77
+      },
+      "route": "/support",
+      "atMs": 17064
+    }
+  ]
+}

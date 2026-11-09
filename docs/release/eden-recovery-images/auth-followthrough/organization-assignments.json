@@ -1,0 +1,16 @@
+{
+  "checkedAtUTC": "2026-11-08T18:41:08.262Z",
+  "scope": "Confirmed ourground-staging Supabase project",
+  "method": "READ ONLY SQL transaction; aggregate counts and permission metadata only",
+  "active_approved_listing_assignments": 0,
+  "assigned_nonadmin_representatives": 0,
+  "active_application_administrators": 0,
+  "pending_requests": 0,
+  "rls_enabled_on_organization_tables": true,
+  "direct_browser_membership_and_command_denied": true,
+  "restricted_api_can_execute_scoped_command": true,
+  "membership_select_sqlstates": {
+    "anon": "42501",
+    "authenticated": "42501"
+  }
+}

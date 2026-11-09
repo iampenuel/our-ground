@@ -1,0 +1,32 @@
+{
+  "origin": "https://ourground-staging-m1eg75y65-penuels-projects-aa802b06.vercel.app",
+  "turns": [
+    {
+      "label": "unknown question",
+      "reply": "Would you like to find support, give support, or learn about organizations?",
+      "requests": [
+        {
+          "route": "session",
+          "status": 200
+        },
+        {
+          "route": "understand",
+          "status": 200
+        }
+      ],
+      "route": "/"
+    },
+    {
+      "label": "privileged action",
+      "reply": "I can guide you through the public site. Account changes, applications and payments need to be handled directly.",
+      "requests": [
+        {
+          "route": "understand",
+          "status": 200
+        }
+      ],
+      "route": "/"
+    }
+  ],
+  "errors": []
+}

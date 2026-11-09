@@ -1,0 +1,35 @@
+{
+  "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "project_ref": "hrmocmvdmshoghclxyjs",
+  "checks": [
+    "Restricted staging login can admit and cannot access the table",
+    "Hosted concurrent manual search accepted six and denied two with Retry-After",
+    "After Retry-After the same hosted action succeeded"
+  ],
+  "role": "our_ground_api",
+  "burst": {
+    "elapsed_ms": 1251,
+    "statuses": [
+      200,
+      200,
+      200,
+      429,
+      200,
+      200,
+      200,
+      429
+    ],
+    "retry": [
+      58,
+      58
+    ]
+  },
+  "window_recovery": {
+    "status": 200,
+    "code": null,
+    "retry": 0,
+    "resolved": true,
+    "city": "Harrisburg, PA"
+  },
+  "pass": true
+}

@@ -1,0 +1,14 @@
+import type { DiscoveredPlace, DiscoveryDetail, ProviderAttribution } from '../shared/discovery.ts';
+// Independent rendering boundary; provider strings never become markup or inline handlers.
+const esc = (value: string) => value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+export const googleAttribution = '<span class="google-attribution"><img src="/attribution/google-maps.svg" alt="Google Maps" width="98" height="18" /></span>';
+const link = (url: string, text: string) => `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(text)}<span class="visually-hidden"> (opens in a new tab)</span></a>`;
+export const providerAttribution = (items: ProviderAttribution[]) => items.length ? `<p class="discovery-sources">Additional data: ${items.map(a => a.url ? link(a.url, a.name) : esc(a.name)).join(' · ')}</p>` : '';
+const attribution = providerAttribution;
+export function discoveryCards(items: DiscoveredPlace[]): string {
+  return items.map((p, index) => `<article class="result-card discovery-card"><h3><button type="button" class="discovery-select" data-place-id="${esc(p.place_id)}" aria-pressed="false" aria-controls="placeDetail"><span class="discovery-number" aria-hidden="true">${index+1}</span>${esc(p.name)}</button></h3><p>${esc(p.address)}${p.distance_miles === null ? '' : `<br>${p.distance_miles} mi · straight-line estimate`}</p><span class="record-kind">Google-discovered · services not verified</span>${attribution(p.attributions)}</article>`).join('');
+}
+export function discoveryDetail(place: DiscoveredPlace | DiscoveryDetail, loading = false): string {
+  const detailed = 'website_url' in place;
+  return `<span class="page-eyebrow">Google-discovered place</span><h2 id="placeDetailTitle" tabindex="-1">${esc(place.name)}</h2><p>${esc(place.address)}</p><p class="discovery-caution">This is a Google Maps establishment listing, not a verified support partner. Confirm the services, hours, eligibility, appointments and costs directly. A “free clinic” search does not confirm free care.</p><div class="discovery-links">${link(place.directions_url, 'Directions on Google Maps')}${place.maps_url ? link(place.maps_url, 'View Google Maps listing') : ''}${detailed && place.website_url ? link(place.website_url, 'Provider website') : ''}${detailed && place.phone ? `<a href="tel:${esc(place.phone.replace(/[^+\d]/g, ''))}">Call ${esc(place.phone)}</a>` : ''}</div><p class="discovery-detail-status" role="status">${loading ? 'Loading contact details…' : detailed && !place.website_url && !place.phone ? 'Google did not return a usable website or phone number. Check the Maps listing for more information.' : ''}</p>${attribution(place.attributions)}${googleAttribution}<button class="secondary-button" type="button" id="backToPlaces">Back to selected result</button>`;
+}

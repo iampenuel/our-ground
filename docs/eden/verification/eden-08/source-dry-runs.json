@@ -1,0 +1,15 @@
+{
+  "checked_on": "2026-11-07",
+  "method": "Existing official-source importers with --download only. In memory; no database connection or application of records. Food candidate counts precede database geography and publication checks.",
+  "healthcare": {"source_id":"hrsa-health-centers","source_updated_at":"2026-11-06T00:00:00.000Z","rows":19569,"accepted":17713,"excluded":1856,"checksum":"304c9236787cbed7869ee07eff750e32db4109fa51fe11b77f74c9ed98655c3c"},
+  "food": [
+    {"source_id":"philly-food-sites","source_updated_at":"2026-11-05T16:54:29.474Z","rows":404,"accepted":366,"excluded":38,"checksum":"8b8872595a45f86f0006cab57957ab3adc58461e0236fa7baf572d5f189b4241"},
+    {"source_id":"seattle-food-resources","source_updated_at":"2026-09-26T00:53:05.000Z","rows":269,"accepted":212,"excluded":57,"checksum":"84f7a1ea14e55e95584f814d7a2886e0494106490f3f98853a92d3bbcd4afb2a"},
+    {"source_id":"pgc-food-assistance","source_updated_at":"2026-11-06T14:33:27.000Z","schedule_rows":167,"accepted_programs":60,"excluded_groups":12,"checksum":"83d8dc14456507f664dc8eabd1c41944dabbf3c121f83aff4143368d4ac95088"}
+  ],
+  "census": [
+    {"kind":"state","records":52,"archive_sha256":"54352ca34f869b4deca03a65da72cccb8e9f0c2702340061949b63c76c63f852"},
+    {"kind":"place","records":32363,"archive_sha256":"af678e2d990827c89ee39b98c82de6e90b693c7361ff0e559ae3076670dd2863"}
+  ],
+  "current_database_counts": null
+}

@@ -1,0 +1,22 @@
+import '../src/design-tokens.css';
+import '../src/styles.css';
+import '../src/support.css';
+import '../src/discovery.css';
+import '../src/unified-support.css';
+import {mountSupportPage} from '../src/support-page';
+let searches=0,scrolls=0,finish=()=>{};
+const metrics=document.querySelector('#metrics')!;
+const report=()=>metrics.textContent=`Mock search requests: ${searches}; status scrolls: ${scrolls}; no live traffic.`;
+const native=HTMLElement.prototype.scrollIntoView;
+HTMLElement.prototype.scrollIntoView=function(options){if(this.id==='resultsCount')scrolls++;report();native.call(this,options);};
+document.querySelector('#complete')!.addEventListener('click',()=>finish());
+await mountSupportPage(document.querySelector('#app')!,{request:async(path)=>{
+ if(path==='geoapify/status')return {enabled:true} as any;
+ if(path.startsWith('resources'))return {items:[],total:0,has_next:false} as any;
+ searches++;report();const scenario=(document.querySelector('#scenario') as HTMLSelectElement).value;
+ if(scenario==='slow')await new Promise<void>(resolve=>{finish=resolve;});
+ if(['invalid','429','503'].includes(scenario))throw Error('Mock '+scenario+' — please try again.');
+ const location={label:'Harrisburg, PA (fixture)',latitude:40.2732,longitude:-76.8867,attributions:[]};
+ if(scenario==='ambiguous')return {status:'choose_location',choices:[{...location,place_id:'mock-choice'}]} as any;
+ return {status:'results',location,items:[]} as any;
+}});report();

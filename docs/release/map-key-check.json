@@ -1,0 +1,17 @@
+{
+  "key_distinct_from_staging": true,
+  "checks": [
+    {
+      "label": "production",
+      "status": 401
+    },
+    {
+      "label": "unrelated",
+      "status": 401
+    },
+    {
+      "label": "headerless",
+      "status": 200
+    }
+  ]
+}

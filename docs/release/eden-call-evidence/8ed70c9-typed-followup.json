@@ -1,0 +1,40 @@
+{
+  "base": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "8ed70c96372068bff5a06ea7e711d7c8c02b63e5",
+  "scope": "dialogue",
+  "steps": [
+    {
+      "name": "first visible result",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200,
+          "correlation": "374e3b9f-5b55-42e5-b2a2-e609d11ec836"
+        },
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "0cb69de7-bd15-480e-b6a3-166a51da70b5"
+        },
+        {
+          "endpoint": "plan",
+          "status": 503,
+          "correlation": "0cb69de7-bd15-480e-b6a3-166a51da70b5",
+          "code": "EDEN_PROVIDER_UNAVAILABLE"
+        }
+      ],
+      "trace": {
+        "correlationId": "0cb69de7-bd15-480e-b6a3-166a51da70b5",
+        "provider": "undetermined",
+        "model": null,
+        "output": "unavailable",
+        "proposedAction": null,
+        "outcome": "failed"
+      }
+    }
+  ],
+  "errors": [],
+  "status": "FAIL",
+  "failure": "{\"name\":\"first visible result\",\"status\":[[\"session\",200],[\"understand\",200],[\"plan\",503]],\"trace\":{\"correlationId\":\"0cb69de7-bd15-480e-b6a3-166a51da70b5\",\"provider\":\"undetermined\",\"model\":null,\"output\":\"unavailable\",\"proposedAction\":null,\"outcome\":\"failed\"}}\n+ actual - expected\n\n+ 'failed'\n- 'confirmed'\n"
+}

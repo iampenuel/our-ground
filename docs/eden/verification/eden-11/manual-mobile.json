@@ -1,0 +1,31 @@
+{
+  "variant": "mobile",
+  "titles": [
+    "A clearer path to community support.",
+    "Find support\nnear you."
+  ],
+  "names": [
+    "1\nWellsboro Laurel Health Center\n— select location on map",
+    "2\nWellsboro Laurel Pediatric Center\n— select location on map"
+  ],
+  "pass": true,
+  "api": [
+    {
+      "path": "/api/v1/locations/status",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/geoapify/status",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/locations/resolve",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    }
+  ],
+  "stats": {}
+}

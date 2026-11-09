@@ -1,0 +1,66 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import postgres from 'postgres';
+import {randomUUID} from 'node:crypto';
+import {normalizeFoodSnapshot,importFood,hash,foodUuid} from '../backend/food-import.mjs';
+
+const connection=process.env.FOOD_TEST_DATABASE_URL;
+test('owner food imports preserve reviewed fields and privacy holds; runtime stays read-only',{skip:!connection},async()=>{
+ const target=new URL(connection);
+ assert.equal(target.hostname,'127.0.0.1');assert.equal(target.port,'18790');assert(['/ourground_final','/ourground_discovery_final'].includes(target.pathname));assert.equal(target.username,'ourground_test');
+ const owner=postgres(connection,{ssl:false,max:1,prepare:false,onnotice:()=>{}});
+ const publicTarget=new URL(target);publicTarget.username='our_ground_api';publicTarget.password='';
+ const runtime=postgres(publicTarget.href,{ssl:false,max:1,prepare:false});
+ const source=normalizeFoodSnapshot('philly-food-sites',{metadata:{editingInfo:{dataLastEditDate:Date.UTC(2030,0,1)},fields:[{name:'objectid'},{name:'category_type'}]},data:{features:[{attributes:{objectid:899999991,site_name:'Food Import Test Sentinel',address:'123 Public Test Street',zip_code:'19143',status:'Active',category_type:'Food Site'},geometry:{x:-75.2,y:39.95}}]}});
+ const record=source.records[0],fixture=(records,excluded=[])=>({...source,checksum:hash(randomUUID()),records,excluded});
+ try{
+  await assert.rejects(runtime`select app_private.food_import_batch(null,'[]'::jsonb)`,error=>error.code==='42501');
+  await assert.rejects(runtime`select app_private.food_privacy_withdraw(null,'[]'::jsonb)`,error=>error.code==='42501');
+  await assert.rejects(runtime`select * from app_private.resource_source_records limit 1`,error=>error.code==='42501');
+  const[before]=await owner`select count(*)::int as count from app_private.resource_source_records where source_id='philly-food-sites' and source_record_id=${record.record_id}`;assert.equal(before.count,0,'Reserved test source identity must be unused.');
+  await assert.rejects(owner.begin(async tx=>{
+   const wrapped={begin:fn=>fn(tx)};
+   const created=await importFood(wrapped,fixture([record]),{apply:true});assert.equal(created.created,1);
+   const claimedId='899999992',claimed={...record,record_id:claimedId,name:'Claimed Food Import Sentinel',organization_id:foodUuid(source.source.id,'organization',claimedId),location_id:foodUuid(source.source.id,'location',claimedId),service_id:foodUuid(source.source.id,'service',claimedId),hash:hash('claimed')};
+   await importFood(wrapped,fixture([claimed]),{apply:true});
+   const member=randomUUID();await tx`insert into app_private.app_users(id) values(${member})`;
+   await tx`insert into app_private.organization_memberships(organization_id,user_id,role) values(${claimed.organization_id},${member},'editor')`;
+   const claimedRefresh=await importFood(wrapped,fixture([{...claimed,name:'Changed claimed identity',hash:hash('claimed change')}]),{apply:true});assert.equal(claimedRefresh.needs_review,1);
+   const[claimedTitle]=await tx`select title from app_private.services where id=${claimed.service_id}`;assert.equal(claimedTitle.title,'Claimed Food Import Sentinel');
+   await tx`update app_private.services set title='Human reviewed food title',version=version+1 where id=${record.service_id}`;
+   const changed=await importFood(wrapped,fixture([{...record,name:'Changed provider title',hash:hash('changed')}]),{apply:true});assert.equal(changed.needs_review,1);
+   const[human]=await tx`select title from app_private.services where id=${record.service_id}`;assert.equal(human.title,'Human reviewed food title');
+   const correctedId='899999993',corrected={...record,record_id:correctedId,name:'Independently Corrected Food Sentinel',organization_id:foodUuid(source.source.id,'organization',correctedId),location_id:foodUuid(source.source.id,'location',correctedId),service_id:foodUuid(source.source.id,'service',correctedId),snapshot:{...record.snapshot,record_id:correctedId},hours:[{weekday:1,opens_at:'10:00',closes_at:'11:00',notes:null,sequence:1}],hash:hash('corrected initial')};
+   await importFood(wrapped,fixture([corrected]),{apply:true});
+   await tx`update app_private.service_locations set street_address='456 Independently Corrected Street',point=extensions.ST_SetSRID(extensions.ST_MakePoint(-75.18,40.04),4326)::extensions.geography,version=version+1 where id=${corrected.location_id}`;
+   const badCorrectedSource=fixture([{...corrected,latitude:41.8,hash:hash('corrected location bad source')}]);
+   const kept=await importFood(wrapped,badCorrectedSource,{apply:true});assert.equal(kept.new_coordinate_quarantines,0);
+   await importFood(wrapped,badCorrectedSource,{apply:true});
+   const[correctedSource]=await tx`select record_status,needs_review from app_private.resource_source_records where service_id=${corrected.service_id}`;assert.equal(correctedSource.record_status,'stale_or_needs_review');assert.equal(correctedSource.needs_review,true);
+   const[correctedDetail]=await tx`select count(*)::int as n from app_private.public_services where id=${corrected.service_id}`;assert.equal(correctedDetail.n,1);
+   const[correctedHours]=await tx`select count(*)::int as n from app_private.public_opening_hours where service_id=${corrected.service_id}`;assert.equal(correctedHours.n,1);
+   const[correctedNearby]=await tx`select app_private.public_resource_search(40.04,-75.18,5,'food','Independently Corrected Food Sentinel',1,20,false,false) as result`;assert.equal(correctedNearby.result.total,1);
+   const[correctedLocation]=await tx`select street_address,status,extensions.ST_Y(point::extensions.geometry)::float8 as latitude from app_private.service_locations where id=${corrected.location_id}`;assert.equal(correctedLocation.status,'published');assert.equal(correctedLocation.latitude,40.04);assert.equal(correctedLocation.street_address,'456 Independently Corrected Street');
+   const quality=fixture([{...record,latitude:41.8,hash:hash('bad source point')}]);
+   const quarantined=await importFood(wrapped,quality,{apply:true});assert.equal(quarantined.new_coordinate_quarantines,1);
+   const qualityReplay=await importFood(wrapped,quality,{apply:true});assert.equal(qualityReplay.already_imported,true);assert.equal(qualityReplay.coordinate_quarantines_backfilled,0);
+   const[qualityStatus]=await tx`select r.record_status,r.needs_review,l.status from app_private.resource_source_records r join app_private.services s on s.id=r.service_id join app_private.service_locations l on l.id=s.location_id where r.service_id=${record.service_id}`;assert.equal(qualityStatus.record_status,'inactive');assert.equal(qualityStatus.needs_review,true);assert.equal(qualityStatus.status,'hidden');
+   const[noDetail]=await tx`select count(*)::int as n from app_private.public_services where id=${record.service_id}`;assert.equal(noDetail.n,0);
+   await importFood(wrapped,fixture([{...record,name:'Later provider correction',hash:hash('corrected source point')}]),{apply:true});
+   const[stillHidden]=await tx`select status from app_private.service_locations where id=${record.location_id}`;assert.equal(stillHidden.status,'hidden');
+   const[noNearby]=await tx`select app_private.public_resource_search(39.95,-75.2,5,'food','Human reviewed food title',1,20,false,false) as result`;assert.equal(noNearby.result.total,0);
+   const[unchangedHuman]=await tx`select title from app_private.services where id=${record.service_id}`;assert.equal(unchangedHuman.title,'Human reviewed food title');
+   const privacyDataset=fixture([],[{record_id:record.record_id,reason:'privacy_withdrawal'}]);const held=await importFood(wrapped,privacyDataset,{apply:true});assert.equal(held.privacy_withdrawals,1);
+   const replay=await importFood(wrapped,privacyDataset,{apply:true});assert.equal(replay.already_imported,true);assert.equal(replay.privacy_backfilled,0);
+   const[location]=await tx`select status from app_private.service_locations where id=${record.location_id}`;assert.equal(location.status,'hidden');
+   await importFood(wrapped,fixture([{...record,hash:hash('reappearance'),snapshot:{record_id:record.record_id,street:'Do not retain this address'}}]),{apply:true});
+   const snapshots=await tx`select snapshot from app_private.resource_source_versions where source_id='philly-food-sites' and source_record_id=${record.record_id}`;
+   for(const row of snapshots)assert.deepEqual(row.snapshot,{record_id:record.record_id,privacy_withdrawn:true});
+   const[heldRow]=await tx`select record_status,snapshot from app_private.resource_source_records where service_id=${record.service_id}`;assert.equal(heldRow.record_status,'suppressed');assert.deepEqual(heldRow.snapshot,{record_id:record.record_id,privacy_withdrawn:true});
+   const[publicResult]=await tx`select app_private.public_resource_search(39.95,-75.2,5,'food','Human reviewed food title',1,20,false,false) as result`;assert.equal(publicResult.result.total,0);
+   throw Error('FOOD_TEST_ROLLBACK');
+  }),/FOOD_TEST_ROLLBACK/);
+  const[after]=await owner`select count(*)::int as count from app_private.resource_source_records where source_id='philly-food-sites' and source_record_id=${record.record_id}`;assert.equal(after.count,0);
+  await assert.rejects(importFood(owner,{...source,checksum:hash(randomUUID()),source_updated_at:'2000-01-01T00:00:00Z'},{apply:true}),/Older food snapshot/);
+ }finally{await runtime.end();await owner.end();}
+});

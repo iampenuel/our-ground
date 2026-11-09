@@ -1,0 +1,186 @@
+{
+  "actions": [
+    {
+      "action": {
+        "type": "read-results"
+      },
+      "status": "clarify",
+      "message": "There are no results to read yet. Choose a location and search first."
+    },
+    {
+      "action": {
+        "type": "refine",
+        "category": "healthcare"
+      },
+      "status": "done",
+      "message": "5 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+    },
+    {
+      "action": {
+        "type": "search",
+        "city": "harrisburg-pa",
+        "category": "food",
+        "radius": 10
+      },
+      "status": "done",
+      "message": "0 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+    },
+    {
+      "action": {
+        "type": "read-results"
+      },
+      "status": "clarify",
+      "message": "There are no results to read yet. Choose a location and search first."
+    },
+    {
+      "action": {
+        "type": "refine",
+        "category": "healthcare"
+      },
+      "status": "done",
+      "message": "3 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+    },
+    {
+      "action": {
+        "type": "radius",
+        "radius": 5
+      },
+      "status": "done",
+      "message": "2 matching listings loaded. Coverage varies; check each source and confirm details with the organization."
+    },
+    {
+      "action": {
+        "type": "select",
+        "index": 1
+      },
+      "status": "done",
+      "message": "Selected result 1. The map is loading."
+    },
+    {
+      "action": {
+        "type": "details",
+        "index": 1
+      },
+      "status": "done",
+      "message": "Opened public details for result 1. Check the listed source and confirm details directly."
+    }
+  ],
+  "cases": [
+    {
+      "city": "Pittsburgh",
+      "category": "food",
+      "radius": 10,
+      "total": 0
+    },
+    {
+      "city": "Pittsburgh",
+      "category": "healthcare",
+      "radius": 10,
+      "total": 5
+    },
+    {
+      "city": "Harrisburg",
+      "category": "food",
+      "radius": 10,
+      "total": 0
+    },
+    {
+      "city": "Harrisburg",
+      "category": "healthcare",
+      "radius": 10,
+      "total": 3
+    },
+    {
+      "city": "Harrisburg",
+      "category": "healthcare",
+      "radius": 5,
+      "total": 2
+    }
+  ],
+  "referrals": [
+    {
+      "city": "Pittsburgh",
+      "message": "Our Ground’s local food listings are incomplete. Food help may still be available. Start with these trusted referral services.",
+      "links": [
+        "https://www.feedingamerica.org/find-your-local-foodbank",
+        "https://www.211.org/about-us/your-local-211",
+        "https://www.usa.gov/emergency-food-assistance"
+      ],
+      "emptyRead": "There are no results to read yet. Choose a location and search first."
+    },
+    {
+      "city": "Harrisburg",
+      "message": "Our Ground’s local food listings are incomplete. Food help may still be available. Start with these trusted referral services.",
+      "links": [
+        "https://www.feedingamerica.org/find-your-local-foodbank",
+        "https://www.211.org/about-us/your-local-211",
+        "https://www.usa.gov/emergency-food-assistance"
+      ],
+      "emptyRead": "There are no results to read yet. Choose a location and search first."
+    }
+  ],
+  "map": {
+    "city": "Harrisburg",
+    "pins": 2,
+    "markerToList": true,
+    "listToMarker": true
+  },
+  "detail": {
+    "title": "HHC- South Allison Hill",
+    "source": "https://data.hrsa.gov/topics/health-centers/",
+    "importedUnverified": true
+  },
+  "pass": true,
+  "stats": {
+    "style_200": 1,
+    "map_asset_200": 3,
+    "tile_200": 2
+  },
+  "api": [
+    {
+      "path": "/api/v1/locations/status",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/geoapify/status",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/places/directory-city",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/places/directory-city",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+      "status": 200
+    }
+  ],
+  "errors": [],
+  "authenticatedSameOriginRequests": 70,
+  "credentialSentToOtherOrigins": 0,
+  "preview": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "observed_utc": "2026-11-07T23:34:24.034320+00:00"
+}

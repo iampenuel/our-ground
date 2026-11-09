@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .DS_Store
+._*
 *.log
 .vercel/
 .vercel
@@ -8,3 +9,14 @@ dist/
 !.env.example
 output/
 tmp/
+
+# Local EDEN preview build
+dist-eden/
+src/eden/animation/rive/build/
+
+dist-eden-assistant/
+
+# Private operator artifacts
+*.dump
+*.dump.gpg
+.pgpass*

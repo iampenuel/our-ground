@@ -1,5 +1,7 @@
 # Verification record — 27 October 2026
 
+> Latest verification: [Phase 7C security report](../docs/implementation/phase-7c-security-hardening.md) and [30-case matrix](../docs/implementation/phase-7c-verification-matrix.md). Earlier results below remain historical evidence. Phase 7C uses physical local PostgreSQL/Redis and explicitly synthetic authentication; it does not establish real Google/Supabase or hosted production verification.
+
 **The frontend is connected to the API. Real Supabase database and Google sign-in verification remain blocked by missing credentials/account access.** No remote database changes or deployment were performed.
 
 ## Passed

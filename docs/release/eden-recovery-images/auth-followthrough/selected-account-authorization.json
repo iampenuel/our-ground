@@ -1,0 +1,17 @@
+{
+  "verifiedAtUTC": "2026-11-08T18:50:05.721Z",
+  "scope": "ourground-staging Supabase (registered Google identity used for the real sign-in)",
+  "method": "Read-only SQL transaction. The verified Google identity and application account are matched server-side; no identifiers, addresses or tokens are returned.",
+  "single_matching_auth_identity": true,
+  "email_confirmed": true,
+  "google_provider_matches_selected_identity": true,
+  "ordinary_active_application_account": true,
+  "has_any_organization_membership": false,
+  "has_any_listing_binding": false,
+  "has_active_approved_listing_access": false,
+  "has_pending_claim": false,
+  "active_distinct_confirmed_reviewer_exists": false,
+  "other_confirmed_auth_identity_exists": false,
+  "exact_seeded_demo_pantry_exists": false,
+  "any_fictional_listing_exists": false
+}

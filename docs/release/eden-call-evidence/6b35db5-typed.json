@@ -1,0 +1,140 @@
+{
+  "base": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "6b35db58835b2d4e879338656bc75ef1ad5124bc",
+  "scope": "dialogue",
+  "steps": [
+    {
+      "name": "identity",
+      "route": "/",
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200,
+          "correlation": "b60e6257-55e2-4ddd-92cd-47fc70c873f8"
+        },
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "4b20f481-114a-4028-8605-5b271cab490f"
+        }
+      ],
+      "trace": {
+        "correlationId": "4b20f481-114a-4028-8605-5b271cab490f",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "identity",
+        "outcome": "confirmed"
+      },
+      "reply": "I’m Eden, Our Ground’s AI assistant. I can find nearby food, healthcare, and community support and help you explore a listing."
+    },
+    {
+      "name": "capabilities",
+      "route": "/",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "d19ab23e-a32a-4eed-8ee6-7e3a7915bc86"
+        }
+      ],
+      "trace": {
+        "correlationId": "d19ab23e-a32a-4eed-8ee6-7e3a7915bc86",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "capabilities",
+        "outcome": "confirmed"
+      },
+      "reply": "I can help you use the public directory. I can find nearby food, healthcare, and community support and help you explore a listing."
+    },
+    {
+      "name": "healthcare search",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "be536267-42af-4827-9d17-1677def2cdff"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "be536267-42af-4827-9d17-1677def2cdff"
+        }
+      ],
+      "trace": {
+        "correlationId": "be536267-42af-4827-9d17-1677def2cdff",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "search",
+        "outcome": "confirmed"
+      },
+      "reply": "Your search is ready. For your search, 19 matching directory listings within the search distance. Also, These are public directory listings, not independently verified operating services. HHC- South Allison Hill."
+    },
+    {
+      "name": "first visible result",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "fd6f0481-a446-4aae-8fb9-09768409fda4"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "fd6f0481-a446-4aae-8fb9-09768409fda4"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "fd6f0481-a446-4aae-8fb9-09768409fda4"
+        }
+      ],
+      "trace": {
+        "correlationId": "fd6f0481-a446-4aae-8fb9-09768409fda4",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "details",
+        "outcome": "confirmed"
+      },
+      "reply": "The listing details are open. Here is what the listing says: HHC- South Allison Hill. Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified. These are public directory listings, not independently verified operating services."
+    },
+    {
+      "name": "correct category",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "4a1691f8-6d46-4dd5-8ce0-be7be51a2cc4"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "4a1691f8-6d46-4dd5-8ce0-be7be51a2cc4"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "4a1691f8-6d46-4dd5-8ce0-be7be51a2cc4"
+        }
+      ],
+      "trace": {
+        "correlationId": "4a1691f8-6d46-4dd5-8ce0-be7be51a2cc4",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "search",
+        "outcome": "confirmed"
+      },
+      "reply": "Your search is ready. 0 matching directory listings within the search distance. This does not mean local support is unavailable."
+    }
+  ],
+  "errors": [],
+  "status": "FAIL",
+  "failure": "The input did not match the regular expression /food|pantry|pantries/i. Input:\n\n'Your search is ready. 0 matching directory listings within the search distance. This does not mean local support is unavailable.'\n"
+}

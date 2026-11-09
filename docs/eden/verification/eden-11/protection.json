@@ -1,0 +1,53 @@
+{
+  "team": "team_7zBDrVIlwYth2sXkAbBPcbYw",
+  "project": "prj_eU9xRSetSQYTbkAce2cYIR5zx8c2",
+  "projectName": "ourground-staging",
+  "bootstrapId": "dpl_3ik7rAezGQwGiEEjcEgpEVit621N",
+  "bootstrapHostname": "ourground-staging-hnyu0zv4y-penuels-projects-aa802b06.vercel.app",
+  "bootstrapState": "READY",
+  "bootstrapTarget": "production",
+  "bootstrapAliases": [],
+  "previewId": "dpl_A4HRJGdewVv3Sae2DBWeZvL9qLhq",
+  "previewHostname": "ourground-staging-kxjq58jrg-penuels-projects-aa802b06.vercel.app",
+  "previewRawTarget": null,
+  "previewTarget": "preview",
+  "previewCustomEnvironment": null,
+  "previewState": "READY",
+  "verifiedAlias": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "autoAssignDomainsForThisDeployment": false,
+  "projectAutomaticDomainSetting": true,
+  "projectDomains": [
+    "ourground-staging.vercel.app"
+  ],
+  "aliasDeployments": [
+    {
+      "host": "ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+      "id": "dpl_A4HRJGdewVv3Sae2DBWeZvL9qLhq"
+    }
+  ],
+  "vars": 20,
+  "previewOnly": true,
+  "hiddenProduction": 0,
+  "secrets": [
+    "STAGING_RATE_LIMIT_SECRET",
+    "DATABASE_SSL_CA",
+    "DATABASE_URL"
+  ],
+  "providerDenial": [
+    {
+      "path": "/api/v1/eden/turn",
+      "status": 403,
+      "code": "EDEN_DISABLED"
+    },
+    {
+      "path": "/api/v1/eden/speech",
+      "status": 403,
+      "code": "EDEN_DISABLED"
+    },
+    {
+      "path": "/api/v1/eden/live/token",
+      "status": 403,
+      "code": "EDEN_DISABLED"
+    }
+  ]
+}

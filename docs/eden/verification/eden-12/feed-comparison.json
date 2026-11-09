@@ -1,0 +1,46 @@
+{
+  "checkedAt": "2026-11-07T23:42:38.129Z",
+  "mode": "read-only",
+  "sources": [
+    {
+      "source": "philly-food-sites",
+      "scope": "Philadelphia feed",
+      "checkedAt": "2026-11-07T23:42:38.985Z",
+      "capturedAt": "2026-11-07T23:42:26.260Z",
+      "sourceDate": "2026-11-05T16:54:29.474Z",
+      "feedHash": "8b8872595a45f86f0006cab57957ab3adc58461e0236fa7baf572d5f189b4241",
+      "normalizedHash": "31d6ad668a6aab26c80f59ea91b7d74628040ede00ea1526ff90f70f6a3f9140",
+      "inventoryHash": "9e73f77b872d521fea47a50c3812f884e58f0ec9fe47807371f30de4906f6069",
+      "sourceRows": 404,
+      "inventoryRows": 324,
+      "counts": {
+        "unchanged": 324
+      },
+      "warnings": [],
+      "reviewOnly": true,
+      "publicationAllowed": false,
+      "reviewDigest": "509cb4bdf2010a775acb7011dd5fe88776053592d6954fedb3c083a0a30c987f",
+      "queued": 0
+    },
+    {
+      "source": "hrsa-health-centers",
+      "scope": "Existing pilot bindings only",
+      "checkedAt": "2026-11-07T23:42:41.370Z",
+      "capturedAt": "2026-11-07T23:42:26.260Z",
+      "sourceDate": "2026-11-06T00:00:00.000Z",
+      "feedHash": "304c9236787cbed7869ee07eff750e32db4109fa51fe11b77f74c9ed98655c3c",
+      "normalizedHash": "304c9236787cbed7869ee07eff750e32db4109fa51fe11b77f74c9ed98655c3c",
+      "inventoryHash": "064483d74d18ddc667d36ecfc5ad635c3dcfcf676253be59fc8df34a53326029",
+      "sourceRows": 19569,
+      "inventoryRows": 43,
+      "counts": {
+        "unchanged": 43
+      },
+      "warnings": [],
+      "reviewOnly": true,
+      "publicationAllowed": false,
+      "reviewDigest": "ccac2ea9fd8a9ae9aae93593f183db8afd024232f792b1328fcbf01100ad437b",
+      "queued": 0
+    }
+  ]
+}

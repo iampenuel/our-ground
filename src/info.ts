@@ -1,21 +1,61 @@
 import './styles.css';
-import './support.css';
-import './detail.css';
 import './info.css';
-import { arrow, element, header, icons } from './ui';
+import { arrow, element, header } from './ui';
+import { footer } from './navigation';
+import { photograph, initializePhotographs } from './photography';
+import {disposePublicPage,setPublicPageDisposer} from './public-page-lifecycle.ts';
 
+export function mountInfoPage(root:HTMLElement=element('#app')){
+disposePublicPage();
 const isAbout = window.location.pathname.replace(/\/$/, '') === '/about';
-document.title = isAbout ? 'About Access — Help, mapped beautifully.' : 'Page not found — Access';
+document.title = isAbout ? 'About Our Ground' : 'Page not found — Our Ground';
 
-element<HTMLDivElement>('#app').innerHTML = isAbout ? `
+root.innerHTML = isAbout ? `
   <div class="page-shell">
     ${header('about')}
-    <main class="about-main" id="main">
-      <section class="about-hero"><span class="page-eyebrow">ABOUT ACCESS</span><h1>Everyday support.<br /><span>A clearer starting point.</span></h1><p>Our Ground helps people explore food assistance and community healthcare in Pennsylvania.</p><a class="get-started" href="/support">Find support ${arrow}</a></section>
-      <div class="about-visual"><img src="/assets/access-earth-network.webp" width="2786" height="1608" alt="" /><div><span>Food. Care. Connection.</span><p>Help, mapped beautifully.</p></div></div>
-      <section class="about-steps" aria-labelledby="howTitle"><div class="about-section-heading"><span class="page-eyebrow">HOW TO EXPLORE</span><h2 id="howTitle">One small step at a time.</h2></div><div class="about-step-grid"><article><span class="step-number">01</span><h3>Choose an area.</h3><p>Start with a Pennsylvania city or ZIP code.</p></article><article><span class="step-number">02</span><h3>Find a starting point.</h3><p>Explore food and healthcare information with category and distance filters.</p></article><article><span class="step-number">03</span><h3>Look a little closer.</h3><p>Open a resource to read its listed services, hours and eligibility.</p></article></div></section>
-      <section class="about-purpose"><div><span class="page-eyebrow">WHY WE’RE BUILDING ACCESS</span><h2>Support should be easier to see.</h2><p>We’re exploring how community needs and available resources could come together in one simple place. Maps offer a starting point; clear information helps people understand their options.</p></div><div class="about-support-types"><span>${icons.food}Food access</span><span>${icons.healthcare}Community care</span><span>${icons.transportation}Everyday travel</span></div></section>
-      <section class="about-prototype"><span class="example-badge"><span aria-hidden="true"></span>Student prototype</span><h2>What you’re seeing today.</h2><p>Listings labeled Fictional demo do not represent real providers. Sourced listings should be confirmed with the provider before visiting. Community-needs overlays remain illustrative. You can browse resources without an account.</p><div><a class="search-button" href="/support">Explore resources ${arrow}</a><a class="about-demo-link" href="/demo">Try the community demo ${arrow}</a></div></section>
+    <main class="about-main og-container" id="main" tabindex="-1">
+      <section class="about-hero" aria-labelledby="aboutTitle">
+        <div>
+        <span class="page-eyebrow">ABOUT OUR GROUND</span>
+        <h1 id="aboutTitle">A clearer path to community support.</h1>
+        <div class="about-hero-copy"><p>Finding food or healthcare should begin with information you can understand. Our Ground brings local resources into one place, so people can take their next step with more clarity.</p><a class="search-button" href="/support">Find support ${arrow}</a></div>
+        </div>
+        <figure class="og-editorial-photo about-lead-photo">${photograph('community-giving', '', true)}</figure>
+      </section>
+      <section class="about-purpose" aria-labelledby="purposeTitle">
+        <div><span class="page-eyebrow">ONE PLATFORM. THREE WAYS TO TAKE PART.</span><h2 id="purposeTitle">We all have a place<br />in a stronger community.</h2><figure class="og-editorial-photo">${photograph('healthcare-support')}</figure></div>
+        <div class="about-audiences">
+          <article><span class="step-number" aria-hidden="true">01</span><div><h3>For residents</h3><p>Explore food assistance and healthcare resources across the United States. Listings vary by area. Compare practical details and confirm information with the provider before visiting.</p><a class="og-text-link" href="/support">Explore resources ${arrow}</a></div></article>
+          <article><span class="step-number" aria-hidden="true">02</span><div><h3>For people who want to give</h3><p>Find official ways to give food, time, or financial support. Contributions are arranged directly with the organization.</p><a class="og-text-link" href="/give">Ways to give support ${arrow}</a></div></article>
+          <article><span class="step-number" aria-hidden="true">03</span><div><h3>For organizations</h3><p>Representatives can check their listing, sign in, or request reviewed access to propose changes.</p><a class="og-text-link" href="/organizations">For organizations ${arrow}</a></div></article>
+        </div>
+      </section>
+      <section class="about-steps" aria-labelledby="howTitle">
+        <div class="about-section-heading"><span class="page-eyebrow">A PRACTICAL STARTING POINT</span><h2 id="howTitle">From a question to a next step.</h2></div>
+        <div class="about-step-grid">
+          <article><h3>Start close to home.</h3><p>Choose a U.S. city and state or five-digit ZIP, then narrow your search by category and distance.</p></article>
+          <article><h3>Understand your options.</h3><p>Read the available service, location, hours and eligibility information. Missing or unconfirmed details are identified.</p></article>
+          <article><h3>Confirm before you go.</h3><p>For sourced listings, contact the provider to check current details. Report a correction when something needs attention.</p></article>
+        </div>
+      </section>
+      <section class="about-prototype" aria-labelledby="todayTitle">
+        <div><span class="page-eyebrow">WHERE THINGS STAND</span><h2 id="todayTitle">Useful information.<br />Honest limits.</h2></div>
+        <div><p>You can browse without an account. Listings marked <strong>Fictional demo</strong> are examples, not real providers, and do not offer usable contact or directions.</p><p>Sourced listings are not independently verified. Information can change, and a listing does not confirm current availability or eligibility.</p><a class="og-text-link" href="/support">Explore the directory ${arrow}</a></div>
+      </section>
+      <section class="about-purpose" id="ai-and-imagery" aria-labelledby="aiTitle" tabindex="-1">
+        <div><span class="page-eyebrow">AI &amp; IMAGERY</span><h2 id="aiTitle">How we use AI.</h2></div>
+        <div><p>Our editorial photographs are AI-generated illustrations. They depict imagined people, places and community interactions, not actual listed organizations, service locations or documented events.</p><p>The directory uses sourced resource information, with separate labels for fictional examples and unverified information. An illustration is not evidence of a provider’s identity, partnership or services.</p><p>Adults 19 and older in the United States can ask Eden about a public page, search the directory, or explore a listing. When available, dictation uses on-device English recognition. Read the privacy details before using the assistant. Confirm current hours, services, costs and eligibility with the provider. <a class="og-text-link" href="/privacy#edenPrivacyTitle">Eden and your privacy</a></p></div>
+      </section>
     </main>
+    ${footer()}
   </div>
-` : `<div class="page-shell">${header()}<main class="detail-main not-found" id="main"><span class="page-eyebrow">PAGE NOT FOUND</span><h1>Let’s get you back on the map.</h1><p>This page isn’t available. Explore Access to find a new starting point.</p><a class="get-started" href="/">Back to Access ${arrow}</a></main></div>`;
+` : `<div class="page-shell">${header()}<main class="not-found og-container" id="main" tabindex="-1"><span class="page-eyebrow">404 · PAGE NOT FOUND</span><h1>Let’s find<br />a new starting point.</h1><p>This address may have changed, or the page may no longer be available. You can return home or explore local support.</p><div class="recovery-actions"><a class="search-button" href="/support">Find support ${arrow}</a><a class="secondary-button" href="/">Back to Our Ground</a></div></main>${footer()}</div>`;
+
+initializePhotographs();
+// This page mounts after a dynamic import, so the browser's initial fragment
+// lookup may precede the disclosure. Preserve direct links and keyboard focus.
+if (isAbout && window.location.hash === '#ai-and-imagery') {
+  requestAnimationFrame(() => document.getElementById('ai-and-imagery')?.focus());
+}
+setPublicPageDisposer(()=>{});
+}

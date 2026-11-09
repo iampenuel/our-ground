@@ -1,45 +1,73 @@
-# Our Ground prototype
+# Our Ground
 
-Our Ground connects people with local food assistance, healthcare, and community support. It brings residents, donors, and organizations together through map-based resource discovery, with planned AI-assisted matching to make finding help and giving back easier.
+A student-built resource directory that helps people find food, healthcare, and community support, with **Eden**, a page-aware Gemini assistant.
 
-The existing visual design retains the Access branding. The working backend scope is Pennsylvania food/healthcare discovery, optional Google sign-in, assigned staff editing, and anonymous correction reports. AI and payments remain future work.
+[Visit Our Ground](https://ourground.vercel.app) · [Architecture](docs/ARCHITECTURE.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
 
-A four-part marketing landing page based on the supplied Access design. Natural scrolling moves from Earth to an illustrated neighborhood, reveals barriers to support, brings community map layers together, and explains the proposed approach from public information to human review and a clearer map. One fixed palette combines a night Earth hero, warm paper sections, charcoal map sheets, and a dark closing panel. The header adapts to the section underneath it; appearance stays consistent across system preferences and visits.
+![Our Ground homepage with Eden’s welcome](docs/showcase/homepage.jpg)
 
-## Pages
+## Find support, then understand the next step
 
-- `/`: Four-section marketing landing page with an orbital zoom, a pinned neighborhood story, a warm map-layer illustration, and a process timeline. Section and chapter links support keyboard navigation. Reduced-motion preferences and very short viewports use a normal vertical layout; mobile map layers move during ordinary scrolling.
-- `/support`: API-backed Pennsylvania search by city or ZIP code, category, radius and keyword, with pagination, map/list views and loading/empty/error states. Filters are preserved in the URL.
-- `/resources/:id`: API-backed resource details, listed eligibility/hours, safe contact/directions, a correction-report form and a link back to the previous search.
-- `/account`: Google PKCE sign-in and the caller's assigned organization/service records; requires the team's Supabase configuration.
-- `/staff/services/:id`: Authorized service editing with version-conflict protection.
-- `/about`: The purpose of Access, the exploration flow, and the scope of the prototype.
-- `/demo`: The original interactive globe, pilot community, and community-needs layers.
+Search a U.S. city or ZIP code, filter nearby listings, and explore the results on a map. Each listing preserves its source and verification context so visitors can check information with the provider.
 
-The resident and account screens call the Our Ground API. Demo mode uses two fictional Pennsylvania records with contact/directions disabled. PostgreSQL mode requires the team's database credentials and never falls back to static listings. Real Supabase/Google verification is pending that configuration. The older `/demo` globe remains illustrative.
+Eden supports text conversation, consent-based **Talk to Eden** voice calls, **Read reply**, and device dictation where supported. Her visible cursor follows authorized page actions, including searches and opening a current result. Manual search and navigation work independently of the assistant.
+
+- **Residents** can discover resources and inspect practical details and provenance.
+- **Donors** can explore giving information and follow provider links.
+- **Organizations** can view their public information and sign in with Google. Privileged management is currently disabled in production. Scoped editing and reviewed changes are implemented and tested in staging.
+
+![Healthcare directory results alongside the map](docs/showcase/directory-map.jpg)
+
+<details>
+<summary>Mobile directory</summary>
+
+![Our Ground directory on a mobile viewport](docs/showcase/mobile-directory.jpg)
+
+</details>
+
+## Engineering
+
+- **TypeScript and Vite** serve the responsive interface.
+- **Vercel Functions** validate requests and expose the application API.
+- **Supabase PostgreSQL/PostGIS** support geographic search, public projections, and organization authorization. Supabase Auth handles Google PKCE sign-in.
+- **Gemini** powers bounded text decisions and Live voice. Permanent provider credentials remain server-side. Live uses short-lived, single-use credentials and verified public-page tools.
+- **MapLibre and Geoapify** provide the map experience. Census references support city and ZIP resolution.
+
+See the [architecture and trust boundaries](docs/ARCHITECTURE.md) for the data flow and operational limits.
 
 ## Run locally
 
+Use Node **24.x** and the committed lockfile.
+
 ```sh
-npm install
-npm run dev
+npm ci
+npm run dev:local:api
 ```
 
-Use `npm run build` to check TypeScript and create a production build.
-Use `npm test` (Node 22.13 or later) to check API permissions, conflict protection, filters, safe contact links and search URL preservation. Follow [real database and Google setup](backend/SETUP.md) for persistent data and login, and see [verification status](backend/VERIFICATION.md) for passed and blocked checks.
+In another terminal:
 
-## Hosting configuration
+```sh
+npm run dev:local:web
+```
 
-No deployment is part of this handoff. `vercel.json` disables automatic Git deployments and configures API routes before the SPA fallback. Re-enable deployments deliberately after the team completes configuration and testing. [Vercel Git deployment configuration](https://vercel.com/docs/project-configuration/git-configuration).
+Open `http://127.0.0.1:18417/`. This mode uses clearly labeled fictional records. Real database, authentication, maps, and Gemini require separately configured services. Use [`.env.example`](.env.example) as the configuration template. Keep server credentials out of browser-prefixed variables and source control.
 
-`.vercelignore` excludes local previews, dependencies, environment files and build output. `.gitignore` excludes credentials, temporary presentation files and local verification artifacts.
+```sh
+npm test
+npm run build
+npm run check:secrets:build
+```
 
-The main landing page uses section anchors and keyboard-accessible story links. Scroll listeners are passive and visual updates use requestAnimationFrame; wheel and touch scrolling are not intercepted. Animations respect reduced-motion preferences. The earlier support, detail, about, and demo prototypes remain directly accessible at their routes but are not linked from the marketing page.
+CI also exercises database privacy boundaries and browser interactions. Recorded production verification includes real Gemini text and voice, resource actions, map rendering, and Google sign-in, natural refresh, and logout. Accessibility evidence includes automated checks and owner-performed Safari/VoiceOver acceptance.
 
-The landing-page network and neighborhood illustration, pilot location, regional view, and needs overlays are illustrative. They do not show measured community conditions or verified services. The landing-page background is generated from the supplied design reference; its generation prompt is saved in `public/assets/access-earth-network.prompt.txt`. Demo Earth texture: [NASA/GSFC Scientific Visualization Studio, Blue Marble](https://svs.gsfc.nasa.gov/2915). The regional image is a generated concept asset.
+## Scope and responsible use
 
-## Our Ground backend
+The live site is for adults **19 and older**. Eden’s hosted AI is restricted to eligible U.S. access and bounded free-tier capacity. Voice requires explicit microphone consent. Avoid personal, medical, financial, or other sensitive details. Live microphone audio goes directly to Google during the call, subject to the displayed provider disclosure.
 
-Start the API immediately with `npm run dev:api:demo`. It serves fictional Pennsylvania resources at `http://127.0.0.1:8787/api/v1`; run `npm run dev` separately for the connected frontend and local API proxy. See [backend endpoints and implementation](backend/README.md) and [exact setup steps](backend/SETUP.md). No cloud database changes or deployment have been made without credentials.
+Directory coverage varies by area. Imported listings and mapped leads do not establish current availability, independent verification, a partnership, or eligibility for a service. Confirm details with the organization. Our Ground provides resource navigation and does not provide medical advice or process donations.
 
-The [current architecture proposal](our-ground-backend-proposal/README.md) records the simplified team-review scope. The [earlier planning package](docs/backend/README.md) remains as reference.
+## Contributors and rights
+
+Maintained and developed by **Penuel Stanley-Zebulon** ([iampenuel](https://github.com/iampenuel)). The repository also includes the original project and backend-verification contributions from [JasurbekElmuratov](https://github.com/JasurbekElmuratov). See [credits](CREDITS.md) for contributor and third-party attribution details.
+
+This repository showcases a finished application. No repository-wide license is currently specified. Third-party code, data, images, and branding retain their applicable terms. The included [ReactDrops license](src/eden/reactdrops/LICENSE.txt) permits integrated end products and restricts redistribution as reusable development assets. Publishing this project does not relicense those components.

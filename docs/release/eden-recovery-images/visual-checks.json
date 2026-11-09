@@ -1,0 +1,118 @@
+{
+  "scope": "http://127.0.0.1:4291",
+  "views": [
+    {
+      "label": "desktop",
+      "width": 1440,
+      "height": 900,
+      "scrollWidth": 1440,
+      "panelInside": true,
+      "composerInside": true,
+      "transcript": 328
+    },
+    {
+      "label": "tablet",
+      "width": 768,
+      "height": 1024,
+      "scrollWidth": 768,
+      "panelInside": true,
+      "composerInside": true,
+      "transcript": 328
+    },
+    {
+      "label": "mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "panelInside": true,
+      "composerInside": true,
+      "transcript": 304
+    },
+    {
+      "label": "narrow",
+      "width": 320,
+      "height": 740,
+      "scrollWidth": 320,
+      "panelInside": true,
+      "composerInside": true,
+      "transcript": 304
+    },
+    {
+      "label": "zoom",
+      "width": 720,
+      "height": 450,
+      "scrollWidth": 720,
+      "panelInside": true,
+      "composerInside": true,
+      "transcript": 186
+    }
+  ],
+  "accessibility": [
+    {
+      "view": "desktop",
+      "route": "home+eden",
+      "violations": []
+    },
+    {
+      "view": "desktop",
+      "route": "/give",
+      "violations": []
+    },
+    {
+      "view": "desktop",
+      "route": "/organizations",
+      "violations": []
+    },
+    {
+      "view": "desktop",
+      "route": "/account",
+      "violations": []
+    },
+    {
+      "view": "desktop",
+      "route": "/support",
+      "violations": []
+    },
+    {
+      "view": "tablet",
+      "route": "home+eden",
+      "violations": []
+    },
+    {
+      "view": "mobile",
+      "route": "home+eden",
+      "violations": []
+    },
+    {
+      "view": "mobile",
+      "route": "/give",
+      "violations": []
+    },
+    {
+      "view": "mobile",
+      "route": "/organizations",
+      "violations": []
+    },
+    {
+      "view": "mobile",
+      "route": "/account",
+      "violations": []
+    },
+    {
+      "view": "mobile",
+      "route": "/support",
+      "violations": []
+    },
+    {
+      "view": "narrow",
+      "route": "home+eden",
+      "violations": []
+    },
+    {
+      "view": "zoom",
+      "route": "home+eden",
+      "violations": []
+    }
+  ],
+  "unexpected": []
+}

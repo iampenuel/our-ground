@@ -1,0 +1,9 @@
+{
+  "historical_raw": 19537,
+  "historical_accepted": 17418,
+  "current_raw": 19569,
+  "current_with_historical_policy": 17713,
+  "removed_by_service_delivery_policy": 1296,
+  "current_accepted": 16417,
+  "raw_sha256": "304c9236787cbed7869ee07eff750e32db4109fa51fe11b77f74c9ed98655c3c"
+}

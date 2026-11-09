@@ -1,0 +1,36 @@
+{
+  "origin": "https://ourground-staging-c87obfk6q-penuels-projects-aa802b06.vercel.app",
+  "sha": "08b1685d42b4ec6285433f7d84a5f20aec3c194a",
+  "scope": "genuine hosted Gemini text and directory actions; no speech synthesis",
+  "steps": [
+    {
+      "name": "sf",
+      "trace": {
+        "correlationId": "b7e66cf5-6ba3-4e87-a300-9c2197dd03fe",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "search",
+        "outcome": "confirmed"
+      },
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200
+        },
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 200
+        }
+      ],
+      "searches": 1,
+      "location": "San Francisco, CA",
+      "reply": "Your search is ready. 142 matching healthcare listings within 10 miles of San Francisco, CA. The first 20 are shown. These are public directory listings, not independently verified operating services. Here is what the listing says: WINDSOR HOTEL."
+    }
+  ],
+  "status": "PASS"
+}

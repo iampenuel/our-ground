@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "scope": "protected compiled launcher UI with provider requests forbidden",
+  "base": "https://ourground-staging-c87obfk6q-penuels-projects-aa802b06.vercel.app",
+  "sha": "08b1685d42b4ec6285433f7d84a5f20aec3c194a",
+  "views": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900,
+      "motion": "no-preference",
+      "entrance": [
+        {
+          "target": "eden-launch",
+          "duration": 300
+        },
+        {
+          "target": "eden-introduction",
+          "duration": 180
+        }
+      ],
+      "geometry": {
+        "left": 1152,
+        "right": 1416,
+        "top": 692.03125,
+        "bottom": 784,
+        "width": 1440,
+        "height": 900
+      },
+      "refreshRestored": true,
+      "providerCalls": 0,
+      "audioStarts": 0
+    },
+    {
+      "name": "mobile",
+      "width": 320,
+      "height": 740,
+      "motion": "no-preference",
+      "entrance": [
+        {
+          "target": "eden-launch",
+          "duration": 300
+        },
+        {
+          "target": "eden-introduction",
+          "duration": 180
+        }
+      ],
+      "geometry": {
+        "left": 54,
+        "right": 304,
+        "top": 556.3125,
+        "bottom": 644,
+        "width": 320,
+        "height": 740
+      },
+      "refreshRestored": true,
+      "providerCalls": 0,
+      "audioStarts": 0
+    },
+    {
+      "name": "reduced",
+      "width": 720,
+      "height": 450,
+      "motion": "reduce",
+      "entrance": [],
+      "geometry": {
+        "left": 454,
+        "right": 704,
+        "top": 266.3125,
+        "bottom": 354,
+        "width": 720,
+        "height": 450
+      },
+      "refreshRestored": true,
+      "providerCalls": 0,
+      "audioStarts": 0
+    }
+  ]
+}

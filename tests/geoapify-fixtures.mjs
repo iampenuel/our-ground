@@ -1,0 +1,5 @@
+// Invented, deterministic fixtures. Never a production provider fallback.
+export const geoTestEnv={GEOAPIFY_ENABLED:'true',GEOAPIFY_LIVE_APPROVED:'true',GEOAPIFY_SERVER_API_KEY:'mock-server-value-not-a-credential'};
+export const geoTowns={Harrisburg:[40.2732,-76.8867],Philadelphia:[39.9526,-75.1636],Middletown:[40.1998,-76.7311]};
+export function geoCity(city='Harrisburg',extra={}){const [lat,lon]=geoTowns[city];return{place_id:'mock_city_'+city,city,state:'Pennsylvania',state_code:'PA',country_code:'us',formatted:city+', PA, USA',lat,lon,result_type:'city',rank:{confidence:1},datasource:{sourcename:'openstreetmap',attribution:'© OpenStreetMap contributors'},...extra};}
+export function geoFeature(city='Harrisburg',extra={}){const [lat,lon]=geoTowns[city];return{type:'Feature',geometry:{type:'Point',coordinates:[lon,lat]},properties:{place_id:'mock_food_'+city,name:'Mock Food Service — do not visit',formatted:'MOCK ADDRESS, '+city+', PA',lat,lon,state:'Pennsylvania',state_code:'PA',country_code:'us',categories:['service','service.social_facility','service.social_facility.food'],datasource:{sourcename:'openstreetmap'},...extra}};}

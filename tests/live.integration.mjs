@@ -8,9 +8,9 @@ import {closeDatabase} from '../backend/postgres.ts';
 import {developmentTarget} from '../backend/db-target.mjs';
 import {inspectDatabase} from '../backend/db-checks.mjs';
 
-const required = ['DATABASE_URL','MIGRATION_DATABASE_URL','SUPABASE_DEV_PROJECT_REF','SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','INTEGRATION_STAFF_ACCESS_TOKEN','INTEGRATION_OUTSIDER_ACCESS_TOKEN'];
+const required = ['DATABASE_URL','MIGRATION_DATABASE_URL','SUPABASE_DEV_PROJECT_REF','SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','INTEGRATION_STAFF_ACCESS_TOKEN','INTEGRATION_OUTSIDER_ACCESS_TOKEN','ACCOUNT_ALLOWED_ORIGINS'];
 const missing = required.filter(k=>!process.env[k]);
-test('real Supabase database and existing Google sessions: discovery, reports, ownership and conflicts', {skip:missing.length ? 'BLOCKED: missing '+missing.join(', ') : false}, async t => {
+test('real Supabase database and confirmed sessions: public records and legacy access restrictions', {skip:missing.length ? 'BLOCKED: missing '+missing.join(', ') : false}, async t => {
   developmentTarget(process.env.MIGRATION_DATABASE_URL); developmentTarget(process.env.DATABASE_URL);
   process.env.BACKEND_DATA_MODE='postgres'; process.env.ALLOW_DEMO_DATA='true';
   const owner=postgres(process.env.MIGRATION_DATABASE_URL,{max:1,prepare:false,ssl:'require',connect_timeout:10,onnotice:()=>{}});
@@ -24,8 +24,8 @@ test('real Supabase database and existing Google sessions: discovery, reports, o
     const me=await send('me',staff); assert.equal(me.status,200); const editor=await me.json();
     const other=await send('me',outsider); assert.equal(other.status,200); const otherAccount=await other.json();
     assert.notEqual(editor.id,otherAccount.id); assert.equal(editor.role,'user'); assert.equal(otherAccount.role,'user');
-    const google=await owner`select id from auth.users where id in (${editor.id},${otherAccount.id}) and raw_app_meta_data->'providers' ? 'google'`;
-    assert.equal(google.length,2,'Use two existing Google Auth sessions, both ordinary user accounts.');
+    const confirmed=await owner`select id from auth.users where id in (${editor.id},${otherAccount.id}) and email_confirmed_at is not null`;
+    assert.equal(confirmed.length,2,'Use two existing confirmed Auth sessions, both ordinary user accounts.');
     await owner.begin(async tx=>{
       await tx`insert into app_private.organizations(id,name,status,is_demo) values (${org},'Integration fixture — fictional','published',true)`;
       await tx`insert into app_private.service_locations(id,organization_id,site_name,city,state,point,status,is_demo) values (${location},${org},'Fictional test point','Harrisburg','PA',extensions.st_setsrid(extensions.st_makepoint(-76.8867,40.2732),4326)::extensions.geography,'published',true)`;
@@ -57,12 +57,11 @@ test('real Supabase database and existing Google sessions: discovery, reports, o
       assert.equal((await send('services/'+service,'invalid-token',patch)).status,401);
       assert.equal((await send('services/'+service,outsider,patch)).status,404);
     });
-    await t.test('assigned editor updates once and a stale write cannot overwrite it',async()=>{
-      const initial=await send('services/'+service,staff); const record=await initial.json(); assert.equal(record.version,1);
-      const patch={method:'PATCH',body:JSON.stringify({expected_version:1,summary:tag+' updated'})};
-      const first=await send('services/'+service,staff,patch); assert.equal(first.status,200); assert.equal((await first.json()).version,2);
-      assert.equal((await send('services/'+service,staff,{...patch,body:JSON.stringify({expected_version:1,summary:'Stale overwrite'})})).status,409);
-      const detail=await send('resources/'+service); assert.equal((await detail.json()).summary,tag+' updated');
+    await t.test('legacy membership alone cannot bypass a reviewed listing association',async()=>{
+      assert.equal((await send('services/'+service,staff)).status,404);
+      const response=await send('services/'+service,staff,{method:'PATCH',body:JSON.stringify({expected_version:1,summary:'Attempted direct publication'})});
+      assert.equal(response.status,409);
+      assert.equal((await(await send('resources/'+service)).json()).summary,tag);
     });
   } finally {
     // Remove only rows tied to UUIDs created by this test; never reset application data.

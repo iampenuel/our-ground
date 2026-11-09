@@ -1,0 +1,65 @@
+{
+  "pass": true,
+  "actions": [
+    "details",
+    "search",
+    "select"
+  ],
+  "cardSource": "https://data.hrsa.gov/topics/health-centers/",
+  "detail": {
+    "title": "HILL HOUSE HEALTH CENTER",
+    "source": "https://data.hrsa.gov/topics/health-centers/",
+    "id": "BPS-H80-000827"
+  },
+  "foodAt25": {
+    "total": 324,
+    "loaded": 20
+  },
+  "foodSource": "https://opendataphilly.org/datasets/free-food-and-meal-sites/",
+  "stats": {
+    "style_200": 1,
+    "map_asset_200": 3,
+    "tile_200": 2
+  },
+  "api": [
+    {
+      "path": "/api/v1/locations/status",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/geoapify/status",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/places/directory-city",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/7c29d14b-6372-57f9-a82a-069dbe32adb0",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/7c29d14b-6372-57f9-a82a-069dbe32adb0",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/places/directory-city",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    },
+    {
+      "path": "/api/v1/resources/search",
+      "status": 200
+    }
+  ],
+  "errors": [],
+  "authenticatedSameOriginRequests": 69,
+  "credentialSentToOtherOrigins": 0
+}

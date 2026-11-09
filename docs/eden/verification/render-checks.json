@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "nativeRenders": 14,
+  "expressionAndAudioVariants": 10,
+  "blinkChangesPixels": true,
+  "reducedMotionPixelIdentical": true,
+  "hashes": {
+    "idle": "9daa36f0fbcaa2386c3a810de34ed114c7afd23bd0c97ec341d2c885f2e0ca1d",
+    "listening": "cff2dc93056640dee8f0fda51efd23491f879bcdefff5848cd70b7b75477584a",
+    "thinking": "5e1aea6fafdd56eb80ca23b764c46d403f1c3d5998d7f1b11430244ea517861d",
+    "searching": "44e811ca526ff7bbc0416f908d5a802020a497348d7de5a3c164a42ffacb19f5",
+    "speaking-quiet": "8a8593439c166b51832755999303a45af005a9cf7943a535c9b7cbbce476beb0",
+    "speaking-open": "d5ebceb9afdd702b38894b175420e7312ba72722ab035b382390abda2736c79c",
+    "speaking-rounded": "9a47b9a911d7c660325975e5b82e2a7b59d6cc6f2547d2d37b114e3d08571922",
+    "success": "416a775cab00c884ef8bfd9cd3dfa352b8f3007d3c8e9f7d75582fb83c2ffb0b",
+    "clarifying": "1ea31c97377944d16994961b9dcceabb60b05dde38921040ba2b808262d76fe2",
+    "unable": "f49c7eac7a79fc095c0a157dec4b580c24e938cc7edc6e7849aacb3df6b0e630",
+    "blink": "aacdf98bbdb9dba76db07e48620c17b56d386b5dbca501a934691779bf69dfa3",
+    "blink-open": "466a238e7ef713f6460b51e72e7aaa80949d729c238880e3832590de2de3b6da",
+    "reduced-a": "ed0fecf8e958ee2c00b4b924a0a145af16bd89c6251c1c14513a20dc83656e78",
+    "reduced-b": "ed0fecf8e958ee2c00b4b924a0a145af16bd89c6251c1c14513a20dc83656e78"
+  }
+}

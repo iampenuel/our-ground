@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-06",
+  "mainBuild": "passed",
+  "previewBuild": "passed",
+  "repositoryTests": {
+    "passed": 449,
+    "failed": 0
+  },
+  "edenTests": {
+    "passed": 9,
+    "failed": 0
+  },
+  "riveCli": "1.9.1",
+  "riveRuntime": "2.49.4",
+  "riveVerify": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "nativeCaptures": 14,
+  "browserViewports": [
+    {
+      "width": 1280,
+      "height": 960
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "nativeRuntimeObserved": true,
+  "svgFallbackObserved": true,
+  "originalPngHashVerified": true,
+  "originalEditorFileChanged": false,
+  "deployed": false,
+  "geminiIntegrated": false,
+  "watermarked": true,
+  "partialRig": true
+}

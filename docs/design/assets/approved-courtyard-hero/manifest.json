@@ -1,0 +1,56 @@
+{
+  "project": "Our Ground",
+  "assets": [
+    {
+      "path": "source/hero-courtyard-approved-master.png",
+      "size": [
+        1672,
+        941
+      ],
+      "bytes": 3705799,
+      "sha256": "b1638f794740e9823fdf41f5412ed17a85bfd1e8a85677fb70b865a633ee4d00",
+      "description": "Unmodified user-approved PNG master, full composition."
+    },
+    {
+      "path": "public/images/our-ground/hero-courtyard-approved-desktop.webp",
+      "size": [
+        1672,
+        941
+      ],
+      "bytes": 398906,
+      "sha256": "ae3291ae38aeaf6c61b33325f55bc49a77730a4bf57646cddc8bf8222f392d2b",
+      "description": "Full composition 1672x941, high-quality WebP; recommended desktop hero."
+    },
+    {
+      "path": "public/images/our-ground/hero-courtyard-approved-1200.webp",
+      "size": [
+        1200,
+        675
+      ],
+      "bytes": 201994,
+      "sha256": "af5ca1b33c6f6813d665101998aad6f6943f344952a60780eaa2595760b813f9",
+      "description": "Full composition, 1200px derivative for smaller viewports."
+    },
+    {
+      "path": "public/images/our-ground/hero-courtyard-approved-mobile.webp",
+      "size": [
+        960,
+        720
+      ],
+      "bytes": 193030,
+      "sha256": "21b64fe50e7d57ef632caa173d4eafd865b654b3b51fe689e25c7f19df7122b1",
+      "description": "Mobile 4:3 crop from original right-hand subject group, 960x720; use with separate text, never overlay text."
+    }
+  ],
+  "source_dimensions": [
+    1672,
+    941
+  ],
+  "mobile_crop_xyxy": [
+    417,
+    0,
+    1672,
+    941
+  ],
+  "transformations": "WebP encoding, Lanczos resize, and mobile right-oriented crop only; no generative modifications."
+}

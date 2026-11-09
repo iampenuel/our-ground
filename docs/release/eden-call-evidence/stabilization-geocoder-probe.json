@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "http": 200,
+  "results": [
+    {
+      "city": "San Francisco",
+      "state": "CA",
+      "country": "us",
+      "type": "city",
+      "latitude": 37.7879363,
+      "longitude": -122.4075201,
+      "confidence": 1,
+      "cityConfidence": 1
+    }
+  ]
+}

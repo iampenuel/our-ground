@@ -1,0 +1,37 @@
+{
+  "origin": "https://ourground-staging-z9lfmd8s0-penuels-projects-aa802b06.vercel.app",
+  "sha": "14975ca9fddaeebcba43891dc1e67b3006c8c146",
+  "scope": "real location and directory services; fixture Gemini decisions",
+  "cases": [
+    {
+      "input": "20706",
+      "expectedLabel": "20706",
+      "stage": "complete",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "20706",
+      "manualQuery": "20706",
+      "manualCenter": [
+        38.965617,
+        -76.851234
+      ],
+      "edenDiagnostic": {
+        "outcome": "done",
+        "plannedCity": "20706",
+        "completedCity": "20706",
+        "resultCount": 4,
+        "reply": "The resolved location has 4 matching directory listings."
+      },
+      "edenCityId": "20706",
+      "edenLocation": "20706",
+      "edenQuery": "20706",
+      "edenCenter": [
+        38.965617,
+        -76.851234
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 4
+    }
+  ],
+  "status": "PASS"
+}

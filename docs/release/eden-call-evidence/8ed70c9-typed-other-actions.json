@@ -1,0 +1,34 @@
+{
+  "base": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "8ed70c96372068bff5a06ea7e711d7c8c02b63e5",
+  "scope": "dialogue",
+  "steps": [
+    {
+      "name": "correct category",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200,
+          "correlation": "9cf0c2a7-d2b7-42f8-8e4f-506c8de4d9da"
+        },
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "99c6b802-c6b4-4c72-abfd-900167be25af"
+        }
+      ],
+      "trace": {
+        "correlationId": "99c6b802-c6b4-4c72-abfd-900167be25af",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "unavailable",
+        "proposedAction": null,
+        "outcome": "failed"
+      }
+    }
+  ],
+  "errors": [],
+  "status": "FAIL",
+  "failure": "{\"name\":\"correct category\",\"status\":[[\"session\",200],[\"understand\",200]],\"trace\":{\"correlationId\":\"99c6b802-c6b4-4c72-abfd-900167be25af\",\"provider\":\"gemini\",\"model\":\"gemini-3.5-flash-lite\",\"output\":\"unavailable\",\"proposedAction\":null,\"outcome\":\"failed\"}}\n+ actual - expected\n\n+ 'failed'\n- 'confirmed'\n"
+}

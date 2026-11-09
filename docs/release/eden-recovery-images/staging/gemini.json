@@ -1,0 +1,54 @@
+{
+  "base": "https://ourground-staging-m1eg75y65-penuels-projects-aa802b06.vercel.app",
+  "requests": [
+    {
+      "route": "session",
+      "status": 200
+    },
+    {
+      "route": "understand",
+      "status": 200
+    },
+    {
+      "route": "plan",
+      "status": 200
+    },
+    {
+      "route": "result",
+      "status": 200
+    },
+    {
+      "route": "plan",
+      "status": 200
+    },
+    {
+      "route": "result",
+      "status": 200
+    },
+    {
+      "route": "plan",
+      "status": 200
+    },
+    {
+      "route": "result",
+      "status": 200
+    },
+    {
+      "route": "speech",
+      "status": 200
+    }
+  ],
+  "checks": {
+    "greeting": "Hi there! How can I help you today?",
+    "donor": "The page is open. Here is what I found: Give Support links to official food bank resources for volunteering, giving goods and financial support. Our Ground does not process donations, book volunteer opportunities, collect card details, or guarantee tax deductibility.",
+    "food": "Your search is ready. Here is what I found: 0 matching directory listings within the search distance. This does not mean local support is unavailable.",
+    "healthcare": "Your search filters have been updated. These are public directory listings, not independently verified operating services.",
+    "speech": {
+      "status": 200,
+      "mime": "audio/wav",
+      "playbackStarted": true,
+      "stop": true
+    }
+  },
+  "errors": []
+}

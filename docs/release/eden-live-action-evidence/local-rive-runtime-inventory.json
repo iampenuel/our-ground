@@ -1,0 +1,78 @@
+[
+  {
+    "path": "/assets/eden/approved-profile/eden-launcher.riv",
+    "http": 200,
+    "bytes": 104822,
+    "artboards": [
+      "Eden",
+      "NuRiveWordmark01",
+      "NuRiveBrandmark01",
+      "Watermark"
+    ],
+    "machines": [
+      "Eden"
+    ],
+    "timelines": [
+      "Launcher natural idle",
+      "Still",
+      "Launcher idle with host blinks",
+      "No override",
+      "Single blink"
+    ],
+    "viewModel": "EdenControls",
+    "properties": [
+      "state",
+      "audioLevel",
+      "mouthOverride",
+      "reducedMotion",
+      "blinkNow",
+      "hostBlinks"
+    ],
+    "nativeAdvances": 56
+  },
+  {
+    "path": "/assets/eden/rig/eden.riv",
+    "http": 200,
+    "bytes": 3095566,
+    "artboards": [
+      "Eden",
+      "NuRiveWordmark01",
+      "NuRiveBrandmark01",
+      "Watermark"
+    ],
+    "machines": [
+      "Eden"
+    ],
+    "timelines": [
+      "idle",
+      "listening",
+      "thinking",
+      "searching",
+      "speaking",
+      "success",
+      "clarifying",
+      "unable",
+      "Mouth closed",
+      "Mouth slight",
+      "Mouth medium",
+      "Mouth wide",
+      "Mouth rounded",
+      "Mouth smile",
+      "Breath and varied blinks",
+      "Still",
+      "No override",
+      "Single blink",
+      "Breathing with host blink scheduling"
+    ],
+    "viewModel": "EdenControls",
+    "properties": [
+      "state",
+      "audioLevel",
+      "mouthOverride",
+      "reducedMotion",
+      "blinkNow",
+      "hostBlinks"
+    ],
+    "nativeAdvances": 53
+  }
+]

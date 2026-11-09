@@ -1,0 +1,63 @@
+{
+  "base": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "3fbf44adf2c638da44b1c26bed97a21f2e854ce3",
+  "scope": "compound-recording",
+  "steps": [
+    {
+      "name": "search then open verified row",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200,
+          "correlation": "dfd9d373-a443-477f-8d97-5c5ae8189748"
+        },
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "f7041c59-aeb3-4da8-8d89-354017282a5f"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "f7041c59-aeb3-4da8-8d89-354017282a5f"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "f7041c59-aeb3-4da8-8d89-354017282a5f"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "f7041c59-aeb3-4da8-8d89-354017282a5f"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "f7041c59-aeb3-4da8-8d89-354017282a5f"
+        }
+      ],
+      "trace": {
+        "correlationId": "f7041c59-aeb3-4da8-8d89-354017282a5f",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "details",
+        "outcome": "confirmed"
+      },
+      "reply": "The listing details are open. Here is what I found: HHC- South Allison Hill. Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified. These are public directory listings, not independently verified operating services.",
+      "cursor": {
+        "operations": 6,
+        "allPointsInside": true,
+        "openedFirstPublicListing": true,
+        "recording": {
+          "frames": 66,
+          "seconds": 16.28
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "status": "PASS"
+}

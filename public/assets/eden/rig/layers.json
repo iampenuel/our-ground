@@ -1,0 +1,122 @@
+{
+  "master": {
+    "width": 1254,
+    "height": 1254,
+    "sha256": "3684dc5bf698214170022b433f440634f2b41c6ec0a6b737ef25448097dbd871"
+  },
+  "riveVersion": "1.9.1",
+  "layers": {
+    "head": "0:100",
+    "frontHairRight": "0:101",
+    "frontHairRightArt": "0:102",
+    "frontHairRightArtMask": "0:103",
+    "frontHairRightArtSilhouette": "0:104",
+    "frontHairLeft": "0:105",
+    "frontHairLeftArt": "0:106",
+    "frontHairLeftArtMask": "0:107",
+    "frontHairLeftArtSilhouette": "0:108",
+    "mouth": "0:109",
+    "mouthTeeth": "0:110",
+    "mouthTongue": "0:111",
+    "mouthCavity": "0:112",
+    "rightLid": "0:113",
+    "leftLid": "0:114",
+    "rightEye": "0:115",
+    "rightAperture": "0:116",
+    "rightApertureMask": "0:117",
+    "rightLash": "0:118",
+    "rightLashMask": "0:119",
+    "rightLashSilhouette": "0:120",
+    "rightGaze": "0:121",
+    "rightPupil": "0:122",
+    "rightPupilArt": "0:123",
+    "rightPupilArtMask": "0:124",
+    "rightPupilArtSilhouette": "0:125",
+    "leftEye": "0:126",
+    "leftAperture": "0:127",
+    "leftApertureMask": "0:128",
+    "leftLash": "0:129",
+    "leftLashMask": "0:130",
+    "leftLashSilhouette": "0:131",
+    "leftGaze": "0:132",
+    "leftPupil": "0:133",
+    "leftPupilArt": "0:134",
+    "leftPupilArtMask": "0:135",
+    "leftPupilArtSilhouette": "0:136",
+    "rightBrow": "0:137",
+    "rightBrowArt": "0:138",
+    "rightBrowArtMask": "0:139",
+    "rightBrowArtSilhouette": "0:140",
+    "leftBrow": "0:141",
+    "leftBrowArt": "0:142",
+    "leftBrowArtMask": "0:143",
+    "leftBrowArtSilhouette": "0:144",
+    "rightEarring": "0:145",
+    "rightHoopArt": "0:146",
+    "rightHoopArtMask": "0:147",
+    "rightHoopArtSilhouette": "0:148",
+    "leftEarring": "0:149",
+    "leftHoopArt": "0:150",
+    "leftHoopArtMask": "0:151",
+    "leftHoopArtSilhouette": "0:152",
+    "headMaster": "0:153",
+    "headMasterMask": "0:154",
+    "headMasterSilhouette": "0:155",
+    "rightLongHair": "0:156",
+    "rightLongHairArt": "0:157",
+    "rightLongHairArtMask": "0:158",
+    "rightLongHairArtSilhouette": "0:159",
+    "leftLongHair": "0:160",
+    "leftLongHairArt": "0:161",
+    "leftLongHairArtMask": "0:162",
+    "leftLongHairArtSilhouette": "0:163",
+    "body": "0:164",
+    "reconstructedHiddenNeck": "0:165",
+    "torsoCardiganTopNecklace": "0:166",
+    "torsoCardiganTopNecklaceMask": "0:167",
+    "torsoCardiganTopNecklaceSilhouette": "0:168",
+    "backHair": "0:169",
+    "reconstructedHiddenHair": "0:170",
+    "backHairArt": "0:171",
+    "backHairArtMask": "0:172",
+    "backHairArtSilhouette": "0:173"
+  },
+  "mouthPoses": {
+    "closed": {
+      "width": 0.88,
+      "open": 0.035,
+      "round": 0
+    },
+    "slight": {
+      "width": 0.91,
+      "open": 0.25,
+      "round": 0
+    },
+    "medium": {
+      "width": 0.96,
+      "open": 0.57,
+      "round": 0
+    },
+    "wide": {
+      "width": 1,
+      "open": 1.04,
+      "round": 0
+    },
+    "rounded": {
+      "width": 0.5,
+      "open": 0.68,
+      "round": 1
+    },
+    "smile": {
+      "width": 1.03,
+      "open": 0.78,
+      "round": 0
+    }
+  },
+  "limitations": [
+    "Cardigan, cream top, neck and necklace are attached in one torso raster layer.",
+    "Pupils are the original solid dark eye shapes; no white or iris detail has been invented.",
+    "Head turn is a small planar tilt, not a three-dimensional yaw.",
+    "Clean skin underlayer reconstructed from approved image."
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "base": "https://ourground-staging-lw7wxlczb-penuels-projects-aa802b06.vercel.app",
+  "sha": "916ebc2b530f6167137e1c1e280113ec4be9c52c",
+  "scope": "dialogue",
+  "steps": [
+    {
+      "name": "identity",
+      "route": "/",
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200,
+          "correlation": "3c917be2-cb10-4745-bd34-17368a7d0b45"
+        },
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "38703dbb-97dd-4e08-8619-22c072978aba"
+        }
+      ],
+      "trace": {
+        "correlationId": "38703dbb-97dd-4e08-8619-22c072978aba",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "identity",
+        "outcome": "confirmed"
+      },
+      "reply": "I’m Eden, Our Ground’s AI assistant. I can find nearby food, healthcare, and community support and help you explore a listing."
+    },
+    {
+      "name": "capabilities",
+      "route": "/",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "189389d1-33f8-48c4-86ec-b0b397a54a5d"
+        }
+      ],
+      "trace": {
+        "correlationId": "189389d1-33f8-48c4-86ec-b0b397a54a5d",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "capabilities",
+        "outcome": "confirmed"
+      },
+      "reply": "I can help you use the public directory. I can find nearby food, healthcare, and community support and help you explore a listing."
+    },
+    {
+      "name": "healthcare search",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "10a00a18-0099-4f02-8b43-52f588fca0ec"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "10a00a18-0099-4f02-8b43-52f588fca0ec"
+        }
+      ],
+      "trace": {
+        "correlationId": "10a00a18-0099-4f02-8b43-52f588fca0ec",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "search",
+        "outcome": "confirmed"
+      },
+      "reply": "Your search is ready. 6 matching healthcare listings within 10 miles of Harrisburg, Pennsylvania. These are public directory listings, not independently verified operating services. HHC- South Allison Hill."
+    },
+    {
+      "name": "first visible result",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "971c429a-7ce3-4140-98d0-8a421f8110b4"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "971c429a-7ce3-4140-98d0-8a421f8110b4"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "971c429a-7ce3-4140-98d0-8a421f8110b4"
+        }
+      ],
+      "trace": {
+        "correlationId": "971c429a-7ce3-4140-98d0-8a421f8110b4",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "details",
+        "outcome": "confirmed"
+      },
+      "reply": "The listing details are open. The listing says: HHC- South Allison Hill. Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified. These are public directory listings, not independently verified operating services."
+    },
+    {
+      "name": "correct category",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "76474cfc-a4f1-44f9-88c2-a5d5f1896930"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "76474cfc-a4f1-44f9-88c2-a5d5f1896930"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "76474cfc-a4f1-44f9-88c2-a5d5f1896930"
+        }
+      ],
+      "trace": {
+        "correlationId": "76474cfc-a4f1-44f9-88c2-a5d5f1896930",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "refine",
+        "outcome": "confirmed"
+      },
+      "reply": "Your search filters have been updated."
+    }
+  ],
+  "errors": [],
+  "status": "FAIL",
+  "failure": "The input did not match the regular expression /food|pantry|pantries/i. Input:\n\n'Your search filters have been updated.'\n"
+}

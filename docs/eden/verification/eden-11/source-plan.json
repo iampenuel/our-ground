@@ -1,0 +1,805 @@
+{
+  "baseline_public": [
+    {
+      "service_id": "5a9b557b-d98a-512e-bd9b-656c500582a6",
+      "source_id": "hrsa-health-centers"
+    },
+    {
+      "service_id": "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+      "source_id": "hrsa-health-centers"
+    },
+    {
+      "service_id": "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+      "source_id": "hrsa-health-centers"
+    }
+  ],
+  "health": {
+    "full_feed_sha256": "304c9236787cbed7869ee07eff750e32db4109fa51fe11b77f74c9ed98655c3c",
+    "slice_sha256": "e67f68397dbb226b8d23bfb5e544be2f7b6c5045ecb83bcc119aa81d0545bcad",
+    "date": "2026-11-06T00:00:00.000Z",
+    "scope": [
+      "Philadelphia",
+      "Pittsburgh",
+      "Lancaster",
+      "Erie",
+      "Scranton",
+      "Allentown",
+      "Reading",
+      "York",
+      "Williamsport",
+      "Johnstown",
+      "Wellsboro",
+      "Huntingdon"
+    ],
+    "added": [
+      {
+        "source_id": "BPS-H80-000827",
+        "id": "7c29d14b-6372-57f9-a82a-069dbe32adb0",
+        "name": "HILL HOUSE HEALTH CENTER",
+        "city": "Pittsburgh",
+        "street": "1835 Centre Ave",
+        "point": [
+          40.44312894,
+          -79.98187669
+        ]
+      },
+      {
+        "source_id": "BPS-H80-027329",
+        "id": "f085f6be-9dcc-53b7-ba4d-419ddc3557a4",
+        "name": "BTAMC Walk In Clinic",
+        "city": "Huntingdon",
+        "street": "6678 Towne Center Blvd",
+        "point": [
+          40.49144756,
+          -78.04525632
+        ]
+      },
+      {
+        "source_id": "BPS-LAL-040961",
+        "id": "ed652cff-7d68-539a-aff4-094ec8643bc5",
+        "name": "Fair Hill Community Physicians- Hunting Park",
+        "city": "Philadelphia",
+        "street": "133 W Hunting Park Ave",
+        "point": [
+          40.01499637,
+          -75.1281583
+        ]
+      },
+      {
+        "source_id": "BPS-H80-012619",
+        "id": "0e9cb10e-b8ff-5115-a533-64da97be21b7",
+        "name": "Wellsboro Laurel Health Center",
+        "city": "Wellsboro",
+        "street": "7 Water St",
+        "point": [
+          41.7498293,
+          -77.30163038
+        ]
+      },
+      {
+        "source_id": "BPS-H80-001707",
+        "id": "c11c215b-e8f0-5b1f-9d25-67eabe1f7541",
+        "name": "EAST LIBERTY MEDICAL OFFICE",
+        "city": "Pittsburgh",
+        "street": "6023 Harvard St",
+        "point": [
+          40.46305885,
+          -79.92301218
+        ]
+      },
+      {
+        "source_id": "BPS-H80-032379",
+        "id": "8593a331-a4b4-514e-b86a-9cfab062a1c3",
+        "name": "Lancaster Southeast - (Medical, Dental & Pharmacy)",
+        "city": "Lancaster",
+        "street": "625 S Duke St",
+        "point": [
+          40.0318119,
+          -76.29706255
+        ]
+      },
+      {
+        "source_id": "BPS-LAL-038216",
+        "id": "4a6f1b29-1e38-5b4b-ad37-c8fc4c7fe61f",
+        "name": "Caring Community Health Center - Mount Pleasant",
+        "city": "Scranton",
+        "street": "531 Mount Pleasant Dr",
+        "point": [
+          41.41694435,
+          -75.67160049
+        ]
+      },
+      {
+        "source_id": "BPS-LAL-040320",
+        "id": "48c3c878-2688-5f27-bf70-623ec834e7c0",
+        "name": "Highlands Health Johnstown",
+        "city": "Johnstown",
+        "street": "315 Locust St",
+        "point": [
+          40.32730864,
+          -78.92048409
+        ]
+      },
+      {
+        "source_id": "BPS-H80-035775",
+        "id": "68a0123e-d877-56d1-8b91-ea2846d023a1",
+        "name": "Neighborhood Health Centers of the Lehigh Valley- Hamilton Street",
+        "city": "Allentown",
+        "street": "160 Hamilton St",
+        "point": [
+          40.60534538,
+          -75.45921078
+        ]
+      },
+      {
+        "source_id": "BPS-H80-018437",
+        "id": "2596e7b0-cc15-51fd-92c3-b327ec812cf3",
+        "name": "BTAMC Primary Care Center",
+        "city": "Huntingdon",
+        "street": "790 Bryan St, #1",
+        "point": [
+          40.49310814,
+          -78.01136921
+        ]
+      },
+      {
+        "source_id": "BPS-H80-037057",
+        "id": "8d85a63b-6e85-55c5-974e-c53a1fc99ac3",
+        "name": "BTAMC Pediatric & Family Healthcare",
+        "city": "Huntingdon",
+        "street": "6311 Margy Dr",
+        "point": [
+          40.47574402,
+          -78.05651699
+        ]
+      },
+      {
+        "source_id": "BPS-H80-014332",
+        "id": "90a0512f-1543-5d11-9a24-9227ada25e0d",
+        "name": "Wayne Primary Care",
+        "city": "Erie",
+        "street": "650 East Ave",
+        "point": [
+          42.13704016,
+          -80.06316397
+        ]
+      },
+      {
+        "source_id": "BPS-H80-027526",
+        "id": "813e4f75-7533-51cd-bd4d-07a12404d595",
+        "name": "River Valley Health - Express and Specialty Care",
+        "city": "Williamsport",
+        "street": "431 Hepburn St",
+        "point": [
+          41.24141306,
+          -77.00695804
+        ]
+      },
+      {
+        "source_id": "BPS-H80-041288",
+        "id": "727563d0-377f-5657-9b98-3eeaa8afabf5",
+        "name": "Hilltop Community Health Center of Cornerstone Care",
+        "city": "Pittsburgh",
+        "street": "151 Ruth St",
+        "point": [
+          40.42291049,
+          -80.00473062
+        ]
+      },
+      {
+        "source_id": "BPS-H80-002129",
+        "id": "f6132a8d-d332-54ea-a039-911b87d5fcf5",
+        "name": "SCRANTON PRIMARY HEALTH CARE CENTER, INC.",
+        "city": "Scranton",
+        "street": "959 Wyoming Ave",
+        "point": [
+          41.4182853,
+          -75.65498941
+        ]
+      },
+      {
+        "source_id": "BPS-H80-011762",
+        "id": "a46bd3d3-aafa-5a72-8495-700beb46f81a",
+        "name": "Vida Nueva at Casa Guadalupe",
+        "city": "Allentown",
+        "street": "218 N 2nd St",
+        "point": [
+          40.6088077,
+          -75.46181856
+        ]
+      },
+      {
+        "source_id": "BPS-H80-002537",
+        "id": "cf1421b4-6c4d-53e0-8122-4f8a41ab0ada",
+        "name": "MARIA DE LOS SANTOS HEALTH CTR",
+        "city": "Philadelphia",
+        "street": "401 W Allegheny Ave",
+        "point": [
+          39.99992961,
+          -75.13688637
+        ]
+      },
+      {
+        "source_id": "BPS-H80-043023",
+        "id": "e8add6b1-b71e-5b59-b839-5b24cf249588",
+        "name": "The Wright Center for Community Health Allied Scranton Practice",
+        "city": "Scranton",
+        "street": "475 Morgan Hwy",
+        "point": [
+          41.45451,
+          -75.67771996
+        ]
+      },
+      {
+        "source_id": "BPS-H80-002861",
+        "id": "69e5ada3-9c14-5904-8377-b9c5ee5a9a0b",
+        "name": "DANIEL S. SNOW, M.D. HEALTH CENTER",
+        "city": "Erie",
+        "street": "1202 State St",
+        "point": [
+          42.12327397,
+          -80.08143803
+        ]
+      },
+      {
+        "source_id": "BPS-H80-015028",
+        "id": "6d775a69-2cf7-50c5-903b-3db7e01e1209",
+        "name": "Berks Community Health Center at Oakbrook",
+        "city": "Reading",
+        "street": "1040 Liggett Ave",
+        "point": [
+          40.31831448,
+          -75.94559418
+        ]
+      },
+      {
+        "source_id": "BPS-H80-011727",
+        "id": "a9245fa2-c0fd-5b07-b36d-370152f2d0f7",
+        "name": "River Valley Health - Williamsport Medical and Dental",
+        "city": "Williamsport",
+        "street": "471 Hepburn St",
+        "point": [
+          41.2423712,
+          -77.0078974
+        ]
+      },
+      {
+        "source_id": "BPS-H80-024665",
+        "id": "b67d7a40-66b6-5835-83c6-14408036963e",
+        "name": "Berks Community Health Center at Rockland",
+        "city": "Reading",
+        "street": "1110 Rockland St",
+        "point": [
+          40.36430196,
+          -75.9146803
+        ]
+      },
+      {
+        "source_id": "BPS-H80-009255",
+        "id": "f530bb4c-b92a-50f6-ae29-a213b6243c31",
+        "name": "Squirrel Hill Health Center",
+        "city": "Pittsburgh",
+        "street": "4516 Browns Hill Rd",
+        "point": [
+          40.41675298,
+          -79.92556799
+        ]
+      },
+      {
+        "source_id": "BPS-H80-018280",
+        "id": "ee11cfaf-ceee-5fe5-9689-a617ed227526",
+        "name": "BTAMC Huntingdon Family Care Center",
+        "city": "Huntingdon",
+        "street": "835 Washington St",
+        "point": [
+          40.48829956,
+          -78.01687369
+        ]
+      },
+      {
+        "source_id": "BPS-H80-011998",
+        "id": "ff6ca3af-cf6e-5c57-b93e-aca4ea0b7e5d",
+        "name": "Berks Community Health Center",
+        "city": "Reading",
+        "street": "838 Penn St",
+        "point": [
+          40.33486531,
+          -75.92108349
+        ]
+      },
+      {
+        "source_id": "BPS-H80-039630",
+        "id": "30900dd4-e78b-5aa1-a604-fc530c647bf9",
+        "name": "Family First Health Dental Center at Springwood Road",
+        "city": "York",
+        "street": "2003 Springwood Rd",
+        "point": [
+          39.9394108,
+          -76.69156211
+        ]
+      },
+      {
+        "source_id": "BPS-H80-037599",
+        "id": "c5ea9f8a-2e70-53ed-99bc-1f72578df8eb",
+        "name": "Lancaster West End",
+        "city": "Lancaster",
+        "street": "234 W Orange St",
+        "point": [
+          40.03892688,
+          -76.31006238
+        ]
+      },
+      {
+        "source_id": "BPS-H80-039595",
+        "id": "86aa7d94-aa1e-5418-9de2-2de8f71c0c44",
+        "name": "Community Health and Wellness Building",
+        "city": "Philadelphia",
+        "street": "3222 H St",
+        "point": [
+          39.99756273,
+          -75.11305939
+        ]
+      },
+      {
+        "source_id": "BPS-H80-038867",
+        "id": "eaf42a90-eab5-52c9-85c7-bbe6db1e7ff8",
+        "name": "BTAMC FAMILY WELLNESS CENTER",
+        "city": "Huntingdon",
+        "street": "419 14th St",
+        "point": [
+          40.49518199,
+          -78.01695667
+        ]
+      },
+      {
+        "source_id": "BPS-H80-012066",
+        "id": "dca2e5f2-632e-5b0a-bca9-ff3c6cc8320e",
+        "name": "Michael R. Fraley Health Center",
+        "city": "Erie",
+        "street": "2120 E 10th St",
+        "point": [
+          42.14304412,
+          -80.03572338
+        ]
+      },
+      {
+        "source_id": "BPS-H80-038663",
+        "id": "be5dd0bc-1283-5d4c-bc4b-3df9f4240a38",
+        "name": "Johnstown Family Health Center",
+        "city": "Johnstown",
+        "street": "227 Franklin St",
+        "point": [
+          40.32438089,
+          -78.91851539
+        ]
+      },
+      {
+        "source_id": "BPS-H80-005170",
+        "id": "5c4835b4-ecb3-5c1e-a7ba-21925759e872",
+        "name": "FAMILY FIRST HEALTH CORPORATION",
+        "city": "York",
+        "street": "116 S George St",
+        "point": [
+          39.96059154,
+          -76.72709484
+        ]
+      },
+      {
+        "source_id": "BPS-H80-041323",
+        "id": "2c3d7885-795c-5502-bbab-350fb184020a",
+        "name": "Abbottsford Falls Health Center",
+        "city": "Philadelphia",
+        "street": "4700 Wissahickon Ave, Suite 118",
+        "point": [
+          40.01585875,
+          -75.17256688
+        ]
+      },
+      {
+        "source_id": "BPS-H80-032378",
+        "id": "9c040c55-c679-5f64-b52f-b2a8cdcc9465",
+        "name": "Lancaster Brightside",
+        "city": "Lancaster",
+        "street": "515 Hershey Ave",
+        "point": [
+          40.02411052,
+          -76.31503931
+        ]
+      },
+      {
+        "source_id": "BPS-H80-032373",
+        "id": "363cc2eb-55bf-577e-bfb3-6b6315a44197",
+        "name": "Lancaster Grandview Plaza",
+        "city": "Lancaster",
+        "street": "802 New Holland Ave, Suite 200",
+        "point": [
+          40.05125946,
+          -76.28766367
+        ]
+      },
+      {
+        "source_id": "BPS-H80-032424",
+        "id": "9dcfed81-c974-5bc1-b285-da65462c22e0",
+        "name": "Lancaster Downtown (Medical, Dental & Pharmacy)",
+        "city": "Lancaster",
+        "street": "304 N Water St",
+        "point": [
+          40.04331765,
+          -76.31023002
+        ]
+      },
+      {
+        "source_id": "BPS-H80-030064",
+        "id": "4548537d-04a7-52c2-a1a5-fbb874bf3241",
+        "name": "Hyndman Area Health Center (Richland Township)",
+        "city": "Johnstown",
+        "street": "203 College Park Plz",
+        "point": [
+          40.27872256,
+          -78.84819914
+        ]
+      },
+      {
+        "source_id": "BPS-H80-008795",
+        "id": "b22b47cf-4166-5d84-84f9-4d0db73ffd23",
+        "name": "Community Health Net Dental",
+        "city": "Erie",
+        "street": "1611 Peach St",
+        "point": [
+          42.11960228,
+          -80.07963583
+        ]
+      },
+      {
+        "source_id": "BPS-H80-008356",
+        "id": "a7f32601-4e73-538c-878e-034db0b1c128",
+        "name": "North Side Christian Health Center",
+        "city": "Pittsburgh",
+        "street": "816 Middle St",
+        "point": [
+          40.45524515,
+          -79.99942186
+        ]
+      },
+      {
+        "source_id": "BPS-H80-027690",
+        "id": "07de3fa5-8fa1-539c-afee-6e50386f62b2",
+        "name": "Wellsboro Laurel Pediatric Center",
+        "city": "Wellsboro",
+        "street": "1B Main St",
+        "point": [
+          41.75051075,
+          -77.29767169
+        ]
+      }
+    ]
+  },
+  "food": {
+    "full_feed_sha256": "8b8872595a45f86f0006cab57957ab3adc58461e0236fa7baf572d5f189b4241",
+    "validated_sha256": "31d6ad668a6aab26c80f59ea91b7d74628040ede00ea1526ff90f70f6a3f9140",
+    "date": "2026-11-05T16:54:29.474Z",
+    "summary": {
+      "source_rows": 404,
+      "accepted": 324,
+      "excluded": 80,
+      "exclusion_reasons": {
+        "inactive": 6,
+        "not_food_assistance": 26,
+        "duplicate_identity": 2,
+        "coordinate_conflict": 45,
+        "unresolved_city_scope": 1
+      },
+      "states": {
+        "PA": 324
+      },
+      "category": "food",
+      "coordinate_quality": {
+        "policy": "regional-food-coordinate-anomalies-v2",
+        "city_anomaly_threshold_miles": 20,
+        "address_point_spread_threshold_miles": 1,
+        "reference_source": "census-gazetteer-2026",
+        "reference_fingerprint": "097f08b95714fbf5b6f86909b75818c51acd1a13652e56642eaed5882b8ccb16",
+        "checked_records": 372,
+        "quarantined_records": 46,
+        "quarantine_reasons": {
+          "unresolved_city_scope": 1,
+          "same_point_conflicting_addresses": 25,
+          "same_address_points_over_1_mile_apart": 31
+        },
+        "unmatched_city_records": 0,
+        "ambiguous_city_records": 0,
+        "unmatched_record_ids": [],
+        "quarantined": [
+          {
+            "record_id": "109",
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "111",
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "142",
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "146",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "148",
+            "reasons": [
+              "unresolved_city_scope"
+            ]
+          },
+          {
+            "record_id": "167",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "177",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "179",
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "190",
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "196",
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "22",
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "23",
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "235",
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "24",
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "242",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "243",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "258",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "272",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "275",
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "276",
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "281",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "294",
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "319",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "321",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "328",
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "331",
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "332",
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "334",
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "335",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "336",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "340",
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "343",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "354",
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "355",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "357",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "358",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "378",
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "384",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "386",
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "387",
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "391",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "392",
+            "reasons": [
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "403",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "68",
+            "reasons": [
+              "same_address_points_over_1_mile_apart"
+            ]
+          },
+          {
+            "record_id": "69",
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ]
+          },
+          {
+            "record_id": "93",
+            "reasons": [
+              "same_address_points_over_1_mile_apart",
+              "same_point_conflicting_addresses"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "max_database_bytes": 150000000
+}

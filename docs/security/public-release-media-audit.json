@@ -1,0 +1,90 @@
+{
+  "auditDate": "2026-11-09",
+  "sourceCommit": "b722ac8402b54bd911dcfc5cbfbcd1b419a71557",
+  "scope": "Unique media blobs reachable from the fetched remote refs and imported local refs, plus the three new public showcase screenshots.",
+  "result": "PASS",
+  "findings": [],
+  "inventory": {
+    "uniqueReachableMediaBlobs": 310,
+    "uniqueImages": 298,
+    "imageFormats": {
+      "png": 149,
+      "jpeg": 124,
+      "webp": 25
+    },
+    "uniqueVideos": 11,
+    "videoContainerDurationSeconds": 277.88,
+    "standaloneAudioFiles": 1,
+    "videosWithAudio": 6,
+    "videosWithoutAudio": 5,
+    "distinctAudioTracksReviewed": 7,
+    "decodedAudioDurationSeconds": 209.66
+  },
+  "imageReview": {
+    "method": "Local Apple Vision accurate English OCR, with pattern scanning of recognized text. No images were uploaded.",
+    "uniqueReachableImagesCovered": 298,
+    "pathBasedOcrExecutions": 336,
+    "decodeOrRecognitionFailuresRemaining": 0,
+    "newShowcaseScreenshotsReviewed": 3,
+    "newShowcaseScreenshotFindings": 0,
+    "showcaseScreenshots": [
+      {
+        "file": "docs/showcase/directory-map.jpg",
+        "sha256": "12d59b72ecc6c41c8d4e552c7e8ff30d77d01ebd99b8fe3ccad2525e09979a6b",
+        "bytes": 175668
+      },
+      {
+        "file": "docs/showcase/homepage.jpg",
+        "sha256": "aab85f21d967a83329a93ff0fc230c6eebce4b47186c33a1c63359198c50b274",
+        "bytes": 258493
+      },
+      {
+        "file": "docs/showcase/mobile-directory.jpg",
+        "sha256": "b9b739910b823a747b6c2a19cf92022459a67d1f69d168d93d46bbdb6c9fa36f",
+        "bytes": 54589
+      }
+    ],
+    "showcaseCapturedAt": "2026-11-09T19:13:21Z",
+    "showcaseFinalRecheck": "PASS"
+  },
+  "videoReview": {
+    "method": "Local frame extraction with bundled FFmpeg or isolated headless Chrome, then local Apple Vision OCR and privacy-pattern scanning.",
+    "uniqueVideosCovered": 11,
+    "sampledFramesReviewed": 292,
+    "sampling": "Approximately one frame per second, including the beginning of each video.",
+    "decodeOrRecognitionFailuresRemaining": 0,
+    "findings": 0
+  },
+  "audioReview": {
+    "method": "All distinct embedded and standalone audio tracks decoded locally to mono PCM and transcribed offline, followed by pattern scanning and content review. No microphone access, external transcription, new OS permission, or privacy-setting changes were used.",
+    "engine": "Homebrew whisper.cpp 1.9.5, CPU execution",
+    "model": "ggml-tiny.en.bin",
+    "modelPublisher": "https://huggingface.co/ggerganov/whisper.cpp/blob/main/ggml-tiny.en.bin",
+    "modelBytes": 77704715,
+    "modelSha256": "921e4cf8686fdd993dcd081a5da5b6c365bfde1162e72b08d75ac75289920b1f",
+    "publisherChecksumVerified": true,
+    "tracksTranscribedSuccessfully": 7,
+    "unreviewedAudioTracks": 0,
+    "contentClassification": "Synthetic public resource-search scenarios, follow-up instructions, and the public Eden introduction.",
+    "findings": 0
+  },
+  "checks": [
+    "Personal email addresses and credential-bearing URLs",
+    "API keys, JWTs, access tokens, refresh tokens, and long credential-like identifiers",
+    "Credential labels, database passwords, and connection-string labels",
+    "Phone-number and other private-data indicators in audio transcripts",
+    "Consistency with synthetic test provenance"
+  ],
+  "limitations": [
+    "OCR and speech recognition are probabilistic and do not prove the absence of every possible disclosure.",
+    "Video review sampled approximately one frame per second; it was not a forensic inspection of every encoded frame.",
+    "The small English speech model can omit or misrecognize short, overlapping, or unclear speech. All seven complete tracks were processed and their recognized content matched synthetic test scenarios.",
+    "This evidence covers repository media. Git metadata, text objects, GitHub Actions, and release attachments are assessed separately in the public-release audit."
+  ],
+  "privacy": {
+    "rawTranscriptsIncluded": false,
+    "credentialsIncluded": false,
+    "privateAuditStoragePathsIncluded": false,
+    "productionModified": false
+  }
+}

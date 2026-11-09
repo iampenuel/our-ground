@@ -1,0 +1,52 @@
+name: Release checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_PASSWORD: local-ci-only
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24.22.1'
+          cache: npm
+      - run: npm ci
+      - run: npm run build && npm run check:secrets:build && npm test
+      - name: Dependencies
+        run: npm audit --omit=dev --audit-level=high
+      - name: Exercise privacy and correction boundaries in disposable PostGIS
+        env:
+          PGPASSWORD: local-ci-only
+          PGUSER: postgres
+          PGDATABASE: ourground_7d_ci
+          PGHOST: 127.0.0.1
+          NATIONAL_TEST_DATABASE_URL: postgresql://postgres@127.0.0.1:5432/ourground_7d_ci
+        run: |
+          psql -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE ourground_7d_ci TEMPLATE template0' -c 'CREATE ROLE anon' -c 'CREATE ROLE authenticated'
+          for migration in backend/migrations/*.sql; do
+            case "$migration" in *002_demo_seed.sql) continue;; esac
+            psql -v ON_ERROR_STOP=1 -1 -f "$migration" > /dev/null
+          done
+          node --experimental-strip-types --test tests/hrsa-privacy.integration.mjs
+      - name: Touch, keyboard and responsive browser journeys
+        run: |
+          npm run dev -- --host 127.0.0.1 --port 4199 --strictPort >/tmp/ourground-vite.log 2>&1 &
+          for i in {1..30}; do curl -fsS 127.0.0.1:4199 -o /dev/null && break; sleep 1; done
+          node tests/release-browser.mjs
+          node tests/production-age-browser.mjs
+          node tests/location-filter-click.browser.mjs
+          node tests/eden-recovery-browser.mjs
+          node tests/eden-pointer-browser.mjs
+          node tests/organization-oauth-browser.mjs

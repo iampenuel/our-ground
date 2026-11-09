@@ -1,0 +1,17 @@
+{
+  "origin": "https://ourground-staging-5q2l94t1e-penuels-projects-aa802b06.vercel.app",
+  "commit": "3fbf44adf2c638da44b1c26bed97a21f2e854ce3",
+  "checkedAtUTC": "2026-11-08T19:56:29.135Z",
+  "displayedReply": "I’m Eden, Our Ground’s AI assistant. I can find nearby food, healthcare, and community support and help you explore a listing.",
+  "subjectivelyReviewed": false,
+  "status": "FAIL",
+  "audioHTTP": 429,
+  "blockedAt": "Aoede audio",
+  "speechRequests": 1,
+  "errorRoutes": [
+    {
+      "route": "speech",
+      "http": 429
+    }
+  ]
+}

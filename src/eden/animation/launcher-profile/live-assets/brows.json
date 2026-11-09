@@ -1,0 +1,17 @@
+{
+  "sourceHeadSha256": "271b079eac174ee8f51eb64f385cad61bcbe1fa2c1ea90c82893963189f5931d",
+  "restPixelDifferences": {
+    "head": 0,
+    "headSpeaking": 0
+  },
+  "movement": {
+    "leftMaxLift": 0.7,
+    "rightMaxLift": 0.6
+  },
+  "layers": [
+    "brow-skin",
+    "brow-left",
+    "brow-right",
+    "brow-fringe"
+  ]
+}

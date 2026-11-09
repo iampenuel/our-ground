@@ -1,0 +1,8 @@
+{
+  "checked_at": "2026-11-07T23:36:34.980563+00:00",
+  "archive_created": "2026-11-07T23:10:37.029Z",
+  "public_rows_in_backup": 367,
+  "ciphertext_sha256": "1bf5adf47a543c7420012da1805cff97f01d6db67e54ea0cf93f9180a1e62b66",
+  "matches_eden11": true,
+  "database_restore_repeated": false
+}

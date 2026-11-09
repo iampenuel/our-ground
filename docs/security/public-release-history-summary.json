@@ -1,0 +1,33 @@
+{
+  "audit_date": "2026-11-09",
+  "result": "PASS",
+  "production_source": "b722ac8402b54bd911dcfc5cbfbcd1b419a71557",
+  "released_merge_base": "02d8b357ab9cf97e8b42d7b4f1144acebe3116f7",
+  "scope": "All advertised remote branches/tags/PR refs plus imported local refs; all reachable raw blobs, with no binary or size exclusions.",
+  "mirror_refs": 28,
+  "remote_branches": 8,
+  "remote_tags": 1,
+  "unique_commits": 76,
+  "unique_blobs": 1716,
+  "raw_blob_bytes": 135810760,
+  "known_current_secret_encoded_representations": 22,
+  "known_secret_matches": 0,
+  "actionable_credential_findings": 0,
+  "gitleaks_version": "8.30.1",
+  "gitleaks_reviewed_false_positives": 3,
+  "false_positive_classification": "Exact SHA-256 file hashes and browser-key fingerprints; only commit/path/rule/line fingerprints ignored.",
+  "fixture_classifications": {
+    "placeholder_database_uris": 9,
+    "synthetic_callback_query_examples": 19,
+    "public_owner_profile_contact_occurrences_in_historical_documents": 13
+  },
+  "author_email_metadata": "Affected authors consent confirmed by owner; commit IDs and release tag preserved.",
+  "history_rewritten": false,
+  "rotation_required_from_findings": false,
+  "production_modified": false,
+  "limits": [
+    "Pattern matching cannot identify every possible credential format.",
+    "Known-value comparison covers locally available current secrets, not unknown historical values.",
+    "Unreachable remote objects and deleted external evidence are outside reachable/retained scope."
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "base": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "commit": "3fbf44adf2c638da44b1c26bed97a21f2e854ce3",
+  "artifact_source": "Actual protected Chrome CDP screencast. JPEG stills are unaltered decoded frames of the saved VP8/WebM. No simulated cursor, retiming or added labels in these files.",
+  "first_dialogue_run": {
+    "receipt": "dialogue.json",
+    "scenarios_confirmed": 8,
+    "capture_limitation": "The first run confirmed the seven dialogue scenarios and the compound response; its harness could not create a second encoder page. The original failed encoding receipt is preserved."
+  },
+  "capture_retry": {
+    "receipt": "dialogue-cursor-capture.json",
+    "scope": "Only the compound request was repeated, on a fresh home document.",
+    "provider_calls": 5,
+    "outcome": "PASS",
+    "control_checks": {
+      "operations": 6,
+      "allPointsInside": true,
+      "openedFirstPublicListing": true,
+      "recording": {
+        "frames": 66,
+        "seconds": 16.28
+      }
+    }
+  },
+  "playback": {
+    "width": 1280,
+    "height": 800,
+    "decodedFrameCallbacks": 63,
+    "playbackSeconds": 16.282383
+  },
+  "screenshots": [
+    {
+      "file": "staging-cursor-healthcare.jpg",
+      "frame_time_ms": 7318,
+      "description": "EDEN pointer over the healthcare category"
+    },
+    {
+      "file": "staging-opened-listing.jpg",
+      "frame_time_ms": 16048,
+      "description": "Opened first published listing beside the geographic map"
+    }
+  ],
+  "sha256": {
+    "dialogue-cursor-capture.json": "86c2fcb0aa83a780c4af6ccc99a13891f0dc9f5e72a75b5735c62a3b13bd44ae",
+    "staging-cursor-search.json": "121f3beff956e9aff5455db1446e7dd26847c9326905dd20fcb867976a3c8739",
+    "staging-cursor-search.webm": "409f79ce9e21109ab79ad866ec4155d92570f45e1d115e09345b8fdfe0785550",
+    "staging-cursor-healthcare.jpg": "c47c6178fec1fb37a8b7bbe1ed2a94fafca5e5790f08773cfc023eaec09f84ec",
+    "staging-opened-listing.jpg": "940afd73bf38434f27fc393e37253911c9e8953420fbe4131d2f5f043948f3f7"
+  }
+}

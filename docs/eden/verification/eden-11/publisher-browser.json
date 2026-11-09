@@ -1,0 +1,20 @@
+[
+  {
+    "url": "https://data.hrsa.gov/topics/healthcenters",
+    "title": "403 - Forbidden: Access is denied.",
+    "contains_dataset": false,
+    "blocked": true
+  },
+  {
+    "url": "https://data.hrsa.gov/topics/health-centers/",
+    "title": "Health Centers",
+    "contains_dataset": true,
+    "blocked": false
+  },
+  {
+    "url": "https://opendataphilly.org/datasets/free-food-and-meal-sites/",
+    "title": "Philadelphia Free Food and Meal Sites - OpenDataPhilly",
+    "contains_dataset": true,
+    "blocked": false
+  }
+]

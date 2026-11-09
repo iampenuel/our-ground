@@ -1,0 +1,11 @@
+{
+  "at": "2026-11-07T23:09:40.592Z",
+  "old": "https://data.hrsa.gov/topics/healthcenters",
+  "canonical": "https://data.hrsa.gov/topics/health-centers/",
+  "changes": {
+    "registry": 1,
+    "services": 43,
+    "locations": 43
+  },
+  "import_receipts_unchanged": true
+}

@@ -1,0 +1,13 @@
+{
+  "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "accountCache": "private, no-store, max-age=0",
+  "sha": "d4e26c0529698516d4de7c24a1ee755e09ebeb16",
+  "anon": 302,
+  "noAdultOrgStatus": 401,
+  "googleButton": true,
+  "oauthAuthorize": "https://hrmocmvdmshoghclxyjs.supabase.co/auth/v1/authorize",
+  "applicationRedirect": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app/auth/callback",
+  "pkce": true,
+  "googleChooser": true,
+  "status": "PASS"
+}

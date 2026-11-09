@@ -1,0 +1,51 @@
+{
+  "origin": "https://ourground-staging-5q2l94t1e-penuels-projects-aa802b06.vercel.app",
+  "assets": [
+    {
+      "path": "/assets/eden/approved-profile/eden-launcher.riv",
+      "status": 200,
+      "magic": "RIVE",
+      "bytes": 104822,
+      "sha256": "11071cf5d472d46cf176b25d2b57d7aeaff34b059f284e647a63f7adf649d963"
+    },
+    {
+      "path": "/assets/eden/rig/eden.riv",
+      "status": 200,
+      "magic": "RIVE",
+      "bytes": 3095566,
+      "sha256": "88ba1d957250db226a6bbc0df94de7767856053d977e459eeba3939607bbad04"
+    }
+  ],
+  "render": {
+    "active": "svg-profile",
+    "sameInstanceAfterOpen": true,
+    "blink": true,
+    "reducedMotion": "approved PNG visible; frame counter stopped",
+    "motionRestored": true
+  },
+  "events": [
+    "idle",
+    "thinking",
+    "searching",
+    "success",
+    "speaking",
+    "idle",
+    "listening",
+    "idle"
+  ],
+  "playback": "explicit installed English device voice; actual utterance start and Stop; no Aoede request, no browser PCM (mouth amplitude unavailable)",
+  "commit": "3fbf44adf2c638da44b1c26bed97a21f2e854ce3",
+  "command": {
+    "correlationId": "cfc9c98d-59f0-4154-b959-d8d25d6be565",
+    "provider": "application",
+    "model": null,
+    "output": "page-control-result",
+    "proposedAction": "scroll-down",
+    "outcome": "confirmed"
+  },
+  "listening": "native on-device recognition started, canceled, returned to idle; synthetic microphone",
+  "recording": {
+    "frames": 88,
+    "seconds": 4.38
+  }
+}

@@ -1,8 +1,9 @@
 import { InteractiveGlobe } from './globe';
 import './demo.css';
+import { header } from './navigation';
 
-document.title = 'Access — Community demo';
-document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#f7f8f4');
+document.title = 'Community demo — Our Ground';
+document.querySelector('meta[name="theme-color"]')?.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--og-paper').trim());
 
 type Stage = 'globe' | 'region' | 'needs';
 
@@ -17,7 +18,7 @@ const stages: Record<Stage, {
     title: "Explore what's<br />possible.",
     description: 'Move the globe to find the pilot community.',
     primary: 'Explore our pilot',
-    secondary: 'Find support',
+    secondary: 'Preview search',
     visualLabel: 'Interactive Earth. Drag to rotate or use the arrow keys. Select the pilot community to zoom in.',
   },
   region: {
@@ -41,23 +42,11 @@ if (!app) throw new Error('Missing app element');
 
 app.innerHTML = `
   <div class="site-shell" data-stage="globe">
-    <header class="site-header">
-      <a class="brand" href="/" aria-label="Access home">
-        <svg class="brand-mark" viewBox="0 0 54 31" aria-hidden="true">
-          <path d="M3 27C3 13.5 12.1 4 24.5 4c11.5 0 18.3 8.9 18.3 23M13.3 27C13.3 13.5 22.4 4 34.8 4 46.2 4 51 12.9 51 27" />
-        </svg>
-        <span>Access</span>
-      </a>
-      <nav class="top-nav" aria-label="Main navigation">
-        <button class="nav-link" id="approachButton" type="button">Our approach</button>
-        <button class="nav-demo" id="demoButton" type="button">Explore demo</button>
-      </nav>
-    </header>
+    ${header()}
 
-    <main class="hero" id="top">
-      <div class="ambient-wash" aria-hidden="true"></div>
+    <main class="hero" id="main" tabindex="-1">
       <section class="hero-copy" aria-live="polite">
-        <div class="eyebrow">ONE-COMMUNITY PILOT</div>
+        <div class="eyebrow">LEGACY INTERACTIVE DEMO</div>
         <h1 id="heroTitle">${stages.globe.title}</h1>
         <p class="hero-description" id="heroDescription">${stages.globe.description}</p>
         <div class="hero-actions">
@@ -67,12 +56,12 @@ app.innerHTML = `
             <span class="button-arrow" aria-hidden="true">↗</span>
           </button>
         </div>
+        <div class="demo-local-actions"><button class="nav-link" id="approachButton" type="button">About this demo</button><button class="nav-link" id="demoButton" type="button">Explore demo</button></div>
       </section>
 
       <section class="visual" id="visual" aria-label="${stages.globe.visualLabel}">
         <div class="globe-view" id="globeView">
-          <div class="globe-halo" aria-hidden="true"></div>
-          <div class="globe-mount" id="globeMount" tabindex="0" aria-label="Rotate the Earth with a drag or the arrow keys; use plus and minus to zoom"></div>
+          <div class="globe-mount" id="globeMount" role="group" tabindex="0" aria-label="Rotate the Earth with a drag or the arrow keys; use plus and minus to zoom"></div>
           <div class="globe-fallback" aria-hidden="true"></div>
           <button class="pilot-pin globe-pin" id="globePin" type="button" aria-label="Explore the illustrative pilot community">
             <span class="pin-dot" aria-hidden="true"></span>
@@ -80,7 +69,7 @@ app.innerHTML = `
           </button>
         </div>
 
-        <div class="region-view" id="regionView">
+        <div class="region-view" id="regionView" tabindex="0" aria-label="Illustrative community map. Use arrow keys to pan and plus or minus to zoom.">
           <div class="region-surface" id="regionSurface">
             <img src="/assets/pilot-region.png" alt="" draggable="false" />
             <svg class="needs-areas" viewBox="0 0 1000 650" preserveAspectRatio="none" aria-hidden="true">
@@ -93,20 +82,19 @@ app.innerHTML = `
               <span class="pin-label"><strong>Pilot community</strong><small>Illustrative region</small></span>
             </button>
           </div>
-          <div class="region-vignette" aria-hidden="true"></div>
-          <div class="legend glass" id="needsLegend" aria-label="Community needs legend">
+          <div class="legend demo-panel" id="needsLegend" aria-label="Community needs legend">
             <div class="legend-title">Illustrative needs</div>
             <div class="legend-item"><span class="legend-swatch food"></span>Food access</div>
             <div class="legend-item"><span class="legend-swatch healthcare"></span>Healthcare</div>
             <div class="legend-item"><span class="legend-swatch transportation"></span>Transportation</div>
           </div>
-          <button class="needs-toggle glass" id="needsToggle" type="button" role="switch" aria-checked="false">
+          <button class="needs-toggle demo-panel" id="needsToggle" type="button" role="switch" aria-checked="false">
             <span>Community needs</span><span class="switch-track"><span class="switch-thumb"></span></span>
           </button>
-          <div class="demo-badge glass">Illustrative regional view</div>
+          <div class="demo-badge demo-panel">Illustrative regional view</div>
         </div>
 
-        <div class="visual-controls glass" aria-label="View controls">
+        <div class="visual-controls demo-panel" aria-label="View controls">
           <span class="drag-symbol" aria-hidden="true">✣</span>
           <span class="control-hint" id="controlHint">Drag to explore</span>
           <span class="control-divider" aria-hidden="true"></span>
@@ -115,7 +103,7 @@ app.innerHTML = `
         </div>
       </section>
 
-      <aside class="needs-summary glass" id="needsSummary" hidden>
+      <aside class="needs-summary demo-panel" id="needsSummary" hidden>
         <span class="summary-eyebrow">ILLUSTRATIVE INSIGHT</span>
         <button class="summary-close" id="closeSummary" type="button" aria-label="Close insight">×</button>
         <h2>Needs can overlap.</h2>
@@ -124,7 +112,7 @@ app.innerHTML = `
       </aside>
 
       <footer class="hero-footer">
-        <span class="prototype-note">Student prototype <span aria-hidden="true">·</span> Illustrative data</span>
+        <span class="prototype-note">Legacy demo <span aria-hidden="true">·</span> Illustrative data</span>
         <nav class="story-nav" aria-label="Explore the three views">
           <button type="button" data-stage-target="globe" aria-label="Show globe view" aria-current="step"><span></span></button>
           <button type="button" data-stage-target="region" aria-label="Show pilot community view"><span></span></button>
@@ -219,17 +207,17 @@ function openApproach(): void {
   openDialog(`
     <span class="dialog-eyebrow">OUR APPROACH</span>
     <h2 id="dialogTitle">Insight guided by people.</h2>
-    <p>Access explores how public data, available resources, and everyday needs could connect in one community.</p>
-    <p>AI can help explain patterns and suggest matches. People review the context and make decisions.</p>
-    <div class="dialog-note">One-community student prototype · Illustrative data</div>
+    <p>Our Ground explores how public data, available resources, and everyday needs could connect in one community.</p>
+    <p>This earlier interactive concept uses an illustrative region and example overlays. It does not measure local needs or match people with services.</p><p><a href="/support">Use the resource directory to find support</a>.</p>
+    <div class="dialog-note">Legacy interactive demo · Illustrative data</div>
   `);
 }
 
 function openSupport(): void {
   openDialog(`
-    <span class="dialog-eyebrow">FOR RESIDENTS</span>
-    <h2 id="dialogTitle">Find local support.</h2>
-    <p>Start with your ZIP code and the kind of help you need.</p>
+    <span class="dialog-eyebrow">LEGACY SEARCH PREVIEW</span>
+    <h2 id="dialogTitle">Preview a search.</h2>
+    <p>This example form does not search the directory. <a href="/support">Find support in the working directory</a>.</p>
     <form class="support-form" id="supportForm">
       <label for="zipCode">ZIP code</label>
       <input id="zipCode" name="zipCode" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{5}" placeholder="Enter ZIP code" required />
@@ -240,7 +228,7 @@ function openSupport(): void {
       <button class="button button-primary" type="submit">Search demo</button>
     </form>
     <p class="search-response" id="searchResponse" role="status" hidden></p>
-    <div class="dialog-note">This prototype has no live service listings or verified availability.</div>
+    <div class="dialog-note">This demo form has no live results or verified availability.</div>
   `);
 
   getElement<HTMLFormElement>('#supportForm').addEventListener('submit', (event) => {
@@ -280,7 +268,7 @@ getElement<HTMLButtonElement>('#regionPin').addEventListener('click', () => {
 });
 
 needsToggle.addEventListener('click', () => setStage(stage === 'needs' ? 'region' : 'needs'));
-getElement<HTMLButtonElement>('#closeSummary').addEventListener('click', () => { needsSummary.hidden = true; });
+getElement<HTMLButtonElement>('#closeSummary').addEventListener('click', () => { needsSummary.hidden = true; primary.focus(); });
 getElement<HTMLButtonElement>('#dialogClose').addEventListener('click', () => dialog.close());
 dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
 
@@ -308,6 +296,20 @@ let panning = false;
 let lastX = 0;
 let lastY = 0;
 const regionView = getElement<HTMLElement>('#regionView');
+regionView.addEventListener('keydown', (event) => {
+  if (event.target !== regionView) return;
+  switch (event.key) {
+    case 'ArrowLeft': panX = Math.max(-90, panX - 20); break;
+    case 'ArrowRight': panX = Math.min(90, panX + 20); break;
+    case 'ArrowUp': panY = Math.max(-65, panY - 20); break;
+    case 'ArrowDown': panY = Math.min(65, panY + 20); break;
+    case '+': case '=': regionScale = Math.min(1.6, regionScale + 0.1); break;
+    case '-': regionScale = Math.max(1.025, regionScale - 0.1); break;
+    default: return;
+  }
+  event.preventDefault();
+  updateRegionTransform();
+});
 regionView.addEventListener('pointerdown', (event) => {
   if (event.button !== 0 || (event.target as HTMLElement).closest('button')) return;
   panning = true;

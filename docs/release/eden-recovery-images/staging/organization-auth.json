@@ -1,0 +1,44 @@
+{
+  "checkedAtUTC": "2026-11-08T16:33:03.775Z",
+  "scope": "ourground-staging / Preview",
+  "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "commit": "8ff2a307a9096e314fa4a05984dd5b589e5cc73b",
+  "status": "BLOCKED",
+  "checks": [
+    {
+      "endpoint": "Our Ground GET /api/v1/org/status",
+      "http": 200,
+      "configured": false,
+      "emailEnabled": false
+    },
+    {
+      "endpoint": "Staging Supabase GET /auth/v1/authorize (Google; no account supplied)",
+      "http": 400,
+      "errorCode": "validation_failed",
+      "providerDisabled": true
+    },
+    {
+      "endpoint": "Our Ground GET /ourground-build-evidence.json",
+      "http": 200,
+      "browserAuthEnabled": false
+    }
+  ],
+  "previewConfiguration": {
+    "SUPABASE_URL": "present",
+    "SUPABASE_PUBLISHABLE_KEY": "missing",
+    "VITE_SUPABASE_URL": "missing",
+    "VITE_SUPABASE_PUBLISHABLE_KEY": "missing",
+    "VITE_GOOGLE_AUTH_ENABLED": "present",
+    "ACCOUNT_ALLOWED_ORIGINS": "present",
+    "VITE_ACCOUNT_ALLOWED_ORIGINS": "present"
+  },
+  "googleButtonEnabled": false,
+  "exactAliasInAppAllowlists": true,
+  "providerRedirectAllowlist": "Not observable without Supabase project administration access.",
+  "ownerAction": [
+    "Enable the Google provider on the staging Supabase project using its Google OAuth client. Register the Supabase provider callback on that Google client.",
+    "Confirm the exact https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app/auth/callback redirect is allowed in the staging Supabase project.",
+    "Configure matching staging project values for VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY and SUPABASE_PUBLISHABLE_KEY. Enable VITE_GOOGLE_AUTH_ENABLED on staging Preview and rebuild/redeploy the protected candidate.",
+    "Complete a real Google sign-in with a nonproduction test identity and verify assigned and unassigned organization access."
+  ]
+}

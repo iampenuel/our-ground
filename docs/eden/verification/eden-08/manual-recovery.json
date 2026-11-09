@@ -1,0 +1,55 @@
+{
+  "checked_at": "2026-11-07T20:34:54.874Z",
+  "project_ref": "hrmocmvdmshoghclxyjs",
+  "restore_database": "ourground_eden08_restore_20261107",
+  "backup_scope": [
+    "app_private",
+    "our_ground_meta"
+  ],
+  "auth_data_exported": false,
+  "role_passwords_exported": false,
+  "independent_copy_verified": false,
+  "restore_completed": true,
+  "archive_sha256": "6180d83b1f893d9a4828368361a7d2ac393b20a87d0c92d991153cfb529b3ad1",
+  "archive_bytes": 1957036,
+  "archive_table_data_entries": 28,
+  "restored_counts": {
+    "services": "3",
+    "source_records": "3",
+    "holds": "0",
+    "geography": "32415",
+    "migrations": "15",
+    "bytes": "53371407"
+  },
+  "schema_problems": [],
+  "restored_runtime_private_read_denied": true,
+  "restored_searches": [
+    {
+      "radius": 10,
+      "total": 3,
+      "ids": [
+        "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+        "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9",
+        "5a9b557b-d98a-512e-bd9b-656c500582a6"
+      ]
+    },
+    {
+      "radius": 5,
+      "total": 2,
+      "ids": [
+        "828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+        "c48bf10c-fbf8-5801-9ed7-64fafc7a43d9"
+      ]
+    }
+  ],
+  "migration_and_source_receipts_match": true,
+  "target_disposable": true,
+  "restore_target_retained": false,
+  "cleanup_initial_sqlstate": "55006",
+  "restore_target_removed": true,
+  "final": {
+    "source_database_bytes": "66336435",
+    "scratch_absent": true
+  },
+  "completed_at": "2026-11-07T20:36:15.137Z"
+}

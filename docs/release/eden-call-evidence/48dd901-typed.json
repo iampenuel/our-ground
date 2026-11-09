@@ -1,0 +1,189 @@
+{
+  "base": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "48dd90193cd1fd9ad0f504619f55618c89323402",
+  "scope": "dialogue",
+  "steps": [
+    {
+      "name": "identity",
+      "route": "/",
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200,
+          "correlation": "eb992ca3-1477-405b-b8dd-010751106200"
+        },
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "06299bd4-a66a-4894-84de-b51d0a9d40a3"
+        }
+      ],
+      "trace": {
+        "correlationId": "06299bd4-a66a-4894-84de-b51d0a9d40a3",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "identity",
+        "outcome": "confirmed"
+      },
+      "reply": "I’m Eden, Our Ground’s AI assistant. I can find nearby food, healthcare, and community support and help you explore a listing."
+    },
+    {
+      "name": "capabilities",
+      "route": "/",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "14107095-0347-4a29-b886-e579d102d51f"
+        }
+      ],
+      "trace": {
+        "correlationId": "14107095-0347-4a29-b886-e579d102d51f",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "capabilities",
+        "outcome": "confirmed"
+      },
+      "reply": "I can help you use the public directory. I can find nearby food, healthcare, and community support and help you explore a listing."
+    },
+    {
+      "name": "healthcare search",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "0b8253d1-d698-4976-bcd4-45e9e350037b"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "0b8253d1-d698-4976-bcd4-45e9e350037b"
+        }
+      ],
+      "trace": {
+        "correlationId": "0b8253d1-d698-4976-bcd4-45e9e350037b",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "search",
+        "outcome": "confirmed"
+      },
+      "reply": "Your search is ready. 6 matching healthcare listings within 10 miles of Harrisburg, Pennsylvania. Here is what I found: These are public directory listings, not independently verified operating services. Also, HHC- South Allison Hill."
+    },
+    {
+      "name": "first visible result",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "3bf82de6-609c-4033-af7c-83dec17ff964"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "3bf82de6-609c-4033-af7c-83dec17ff964"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "3bf82de6-609c-4033-af7c-83dec17ff964"
+        }
+      ],
+      "trace": {
+        "correlationId": "3bf82de6-609c-4033-af7c-83dec17ff964",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "details",
+        "outcome": "confirmed"
+      },
+      "reply": "The listing details are open. Here is what the listing says: HHC- South Allison Hill. Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified. These are public directory listings, not independently verified operating services."
+    },
+    {
+      "name": "correct category",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "856c5d47-d27f-4114-add3-c8bb63f4e5f8"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "856c5d47-d27f-4114-add3-c8bb63f4e5f8"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "856c5d47-d27f-4114-add3-c8bb63f4e5f8"
+        }
+      ],
+      "trace": {
+        "correlationId": "856c5d47-d27f-4114-add3-c8bb63f4e5f8",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "search",
+        "outcome": "confirmed"
+      },
+      "reply": "Your search is ready. Here are the confirmed details: 0 matching food listings within 10 miles of Harrisburg, Pennsylvania. This does not mean local support is unavailable."
+    },
+    {
+      "name": "describe current page",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "c2d56b4e-c3b6-4993-bca0-fcd225dc795a"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "c2d56b4e-c3b6-4993-bca0-fcd225dc795a"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "c2d56b4e-c3b6-4993-bca0-fcd225dc795a"
+        }
+      ],
+      "trace": {
+        "correlationId": "c2d56b4e-c3b6-4993-bca0-fcd225dc795a",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "read-page",
+        "outcome": "confirmed"
+      },
+      "reply": "Here is what you can do on this page. Find Support searches food, healthcare or community support resources by location and distance. The map section is open. The current view shows 0 public directory listings."
+    },
+    {
+      "name": "return to map",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "14bc804a-10ad-4f5f-a5d2-27f511505383"
+        }
+      ],
+      "trace": {
+        "correlationId": "14bc804a-10ad-4f5f-a5d2-27f511505383",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "approved-clarification",
+        "proposedAction": null,
+        "outcome": "clarification"
+      }
+    }
+  ],
+  "errors": [],
+  "status": "FAIL",
+  "failure": "{\"name\":\"return to map\",\"status\":[[\"understand\",200]],\"trace\":{\"correlationId\":\"14bc804a-10ad-4f5f-a5d2-27f511505383\",\"provider\":\"gemini\",\"model\":\"gemini-3.5-flash-lite\",\"output\":\"approved-clarification\",\"proposedAction\":null,\"outcome\":\"clarification\"}}\n+ actual - expected\n\n+ 'clarification'\n- 'confirmed'\n"
+}
