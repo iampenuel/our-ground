@@ -61,7 +61,9 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
   };
   const agent=createEdenAgent(env,{repository:deps.repo,directoryCity:deps.directoryCity,hostedTurns:turns,create:options.create});
   const policy=liveCapacity(env);
-  const liveEnabled=Boolean(policy)&&env.VITE_EDEN_HOSTED_LIVE==='true'&&env.VERCEL_ENV==='preview'&&env.VERCEL_PROJECT_ID===stagingProjectId;
+  const liveProjectApproved=env.VERCEL_ENV==='preview'&&env.VERCEL_PROJECT_ID===stagingProjectId||
+    env.VERCEL_ENV==='production'&&env.VERCEL_PROJECT_ID==='prj_4li6QnqulPgPbJpxMW2L9hczDNrS'&&env.EDEN_LIVE_PRODUCTION_APPROVED==='true';
+  const liveEnabled=Boolean(policy)&&env.VITE_EDEN_HOSTED_LIVE==='true'&&liveProjectApproved;
   const live=createHostedLive(store,agent,env.GEMINI_API_KEY??'',undefined,policy);
   return async function handle(request:Request,path:string){
     // This is an ephemeral turn ID, never an auth token, session ID or content hash.

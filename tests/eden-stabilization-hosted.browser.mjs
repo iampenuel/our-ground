@@ -24,9 +24,11 @@ try{
    ['details','Show me the first result.','Lanham',0],
    ['berkeley','Actually, I meant Berkeley, California.','Berkeley',1],
  ]){
+   if(process.env.STABILIZATION_CASE&&name!==process.env.STABILIZATION_CASE)continue;
+   const requestText=process.env.STABILIZATION_CASE==='berkeley'?'Find healthcare in Berkeley, California, within 10 miles.':text;
    if(started)await new Promise(r=>setTimeout(r,Math.max(0,32000-(Date.now()-started))));started=Date.now();
    const before=searches,index=requests.length,answers=p.locator('.eden-message[aria-label="Eden"]'),prior=await answers.count()?await answers.last().elementHandle():null;
-   await p.locator('#eden-command').fill(text);await p.locator('#eden-command').press('Enter');
+   await p.locator('#eden-command').fill(requestText);await p.locator('#eden-command').press('Enter');
    if(await p.locator('.eden-consent').isVisible()){
      for(const box of await p.locator('.eden-consent input:visible').all())await box.check();
      await p.locator('[data-continue]').click();

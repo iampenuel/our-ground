@@ -194,3 +194,18 @@ test('speech admission and Google 429 responses identify their own attempts and 
     assert.equal((await understand()).status,200,'the same session can still answer text');
   }
 });
+
+test('production Live requires explicit approval, the exact production project and enabled client flag',async()=>{
+ const age=await cookie();
+ for(const [project,approved,client,expected]of [
+   ['prj_4li6QnqulPgPbJpxMW2L9hczDNrS',undefined,'true',false],
+   ['unrelated-project','true','true',false],
+   ['prj_4li6QnqulPgPbJpxMW2L9hczDNrS','true','false',false],
+   ['prj_4li6QnqulPgPbJpxMW2L9hczDNrS','true','true',true],
+ ]){
+   const handle=createHostedEden(deps,{...env,VERCEL_PROJECT_ID:project,EDEN_LIVE_PRODUCTION_APPROVED:approved,VITE_EDEN_HOSTED_LIVE:client},{store:memory()});
+   const r=await handle(new Request(origin+'/api/v1/eden/hosted/status',{headers:{cookie:age,'x-vercel-ip-country':'US'}}),'status');
+   assert.equal(r.status,200);const body=await r.json();assert.equal(body.liveTokensAvailable,expected);
+   if(expected){assert.equal(body.liveTestLimits.teamStarts,24);assert.equal(body.liveTestLimits.seats,2);assert.equal(body.liveTestLimits.maxCallSeconds,600);}
+ }
+});

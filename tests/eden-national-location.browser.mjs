@@ -36,7 +36,7 @@ const normalize=value=>value.toLowerCase().replace(/[^a-z0-9]/g,'');
 function point(query){
  const definition=cases.find(([input,label])=>label&&(normalize(input)===normalize(query)||normalize(label)===normalize(query)));
  assert(definition,'Unknown fixture locality');const [,label,latitude,longitude]=definition,state=label==='20706'?'MD':label.slice(-2);
- return {label,publicQuery:label,latitude,longitude,state,country:'US',source:'reference',quality:{kind:'canonical_exact',source:'reference',precision:label==='20706'?'postcode':'city',coordinateSource:'reference',sourceName:'Controlled geography fixture',explanation:'Synthetic representative point for UI regression.'}};
+ return {label,publicQuery:label,latitude,longitude,...(label==='20706'?{}:{state}),country:'US',source:'reference',quality:{kind:'canonical_exact',source:'reference',precision:label==='20706'?'postcode':'city',coordinateSource:'reference',sourceName:'Controlled geography fixture',explanation:'Synthetic representative point for UI regression.'}};
 }
 const browser=await chromium.launch({channel:'chrome'});
 try{
@@ -87,7 +87,7 @@ try{
  }
  async function prepare(){
    await p.goto(origin+'/support?edenDiagnostics=1');
-   if(real){await p.evaluate(async()=>{const r=await fetch('/eligibility',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded',Accept:'application/json'},body:'age=19plus'});if(!r.ok())throw Error('Adult test consent unavailable');});await p.reload();}
+   if(real){await p.evaluate(async()=>{const r=await fetch('/eligibility',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded',Accept:'application/json'},body:'age=19plus'});if(!r.ok)throw Error('Adult test consent unavailable');});await p.reload();}
    await p.locator('#supportSubmit:not([disabled])').waitFor();
    if(real)assert.equal(await p.evaluate(async()=>(await(await fetch('/ourground-build-evidence.json')).json()).source_commit),report.sha);
  }
@@ -104,18 +104,26 @@ try{
  for(const [input,label] of cases){
    if(process.env.GEOGRAPHY_CASE&&input!==process.env.GEOGRAPHY_CASE)continue;
    console.log('Checking public geography scenario',input);
-   const record={input,expectedLabel:label,manual:'FAIL',eden:'FAIL'};report.cases.push(record);
+   const record={input,expectedLabel:label,stage:'manual',manual:'FAIL',eden:'BLOCKED'};report.cases.push(record);
    await prepare();await p.locator('[data-category="healthcare"]').click();await p.locator('#radiusInput').selectOption('5');
    let previous=counts.resources;await p.locator('#locationInput').fill(input);await p.locator('#locationInput').press('Enter');
    if(!label){await p.locator('[data-submit-choice]').first().waitFor();assert.equal(counts.resources,previous);record.manual='PASS';record.manualOutcome='clarification';}
-   else{await p.waitForFunction(()=>document.querySelector('#loadedCount')?.textContent?.includes('directory listings loaded'));await waitSearch(previous);record.manual='PASS';record.manualLocation=await p.locator('#locationInput').inputValue();record.manualQuery=lastDirectoryBody.location.publicQuery;record.manualCenter=[lastDirectoryBody.location.latitude,lastDirectoryBody.location.longitude];const expectedState=label==='20706'?'MD':label.slice(-2);assert.equal(lastDirectoryBody.location.country,'US');assert.equal(lastDirectoryBody.location.state,expectedState);assert.equal(lastDirectoryBody.category,'healthcare');assert.equal(lastDirectoryBody.radius_miles,5);}
+   else{await p.waitForFunction(()=>document.querySelector('#loadedCount')?.textContent?.includes('directory listings loaded'));await waitSearch(previous);record.manualLocation=await p.locator('#locationInput').inputValue();record.manualQuery=lastDirectoryBody.location.publicQuery;record.manualCenter=[lastDirectoryBody.location.latitude,lastDirectoryBody.location.longitude];const expectedState=/^\d{5}$/.test(label)?undefined:label.slice(-2);assert.equal(lastDirectoryBody.location.country,'US');if(expectedState)assert.equal(lastDirectoryBody.location.state,expectedState);assert.equal(lastDirectoryBody.category,'healthcare');assert.equal(lastDirectoryBody.radius_miles,5);record.manual='PASS';}
+   record.stage='eden';record.eden='FAIL';
    await prepare();previous=counts.resources;lastEdenContext=undefined;lastEdenOutcome=undefined;lastPlannedCity=undefined;await p.locator('.eden-launch').click();
    let reply=await ask('Find healthcare in '+input+' within 5 miles.');
    if(/Did you mean/i.test(reply))reply=await ask('Yes');
+   record.edenDiagnostic={outcome:lastEdenOutcome??'no-result',plannedCity:lastPlannedCity??null,completedCity:lastEdenContext?.cityId??null,resultCount:lastEdenContext?.resultCount??null,reply:reply.slice(0,240)};
    if(!label){assert.equal(counts.resources,previous);assert(/specific|choose|state|location|clarif/i.test(reply));record.eden='PASS';record.edenOutcome='clarification';}
    else{await waitSearch(previous);assert.equal(lastEdenOutcome,'done','the actual action must finish before narration');assert.equal(lastEdenContext.cityId,lastPlannedCity,'the completed point must retain the authorized locality identity');record.eden='PASS';record.edenCityId=lastEdenContext.cityId;record.edenLocation=await p.locator('#locationInput').inputValue();record.edenQuery=lastDirectoryBody.location.publicQuery;record.edenCenter=[lastDirectoryBody.location.latitude,lastDirectoryBody.location.longitude];assert.equal(record.edenQuery,record.manualQuery);assert.deepEqual(record.edenCenter,record.manualCenter);assert.equal(await p.locator('#radiusInput').inputValue(),'5');record.directoryRequestsForEden=counts.resources-previous;record.directoryCount=lastEdenContext.resultCount;if(input==='Monowi, NE')assert.equal(record.directoryCount,0,'the resolved small-town case must verify an honest empty directory result');}
+   record.stage='complete';
    if(input==='Lanham, Maryland'||input==='Berkeley')await p.screenshot({path:join(out,input.startsWith('Lanham')?'lanham.jpg':'berkeley-clarification.jpg'),quality:80});
  }
  report.status='PASS';await ctx.close();
-}catch(error){report.failure=String(error.message).split('\n')[0].slice(0,180);process.exitCode=1;}
+}catch(error){
+ report.failure=String(error.message).split('\n')[0].slice(0,180);
+ const primitive=value=>typeof value==='string'?value.slice(0,160):typeof value==='number'||typeof value==='boolean'||value===null?value:undefined;
+ report.assertion={operator:error.operator??null,actual:primitive(error.actual),expected:primitive(error.expected)};
+ process.exitCode=1;
+}
 finally{await browser.close();await server?.close();await writeFile(join(out,'geography.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));}

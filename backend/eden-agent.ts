@@ -134,6 +134,25 @@ export function validateEdenAgentComposition(value: unknown, facts: readonly Fac
   return reply.length > 1200 ? { ok: false, code: 'EDEN_AGENT_COMPOSITION_LENGTH' } : { ok: true, reply, sources };
 }
 
+/** Complete mandatory immutable facts only after the model selected valid IDs.
+ * Unknown IDs, arbitrary prose and malformed responses remain hard failures.
+ */
+export function completeRequiredEdenComposition(value:unknown,facts:readonly Fact[],requirements:CompositionRequirements):CompositionCheck {
+  const checked=validateEdenAgentComposition(value,facts,requirements);
+  if(checked.ok||checked.code!=='EDEN_AGENT_COMPOSITION_REQUIRED')return checked;
+  const segments=(value as {segments:Array<{kind:string;id:string}>}).segments;
+  const selected=segments.filter(s=>s.kind==='fact').map(s=>s.id);
+  const required=new Set(requirements.requiredFactIds);
+  for(const group of requirements.requiredOneOfFactIds){
+    const id=group.find(id=>selected.includes(id))??group.find(id=>facts.some(f=>f.id===id));
+    if(id)required.add(id);
+  }
+  // Keep the model's ordering where possible, then append missing obligations.
+  // Optional facts yield to required facts within the existing six-fact limit.
+  const ordered=[...new Set([...selected.filter(id=>required.has(id)),...required,...selected])].slice(0,6);
+  return validateEdenAgentComposition({segments:ordered.map(id=>({kind:'fact',id}))},facts,requirements);
+}
+
 function phrase(action: EdenAction, failed: boolean): EdenSpeechPhrase {
   if (failed) return 'unavailable';
   return action.type === 'search' ? 'search_ready' : action.type === 'radius' ? 'radius_ready' : action.type === 'details' ? 'details_ready'
@@ -484,7 +503,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
             kind: { type: 'string', enum: ['fact', 'connector'] }, id: { type: 'string', enum: [...facts.map(fact => fact.id), ...connectives.map(item => item.id)] },
           } } },
         } }, active.signal);
-      const composition = validateEdenAgentComposition(args, facts, requirements);
+      const composition = completeRequiredEdenComposition(args, facts, requirements);
       if (!composition.ok) throw new EdenProviderError(composition.code, 502);
       return { engine: 'gemini', reply: composition.reply, sources: composition.sources, phrase: phrase(item.action, failed) };
       } finally { active.finish(); }

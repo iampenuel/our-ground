@@ -36,7 +36,7 @@ export function createDirectoryCityLookup(reference: GeographicReference, now = 
       if(pending.size>=32)throw unavailable();
       lookup = (async () => {
         let point:SelectedLocation|undefined;
-        if(query?.kind==='city'&&query.state){
+        if(!locations&&query?.kind==='city'&&query.state){
           let rows:GeographicCandidate[];
           try{rows=await reference.findCandidates(query.city,query.state,5);}
           catch{if(!locations)throw unavailable();rows=[];}

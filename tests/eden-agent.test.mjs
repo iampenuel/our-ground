@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 import { DemoRepository } from '../backend/demo.ts';
 import { createEdenService } from '../backend/eden-api.ts';
-import { createEdenAgent, EDEN_AGENT_ACTION_TOOL, EDEN_AGENT_REPLY_TOOL, EDEN_AGENT_CLARIFICATION_TOOL, validateEdenGroundedReply, validateEdenAgentComposition } from '../backend/eden-agent.ts';
+import { createEdenAgent, EDEN_AGENT_ACTION_TOOL, EDEN_AGENT_REPLY_TOOL, EDEN_AGENT_CLARIFICATION_TOOL, validateEdenGroundedReply, validateEdenAgentComposition, completeRequiredEdenComposition } from '../backend/eden-agent.ts';
 import { createEdenLimits } from '../backend/eden-limits.ts';
 import { EDEN_NOTICE_VERSION } from '../shared/eden-assistant.ts';
 import { EDEN_AGENT_RESOURCE_IDS, EDEN_AGENT_CLARIFICATION_QUESTIONS, interpretEdenAgentRequest, validateEdenAgentRequest, validateAgentPlanResponse, validateAgentReplyResponse } from '../shared/eden-agent.ts';
@@ -482,4 +482,15 @@ test('live reply path accepts model-selected composition and never rewrites a fa
   const badToken = await session(bad.service), badPlan = await begin(bad.service, badToken, { goal: 'inspect-resource', ordinal: 1, view: 'details' }, support);
   const failure = await finish(bad.service, badToken, badPlan); assert.equal(failure.status, 502);
   const error = await failure.json(); assert.equal(error.error.code, 'EDEN_AGENT_COMPOSITION_SHAPE'); assert.equal('reply' in error, false); assert(!JSON.stringify(error).includes('synthetic-private-canary')); assert.equal(bad.calls.length, 2);
+});
+
+
+test('a missing mandatory fact is completed from verified sources without accepting invented IDs or prose',()=>{
+ const facts=[{id:'outcome',text:'Your search is ready.'},{id:'result-count',text:'There are 6 published listings.'},{id:'data-kind',text:'Listings are not independently verified.'}];
+ const requirements={requiredFactIds:['outcome','result-count','data-kind'],requiredOneOfFactIds:[]};
+ const input={segments:[{kind:'fact',id:'outcome'}]};
+ assert.equal(validateEdenAgentComposition(input,facts,requirements).code,'EDEN_AGENT_COMPOSITION_REQUIRED');
+ const result=completeRequiredEdenComposition(input,facts,requirements);
+ assert.equal(result.ok,true);assert.deepEqual(result.sources,facts);assert.equal(result.reply,facts.map(f=>f.text).join(' '));
+ for(const invalid of [{segments:[{kind:'fact',id:'invented'}]},{reply:'Trust private-provider-canary'}, {segments:[{kind:'fact',id:'outcome',text:'made up'}]}])assert.equal(completeRequiredEdenComposition(invalid,facts,requirements).ok,false);
 });

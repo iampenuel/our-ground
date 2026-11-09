@@ -10,7 +10,7 @@ import {join} from 'node:path';
 const scratch=await mkdtemp(join(tmpdir(),'og-zoom-evidence-')),out=process.env.RECOVERY_IMAGES??'docs/release/eden-live-action-evidence';
 const server=await createServer({server:{host:'127.0.0.1',port:4297,strictPort:true,hmr:false,watch:null},logLevel:'error'});
 let ctx;const evidence=[];const base='http://127.0.0.1:4297';
-const place={label:'Harrisburg, PA',publicQuery:'Harrisburg, PA',state:'PA',latitude:40.27,longitude:-76.88,source:'reference',precision:'locality',quality:{kind:'canonical_exact',source:'reference',precision:'city',coordinateSource:'reference',sourceName:'Local test fixture',explanation:'Representative city point.'}};
+const place={label:'Harrisburg, PA',publicQuery:'Harrisburg, PA',state:'PA',country:'US',latitude:40.27,longitude:-76.88,source:'reference',precision:'locality',quality:{kind:'canonical_exact',source:'reference',precision:'city',coordinateSource:'reference',sourceName:'Local test fixture',explanation:'Representative city point.'}};
 const row={id:'828e4d8a-d5d7-5527-a75c-2a6f10027a56',title:'Synthetic listing for zoom verification',summary:'Local fixture',category_slugs:['healthcare'],organization:{id:'11111111-1111-4111-8111-111111111111',name:'Synthetic organization'},location:{city:'Harrisburg',state:'PA',address_label:'Synthetic test location',latitude:40.27,longitude:-76.88},contact:{phone:null,website_url:null},detail_level:'substantive',distance_miles:1,data_kind:'imported_unverified'};
 try{
   await server.listen();
@@ -63,14 +63,18 @@ try{
   capture.on('Page.screencastFrame',f=>{if(screens.length<180)screens.push({t:f.metadata.timestamp,data:f.data});void capture.send('Page.screencastFrameAck',{sessionId:f.sessionId}).catch(()=>{});});
   // A tool chain may claim the listing before the next animation frame. Keep
   // both operations in the same browser task with no driver or rendering wait.
-  const {search,details}=await p.evaluate(async()=>{
+  const {search,details,actions}=await p.evaluate(async()=>{
+    const actions=[];
+    const observe=e=>actions.push({phase:e.detail.phase,target:e.detail.target,rect:e.detail.rect});
+    document.addEventListener('eden:visible-action',observe);
     const {applyEdenPublicAction}=await import('/src/eden/live-actions.ts');
     const options={publicDirectory:true,signal:new AbortController().signal};
     const search=await applyEdenPublicAction({type:'search',category:'healthcare',city:'harrisburg-pa',radius:10},options);
     const details=search.status==='done'?await applyEdenPublicAction({type:'details',index:1},options):null;
-    return {search,details};
+    document.removeEventListener('eden:visible-action',observe);
+    return {search,details,actions};
   });
-  assert.equal(search.status,'done');assert.equal(searches.length,1);
+  assert.equal(search.status,'done',JSON.stringify({search,actions}));assert.equal(searches.length,1);
   assert.equal(details.status,'done');await p.getByText('Selected resource',{exact:true}).waitFor();
   await capture.send('Page.stopScreencast');
   const hits=await p.evaluate(()=>window.edenZoomHits);assert(hits.length>=6);

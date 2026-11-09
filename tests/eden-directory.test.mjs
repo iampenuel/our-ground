@@ -91,7 +91,7 @@ test('a corrected public category must name the reconciled category even when th
     const plan=await agent.begin({intent:{goal:'change-category',category:'food'},context:before,noticeVersion:EDEN_NOTICE_VERSION},'test');
     return agent.complete({turnToken:plan.turnToken,outcome:'done',resourceIds:[],noticeVersion:EDEN_NOTICE_VERSION,context:after},'test');
   };
-  await assert.rejects(complete(),{code:'EDEN_AGENT_COMPOSITION_REQUIRED'});
+  assert.match((await complete()).reply,/0 matching food listings within 10 miles of Harrisburg/,'a missing mandatory count is completed from the reconciled directory facts');
   omitCount=false;assert.match((await complete()).reply,/0 matching food listings within 10 miles of Harrisburg/);
 });
 // This optional local archive is historical API evidence, never a runtime data source.
