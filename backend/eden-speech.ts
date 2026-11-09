@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
+import {googleSpeechQuota,type SpeechQuota} from './eden-speech-quota.ts';
 import { isEdenHostedRuntime } from './eden-provider.ts';
-import { EDEN_SPEECH_PHRASES, EDEN_SPEECH_VOICE, EDEN_SPEECH_MAX_BYTES, inspectEdenWav, isEdenSpeechPhrase } from '../shared/eden-speech.ts';
+import { EDEN_NAME_PRONUNCIATION, EDEN_SPEECH_PHRASES, EDEN_SPEECH_VOICE, EDEN_SPEECH_MAX_BYTES, inspectEdenWav, isEdenSpeechPhrase } from '../shared/eden-speech.ts';
 import type { EdenSpeechPhrase } from '../shared/eden-speech.ts';
 
 export const EDEN_TTS_MODELS = ['gemini-3.8-flash-lite-tts', 'gemini-3.8-flash-tts'] as const;
@@ -9,7 +10,8 @@ export type EdenSpeechStatus = { available: boolean; reason: 'available' | 'disa
 export class EdenSpeechError extends Error {
   code: string;
   status: number;
-  constructor(code: string, status: number) { super('Speech is unavailable. Continue with the text response.'); this.code = code; this.status = status; }
+  quota?:SpeechQuota;
+  constructor(code: string, status: number, quota?:SpeechQuota) { super('Speech is unavailable. Continue with the text response.'); this.code = code; this.status = status; this.quota=quota; }
 }
 export type EdenSpeechModelRequest = {
   model: EdenTtsModel;
@@ -65,7 +67,7 @@ export async function synthesizePublicSpeech(text:string, model:EdenTtsModel, se
   combined.throwIfAborted();
   const payload: EdenSpeechModelRequest = {
     model,
-    input: [{ type: 'user_input', content: [{ type: 'text', text, annotations: [{ type: 'speech_metadata', style: 'warm, patient, conversational' }] }] }],
+    input: [{ type: 'user_input', content: [{ type: 'text', text, annotations: [{ type: 'speech_metadata', style: 'warm, welcoming, lightly cheerful and professional; speak clearly at a natural conversational pace. '+EDEN_NAME_PRONUNCIATION }] }] }],
     response_format: { type: 'audio', mime_type: 'audio/wav', sample_rate: 24000 },
     generation_config: { speech_config: [{ voice: EDEN_SPEECH_VOICE }] },
     store: false,
@@ -81,8 +83,8 @@ export async function synthesizePublicSpeech(text:string, model:EdenTtsModel, se
     combined.throwIfAborted();
   } catch (error) {
     // Never expose or log SDK exceptions, prompt content, API keys or URLs.
-    const e = object(error), code = Number(e.status ?? e.code);
-    throw new EdenSpeechError(code === 429 ? 'SPEECH_QUOTA_EXHAUSTED' : 'SPEECH_PROVIDER_UNAVAILABLE', code === 429 ? 429 : 503);
+    const quota=googleSpeechQuota(error,model);
+    throw quota?new EdenSpeechError('SPEECH_QUOTA_EXHAUSTED',429,quota):new EdenSpeechError('SPEECH_PROVIDER_UNAVAILABLE',503);
   }
   const body = object(response), audio = object(body.output_audio);
   if (body.status !== 'completed' || (audio.mime_type !== undefined && audio.mime_type !== 'audio/wav')
@@ -90,5 +92,7 @@ export async function synthesizePublicSpeech(text:string, model:EdenTtsModel, se
     || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(audio.data)) throw new EdenSpeechError('SPEECH_INVALID_AUDIO', 503);
   const data = Uint8Array.from(Buffer.from(audio.data, 'base64'));
   if (!inspectEdenWav(data)) throw new EdenSpeechError('SPEECH_INVALID_AUDIO', 503);
-  return { mimeType: 'audio/wav' as const, data };
+  const reportedModel=typeof body.model==='string'?body.model.replace(/^models\//,''):undefined;
+  return { mimeType: 'audio/wav' as const, data,
+    ...(reportedModel && EDEN_TTS_MODELS.some(allowed=>reportedModel===allowed||reportedModel.startsWith(allowed+'-')) && /^gemini-[a-z0-9-]{1,64}$/.test(reportedModel) ? {reportedModel} : {}) };
 }

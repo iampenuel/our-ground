@@ -1,0 +1,23 @@
+{
+  "baseline": "08b1685d42b4ec6285433f7d84a5f20aec3c194a",
+  "verified": "PASS",
+  "frozenFilesSha256": {
+    "shared/eden-live.ts": "9eae6b3801ea6f6d22eb063b4ea2d012e9bbc2879d52f6adeeabcc34b121ec94",
+    "shared/eden-speech.ts": "123a882676917ee5fbf08779f6df26c42d8149f12651dc0e74bf27f1a80a3ce9",
+    "src/eden/live/session.ts": "4442f0b69a2b99f55baad80683898132cfb5715b1cabd13d20e934f1dac5e8cb",
+    "src/eden/live/transport.ts": "abea917db71bdaacaaf7a3beb737844feb570589f45835ea20c2f32b973d0da5",
+    "src/eden/live/microphone.ts": "503f8b295f15bfa5cedb42a168d4f5b0539cd9f1ad711f5eafa2a564f399093b",
+    "src/eden/live/output.ts": "eb560240a23f4c1cd2227e1c96e314c4e05c07494fa58e868f51fca37649fd46",
+    "src/eden/live-actions.ts": "8a50e997d246bae13534a330cb768d4386fb31ce19f5a3a5cb81030ce85ad844",
+    "src/eden/hosted-assistant.ts": "501256d046b1eeb14985595b119ab94b689d16cc782b3cb64a263b1148089c24",
+    "backend/eden-hosted-live.ts": "53bed6e605eaed1696956d3e96e4f4985e0450c801acb7b8e1a93e7614ad0e72",
+    "backend/eden-live.ts": "9705b6a24302f9c70ffff62f9d0dcbf2f39c86941f999a4e1a794efffb1fb2f2",
+    "backend/eden-hosted.ts": "ced6fa20e9fc8482f365465a64e219d14a589bbd427a813d2ffb1f8a8b141f58",
+    "backend/organization-auth.ts": "97badbaa14054bc7b505497a3bbd46f572badcc98422ad77f5827855cb606205",
+    "src/landing.css": "aac0d1f54fabc8cee6fef7bcc589e5b5cbf1d4d90da4127aac48303649199e05"
+  },
+  "publicAssetsChanged": [],
+  "standaloneAdultGateChange": "CSS response string only; admission code byte-identical",
+  "newLiveProviderSessions": 0,
+  "transcriptMarkupChange": "Named keyboard-focusable region attributes only; all other markup and logic byte-identical"
+}

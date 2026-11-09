@@ -77,11 +77,14 @@ export function productionDependencies(): Dependencies {
   if (mode === 'disabled') return { eden:createEdenService(process.env), publicProtection, locations, allowedOrigins, repo: disabledRepo, verifyToken: async () => { throw new UnavailableError('AUTH_NOT_CONFIGURED','Account actions are not enabled. You can still search for support.'); }, resolvePlace: disabled, allowDemo: false, geoapify: createGeoapifyProvider({env:process.env}) };
   if (mode === 'demo' && process.env.ALLOW_DEMO_DATA !== 'true') throw new Error('Demo mode requires ALLOW_DEMO_DATA=true');
   const repo=mode==='demo'?new DemoRepository(process.env.DEMO_EDITOR_USER_ID):new PostgresRepository();
-  const directoryCity=reference?createDirectoryCityLookup(reference):undefined;
+  const directoryCity=reference?createDirectoryCityLookup(reference,Date.now,locations):undefined;
   const eden=createEdenService(process.env,{agentRepository:repo,directoryCity});
   const auth = createOrganizationAuth(process.env), store = new PostgresOrganizationStore();
+  // Only the designated protected preview may serve the organization-management workflow on Vercel.
+  const hostedSignInOnly = process.env.VERCEL_ENV==='production'||process.env.VERCEL==='1'&&!(process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_PROJECT_ID==='prj_eU9xRSetSQYTbkAce2cYIR5zx8c2');
   const organizations: OrganizationDependencies = {
-    configured: mode === 'postgres' && Boolean(process.env.DATABASE_URL) && auth.configured,
+    managementDisabled: hostedSignInOnly,
+    configured: (!hostedSignInOnly||process.env.ACCOUNT_RELEASE_MODE==='signin_only') && mode === 'postgres' && Boolean(process.env.DATABASE_URL) && auth.configured,
     emailConfigured:auth.emailConfigured, verify: auth.verify, startEmail: auth.startEmail, revokeProvider: auth.revokeProvider,
     allowedOrigins: new Set(accountAllowedOrigins(process.env.ACCOUNT_ALLOWED_ORIGINS)),
     rateSalt: process.env.DATABASE_URL ?? '', store,limitAuth:request=>publicProtection.admit('auth',request),limitLogout:request=>publicProtection.admit('logout',request)

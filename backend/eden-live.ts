@@ -2,6 +2,8 @@ import { GoogleGenAI } from '@google/genai';
 import type { CreateAuthTokenParameters } from '@google/genai';
 import { createHash, randomBytes } from 'node:crypto';
 import { isEdenHostedRuntime } from './eden-provider.ts';
+import { googleRetryAfterSeconds } from './eden-speech-quota.ts';
+import { canonicalLiveTimestamp } from '../shared/eden-live-timing.ts';
 import { buildEdenLiveConfig } from '../shared/eden-live.ts';
 
 // Official free-tier pricing and v1beta token constraints retrieved 2026-11-07.
@@ -9,8 +11,8 @@ import { buildEdenLiveConfig } from '../shared/eden-live.ts';
 export const EDEN_LIVE_MODEL = 'gemini-3.8-live' as const;
 export const EDEN_LIVE_LIMITS = Object.freeze({ maxCallSeconds: 300, connectSeconds: 60, minCallSeconds: 15, mintsPerSession: 3, mintsPerDay: 6, timeoutMs: 12_000, maxRememberedNonces: 100 });
 export class EdenLiveError extends Error {
-  code: string; status: number;
-  constructor(code: string, status = 503) { super('The voice call is unavailable. Please try again after the current call limit or continue with text.'); this.code = code; this.status = status; }
+  code: string; status: number; retryAfterSeconds?:number;resetAt?:string;
+  constructor(code: string, status = 503, retryAfterSeconds?:number,resetAt?:string) { super('The voice call is unavailable. Please try again after the current call limit or continue with text.'); this.code = code; this.status = status; this.retryAfterSeconds=Number.isSafeInteger(retryAfterSeconds)&&retryAfterSeconds!>=0&&retryAfterSeconds!<=31*86400?retryAfterSeconds:undefined;this.resetAt=canonicalLiveTimestamp(resetAt); }
 }
 export type EdenLiveToken = {
   token: string; callId: string; expiresAt: string; newSessionExpiresAt: string;
@@ -33,7 +35,7 @@ const object = (value: unknown): Record<string, unknown> | null => value !== nul
  */
 export function createEdenLive(environment: Record<string, string | undefined>, options: EdenLiveOptions = {}) {
   const env = { ...environment }, now = options.now ?? Date.now, secret = env.GEMINI_API_KEY;
-  let client: GoogleGenAI | undefined, day = -1, minted = 0;
+  let day = -1, minted = 0;
   const leases = new Map<string, Lease>();
   const nonces = new Map<string, number>(), sessionMints = new Map<string, { count: number; expires: number }>();
   const status = () => ({
@@ -89,8 +91,7 @@ export function createEdenLive(environment: Record<string, string | undefined>, 
       if (minted >= EDEN_LIVE_LIMITS.mintsPerDay || count >= EDEN_LIVE_LIMITS.mintsPerSession || nonces.size >= EDEN_LIVE_LIMITS.maxRememberedNonces || sessionMints.size >= 100) throw new EdenLiveError('EDEN_LIVE_USAGE_LIMIT', 429);
       const expires = Math.min(previous?.expires ?? now() + EDEN_LIVE_LIMITS.maxCallSeconds * 1000, sessionExpires);
       if (expires - now() < EDEN_LIVE_LIMITS.minCallSeconds * 1000) throw new EdenLiveError('EDEN_LIVE_SESSION_EXPIRING', 401);
-      const callId = previous?.callId ?? randomBytes(32).toString('base64url'), expiresAt = new Date(expires).toISOString();
-      const newSessionExpiresAt = new Date(Math.min(now() + EDEN_LIVE_LIMITS.connectSeconds * 1000, expires)).toISOString();
+      const callId = previous?.callId ?? randomBytes(32).toString('base64url');
       // Reserve before awaiting the provider. Failure, abort, replay or early
       // hangup never refunds mint credits or permits an overlapping live token.
       minted += 1; sessionMints.set(binding, { count: count + 1, expires: sessionExpires });
@@ -98,44 +99,53 @@ export function createEdenLive(environment: Record<string, string | undefined>, 
       const lease: Lease = previous ?? { binding, callId, expires, ended: false, tools: new Set(), resumed: false };
       if (previous) previous.resumed = true;
       leases.set(callId, lease);
-      const config = buildEdenLiveConfig({directory:options.publicDirectory,...(resume?{resumeHandle:resume.handle}:{})});
-      const combined = AbortSignal.any([AbortSignal.timeout(EDEN_LIVE_LIMITS.timeoutMs), ...(signal ? [signal] : [])]);
-      const payload: CreateAuthTokenParameters = { config: {
-        uses: 1, expireTime: expiresAt, newSessionExpireTime: newSessionExpiresAt,
-        liveConnectConstraints: { model: EDEN_LIVE_MODEL, config },
-        // Omit lockAdditionalFields: SDK3's documented lock-all behavior also
-        // prevents enabling omitted setup fields, extra tools or resumption.
-        abortSignal: combined,
-        httpOptions: { apiVersion: 'v1beta', baseUrl: 'https://generativelanguage.googleapis.com', timeout: EDEN_LIVE_LIMITS.timeoutMs, retryOptions: { attempts: 1 },
-          // SDK3 omits historyConfig from its LiveConnectConfig serializer.
-          // Merge only this server-owned setup field before lock-all minting;
-          // no caller-supplied request/config/extraBody reaches this patch.
-          ...(config.historyConfig ? { extraBody: { bidiGenerateContentSetup: { historyConfig: config.historyConfig } } } : {}),
-        },
-      } };
-      let result: unknown;
       try {
-        combined.throwIfAborted();
-        if (options.create) result = await options.create(payload, combined);
-        else {
-          client ??= new GoogleGenAI({ apiKey: secret, apiVersion: 'v1beta', enterprise: false, vertexai: false,
-            httpOptions: { baseUrl: 'https://generativelanguage.googleapis.com', timeout: EDEN_LIVE_LIMITS.timeoutMs, retryOptions: { attempts: 1 } } });
-          result = await client.authTokens.create(payload);
-        }
-        combined.throwIfAborted();
-      } catch (error) {
-        lease.ended = true;
-        const status = Number(object(error)?.status ?? object(error)?.code);
-        throw new EdenLiveError(status === 429 ? 'EDEN_LIVE_PROVIDER_QUOTA' : combined.aborted ? 'EDEN_LIVE_CANCELLED' : 'EDEN_LIVE_PROVIDER_UNAVAILABLE', status === 429 ? 429 : 503);
-      }
-      const returned = object(result), token = returned?.name;
-      if (typeof token !== 'string' || !/^auth_tokens\/[A-Za-z0-9._~+\/=-]{1,8192}$/.test(token) || (secret && token.includes(secret))
-        || (returned?.expireTime !== undefined && (typeof returned.expireTime !== 'string' || Date.parse(returned.expireTime) !== expires))
-        || (returned?.newSessionExpireTime !== undefined && (typeof returned.newSessionExpireTime !== 'string' || Date.parse(returned.newSessionExpireTime) !== Date.parse(newSessionExpiresAt)))
-        || (returned?.uses !== undefined && returned.uses !== 1)
-        || now() >= expires || leases.get(callId) !== lease || lease.ended) throw new EdenLiveError('EDEN_LIVE_INVALID_TOKEN');
-      return { token, callId, expiresAt, newSessionExpiresAt, model: EDEN_LIVE_MODEL, voiceName: 'Aoede', maxCallSeconds: Math.floor((expires - now()) / 1000), config };
+        const result = await issueEdenLiveToken(secret!,callId,expires,options.publicDirectory===true,signal,resume,options.create,now);
+        if (leases.get(callId)!==lease || lease.ended) throw new EdenLiveError('EDEN_LIVE_INVALID_TOKEN');
+        return result;
+      } catch(error) { lease.ended=true; throw error; }
     },
   };
 }
 export type EdenLive = ReturnType<typeof createEdenLive>;
+/** Both environments mint the same constrained one-use credential after their own admission. */
+export async function issueEdenLiveToken(secret:string, callId:string, expires:number, publicDirectory:boolean, signal?:AbortSignal, resume?:{handle:string}, create?:EdenLiveOptions['create'], now:()=>number=Date.now):Promise<EdenLiveToken> {
+  const expiresAt=new Date(expires).toISOString();
+  const newSessionExpiresAt=new Date(Math.min(now()+EDEN_LIVE_LIMITS.connectSeconds*1000,expires)).toISOString();
+  const config = buildEdenLiveConfig({directory:publicDirectory,...(resume?{resumeHandle:resume.handle}:{})});
+  const combined = AbortSignal.any([AbortSignal.timeout(EDEN_LIVE_LIMITS.timeoutMs), ...(signal ? [signal] : [])]);
+  const payload: CreateAuthTokenParameters = { config: {
+    uses: 1, expireTime: expiresAt, newSessionExpireTime: newSessionExpiresAt,
+    liveConnectConstraints: { model: EDEN_LIVE_MODEL, config },
+    // Omit lockAdditionalFields: SDK3's documented lock-all behavior also
+    // prevents enabling omitted setup fields, extra tools or resumption.
+    abortSignal: combined,
+    httpOptions: { apiVersion: 'v1beta', baseUrl: 'https://generativelanguage.googleapis.com', timeout: EDEN_LIVE_LIMITS.timeoutMs, retryOptions: { attempts: 1 },
+      // SDK3 omits historyConfig from its LiveConnectConfig serializer.
+      // Merge only this server-owned setup field before lock-all minting;
+      // no caller-supplied request/config/extraBody reaches this patch.
+      ...(config.historyConfig ? { extraBody: { bidiGenerateContentSetup: { historyConfig: config.historyConfig } } } : {}),
+    },
+  } };
+  let result: unknown;
+  try {
+    combined.throwIfAborted();
+    if (create) result = await create(payload, combined);
+    else {
+      const client = new GoogleGenAI({ apiKey: secret, apiVersion: 'v1beta', enterprise: false, vertexai: false,
+        httpOptions: { baseUrl: 'https://generativelanguage.googleapis.com', timeout: EDEN_LIVE_LIMITS.timeoutMs, retryOptions: { attempts: 1 } } });
+      result = await client.authTokens.create(payload);
+    }
+    combined.throwIfAborted();
+  } catch (error) {
+    const status = Number(object(error)?.status ?? object(error)?.code);
+    throw new EdenLiveError(status === 429 ? 'EDEN_LIVE_PROVIDER_QUOTA' : combined.aborted ? 'EDEN_LIVE_CANCELLED' : 'EDEN_LIVE_PROVIDER_UNAVAILABLE', status === 429 ? 429 : 503,status===429?googleRetryAfterSeconds(error,now()):undefined);
+  }
+  const returned = object(result), token = returned?.name;
+  if (typeof token !== 'string' || !/^auth_tokens\/[A-Za-z0-9._~+\/=-]{1,8192}$/.test(token) || (secret && token.includes(secret))
+    || (returned?.expireTime !== undefined && (typeof returned.expireTime !== 'string' || Date.parse(returned.expireTime) !== expires))
+    || (returned?.newSessionExpireTime !== undefined && (typeof returned.newSessionExpireTime !== 'string' || Date.parse(returned.newSessionExpireTime) !== Date.parse(newSessionExpiresAt)))
+    || (returned?.uses !== undefined && returned.uses !== 1)
+    || now() >= expires) throw new EdenLiveError('EDEN_LIVE_INVALID_TOKEN');
+  return { token, callId, expiresAt, newSessionExpiresAt, model: EDEN_LIVE_MODEL, voiceName: 'Aoede', maxCallSeconds: Math.floor((expires - now()) / 1000), config };
+}

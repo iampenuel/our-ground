@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 import { DemoRepository } from '../backend/demo.ts';
 import { createEdenService } from '../backend/eden-api.ts';
-import { createEdenAgent, EDEN_AGENT_ACTION_TOOL, EDEN_AGENT_REPLY_TOOL, EDEN_AGENT_CLARIFICATION_TOOL, validateEdenGroundedReply, validateEdenAgentComposition } from '../backend/eden-agent.ts';
+import { createEdenAgent, EDEN_AGENT_ACTION_TOOL, EDEN_AGENT_REPLY_TOOL, EDEN_AGENT_CLARIFICATION_TOOL, validateEdenGroundedReply, validateEdenAgentComposition, completeRequiredEdenComposition } from '../backend/eden-agent.ts';
 import { createEdenLimits } from '../backend/eden-limits.ts';
 import { EDEN_NOTICE_VERSION } from '../shared/eden-assistant.ts';
 import { EDEN_AGENT_RESOURCE_IDS, EDEN_AGENT_CLARIFICATION_QUESTIONS, interpretEdenAgentRequest, validateEdenAgentRequest, validateAgentPlanResponse, validateAgentReplyResponse } from '../shared/eden-agent.ts';
@@ -39,7 +39,7 @@ function generatedReply(payload) {
     if (!ids.includes('resource-1-title')) ids.push('data-kind');
   }
   const facts = ids.map(id => data.source_facts.find(fact => fact.id === id)).filter(Boolean);
-  return { segments: [{ kind: 'connector', id: 'connector-1' }, ...facts.map(fact => ({ kind: 'fact', id: fact.id }))] };
+  return { segments: [{ kind: 'connector', id: data.connective_phrases[0].id }, ...facts.map(fact => ({ kind: 'fact', id: fact.id }))] };
 }
 function fixture(options = {}) {
   const calls = [], repository = options.repository ?? new DemoRepository();
@@ -108,7 +108,7 @@ test('typed public page explanations use a genuine two-call plan and verified pa
   const token=await session(item.service),plan=await begin(item.service,token,{goal:'explain-page'},give);
   const response=await item.service.handle(request('/eden/agent/result',{turnToken:plan.turnToken,outcome:'done',resourceIds:[],context:give,noticeVersion:EDEN_NOTICE_VERSION},token));
   assert.equal(response.status,200,await response.clone().text());const reply=await response.json();
-  assert(reply.reply.includes('Give Support explains'));assert.equal(item.calls.length,2);
+  assert(reply.reply.includes('official food bank resources'));assert.equal(item.calls.length,2);
   assert(!JSON.stringify(item.calls).includes('raw_dom'));
 });
 
@@ -259,6 +259,14 @@ test('extractive reply validation rejects uncited facts, advice, new numbers and
     'The listing details are open.']) assert.equal(validateEdenGroundedReply({ ...valid, reply }, facts), null);
   assert(validateEdenGroundedReply({ ...valid, reply: 'Based on the listing, Demo Community Pantry — fictional. Also, The listing details are open. Please review the listing.' }, facts));
   assert.equal(validateEdenGroundedReply({ ...valid, citations: ['invented'] }, facts), null);
+});
+
+test('public page copy cannot be attributed to a directory listing', () => {
+  const facts=[{id:'page-give-1',text:'You can support local providers.'}];
+  const requirements={requiredFactIds:['page-give-1'],requiredOneOfFactIds:[]};
+  const segments=[{kind:'connector',id:'connector-1'},{kind:'fact',id:'page-give-1'}];
+  assert.equal(validateEdenAgentComposition({segments},facts,requirements).ok,false);
+  assert.equal(validateEdenAgentComposition({segments:segments.slice(1)},facts,requirements).ok,true);
 });
 
 test('atomic agent admission preserves shared 20-credit session and 40-credit daily budgets', () => {
@@ -457,7 +465,7 @@ test('structured composition rejects missing required facts, uncited prose and p
     const checked = validateEdenAgentComposition({ segments: [{ kind: 'fact', id: 'outcome' }, segment] }, facts, requirements);
     assert.deepEqual(checked, { ok: false, code: 'EDEN_AGENT_COMPOSITION_SOURCE' }); assert(!JSON.stringify(checked).includes('synthetic-private-canary'));
   }
-  assert.deepEqual(validateEdenAgentComposition({ segments: [{ kind: 'connector', id: 'connector-1' }] }, facts, requirements), { ok: false, code: 'EDEN_AGENT_COMPOSITION_REQUIRED' });
+  assert.deepEqual(validateEdenAgentComposition({ segments: [{ kind: 'connector', id: 'connector-4' }] }, facts, requirements), { ok: false, code: 'EDEN_AGENT_COMPOSITION_REQUIRED' });
   assert.deepEqual(validateEdenAgentComposition({ segments: [{ kind: 'fact', id: 'outcome' }] }, facts, { requiredFactIds: ['outcome'], requiredOneOfFactIds: [['resource-1-summary', 'resource-1-description']] }), { ok: false, code: 'EDEN_AGENT_COMPOSITION_REQUIRED' });
 });
 
@@ -474,4 +482,15 @@ test('live reply path accepts model-selected composition and never rewrites a fa
   const badToken = await session(bad.service), badPlan = await begin(bad.service, badToken, { goal: 'inspect-resource', ordinal: 1, view: 'details' }, support);
   const failure = await finish(bad.service, badToken, badPlan); assert.equal(failure.status, 502);
   const error = await failure.json(); assert.equal(error.error.code, 'EDEN_AGENT_COMPOSITION_SHAPE'); assert.equal('reply' in error, false); assert(!JSON.stringify(error).includes('synthetic-private-canary')); assert.equal(bad.calls.length, 2);
+});
+
+
+test('a missing mandatory fact is completed from verified sources without accepting invented IDs or prose',()=>{
+ const facts=[{id:'outcome',text:'Your search is ready.'},{id:'result-count',text:'There are 6 published listings.'},{id:'data-kind',text:'Listings are not independently verified.'}];
+ const requirements={requiredFactIds:['outcome','result-count','data-kind'],requiredOneOfFactIds:[]};
+ const input={segments:[{kind:'fact',id:'outcome'}]};
+ assert.equal(validateEdenAgentComposition(input,facts,requirements).code,'EDEN_AGENT_COMPOSITION_REQUIRED');
+ const result=completeRequiredEdenComposition(input,facts,requirements);
+ assert.equal(result.ok,true);assert.deepEqual(result.sources,facts);assert.equal(result.reply,facts.map(f=>f.text).join(' '));
+ for(const invalid of [{segments:[{kind:'fact',id:'invented'}]},{reply:'Trust private-provider-canary'}, {segments:[{kind:'fact',id:'outcome',text:'made up'}]}])assert.equal(completeRequiredEdenComposition(invalid,facts,requirements).ok,false);
 });

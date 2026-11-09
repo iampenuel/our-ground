@@ -1,0 +1,18 @@
+{
+  "checkedAtUTC": "2026-11-08T19:59:22.015Z",
+  "sourceCommit": "3fbf44adf2c638da44b1c26bed97a21f2e854ce3",
+  "rateLimitProbe": "Read-only query of the two numeric non-session speech counters for the failed request. No replay or provider call.",
+  "currentCounters": {
+    "day": {
+      "count": 3,
+      "expires": "2026-11-09T16:35:14.158Z"
+    },
+    "minute": null
+  },
+  "configuredLimits": {
+    "day": 10,
+    "globalMinute": 3,
+    "sessionMinute": 2
+  },
+  "firstSessionRequest": true
+}

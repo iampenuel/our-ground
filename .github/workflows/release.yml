@@ -43,3 +43,8 @@ jobs:
           npm run dev -- --host 127.0.0.1 --port 4199 --strictPort >/tmp/ourground-vite.log 2>&1 &
           for i in {1..30}; do curl -fsS 127.0.0.1:4199 -o /dev/null && break; sleep 1; done
           node tests/release-browser.mjs
+          node tests/production-age-browser.mjs
+          node tests/location-filter-click.browser.mjs
+          node tests/eden-recovery-browser.mjs
+          node tests/eden-pointer-browser.mjs
+          node tests/organization-oauth-browser.mjs

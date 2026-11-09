@@ -1,0 +1,44 @@
+{
+  "sha": "2665050781818a169461132b5d200699a6bbb5e4",
+  "origin": "https://ourground-staging-f5is6vbrt-penuels-projects-aa802b06.vercel.app",
+  "views": [
+    {
+      "label": "zoom-200",
+      "gutter": [
+        30,
+        30,
+        30
+      ],
+      "keyboardHome": true
+    },
+    {
+      "label": "desktop",
+      "gutter": [
+        60,
+        60,
+        60
+      ],
+      "keyboardHome": true
+    },
+    {
+      "label": "tablet",
+      "gutter": [
+        32,
+        32,
+        32
+      ],
+      "keyboardHome": true
+    },
+    {
+      "label": "mobile",
+      "gutter": [
+        20,
+        20,
+        20
+      ],
+      "keyboardHome": true
+    }
+  ],
+  "status": "PASS",
+  "actualZoom": 2
+}

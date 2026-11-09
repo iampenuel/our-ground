@@ -1,0 +1,171 @@
+{
+  "base": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "3fbf44adf2c638da44b1c26bed97a21f2e854ce3",
+  "scope": "Seven exact requested phrases, preserved from first live run before its separate recording-encoder failure",
+  "status": "PASS",
+  "steps": [
+    {
+      "name": "identity",
+      "route": "/",
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200,
+          "correlation": "3095f400-4f40-4b53-a500-184c8ba69836"
+        },
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "aafd0a29-dc71-4205-9040-3faf294a7c13"
+        }
+      ],
+      "trace": {
+        "correlationId": "aafd0a29-dc71-4205-9040-3faf294a7c13",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "identity",
+        "outcome": "confirmed"
+      },
+      "reply": "I\u2019m Eden, Our Ground\u2019s AI assistant. I can find nearby food, healthcare, and community support and help you explore a listing."
+    },
+    {
+      "name": "introduction",
+      "route": "/",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "09bf66ed-fb48-48c1-a82c-8f6f9d3cb789"
+        }
+      ],
+      "trace": {
+        "correlationId": "09bf66ed-fb48-48c1-a82c-8f6f9d3cb789",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "identity",
+        "outcome": "confirmed"
+      },
+      "reply": "I\u2019m Eden, Our Ground\u2019s AI assistant. I can find nearby food, healthcare, and community support and help you explore a listing."
+    },
+    {
+      "name": "correction",
+      "route": "/",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "411b312a-1fc2-4a87-a65f-64a2ff459a96"
+        }
+      ],
+      "trace": {
+        "correlationId": "411b312a-1fc2-4a87-a65f-64a2ff459a96",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "identity",
+        "outcome": "confirmed"
+      },
+      "reply": "Thanks for clarifying. I\u2019m Eden, Our Ground\u2019s AI assistant. I can find nearby food, healthcare, and community support and help you explore a listing."
+    },
+    {
+      "name": "capabilities",
+      "route": "/",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "45bf7330-f6e7-4505-8fec-0f2eee8d3104"
+        }
+      ],
+      "trace": {
+        "correlationId": "45bf7330-f6e7-4505-8fec-0f2eee8d3104",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "capabilities",
+        "outcome": "confirmed"
+      },
+      "reply": "I can help you use the public directory. I can find nearby food, healthcare, and community support and help you explore a listing."
+    },
+    {
+      "name": "healthcare search",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "4b5dca92-aa8b-485d-abb8-933e8d168d3a"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "4b5dca92-aa8b-485d-abb8-933e8d168d3a"
+        }
+      ],
+      "trace": {
+        "correlationId": "4b5dca92-aa8b-485d-abb8-933e8d168d3a",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "search",
+        "outcome": "confirmed"
+      },
+      "reply": "Your search is ready. Here is what I found: 6 matching directory listings within the search distance. These are public directory listings, not independently verified operating services. Also, HHC- South Allison Hill."
+    },
+    {
+      "name": "first visible result",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "96d592ea-2e2c-4f8a-bbb4-3dc069517e6e"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "96d592ea-2e2c-4f8a-bbb4-3dc069517e6e"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "96d592ea-2e2c-4f8a-bbb4-3dc069517e6e"
+        }
+      ],
+      "trace": {
+        "correlationId": "96d592ea-2e2c-4f8a-bbb4-3dc069517e6e",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "details",
+        "outcome": "confirmed"
+      },
+      "reply": "The listing details are open. The listing says: HHC- South Allison Hill. Also, Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified. Also, These are public directory listings, not independently verified operating services."
+    },
+    {
+      "name": "return to map",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "06f321c7-b082-4cb2-ba59-4464af790e78"
+        }
+      ],
+      "trace": {
+        "correlationId": "06f321c7-b082-4cb2-ba59-4464af790e78",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "page-control-result",
+        "proposedAction": "back-to-map",
+        "outcome": "confirmed"
+      },
+      "reply": "The map is open."
+    }
+  ],
+  "rawReceipt": "dialogue.json",
+  "rawReceiptSHA256": "4407f3ca30fe4dcacd83b48bb8a6b74c79b2104d086b38ebb98022777978ee9a",
+  "compoundRecordingReceipt": "dialogue-cursor-capture.json"
+}

@@ -1,0 +1,46 @@
+{
+  "sha": "08b1685d42b4ec6285433f7d84a5f20aec3c194a",
+  "tests": 813,
+  "pass": 813,
+  "fail": 0,
+  "skipped": 0,
+  "frontendTypecheck": "PASS",
+  "backendTypecheck": "PASS",
+  "previewBuild": "PASS",
+  "stagedSecretScan": {
+    "status": "PASS",
+    "files": 18,
+    "findings": 0
+  },
+  "isolatedSourceSecretScan": {
+    "status": "PASS",
+    "files": 984,
+    "findings": 0
+  },
+  "isolatedBuildSecretScan": {
+    "status": "PASS",
+    "files": 1058,
+    "findings": 0
+  },
+  "testHarnessCorrections": [
+    "Preparation timeout now uses controlled clocks after a timing race in one full run.",
+    "Protected browser transport failures abort the request and preserve finally cleanup; exceptions never print request headers.",
+    "Current aggregate audit counts all48 configured permit slots.",
+    "The legacy CI recovery location fixture now includes the required US country."
+  ],
+  "publicArtifactsRoot": "/Volumes/Penuel Back/OurGround-Work/runs/2026-11-08-eden-3fbf44a-3045f215/artifacts/final-qualification/",
+  "exactServerGeocodingKeyAbsentFromClientArtifacts": {
+    "status": "PASS",
+    "files": 74
+  },
+  "localCiBrowserSuites": {
+    "status": "PASS",
+    "suites": [
+      "release-browser",
+      "eden-recovery-browser",
+      "eden-pointer-browser",
+      "organization-oauth-browser"
+    ],
+    "provider": "fixture; no third-party AI/OAuth"
+  }
+}

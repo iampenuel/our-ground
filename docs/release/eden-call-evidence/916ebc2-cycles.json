@@ -1,0 +1,47 @@
+{
+  "origin": "https://ourground-staging-lw7wxlczb-penuels-projects-aa802b06.vercel.app",
+  "sha": "916ebc2b530f6167137e1c1e280113ec4be9c52c",
+  "fixture": "local token and provider transport, generated test signal, real compiled browser client",
+  "cycles": [
+    {
+      "cycle": 1,
+      "allTracksEnded": true,
+      "activeLeases": 0,
+      "sockets": 1,
+      "minted": 1
+    },
+    {
+      "cycle": 2,
+      "allTracksEnded": true,
+      "activeLeases": 0,
+      "sockets": 2,
+      "minted": 2
+    }
+  ],
+  "status": "PASS",
+  "character": {
+    "states": [
+      "idle",
+      "speaking",
+      "idle",
+      "listening",
+      "thinking",
+      "listening",
+      "idle",
+      "listening",
+      "idle",
+      "speaking",
+      "idle",
+      "listening",
+      "idle"
+    ],
+    "renderer": "svg-profile"
+  },
+  "pcmPackets": 1373,
+  "streamEnds": 1,
+  "unansweredTurnKeptConnection": true,
+  "closeCodes": [
+    1000,
+    1000
+  ]
+}

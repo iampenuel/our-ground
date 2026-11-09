@@ -1,0 +1,20 @@
+{
+  "origin": "https://ourground-staging-m1eg75y65-penuels-projects-aa802b06.vercel.app",
+  "checks": {
+    "protection": 302,
+    "commit": "8ff2a307a9096e314fa4a05984dd5b589e5cc73b",
+    "enterSearch": "6 matching records near Harrisburg, PA.",
+    "listingHistory": true,
+    "donorReply": "The page is open. Here is what I found: Give Support links to official food bank resources for volunteering, giving goods and financial support.",
+    "orgReply": "The page is open. Here are the confirmed details: For Organizations explains how representatives can sign in, request access and report a listing correction.",
+    "food": "Your search is ready. 0 matching directory listings within the search distance. This does not mean local support is unavailable.",
+    "healthcare": "Your search filters have been updated. These are public directory listings, not independently verified operating services.",
+    "radius": "The search distance has been updated. The search distance is 25 miles. 19 matching directory listings within the search distance. These are public directory listings, not independently verified operating services.",
+    "results": "Matching results is in focus.",
+    "map": "The map section is open, but the map is unavailable. The list still shows your results.",
+    "list": "Showing the matching results list.",
+    "aiHTTP": 200
+  },
+  "provider": "enabled",
+  "issues": []
+}

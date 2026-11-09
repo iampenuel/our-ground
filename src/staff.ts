@@ -3,7 +3,7 @@ import './account.css';
 import { arrow, element, header, escapeHtml as esc } from './ui';
 import { footer } from './navigation';
 import { apiRequest, BackendError } from './api-client';
-import { isSignInConfigured, onSessionChange } from './backend-client';
+import { isSignInConfigured, onAccountIdentityChange } from './backend-client';
 import { dateLabel, safeLink, revisionCards } from './organization-ui';
 import type { OrganizationAccount, OrganizationListing, ListingPatch, ListingHours } from '../shared/organization-accounts';
 
@@ -127,7 +127,15 @@ form.addEventListener('submit', event => {
 });
 element('#retryLoad').addEventListener('click', () => void load());
 element('#reloadService').addEventListener('click', () => void load());
-const unsubscribe = isSignInConfigured() ? onSessionChange((event, session) => { if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) { generation++; controller?.abort(); clearPrivate(); setMessage('Your session ended. Sign in again to manage your listing.', 'warning'); element('#staffSignIn').hidden = false; } }) : () => {};
+const unsubscribe = onAccountIdentityChange(signedIn => {
+  if (disposed) return;
+  generation++; controller?.abort(); busy = false; clearPrivate();
+  if (signedIn) void load();
+  else {
+    setMessage('Your session ended. Sign in again to manage your listing.', 'warning');
+    element('#staffSignIn').hidden = false;
+  }
+});
 window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
 window.addEventListener('pagehide', () => { disposed = true; generation++; controller?.abort(); clearPrivate(); unsubscribe(); });
 void load();

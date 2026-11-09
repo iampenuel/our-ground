@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "scope": "Local directory fixture; real action engine and installed ReactDrops",
+  "views": [
+    {
+      "view": "desktop",
+      "executed": 6,
+      "singleSearch": true,
+      "coordinateChecks": true,
+      "safety": true,
+      "errors": []
+    },
+    {
+      "view": "mobile",
+      "executed": 6,
+      "singleSearch": true,
+      "coordinateChecks": true,
+      "safety": true,
+      "errors": []
+    },
+    {
+      "view": "narrow-reduced",
+      "executed": 6,
+      "singleSearch": true,
+      "coordinateChecks": false,
+      "safety": true,
+      "errors": []
+    },
+    {
+      "view": "short",
+      "executed": 6,
+      "singleSearch": true,
+      "coordinateChecks": true,
+      "safety": true,
+      "errors": []
+    }
+  ]
+}

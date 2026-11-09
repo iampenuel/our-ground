@@ -2,7 +2,7 @@ import { createEdenDirectory, directoryModelFacts } from './eden-directory.ts';
 import type { DirectoryCityLookup } from './directory-city.ts';
 import { GoogleGenAI } from '@google/genai';
 import { createHash, randomBytes } from 'node:crypto';
-import { EDEN_CITIES, validateEdenAction } from '../shared/eden-assistant.ts';
+import { edenCityLabel, validateEdenAction } from '../shared/eden-assistant.ts';
 import type { EdenAction, EdenCategory, EdenCityId, EdenRadius } from '../shared/eden-assistant.ts';
 import { EDEN_AGENT_CLARIFICATION_QUESTIONS, validateEdenAgentAction, validateEdenAgentRequest, validateEdenAgentResultRequest, validateEdenAgentActionResponse, validateEdenAgentContext } from '../shared/eden-agent.ts';
 import type { EdenAgentPlanResponse, EdenAgentContext, EdenAgentReplyResponse, EdenAgentRequest, EdenAgentResourceId, EdenAgentResultRequest } from '../shared/eden-agent.ts';
@@ -11,6 +11,7 @@ import { createEdenProvider, EdenProviderError } from './eden-provider.ts';
 import type { EdenModelRequest, EdenTextModel } from './eden-provider.ts';
 import type { Repository } from './app.ts';
 import { EDEN_LIVE_TOOL_DEFINITIONS } from '../shared/eden-live.ts';
+import { conversationChoices, profileFacts, profileReply, validateConversationMemory, socialWords, validSocialText, validSymbols, isEdenSurface, type EdenSurface } from '../shared/eden-conversation.ts';
 import { edenPublicPageFacts } from '../shared/eden-public-pages.ts';
 
 export type EdenAgentRepository = Pick<Repository, 'search' | 'detail'>;
@@ -39,6 +40,7 @@ const outcomeMessages: Record<EdenAction['type'], string> = {
   select: 'The resource is selected.',
   refine: 'Your search filters have been updated.',
   'clear-filters': 'Your search filters have been cleared.',
+  'show-map': 'The map section is open. Check its status for available locations.',
   'read-results': 'Your current results are ready to review.',
   'navigate-support': 'Find Support is open.',
   help: 'You can search for resources or ask about listed results.',
@@ -48,6 +50,12 @@ const outcomeMessages: Record<EdenAction['type'], string> = {
 };
 const object = (value: unknown): Record<string, unknown> | null => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null;
 const hash = (value: string) => createHash('sha256').update(value).digest('hex');
+function projectVisibleIds(ids:string[],context:EdenAgentContext) {
+  if(!context.filtered)return ids;
+  // Filter text is private. Verify the reported rows, membership and order
+  // against the actual public server query without ever requesting that text.
+  return ids.filter(id=>context.resourceIds.includes(id));
+}
 const same = (left: readonly string[], right: readonly string[]) => left.length === right.length && left.every((value, index) => value === right[index]);
 export const EDEN_AGENT_CONNECTIVE_PHRASES = Object.freeze([
   'Here is what the listing says:',
@@ -63,6 +71,11 @@ export const EDEN_AGENT_CONNECTIVE_PHRASES = Object.freeze([
   'Also,',
 ]);
 export const EDEN_AGENT_CONNECTIVES = Object.freeze(EDEN_AGENT_CONNECTIVE_PHRASES.map((text, index) => Object.freeze({ id: `connector-${index + 1}`, text })));
+function connectivesFor(facts: readonly Fact[]) {
+  // An audience page is not a directory listing. Do not attribute its copy to one.
+  return facts.some(fact => fact.id.startsWith('resource-')) ? EDEN_AGENT_CONNECTIVES
+    : EDEN_AGENT_CONNECTIVES.filter(item => !/listing|selected result/i.test(item.text));
+}
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /** Exact cited extracts carry every factual assertion. The model may choose
@@ -111,7 +124,7 @@ export function validateEdenAgentComposition(value: unknown, facts: readonly Fac
       selected.add(fact.id); sources.push({ ...fact });
       pieces.push(fact.text + (/[.!?]$/.test(fact.text) ? '' : '.'));
     } else if (segment.kind === 'connector') {
-      const connective = EDEN_AGENT_CONNECTIVES.find(item => item.id === segment.id);
+      const connective = connectivesFor(facts).find(item => item.id === segment.id);
       if (!connective || ++connectors > 6) return { ok: false, code: 'EDEN_AGENT_COMPOSITION_SOURCE' };
       pieces.push(connective.text);
     } else return { ok: false, code: 'EDEN_AGENT_COMPOSITION_SOURCE' };
@@ -119,6 +132,25 @@ export function validateEdenAgentComposition(value: unknown, facts: readonly Fac
   if (requirements.requiredFactIds.some(id => !selected.has(id)) || requirements.requiredOneOfFactIds.some(group => !group.some(id => selected.has(id)))) return { ok: false, code: 'EDEN_AGENT_COMPOSITION_REQUIRED' };
   const reply = pieces.join(' ');
   return reply.length > 1200 ? { ok: false, code: 'EDEN_AGENT_COMPOSITION_LENGTH' } : { ok: true, reply, sources };
+}
+
+/** Complete mandatory immutable facts only after the model selected valid IDs.
+ * Unknown IDs, arbitrary prose and malformed responses remain hard failures.
+ */
+export function completeRequiredEdenComposition(value:unknown,facts:readonly Fact[],requirements:CompositionRequirements):CompositionCheck {
+  const checked=validateEdenAgentComposition(value,facts,requirements);
+  if(checked.ok||checked.code!=='EDEN_AGENT_COMPOSITION_REQUIRED')return checked;
+  const segments=(value as {segments:Array<{kind:string;id:string}>}).segments;
+  const selected=segments.filter(s=>s.kind==='fact').map(s=>s.id);
+  const required=new Set(requirements.requiredFactIds);
+  for(const group of requirements.requiredOneOfFactIds){
+    const id=group.find(id=>selected.includes(id))??group.find(id=>facts.some(f=>f.id===id));
+    if(id)required.add(id);
+  }
+  // Keep the model's ordering where possible, then append missing obligations.
+  // Optional facts yield to required facts within the existing six-fact limit.
+  const ordered=[...new Set([...selected.filter(id=>required.has(id)),...required,...selected])].slice(0,6);
+  return validateEdenAgentComposition({segments:ordered.map(id=>({kind:'fact',id}))},facts,requirements);
 }
 
 function phrase(action: EdenAction, failed: boolean): EdenSpeechPhrase {
@@ -145,6 +177,7 @@ function confirmDirectoryAction(action:EdenAction,before:EdenAgentContext,after:
   if (before.directory !== 'public' || after?.directory !== 'public') return reject();
   if (query && (after.searchState !== 'ready' || !['support','resource'].includes(after.page) ||
     after.cityId !== query.cityId || after.category !== query.category || after.radius !== query.radius)) return reject();
+  if(action.type==='show-map'&&(after.page!=='support'||!after.mapState||after.mapState==='not-shown'))return reject();
   if (action.type === 'details' || action.type === 'select' || action.type === 'read-hours') {
     if (!ids[action.index-1] || before.resourceIds[action.index-1] !== ids[action.index-1]) return reject();
     if ((action.type !== 'read-hours' || before.selectedIndex !== undefined) && after.selectedIndex !== action.index) return reject();
@@ -162,6 +195,10 @@ function contextFacts(context:EdenAgentContext):Fact[]{
   if(context.mapState==='unavailable')facts.push({id:'map-state',text:'The map is unavailable. The resource list and details remain the available alternative.'});
   else if(context.mapState==='ready')facts.push({id:'map-state',text:'The website reports that its map is ready.'});
   else if(context.mapState==='not-shown')facts.push({id:'map-state',text:'The map is not currently shown.'});
+  if(context.directory==='public'&&context.view){
+    facts.push({id:'current-view',text:context.view==='map'?'The map section is open.':'The results list is in view.'});
+    if(context.searchState==='ready')facts.push({id:'visible-results',text:`The current view shows ${context.resultCount} public directory listing${context.resultCount===1?'':'s'}${context.mappedCount?' and '+context.mappedCount+' mapped lead'+(context.mappedCount===1?'':'s'):''}${context.filtered?' after filtering':''}.`});
+  }
   return facts;
 }
 
@@ -178,8 +215,9 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
   const modeMatches = (context:EdenAgentContext) => Boolean(directory) === (context.directory === 'public');
   const dataFact = () => ({ id: 'data-kind', text: directory ? 'These are public directory listings, not independently verified operating services.' : 'These records are fictional demonstration data, not real services.' });
   const hoursFact = () => ({ id:'hours-unverified',text:directory ? 'Published hours do not establish whether this service is open now. Confirm hours and eligibility with the provider.' : 'These fictional listing hours cannot establish whether a real service is open now. Confirm current hours, time zone and availability directly with the provider.' });
-  const countFact = (n:number) => ({id:'result-count',text:directory ? `${n} matching directory listing${n===1?'':'s'} within the search distance.${n>20?' The first 20 are shown.':n===0?' This does not mean local support is unavailable.':''}` : `The current search returned ${n} resource${n===1?'':'s'}.`});
+  const countFact = (n:number,query:Query) => ({id:'result-count',text:directory ? `${n} matching ${query.category} listing${n===1?'':'s'} within ${query.radius} miles of ${(directory?.label(query.cityId)??edenCityLabel(query.cityId))}.${n>20?' The first 20 are shown.':n===0?' This does not mean local support is unavailable.':''}` : `The current search returned ${n} resource${n===1?'':'s'}.`});
   const purge = () => { for (const [key, item] of pending) if (item.expiresAt <= now()) pending.delete(key); };
+  let cooldownUntil = 0;
   async function recordFacts(id: EdenAgentResourceId, position: number): Promise<Fact[]> {
     if (directory) return directory.facts(id,position);
     const record = object(await options.repository!.detail(id, true)), expected = known[id as keyof typeof known];
@@ -215,6 +253,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
   async function invoke(input: unknown, instruction: string, toolName: string, parameters: Record<string, unknown>, signal?: AbortSignal): Promise<unknown> {
     const eligibility = providerStatus();
     if (!status().available || !eligibility.model) throw new EdenProviderError('EDEN_DISABLED', 403);
+    if(now()<cooldownUntil)throw new EdenProviderError('EDEN_PROVIDER_QUOTA',429);
     const combined = AbortSignal.any([AbortSignal.timeout(15_000), ...(signal ? [signal] : [])]);
     const payload: EdenModelRequest = { model: eligibility.model, input: JSON.stringify(input), system_instruction: instruction,
       tools: [{ type: 'function', name: toolName, description: toolName === EDEN_AGENT_ACTION_TOOL ? 'Choose a public resource application action from a semantic request.'
@@ -243,7 +282,9 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
     } catch (error) {
       if (signal?.aborted) throw new EdenProviderError('EDEN_AGENT_CANCELLED', 409);
       const errorBody = object(error), code = Number(errorBody?.status ?? errorBody?.code);
-      throw new EdenProviderError(code === 429 ? 'EDEN_PROVIDER_QUOTA' : 'EDEN_PROVIDER_UNAVAILABLE', code === 429 ? 429 : 503);
+      if (code===429) cooldownUntil=now()+30_000;
+      const reason=code===429?'EDEN_PROVIDER_QUOTA':code===401||code===403?'EDEN_PROVIDER_AUTH':code===404?'EDEN_PROVIDER_MODEL':code===400?'EDEN_PROVIDER_SCHEMA':combined.aborted?'EDEN_PROVIDER_TIMEOUT':'EDEN_PROVIDER_UNAVAILABLE';
+      throw new EdenProviderError(reason,code===429?429:503);
     } finally { removeAbort(); }
     const body = object(response);
     if (!body || !['completed', 'requires_action'].includes(String(body.status)) || !Array.isArray(body.steps) || body.steps.length < 1 || body.steps.length > 8) throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT', 502);
@@ -265,6 +306,36 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
   }
   return {
     status,
+    async understand(symbols:unknown, contextValue:unknown, controls:unknown, previousValue:unknown, signal:AbortSignal) {
+      const context=validateEdenAgentContext(contextValue);
+      const previous=previousValue===null?undefined:validateConversationMemory(previousValue);
+      if(!context || !modeMatches(context) || !validSymbols(symbols) || !Array.isArray(controls) || controls.length>12 || !controls.every(isEdenSurface) || previous===null)throw new EdenProviderError('EDEN_INVALID_AGENT_REQUEST',422);
+      const choices=conversationChoices(symbols,context,controls as EdenSurface[],previous);
+      const {resourceIds:_ids,...publicContext}=context;
+      const keys=choices.map((_,index)=>'choice-'+index);
+      const args=object(await invoke({signals:symbols, previous_public_intent:previous, page:publicContext, available_controls:controls, social_words:socialWords, assistant_profile:profileFacts, choices:choices.map((choice,i)=>({id:keys[i],...choice}))},
+        'You are Eden, the Our Ground guide. Interpret the visitor’s ordered public concepts in context. A correction replaces the old city: use the named intended city, not a city following negation. Distinguish a request to introduce yourself (identity) or explain your own capabilities from a donor request. A request verb is not a donation. A correction about Eden’s identity is not a city question. Choose search-and-open when the visitor explicitly requests both the search and a numbered result; the website will independently confirm both. Back then map from a resource detail uses back-to-map, not an arbitrary history destination. Respect map versus list and scroll versus opening a listing. Prefer a conversational greeting or thanks for small talk. For joining as an organization, choose the organizations page. Choose clarify when intent or city is ambiguous. Do not invent facts. Choose exactly one listed id. This is only a proposal. The app validates and executes actions and confirms their result. When choosing a greet or thanks message, write a short friendly greeting or reply in social_text (max 220 characters). Use only social_words and plain punctuation, e.g. Hi there! How can I help you today? Do not describe a service as available or promise anything. The clarify choice opens an application-owned clarifying question. Identity and capabilities use the verified assistant_profile. Select the listed profile choice with the most helpful focus (search, tour or limits). Return only the choice ID for profile answers.',
+        'choose_public_step',{type:'object',properties:{choice:{type:'string',enum:keys},social_text:{type:'string'}},additionalProperties:false,required:['choice']},signal));
+      if(!args || Object.keys(args).some(k=>k!=='choice'&&k!=='social_text') || typeof args.choice!=='string' || !keys.includes(args.choice))throw new EdenProviderError('EDEN_INVALID_AGENT_ACTION',502);
+      const choice=choices[keys.indexOf(args.choice)];
+      if(choice.kind==='message'&&(choice.key==='identity'||choice.key==='capabilities')){
+        const reply=profileReply(choice.key,choice.focus,symbols.includes('correction'));
+        if(!reply)throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT',502);
+        return {engine:'gemini' as const,choice,reply};
+      }
+      if(choice.kind==='message'&&choice.key==='clarify'){
+        // Gemini selected the clarification tool. Its question comes from the UI's
+        // public vocabulary; arbitrary tool prose cannot disclose text or make claims.
+        const reply=symbols.includes('correction')||previous && 'goal' in previous && previous.goal==='clarify-search'&&previous.missing==='city'
+          ? 'Which city would you like to search?' : 'Would you like to find support, give support, or learn about organizations?';
+        return {engine:'gemini' as const,choice,reply};
+      }
+      if(choice.kind==='message'&&choice.key!=='boundary'){
+        if(!validSocialText(args.social_text))throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT',502);
+        return {engine:'gemini' as const,choice,reply:args.social_text};
+      }
+      return {engine:'gemini' as const,choice};
+    },
     async inspectLiveContext(value: unknown) {
       if (!status().available) throw new EdenProviderError('EDEN_DISABLED', 403);
       const context = validateEdenAgentContext(value);
@@ -273,8 +344,8 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       const {ids:actual,total} = await snapshot(query);
       if (!same(actual, context.resourceIds)) throw new EdenProviderError('EDEN_AGENT_CONTEXT_CHANGED', 409);
       const facts: Fact[] = [...contextFacts(context),dataFact(),
-        ...(query?[countFact(total)]:[])];
-      if (query) facts.push({ id: 'search-area', text: `The search area is ${EDEN_CITIES.find(city => city.id === query.cityId)!.label}.` },
+        ...(query?[countFact(total,query)]:[])];
+      if (query) facts.push({ id: 'search-area', text: `The search area is ${(directory?.label(query.cityId)??edenCityLabel(query.cityId))}.` },
         { id: 'search-radius', text: `The search distance is ${query.radius} miles.` });
       for (let index = 0; index < actual.length; index++) if(featured(index,context.selectedIndex)) facts.push(...await recordFacts(actual[index], index + 1));
       return { context, facts:directory ? directoryModelFacts(facts) : facts };
@@ -284,10 +355,11 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       const action = validateEdenAction(value), context = validateEdenAgentContext(contextValue);
       if (action?.type === 'read-hours' && context?.selectedIndex !== undefined && action.index !== context.selectedIndex) throw new EdenProviderError('EDEN_AGENT_CONTEXT_CHANGED',409);
       if (!action || !context || !modeMatches(context) || (action.type === 'search' && (!action.city || !action.radius))
-        || (['radius', 'refine', 'details', 'select', 'read-results', 'clear-filters','read-hours'].includes(action.type) && !displayedQuery(context))
+        || (['radius', 'refine', 'details', 'select', 'read-results', 'clear-filters','read-hours','show-map'].includes(action.type) && !displayedQuery(context))
         || ((action.type === 'details' || action.type === 'select'||action.type==='read-hours') && action.index > context.resultCount)) throw new EdenProviderError('EDEN_LIVE_INVALID_ACTION', 422);
       const beforeQuery = displayedQuery(context);
       if (action.type !== 'clear-filters' && !same(await idsFor(beforeQuery), context.resourceIds)) throw new EdenProviderError('EDEN_AGENT_CONTEXT_CHANGED', 409);
+      if(directory&&action.type==='search')await options.directoryCity!(action.city!);
       if (!directory) await idsFor(queryFor(action, context));
       return { action, context };
     },
@@ -301,8 +373,8 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       if(outcome==='done'&&action.type==='navigate-public'&&context.page!==action.page)throw new EdenProviderError('EDEN_AGENT_RESULT_UNCONFIRMED',409);
       if (outcome === 'done' && (!same(actual, context.resourceIds) || (query && (context.cityId !== query.cityId || context.category !== query.category || context.radius !== query.radius)))) throw new EdenProviderError('EDEN_AGENT_RESULT_UNCONFIRMED', 409);
       const facts: Fact[] = [{ id: 'outcome', text: outcomeMessages[action.type] }, ...contextFacts(context),dataFact(),
-        ...(query?[countFact(total)]:[])];
-      if (query) facts.push({ id: 'search-area', text: `The search area is ${EDEN_CITIES.find(city => city.id === query.cityId)!.label}.` }, { id: 'search-radius', text: `The search distance is ${query.radius} miles.` });
+        ...(query?[countFact(total,query)]:[])];
+      if (query) facts.push({ id: 'search-area', text: `The search area is ${(directory?.label(query.cityId)??edenCityLabel(query.cityId))}.` }, { id: 'search-radius', text: `The search distance is ${query.radius} miles.` });
       const selected = action.type === 'details' || action.type === 'select'||action.type==='read-hours' ? action.index : undefined;
       for (let index = 0; index < actual.length; index++) if (featured(index,selected)) facts.push(...await recordFacts(actual[index], index + 1));
       if(action.type==='read-hours')facts.push(hoursFact());
@@ -333,13 +405,14 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
         if (!validated || !('clarification' in validated)) throw new EdenProviderError('EDEN_INVALID_AGENT_CLARIFICATION', 502);
         return validated;
       }
+      if(directory&&request.intent.goal==='find-resources')await options.directoryCity!(request.intent.cityId);
       const contextQuery = displayedQuery(request.context);
       // Clearing a local text filter can legitimately start with a filtered
       // subset (including zero rows). Validate the fresh target query below;
       // no filter text or arbitrary browser record is transmitted to the model.
       if (request.intent.goal !== 'clear-filters' && (request.context.resourceIds.length || request.intent.goal !== 'find-resources')) {
         const actual = await idsFor(contextQuery);
-        if (!same(actual, request.context.resourceIds)) throw new EdenProviderError('EDEN_AGENT_CONTEXT_CHANGED', 409);
+        if (!same(projectVisibleIds(actual,request.context), request.context.resourceIds)) throw new EdenProviderError('EDEN_AGENT_CONTEXT_CHANGED', 409);
       }
       const { resourceIds: _ids, ...pageContext } = request.context;
       const args = object(await invoke({ semantic_request: request.intent, page_context: pageContext },
@@ -372,7 +445,8 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       try {
       active.signal.throwIfAborted();
       pending.delete(key); // One shot, including mismatches and provider failures.
-      const {ids:currentIds,total} = await snapshot(directory && result.outcome === 'failed' ? undefined : item.query);
+      const {ids:serverIds,total} = await snapshot(directory && result.outcome === 'failed' ? undefined : item.query);
+      const currentIds=directory && result.context?.filtered ? projectVisibleIds(serverIds,result.context) : serverIds;
       if ((item.expectedIds && !same(currentIds, item.expectedIds)) || (result.outcome === 'done' && !same(result.resourceIds, currentIds)) || (result.outcome === 'failed' && result.resourceIds.length)) throw new EdenProviderError('EDEN_AGENT_RESULT_UNCONFIRMED', 409);
       const failed = result.outcome === 'failed';
       const confirmedContext = result.context ?? item.request.context;
@@ -385,9 +459,9 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       const facts: Fact[] = failed ? [{ id: 'outcome', text: 'That action could not be completed.' }]
         : [{ id: 'outcome', text: giving?'You can explore ways to support local providers.':orientation?'Here is what Our Ground offers.':outcomeMessages[item.action.type] }, ...contextFacts(confirmedContext),
           dataFact(),
-          ...(item.query?[countFact(total)]:[])];
+          ...(item.query?[countFact(total,item.query)]:[])];
       if (!failed && item.query) {
-        facts.push({ id: 'search-area', text: `The search area is ${EDEN_CITIES.find(city => city.id === item.query!.cityId)!.label}.` },
+        facts.push({ id: 'search-area', text: `The search area is ${(directory?.label(item.query!.cityId)??edenCityLabel(item.query!.cityId))}.` },
           { id: 'search-radius', text: `The search distance is ${item.query.radius} miles.` });
         const selected = item.action.type === 'details' || item.action.type === 'select' || item.action.type==='read-hours' ? item.action.index : undefined;
         for (let index = 0; index < currentIds.length; index++) if (featured(index,selected)) facts.push(...await recordFacts(currentIds[index], index + 1));
@@ -404,9 +478,14 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       if (!failed && giving){facts.push({id:'giving-next',text:'Would you like me to open Give Support?'});requirements.requiredFactIds.push('giving-purpose','giving-boundary','giving-next');}
       else if(!failed&&orientation)requirements.requiredFactIds.push('platform-purpose','platform-actions');
       else if (!failed && (item.action.type==='read-page'||item.action.type==='navigate-public')) requirements.requiredFactIds.push('page-'+confirmedContext.page+'-1');
+      if(!failed && item.request.intent.goal==='explain-page' && confirmedContext.view){
+        requirements.requiredFactIds.push('current-view');
+        if(confirmedContext.searchState==='ready')requirements.requiredFactIds.push('visible-results');
+        else if(confirmedContext.searchState==='error'||confirmedContext.searchState==='loading')requirements.requiredFactIds.push('search-state');
+      }
       if (!failed && item.action.type==='read-hours') requirements.requiredFactIds.push('hours-unverified');
       if (!failed && directory && item.action.type==='read-hours') requirements.requiredFactIds.push(`resource-${item.action.index}-hours`);
-      if (!failed && (item.action.type === 'search' || item.action.type === 'radius')) requirements.requiredFactIds.push('result-count');
+      if (!failed && (item.action.type === 'search' || item.action.type === 'radius' || (directory && item.action.type === 'refine' && item.query))) requirements.requiredFactIds.push('result-count');
       if (!failed && item.action.type === 'radius') requirements.requiredFactIds.push('search-radius');
       if (!failed && item.action.type === 'details') {
         requirements.requiredFactIds.push(`resource-${item.action.index}-title`);
@@ -415,15 +494,16 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       if (!failed && item.action.type === 'search' && currentIds.length) requirements.requiredOneOfFactIds.push(facts.filter(fact => /^resource-\d+-title$/.test(fact.id)).map(fact => fact.id));
       if (directory && facts.some(fact => fact.id.startsWith('resource-'))) requirements.requiredFactIds.push('data-kind');
       else if (facts.some(fact => fact.id.startsWith('resource-'))) requirements.requiredOneOfFactIds.push(facts.filter(fact => /fictional|demonstration/i.test(fact.text)).map(fact => fact.id));
+      const connectives = connectivesFor(facts);
       const args = await invoke({ confirmed_outcome: result.outcome, semantic_request: item.request.intent, source_facts: directory ? directoryModelFacts(facts) : facts,
-        connective_phrases: EDEN_AGENT_CONNECTIVES, required_fact_ids: requirements.requiredFactIds, required_one_of_fact_ids: requirements.requiredOneOfFactIds },
+        connective_phrases: connectives, required_fact_ids: requirements.requiredFactIds, required_one_of_fact_ids: requirements.requiredOneOfFactIds },
         'Compose Eden’s concise grounded answer by selecting and ordering segments. A fact segment references an exact source_facts ID; a connector segment references an exact connective_phrases ID. The website renders the selected immutable text, so return no prose or copied text. Include every required_fact_ids entry, and at least one entry from EACH required_one_of_fact_ids group. Select relevant listing facts for the user’s semantic request. Choose the fewest useful facts that satisfy the requirements, usually two or three; maximum six facts and two connectors. Never repeat a fact or a connector. Prefer no connectors to a repeated Also. For page explanations describe actual permitted capabilities; for missing hours say current status is not verified, without guessing. A brief fictional qualifier in a resource title is sufficient; do not repeat a long disclaimer. Order the facts and optional connectors into a readable answer. Never invent an ID, an availability claim, medical advice, or any additional action. If the confirmed outcome failed, select only its outcome fact and optional neutral connectors. Call compose_verified_reply with segments only.',
         EDEN_AGENT_REPLY_TOOL, { type: 'object', additionalProperties: false, required: ['segments'], properties: {
           segments: { type: 'array', minItems: 1, maxItems: 12, items: { type: 'object', additionalProperties: false, required: ['kind', 'id'], properties: {
-            kind: { type: 'string', enum: ['fact', 'connector'] }, id: { type: 'string', enum: [...facts.map(fact => fact.id), ...EDEN_AGENT_CONNECTIVES.map(item => item.id)] },
+            kind: { type: 'string', enum: ['fact', 'connector'] }, id: { type: 'string', enum: [...facts.map(fact => fact.id), ...connectives.map(item => item.id)] },
           } } },
         } }, active.signal);
-      const composition = validateEdenAgentComposition(args, facts, requirements);
+      const composition = completeRequiredEdenComposition(args, facts, requirements);
       if (!composition.ok) throw new EdenProviderError(composition.code, 502);
       return { engine: 'gemini', reply: composition.reply, sources: composition.sources, phrase: phrase(item.action, failed) };
       } finally { active.finish(); }

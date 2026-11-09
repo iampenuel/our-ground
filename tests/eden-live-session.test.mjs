@@ -20,9 +20,9 @@ function harness(overrides={}){
     get started(){return started;},get micStarts(){return micStarts;},get micStopped(){return micStopped;},get outputClosed(){return outputClosed;},get queued(){return queued;},
     message(value,index=connections.length-1){connections[index].callbacks.message(value);},frame(value=.2){onFrame(new Float32Array(1024).fill(value),48000);},
     frames(value,count){for(let i=0;i<count;i++)this.frame(value);},speech(){this.frames(.2,8);},
-    inputState(value){onInputState(value);},outputState(value){onOutputState(value);},
+    playback(value){activity(value);},inputState(value){onInputState(value);},outputState(value){onOutputState(value);},
     flush(){queued=0;for(const resolve of drains.splice(0))resolve();},
-    audio(){this.message({serverContent:{modelTurn:{parts:[{inlineData:{data:'AAAA',mimeType:'audio/pcm;rate=24000'}}]}}});},
+    audio(data=Buffer.alloc(4800,32).toString('base64')){this.message({serverContent:{modelTurn:{parts:[{inlineData:{data,mimeType:'audio/pcm;rate=24000'}}]}}});},
     async finish(){this.message({serverContent:{turnComplete:true}});this.flush();await settle();},
     async intro(){await controller.start({microphoneConsent:true});this.audio();await this.finish();},
     cleanup(){controller.dispose();for(const[name,value]of saved){if(value)Object.defineProperty(globalThis,name,value);else delete globalThis[name];}}};return result;
@@ -54,15 +54,17 @@ test('microphone denial leaves text fallback and does not mint a provider creden
   }finally{h.cleanup();}
 });
 
-test('preparation is bounded, distinguishes pending permission from paused output, and never mints before readiness',async()=>{
+test('preparation is bounded, distinguishes pending permission from paused output, and never mints before readiness',async t=>{
+  t.mock.timers.enable({apis:['setTimeout']});
+  const microtasks=async()=>{for(let i=0;i<10;i++)await Promise.resolve();};
   let grant;const micGate=new Promise(resolve=>{grant=resolve;}),pendingMic={active:false,start:()=>micGate,setMuted(){},stop(){this.stopped=true;}};
   const pending=harness({dependencies:{microphone:()=>pendingMic,preparationTimeoutMs:10}});try{
-    await pending.controller.start({microphoneConsent:true});assert.equal(pending.controller.snapshot.phase,'permission-required');assert.equal(pending.controller.snapshot.diagnostic.failure,'permission-pending');assert.match(pending.controller.snapshot.reason,/still pending/);assert.equal(pending.requests.length,0);assert.equal(pendingMic.stopped,true);
-    const before=pending.controller.snapshot;grant();await settle();assert.deepEqual(pending.controller.snapshot,before,'late preparation cannot resurrect a timed-out call');
+    const start=pending.controller.start({microphoneConsent:true});await microtasks();t.mock.timers.tick(10);await start;assert.equal(pending.controller.snapshot.phase,'permission-required');assert.equal(pending.controller.snapshot.diagnostic.failure,'permission-pending');assert.match(pending.controller.snapshot.reason,/still pending/);assert.equal(pending.requests.length,0);assert.equal(pendingMic.stopped,true);
+    const before=pending.controller.snapshot;grant();await microtasks();assert.deepEqual(pending.controller.snapshot,before,'late preparation cannot resurrect a timed-out call');
   }finally{pending.cleanup();}
   let resume;const outputGate=new Promise(resolve=>{resume=resolve;}),paused=harness({dependencies:{output:()=>({init:()=>outputGate,enqueue(){},drain:async()=>{},setMuted(){},stop(){},close(){}}),preparationTimeoutMs:10}});try{
-    const start=paused.controller.start({microphoneConsent:true});await settle();assert.equal(paused.controller.snapshot.diagnostic.preparation,'audio-output-pending');assert.equal(paused.controller.snapshot.microphoneActive,true);assert.match(paused.controller.snapshot.reason,/browser audio playback/);
-    await start;assert.equal(paused.controller.snapshot.phase,'error');assert.equal(paused.controller.snapshot.diagnostic.failure,'audio-output-timeout');assert.equal(paused.controller.snapshot.microphoneActive,false);assert.equal(paused.requests.length,0);resume();await settle();assert.equal(paused.controller.snapshot.phase,'error');
+    const start=paused.controller.start({microphoneConsent:true});await microtasks();assert.equal(paused.controller.snapshot.diagnostic.preparation,'audio-output-pending');assert.equal(paused.controller.snapshot.microphoneActive,true);assert.match(paused.controller.snapshot.reason,/browser audio playback/);
+    t.mock.timers.tick(10);await start;assert.equal(paused.controller.snapshot.phase,'error');assert.equal(paused.controller.snapshot.diagnostic.failure,'audio-output-timeout');assert.equal(paused.controller.snapshot.microphoneActive,false);assert.equal(paused.requests.length,0);resume();await microtasks();assert.equal(paused.controller.snapshot.phase,'error');
   }finally{paused.cleanup();}
 });
 
@@ -274,7 +276,7 @@ test('audio-context suspension is a specific first failure and immediately stops
 
 test('expired credentials and categorized admission failures stop before connecting, and provider quota never auto-recovers',async()=>{
   for(const spec of[{reply:{...token(),expiresAt:new Date(NOW-1).toISOString()},failure:'token-invalid'},{error:new EdenLiveServiceError('local-limit',429,'EDEN_LIVE_USAGE_LIMIT'),failure:'token-request',category:'local-limit'},{error:new EdenLiveServiceError('overload',503,'EDEN_LIVE_PROVIDER_UNAVAILABLE'),failure:'token-request',category:'overload'},{error:new EdenLiveServiceError('access',401,'EDEN_SESSION_REQUIRED'),failure:'token-request',category:'access'}]){
-    const h=harness({options:{getToken:async()=>{if(spec.error)throw spec.error;return spec.reply;}}});try{await h.controller.start({microphoneConsent:true});assert.equal(h.controller.snapshot.diagnostic.failure,spec.failure);if(spec.category)assert.equal(h.controller.snapshot.diagnostic.serviceCategory,spec.category);if(spec.category==='local-limit')assert.match(h.controller.snapshot.reason,/local voice demo/);if(spec.category==='overload')assert.match(h.controller.snapshot.reason,/temporarily busy/);if(spec.category==='access')assert.match(h.controller.snapshot.reason,/access expired/);assert.equal(h.connections.length,0);assert.equal(h.controller.snapshot.microphoneActive,false);}finally{h.cleanup();}
+    const h=harness({options:{getToken:async()=>{if(spec.error)throw spec.error;return spec.reply;}}});try{await h.controller.start({microphoneConsent:true});assert.equal(h.controller.snapshot.diagnostic.failure,spec.failure);if(spec.category)assert.equal(h.controller.snapshot.diagnostic.serviceCategory,spec.category);if(spec.category==='local-limit')assert.match(h.controller.snapshot.reason,/Voice calls have reached their current usage limit/);if(spec.category==='overload')assert.match(h.controller.snapshot.reason,/temporarily busy/);if(spec.category==='access')assert.match(h.controller.snapshot.reason,/access expired/);assert.equal(h.connections.length,0);assert.equal(h.controller.snapshot.microphoneActive,false);}finally{h.cleanup();}
   }
   const h=harness();try{await h.intro();h.message({sessionResumptionUpdate:{resumable:true,newHandle:'synthetic-safe-handle'}});h.connections[0].callbacks.closed({kind:'provider-error',providerCategory:'rate-limit-or-quota',providerStatus:429});await settle();assert.equal(h.requests.length,1);assert.equal(h.controller.snapshot.diagnostic.providerCategory,'rate-limit-or-quota');assert.equal(h.controller.snapshot.diagnostic.providerStatus,429);assert.match(h.controller.snapshot.reason,/rate or usage limit/);assert.doesNotMatch(h.controller.snapshot.reason,/daily quota/);assert.equal(h.controller.snapshot.microphoneActive,false);}finally{h.cleanup();}
 });
@@ -406,7 +408,7 @@ test('native transport pins v1beta constrained endpoint, waits setup and closes 
     assert.equal(sockets[0].sent[0].setup.generationConfig.speechConfig.voiceConfig.prebuiltVoiceConfig.voiceName,'Aoede');
     abort.abort();await assert.rejects(pending);assert.equal(sockets[0].closed,true);
     const nextAbort=new AbortController(),messages=[],connected=connectEdenLive(token(),{message:value=>messages.push(value),closed(){}},nextAbort.signal);const socket=sockets[1];socket.onopen();socket.onmessage({data:new TextEncoder().encode('{"setupComplete":{}}').buffer});
-    const connection=await connected;connection.send({realtimeInput:{text:'synthetic request'}});assert.equal(messages.length,1);nextAbort.abort();assert.equal(socket.closed,true);assert.throws(()=>connection.send({}));
+    const connection=await connected;assert.equal(connection.send({realtimeInput:{text:'synthetic request'}}),true,'native void return is locally accepted by the wrapper');assert.equal(socket.sent.length,2,'one frame was handed to the native queue');assert.equal(messages.length,1,'queue acceptance did not manufacture a provider response');nextAbort.abort();assert.equal(socket.closed,true);assert.equal(connection.send({}),false);
   }finally{if(original)Object.defineProperty(globalThis,'WebSocket',original);else delete globalThis.WebSocket;}
 });
 
@@ -418,9 +420,9 @@ test('transport distinguishes malformed JSON, provider error, application callba
       const closed=[],abort=new AbortController();
       const pending=connectEdenLive(token(),{message:value=>{if(kind==='application-handler'&&value.serverContent)throw new Error('Private UI exception must not escape.');},closed:value=>closed.push(value)},abort.signal);
       const socket=sockets.at(-1);socket.onopen();socket.onmessage({data:'{"setupComplete":{}}'});await pending;
-      if(kind==='socket-close')socket.onclose({code:1006,reason:'Private provider close reason'});
+      if(kind==='socket-close'){socket.onerror();socket.onclose({code:1006,reason:'Private provider close reason'});}
       else socket.onmessage({data:kind==='invalid-message'?'{invalid':kind==='provider-error'?'{"error":{"message":"Private provider error"}}':'{"serverContent":{}}'});
-      await settle();assert.deepEqual(closed,[{kind,...(kind==='socket-close'?{code:1006}:kind==='provider-error'?{providerCategory:'provider-other'}:{})}]);assert.equal(socket.closed,true);assert.doesNotMatch(JSON.stringify(closed),/Private/);abort.abort();
+      await settle();assert.deepEqual(closed,[{kind,...(kind==='socket-close'?{code:1006,closeReason:'other'}:kind==='provider-error'?{providerCategory:'provider-other'}:{})}]);assert.equal(socket.closed,true);assert.doesNotMatch(JSON.stringify(closed),/Private/);abort.abort();
     }
   }finally{if(original)Object.defineProperty(globalThis,'WebSocket',original);else delete globalThis.WebSocket;}
 });
@@ -435,4 +437,256 @@ test('provider error categories use only fixed RPC codes and never expose the pr
       assert.deepEqual(closed,[{kind:'provider-error',providerCategory:category,providerStatus:code}]);assert.doesNotMatch(JSON.stringify(closed),/private|https|details|RESOURCE_EXHAUSTED/);abort.abort();
     }
   }finally{if(original)Object.defineProperty(globalThis,'WebSocket',original);else delete globalThis.WebSocket;}
+});
+
+test('a provider interruption followed by a separate old turnComplete preserves the new spoken turn',async()=>{
+  const h=harness({options:{allowSpokenInterruption:true}});try{
+    await h.controller.start({microphoneConsent:true});h.audio();h.playback(true);
+    assert(h.controller.snapshot.microphoneForwarding);h.speech();
+    assert.equal(h.controller.snapshot.phase,'introducing','local signal cannot cut playback');
+    h.audio(); // In-flight audio from the old response, before Google acknowledges the interruption.
+    assert.equal(h.controller.snapshot.phase,'introducing');assert(h.controller.snapshot.forwarding);
+    assert.equal(h.controller.snapshot.diagnostic.spokenInterruptions??0,0);
+    assert.equal(h.connections[0].sent.filter(v=>v.realtimeInput?.audioStreamEnd).length,0);
+    h.message({serverContent:{interrupted:true}});
+    assert.equal(h.controller.snapshot.diagnostic.spokenInterruptions,1);
+    h.message({serverContent:{turnComplete:true}});await settle();
+    assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.controller.snapshot.diagnostic.failure,'none');
+    h.frames(0,44);assert.equal(h.controller.snapshot.phase,'processing');
+    const before=h.controller.snapshot.diagnostic.inputChunks;
+    h.frames(0,4);assert(h.controller.snapshot.diagnostic.inputChunks>before,'automatic VAD keeps its audio stream across the pause');
+    assert.equal(h.connections[0].sent.filter(v=>v.realtimeInput?.audioStreamEnd).length,0);
+    h.controller.setMicrophoneMuted(true);assert.equal(h.connections[0].sent.filter(v=>v.realtimeInput?.audioStreamEnd).length,1);
+    h.controller.setMicrophoneMuted(false);
+    h.audio();await h.finish();assert.equal(h.controller.snapshot.phase,'listening');
+  }finally{h.cleanup();}
+});
+
+test('one unanswered hosted utterance leaves the same connection available without replaying it',async()=>{
+  const h=harness({options:{allowSpokenInterruption:true}}),original=globalThis.setTimeout,timers=[];try{
+    await h.intro();
+    globalThis.setTimeout=(fn,ms,...args)=>{const id=original(fn,ms,...args);timers.push({ms,run:()=>{clearTimeout(id);fn(...args);}});return id;};
+    h.speech();h.frames(0,44);assert.equal(h.controller.snapshot.phase,'processing');
+    timers.find(t=>t.ms===25000).run();
+    assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.controller.snapshot.diagnostic.unansweredTurns,1);
+    assert(h.controller.snapshot.microphoneForwarding);assert.equal(h.connections.length,1);assert.equal(h.actions.length,0);
+    h.speech();h.frames(0,44);h.audio();await h.finish();
+    assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.requests.length,1);assert.equal(h.releases.length,0);
+  }finally{globalThis.setTimeout=original;h.cleanup();}
+});
+
+test('continuous hosted input begins after setup without an animation or output callback',async()=>{
+  const h=harness({options:{allowSpokenInterruption:true}});
+  try{
+    await h.controller.start({microphoneConsent:true});
+    assert.equal(h.controller.snapshot.phase,'introducing');assert.equal(h.controller.snapshot.diagnostic.playbackStarts,0);
+    h.frames(0,4);const count=h.connections[0].sent.filter(m=>m.realtimeInput?.audio).length;
+    assert(count>0,'the server receives the live input clock before the intro plays');
+    h.controller.setMicrophoneMuted(true);h.frames(.3,4);
+    assert.equal(h.connections[0].sent.filter(m=>m.realtimeInput?.audio).length,count,'mute stops introduction input');
+    h.controller.end();h.frames(.3,4);assert.equal(h.controller.snapshot.forwarding,false);
+  }finally{h.cleanup();}
+});
+
+test('a blocking action sends its matched result without injecting a realtime turn boundary',async()=>{
+  let resolveTool;const h=harness({options:{allowSpokenInterruption:true,onToolCall:()=>new Promise(resolve=>{resolveTool=resolve;})}});
+  const original=globalThis.setTimeout,timers=[];
+  try{
+    await h.intro();h.frames(0,4);
+    globalThis.setTimeout=(fn,ms,...args)=>{const id=original(fn,ms,...args);timers.push({ms,run:()=>{clearTimeout(id);fn(...args);}});return id;};
+    h.message({toolCall:{functionCalls:[{id:'pause-tool',name:'read_public_page_context',args:{}}]}});await settle();
+    const sent=h.connections[0].sent,pcm=sent.filter(x=>x.realtimeInput?.audio).length;
+    h.frames(.3,80);assert.equal(sent.filter(x=>x.realtimeInput?.audio).length,pcm);
+    for(const timer of timers.filter(t=>t.ms===1000))timer.run();
+    assert.equal(sent.filter(x=>x.realtimeInput?.audioStreamEnd).length,0,'a pending blocking result must survive the capture pause');
+    resolveTool({ok:true});await settle();
+    const responses=sent.flatMap(x=>x.toolResponse?.functionResponses??[]);
+    assert.deepEqual(responses,[{id:'pause-tool',name:'read_public_page_context',response:{ok:true}}]);
+    h.message({serverContent:{outputTranscription:{text:'Six healthcare listings are displayed.'}}});h.audio();await h.finish();
+    assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.controller.snapshot.diagnostic.failure,'none');
+    h.speech();h.frames(0,43);h.audio();await h.finish();assert.equal(h.controller.snapshot.phase,'listening');
+  }finally{globalThis.setTimeout=original;h.cleanup();}
+});
+test('a generated caption with only one PCM sample and no completed turn releases the call with an explicit audio failure',async()=>{
+  const h=harness({options:{allowSpokenInterruption:true}}),original=globalThis.setTimeout,timers=[];
+  try{
+    await h.controller.start({microphoneConsent:true});
+    globalThis.setTimeout=(fn,ms,...args)=>{const id=original(fn,ms,...args);timers.push({ms,run:()=>{clearTimeout(id);fn(...args);}});return id;};
+    h.message({serverContent:{outputTranscription:{text:'Public test caption.'}}});h.audio('AAAA');
+    h.message({serverContent:{generationComplete:true}});timers.find(t=>t.ms===3500).run();
+    assert.equal(h.controller.snapshot.diagnostic.failure,'audio-missing');assert.match(h.controller.snapshot.reason,/too little audio/);
+    assert.equal(h.controller.snapshot.diagnostic.turnComplete,0);assert.equal(h.controller.snapshot.microphoneActive,false);assert.equal(h.releases.length,1);
+  }finally{globalThis.setTimeout=original;h.cleanup();}
+});
+
+test('a PCM callback during a remote socket close preserves 1011 without blaming microphone capture',async()=>{
+  const original=Object.getOwnPropertyDescriptor(globalThis,'WebSocket'),sockets=[];
+  class Socket{static OPEN=1;readyState=1;bufferedAmount=0;sent=[];constructor(){sockets.push(this);}send(value){this.sent.push(value);}close(){this.readyState=3;}}
+  Object.defineProperty(globalThis,'WebSocket',{configurable:true,value:Socket});
+  try{
+    const closed=[],pending=connectEdenLive(token(),{message(){},closed:d=>closed.push(d)},new AbortController().signal);
+    const socket=sockets[0];socket.onopen();socket.onmessage({data:'{"setupComplete":{}}'});const c=await pending;
+    socket.readyState=2;c.send({realtimeInput:{audio:{data:'AAAA'}}});assert.equal(socket.sent.length,1,'only setup was delivered');
+    socket.onclose({code:1011,reason:'internal service error'});assert.deepEqual(closed,[{kind:'socket-close',closeReason:'other',code:1011}]);
+  }finally{if(original)Object.defineProperty(globalThis,'WebSocket',original);else delete globalThis.WebSocket;}
+});
+
+test('captioned full-length silence is not speech; the user can restart without replay or leaked caption',async()=>{
+  const captions=[],h=harness({options:{allowSpokenInterruption:true,onUnplayedCaption:t=>captions.push(t)}});
+  try{
+    await h.controller.start({microphoneConsent:true});
+    h.frames(.25,12);h.message({voiceActivity:{voiceActivityType:'ACTIVITY_START'}});
+    h.message({serverContent:{inputTranscription:{text:'Synthetic input.'},outputTranscription:{text:'Synthetic reply.'}}});
+    h.audio(Buffer.alloc(48000).toString('base64'));h.message({serverContent:{generationComplete:true,turnComplete:true}});
+    const d=h.controller.snapshot.diagnostic,r=d.replies.at(-1);
+    assert.equal(d.failure,'audio-missing');assert.deepEqual(captions,['Synthetic reply.']);assert.equal(r.durationMs,1000);
+    assert.equal(r.nonzeroRatio,0);assert.equal(r.usable,false);assert.equal(d.capture.serverStarts,1);assert.equal(d.capture.inputCaptions,1);
+    assert(d.capture.encoded>0&&d.capture.sentWithSignal>0);assert.equal(d.capture.encoded,d.inputChunks);
+    assert(!JSON.stringify(d).includes('Synthetic'));assert.equal(h.releases.length,1);assert.equal(h.controller.snapshot.microphoneActive,false);
+    await h.intro();assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.requests.length,2);assert.equal(h.actions.length,0);
+  }finally{h.cleanup();}
+});
+
+
+test('a locally rejected tool result is never marked queued or retried as a page action',async()=>{
+  const h=harness();try{
+    await h.intro();const wire=h.connections[0],original=wire.send;
+    wire.send=value=>value.toolResponse?false:original(value);
+    const call={id:'reject-result',name:'read_public_page_context',args:{}};
+    h.message({toolCall:{functionCalls:[call]}});await settle();
+    const d=h.controller.snapshot.diagnostic;
+    assert.equal(d.failure,'tool-response');assert.equal(d.toolHandoffs[0].queueAcceptedAt,undefined);
+    assert.equal(typeof d.toolHandoffs[0].sendRejectedAt,'number');assert.equal(h.actions.length,1);
+    assert.equal(h.controller.snapshot.microphoneActive,false);assert.equal(h.releases.length,1);
+  }finally{h.cleanup();}
+});
+
+test('queue acceptance and provider progress remain distinct for a delayed matched tool reply',async()=>{
+  let resolveTool;const h=harness({options:{onToolCall:()=>new Promise(resolve=>{resolveTool=resolve;})}});try{
+    await h.intro();const call={id:'delayed-result',name:'read_public_page_context',args:{}};
+    h.message({toolCall:{functionCalls:[call]}});await settle();resolveTool({outcome:'done',context});await settle();
+    let t=h.controller.snapshot.diagnostic.toolHandoffs[0];assert.equal(typeof t.queueAcceptedAt,'number');
+    assert.equal(t.providerEventAt,undefined);assert.equal(h.controller.snapshot.phase,'processing');
+    const responses=h.connections[0].sent.flatMap(x=>x.toolResponse?.functionResponses??[]);
+    assert.equal(responses[0].id,call.id);assert.equal(responses[0].name,call.name);
+    h.message({serverContent:{outputTranscription:{text:'Search complete.'}}});h.audio();await h.finish();
+    t=h.controller.snapshot.diagnostic.toolHandoffs[0];
+    for(const field of ['receivedAt','actionCompletedAt','queueAcceptedAt','providerEventAt','captionAt','audioAt','turnCompletedAt'])assert.equal(typeof t[field],'number',field);
+    assert.equal(h.controller.snapshot.phase,'listening');assert.doesNotMatch(JSON.stringify(t),/delayed-result|Search complete/);
+  }finally{h.cleanup();}
+});
+
+test('a cancelled tool waits boundedly for provider idle and ignores its late action result',async()=>{
+  let resolveTool;
+  const h=harness({options:{allowSpokenInterruption:true,onToolCall:()=>new Promise(resolve=>{resolveTool=resolve;})}});
+  const original=globalThis.setTimeout,timers=[];
+  try{
+    await h.intro();
+    globalThis.setTimeout=(fn,ms,...args)=>{const id=original(fn,ms,...args);timers.push({ms,fire:()=>{clearTimeout(id);fn(...args);}});return id;};
+    h.speech();
+    const call={id:'cancelled-search',name:'read_public_page_context',args:{}};
+    h.message({toolCall:{functionCalls:[call]}});await settle();
+    h.message({toolCallCancellation:{ids:[call.id]}});await settle();
+    assert.equal(h.controller.snapshot.diagnostic.pendingTools,0);
+    assert.equal(h.controller.snapshot.phase,'processing');
+    assert(timers.some(t=>t.ms===25000),'cancelled processing retains a bounded response wait');
+    const replies=()=>h.connections[0].sent.flatMap(x=>x.toolResponse?.functionResponses??[]);
+    assert.equal(replies().length,0);
+    const completed=h.controller.snapshot.diagnostic.turnComplete;
+    h.message({serverContent:{waitingForInput:true}});await settle();
+    assert.equal(h.controller.snapshot.phase,'listening');
+    assert.equal(h.controller.snapshot.forwarding,true);
+    assert.equal(h.controller.snapshot.diagnostic.turnComplete,completed,'provider idle does not count as a spoken reply');
+    resolveTool({outcome:'done',context});await settle();
+    assert.equal(replies().length,0,'late cancelled action result is never sent');
+    h.speech();h.audio();await h.finish();
+    assert.equal(h.controller.snapshot.phase,'listening');
+    assert.equal(h.controller.snapshot.diagnostic.failure,'none');
+    assert.equal(h.requests.length,1);
+  }finally{globalThis.setTimeout=original;h.cleanup();}
+});
+
+
+test('Live pronunciation and continuation instructions preserve spelling and verified action boundaries',()=>{
+  const config=buildEdenLiveConfig({directory:true}),text=config.systemInstruction.parts[0].text;
+  assert.equal(config.speechConfig.voiceConfig.prebuiltVoiceConfig.voiceName,'Aoede');
+  assert.match(text,/EE-den/);assert.match(text,/long E of Eve/);assert.match(text,/Keep the written spelling Eden/);
+  assert.match(text,/continue or where were we/);assert.match(text,/without restarting/);assert.match(text,/Never repeat a completed search/);
+});
+
+test('interruption retains the same authorized session and supplies numeric playback context on the next tool reply',async()=>{
+  const h=harness({options:{allowSpokenInterruption:true,onToolCall:async()=>({context,facts:[]})}});try{
+    await h.intro();h.speech();h.audio();h.message({serverContent:{outputTranscription:{text:'Public result description.'}}});
+    h.message({serverContent:{interrupted:true,turnComplete:true}});await settle();
+    h.message({toolCall:{functionCalls:[{id:'resume-context',name:'read_public_page_context',args:{}}]}});await settle();
+    const response=h.connections[0].sent.flatMap(x=>x.toolResponse?.functionResponses??[]).at(-1).response;
+    assert.deepEqual(response.context,context);assert.equal(response.playback.interrupted,true);assert.equal(response.playback.wordPosition,'unknown');
+    assert.doesNotMatch(JSON.stringify(response.playback),/Public result|description/);
+    h.audio();await h.finish();assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.requests.length,1);
+    h.speech();h.message({toolCall:{functionCalls:[{id:'later-context',name:'read_public_page_context',args:{}}]}});await settle();
+    const later=h.connections[0].sent.flatMap(x=>x.toolResponse?.functionResponses??[]).at(-1).response;
+    assert.equal(later.playback,undefined,'a completed replacement reply clears the old interruption hint');
+  }finally{h.cleanup();}
+});
+
+test('an interrupted deferred action advances the user turn and queues a replacement until the old turn ends',async()=>{
+  for(const separateEnd of [true,false]){
+    let resolveOld;
+    const executed=[];
+    const h=harness({options:{allowSpokenInterruption:true,onToolCall:(call,signal,turn)=>{
+      executed.push({id:call.id,signal,turn});
+      return call.id==='old-search'?new Promise(resolve=>{resolveOld=resolve;}):Promise.resolve({outcome:'done',context});
+    }}});
+    try{
+      await h.intro();h.speech();
+      const old={id:'old-search',name:'read_public_page_context',args:{}},replacement={...old,id:'new-search'};
+      h.message({toolCall:{functionCalls:[old]}});await settle();
+      const before=h.controller.snapshot.diagnostic.turnComplete;
+      h.message({serverContent:{interrupted:true,...(!separateEnd?{turnComplete:true}:{})}});
+      h.message({toolCall:{functionCalls:[replacement]}});await settle();
+      if(separateEnd){
+        assert.equal(executed.length,1,'replacement waits for the interrupted provider turn to end');
+        h.message({toolCall:{functionCalls:[{...old,id:'cancelled-replacement'}]}});
+        h.message({toolCallCancellation:{ids:['cancelled-replacement']}});
+        h.message({serverContent:{turnComplete:true}});await settle();
+      }
+      assert.equal(h.controller.snapshot.diagnostic.failure,'none');
+      assert.deepEqual(executed.map(x=>x.id),['old-search','new-search']);
+      assert(executed[0].signal.aborted);
+      assert(executed[1].turn>executed[0].turn,'new user intent has its own deduplication epoch');
+      resolveOld({outcome:'done',context});await settle();
+      const responses=h.connections[0].sent.flatMap(x=>x.toolResponse?.functionResponses??[]);
+      assert.deepEqual(responses.map(x=>x.id),['new-search'],'the canceled action result is never replayed');
+      assert.equal(h.controller.snapshot.diagnostic.turnComplete,before,'the abandoned provider turn is not counted as speech');
+      h.audio();await h.finish();
+      assert.equal(h.controller.snapshot.phase,'listening');
+      assert.equal(h.requests.length,1);
+    }finally{h.cleanup();}
+  }
+});
+
+test('voice admission explains personal, shared and provider limits with only authoritative retry times',async()=>{
+ const resetAt='2026-11-10T00:00:00.000Z',retryAt='2026-11-09T23:56:26.000Z';
+ for(const [category,code,timing] of [
+   ['local-limit','EDEN_LIVE_TESTER_START_LIMIT',{resetAt,retryAt:resetAt}],
+   ['local-limit','EDEN_LIVE_TEAM_START_LIMIT',{resetAt,retryAt:resetAt}],
+   ['local-limit','EDEN_LIVE_CAPACITY',{retryAt}],
+   ['rate-limit-or-quota','EDEN_LIVE_PROVIDER_QUOTA',{}],
+   ['rate-limit-or-quota','EDEN_LIVE_PROVIDER_QUOTA',{retryAt}],
+ ]){
+   const error=new EdenLiveServiceError(category,429,code,timing.retryAt?386:undefined,timing);
+   let attempts=0;const h=harness({options:{getToken:async()=>{attempts++;throw error;}}});
+   try{
+     await h.controller.start({microphoneConsent:true});
+     const snapshot=h.controller.snapshot;
+     assert.equal(snapshot.phase,'error');assert.equal(h.connections.length,0);assert.equal(attempts,1);
+     assert.equal(snapshot.microphoneActive,false);assert.doesNotMatch(snapshot.reason,/tester browser|protected call slots|00:00 UTC/);
+     if(code.includes('START_LIMIT')){assert.match(snapshot.reason,/voice allowance/);assert.match(snapshot.reason,/2026/);assert.equal(snapshot.diagnostic.resetAt,resetAt);}
+     if(code==='EDEN_LIVE_CAPACITY'){assert.match(snapshot.reason,/around/);assert.equal(snapshot.diagnostic.retryAt,retryAt);}
+     if(code==='EDEN_LIVE_PROVIDER_QUOTA'){
+       assert.equal(snapshot.diagnostic.resetAt,undefined);assert.match(snapshot.reason,/Google/);
+       if(!timing.retryAt)assert.doesNotMatch(snapshot.reason,/2026|resets|midnight/);
+     }
+   }finally{h.cleanup();}
+ }
 });

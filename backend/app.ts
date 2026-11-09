@@ -1,4 +1,6 @@
-import { EDEN_CITIES } from '../shared/eden-assistant.ts';
+import {publicApiRoute} from './api-route.ts';
+import { normalizeEdenCityId } from '../shared/eden-assistant.ts';
+import {DirectoryLocationError} from './directory-city.ts';
 import type { DirectoryCityLookup } from './directory-city.ts';
 import type {createEdenService} from './eden-api.ts';
 import {EDEN_NOTICE_VERSION} from '../shared/eden-assistant.ts';
@@ -89,19 +91,18 @@ async function handleApiInternal(request: Request, deps: Dependencies,requestId:
   try {
     const url = new URL(request.url);
     if(url.href.length>4096)fail(414,'URI_TOO_LONG','The request address is too long.');
-    const edenPath='/' + (url.searchParams.get('path') ?? url.pathname.replace(/^\/api\/v1\/?/, '')).replace(/^\/+|\/+$/g, '');
+    const path='/'+publicApiRoute(url);
     // EDEN applies its own stricter, exact loopback Origin gate. It never uses
     // account credentials or the broader application account Origin allowlist.
-    if(edenPath.startsWith('/eden/')){
-      if(deps.eden)return deps.eden.handle(request,edenPath);
-      const status=edenPath==='/eden/status'&&request.method==='GET';
+    if(path.startsWith('/eden/')){
+      if(deps.eden)return deps.eden.handle(request,path);
+      const status=path==='/eden/status'&&request.method==='GET';
       return new Response(JSON.stringify(status?{mode:'disabled',engine:'local',publicGeminiEnabled:false,configured:false,eligible:false,speechAvailable:false,noticeVersion:EDEN_NOTICE_VERSION,reason:'local-fallback'}:{error:{code:'EDEN_DISABLED',message:'Gemini is unavailable. Continue with the local guide.'}}),{status:status?200:403,headers:{'Content-Type':'application/json','Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
     }
     if(!['GET','HEAD','OPTIONS'].includes(request.method.toUpperCase())){
       const origin=request.headers.get('origin');
       if(origin&&origin!==url.origin&&!deps.allowedOrigins?.has(origin)&&!deps.organizations?.allowedOrigins.has(origin))fail(403,'ORIGIN_DENIED','Use this action from Our Ground.');
     }
-    const path = '/' + (url.searchParams.get('path') ?? url.pathname.replace(/^\/api\/v1\/?/, '')).replace(/^\/+|\/+$/g, '');
     const method = request.method.toUpperCase();
     if(path.startsWith('/locations/'))return await handleLocationSearch(request,path,deps.locations??createLocationSearch({env:{}}),deps.publicProtection);
     if (path.startsWith('/org/')) return handleOrganization(request,path,deps.organizations);
@@ -113,11 +114,12 @@ async function handleApiInternal(request: Request, deps: Dependencies,requestId:
     if (method === 'GET' && path === '/health') return json({ status: 'ok' });
     if (method === 'GET' && path === '/categories') return json({ items: [{ slug: 'food', name: 'Food assistance' }, { slug: 'healthcare', name: 'Healthcare' }, { slug: 'community', name: 'Community Support' }] });
     if (method === 'GET' && path === '/places/directory-city') {
-      const city = EDEN_CITIES.find(c => c.id === url.searchParams.get('city'));
-      if (!city) fail(422, 'VALIDATION_ERROR', 'Choose a supported directory city.');
+      const city=normalizeEdenCityId(url.searchParams.get('city'));
+      if(!city)fail(422,'VALIDATION_ERROR','Enter a U.S. locality and state or five-digit ZIP code.');
       await deps.publicProtection?.admit('location_reference', request);
       if (!deps.directoryCity) throw new UnavailableError('DIRECTORY_CITY_UNAVAILABLE', 'The directory city reference is not configured.');
-      return json({location: await deps.directoryCity(city!.id)});
+      try{return json({location:await deps.directoryCity(city!)});}
+      catch(error){if(error instanceof DirectoryLocationError)return json({resolution:error.resolution,error:{code:error.code,message:error.message}},422);throw error;}
     }
     if (method === 'GET' && path === '/places/resolve') {
       const q = (url.searchParams.get('q') ?? '').trim();
@@ -180,9 +182,9 @@ async function handleApiInternal(request: Request, deps: Dependencies,requestId:
       if (!id) fail(404, 'NOT_FOUND', 'Resource not found.');
       return json({ id, status: 'open', message: 'Thank you. The report was received.' }, 202);
     }
-    if (method === 'GET' && path === '/me') return deps.organizations?.configured?handleOrganization(request,'/org/account',deps.organizations):json(await account(request, deps));
+    if (method === 'GET' && path === '/me') return (deps.organizations?.configured||deps.organizations?.managementDisabled)?handleOrganization(request,'/org/account',deps.organizations):json(await account(request, deps));
     if (method === 'GET' && path === '/services') {
-      if(deps.organizations?.configured) return handleOrganization(request,'/org/listings',deps.organizations);
+      if(deps.organizations?.configured||deps.organizations?.managementDisabled) return handleOrganization(request,'/org/listings',deps.organizations);
       const user = await account(request, deps);
       const page = numeric(url.searchParams.get('page'), 'page', 1, 100, 1);
       const pageSize = numeric(url.searchParams.get('page_size'), 'page_size', 1, 50, 20);
@@ -193,7 +195,7 @@ async function handleApiInternal(request: Request, deps: Dependencies,requestId:
     const serviceId = /^\/services\/([0-9a-f-]+)$/i.exec(path)?.[1];
     if (method === 'GET' && serviceId) {
       if (!uuid.test(serviceId)) fail(404, 'NOT_FOUND', 'Service not found.');
-      if(deps.organizations?.configured) return handleOrganization(request,'/org/listings/'+serviceId,deps.organizations);
+      if(deps.organizations?.configured||deps.organizations?.managementDisabled) return handleOrganization(request,'/org/listings/'+serviceId,deps.organizations);
       const user = await account(request, deps);
       if (!await deps.repo.canEditService(serviceId, user)) fail(404, 'NOT_FOUND', 'Service not found.');
       const service = await deps.repo.editableService(serviceId, user);
@@ -202,7 +204,7 @@ async function handleApiInternal(request: Request, deps: Dependencies,requestId:
     }
     if (method === 'PATCH' && serviceId) {
       if (!uuid.test(serviceId)) fail(404, 'NOT_FOUND', 'Service not found.');
-      if(deps.organizations?.configured)return handleOrganization(request,'/org/listings/'+serviceId+'/legacy-write',deps.organizations);
+      if(deps.organizations?.configured||deps.organizations?.managementDisabled)return handleOrganization(request,'/org/listings/'+serviceId+'/legacy-write',deps.organizations);
       const user = await account(request, deps);
       if (!await deps.repo.canEditService(serviceId, user)) fail(404, 'NOT_FOUND', 'Service not found.');
       fail(409, 'REVIEW_REQUIRED', 'Submit proposed changes from your organization workspace for administrator review.');

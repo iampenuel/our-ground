@@ -1,0 +1,142 @@
+{
+  "base": "https://ourground-staging-m1eg75y65-penuels-projects-aa802b06.vercel.app",
+  "started": "2026-11-08T16:32:29.959Z",
+  "steps": [
+    {
+      "name": "typo clarification",
+      "answer": "Did you mean Harrisburg, Pennsylvania? Reply yes or enter the city and state.",
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200
+        }
+      ],
+      "state": {
+        "page": "/",
+        "count": 0,
+        "city": null,
+        "category": null
+      },
+      "pass": true
+    },
+    {
+      "name": "affirm correction",
+      "answer": "Your search is ready. For your search, 6 matching directory listings within the search distance. These are public directory listings, not independently verified operating services. HHC- South Allison Hill.",
+      "requests": [
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 200
+        }
+      ],
+      "state": {
+        "page": "/support",
+        "count": 6,
+        "city": "Harrisburg, PA",
+        "category": "healthcare"
+      },
+      "pass": true
+    },
+    {
+      "name": "natural page question",
+      "answer": "Here is what you can do on this page. Find Support searches food, healthcare or community support resources by location and distance. The map section is open. The current view shows 6 public directory listings. These are public directory listings, not independently verified operating services.",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200
+        },
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 200
+        }
+      ],
+      "state": {
+        "page": "/support",
+        "count": 6,
+        "city": "Harrisburg, PA",
+        "category": "healthcare"
+      },
+      "pass": true
+    },
+    {
+      "name": "first visible listing follow-up",
+      "answer": "The listing details are open. Here is what the listing says: HHC- South Allison Hill. Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified. These are public directory listings, not independently verified operating services.",
+      "requests": [
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 200
+        }
+      ],
+      "state": {
+        "page": "/support",
+        "count": 6,
+        "city": "Harrisburg, PA",
+        "category": "healthcare"
+      },
+      "visibleTitle": "HHC- South Allison Hill",
+      "match": true,
+      "detailOpen": true,
+      "pass": true
+    },
+    {
+      "name": "contextual city correction",
+      "answer": "Your search is ready. 6 matching directory listings within the search distance. These are public directory listings, not independently verified operating services. Based on the listing, HHC- South Allison Hill.",
+      "requests": [
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 200
+        }
+      ],
+      "state": {
+        "page": "/support",
+        "count": 6,
+        "city": "Harrisburg, PA",
+        "category": "healthcare"
+      },
+      "pass": true
+    },
+    {
+      "name": "organization participation",
+      "answer": "The page is open. Here is what I found: For Organizations explains how representatives can sign in, request access and report a listing correction.",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200
+        },
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 200
+        }
+      ],
+      "state": {
+        "page": "/organizations",
+        "count": 0,
+        "city": null,
+        "category": null
+      },
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "productionTouched": false,
+  "finished": "2026-11-08T16:34:30.226Z"
+}

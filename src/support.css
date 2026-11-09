@@ -19,7 +19,7 @@
 .search-field-input input::placeholder { color: var(--og-muted); opacity: 1; }
 .support-filters { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-top: 1.5rem; }
 .distance-field { display: flex; align-items: center; gap: .75rem; color: var(--og-muted); font-size: .875rem; }
-.distance-field select { min-height: 2.75rem; padding: .5rem .75rem; border: 1px solid var(--og-line); border-radius: .5rem; color: var(--og-ink); background: var(--og-white); font-size: .875rem; }
+.distance-field select { min-height: 2.75rem; padding: .5rem .75rem; border: 1px solid var(--og-border-strong); border-radius: .5rem; color: var(--og-ink); background: var(--og-white); font-size: .875rem; }
 .city-shortcuts { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem 1rem; margin: .5rem 0 1.5rem; font-size: .8125rem; color: var(--og-muted); }
 .city-shortcuts button { min-height: 2.75rem; padding: .5rem 0; border: none; color: var(--og-blue); background: transparent; text-decoration: underline; text-underline-offset: .25em; font-size: .8125rem; }
 .city-shortcuts .clear-location { margin-left: auto; }

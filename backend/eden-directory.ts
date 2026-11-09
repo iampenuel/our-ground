@@ -1,6 +1,7 @@
 import type { Repository } from './app.ts';
 import type { DirectoryCityLookup } from './directory-city.ts';
 import type { EdenCategory, EdenCityId, EdenRadius } from '../shared/eden-assistant.ts';
+import { EDEN_CITIES, edenCityLabel } from '../shared/eden-assistant.ts';
 import { isImportedResourceId } from '../shared/eden-agent.ts';
 import type { ResourceCard, ResourceDetail } from '../shared/contracts.ts';
 import { validPoint } from '../shared/us-location.ts';
@@ -39,9 +40,13 @@ function listedHours(raw: unknown, position: number): Fact {
 /** Same restricted public repository and point as the list. No arbitrary
  * client ID is looked up; only an ordinal confirmed in a fresh page of results. */
 export function createEdenDirectory(repo: Pick<Repository,'search'|'detail'>, locate: DirectoryCityLookup) {
+  const labels=new Map<string,string>();
   return {
+    label(city:EdenCityId){return labels.get(city)??edenCityLabel(city);},
     async search(q: Query) {
       const center = await locate(q.cityId);
+      if(labels.size>=64&&!labels.has(q.cityId))labels.delete(labels.keys().next().value!);
+      labels.set(q.cityId,EDEN_CITIES.some(c=>c.id===q.cityId)?edenCityLabel(q.cityId):center.publicQuery??center.label);
       const result = await repo.search({lat:center.latitude,lng:center.longitude,radiusMiles:q.radius,category:q.category,page:1,pageSize:20,allowDemo:false});
       if (!Number.isSafeInteger(result.total) || result.total < 0 || !Array.isArray(result.items) || result.items.length !== Math.min(result.total,20)) return reject();
       const rows = result.items.map(imported);

@@ -104,3 +104,28 @@ test('reserved logout budget records revocation even when ordinary authenticatio
  const {deps,send,calls}=setup();let reserved=0;deps.limitAuth=async()=>{throw new PublicProtectionError(429,'RATE_LIMITED','General budget exhausted.',60);};deps.limitLogout=async()=>{reserved++;};
  assert.equal((await send('/org/account')).status,429);const result=await send('/org/session/logout',{method:'POST',value:{}});assert.equal(result.status,200);assert.equal(reserved,1);assert(calls.some(c=>c[1]==='session.revoke'));delete deps.limitAuth;assert.equal((await send('/org/account')).status,401);
 });
+test('sign-in-only launch permits session verification and revocation but never fetches protected organization records',async()=>{
+ const {deps,send,calls}=setup();deps.managementDisabled=true;
+ const status=await (await send('/org/status')).json();assert.equal(status.management_enabled,false);assert.equal(status.email_enabled,false);
+ assert.equal((await send('/org/account',{token:null})).status,401);
+ const account=await (await send('/org/account')).json();assert.deepEqual(account,{role:'user',email:claim.contact_email,organizations:[],claims:[],listings:[],revisions:[]});
+ assert.deepEqual(calls.map(c=>c[1]),['session.check']);
+ for(const [path,method] of [['/org/admin','GET'],['/org/admin/suspend','POST'],['/org/claims','POST'],['/org/listings','GET'],['/org/listings/'+ids.service,'GET'],['/org/listings/'+ids.service+'/revisions','POST'],['/org/auth/email','POST'],['/org/new-operation','POST']]){
+  const r=await send(path,{method});assert.equal(r.status,403,path);assert.equal((await r.json()).error.code,'MANAGEMENT_DISABLED');
+ }
+ assert.equal(calls.length,1);
+ assert.equal((await send('/org/session/logout',{method:'POST',value:{}})).status,200);
+ assert.equal((await send('/org/account')).status,401);
+});
+test('legacy private service aliases fail closed even with a bearer and without a configured organization store',async()=>{
+ const {handleApi}=await import('../backend/app.ts');
+ const {deps}=setup(); deps.managementDisabled=true;
+ const runtime={organizations:deps,repo:{},verifyToken:()=>assert.fail('no legacy auth fallback')};
+ for(const configured of [true,false]){
+  deps.configured=configured;
+  for(const [path,method] of [['services','GET'],['services/'+ids.service,'GET'],['services/'+ids.service,'PATCH']]){
+   const r=await handleApi(new Request('https://app.example/api/v1/'+path,{method,headers:{Authorization:'Bearer synthetic-session'}}),runtime);
+   assert.equal(r.status,configured?403:503);
+  }
+ }
+});

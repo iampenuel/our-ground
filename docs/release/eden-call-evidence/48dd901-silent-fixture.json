@@ -1,0 +1,14 @@
+{
+  "origin": "https://ourground-staging-nt49tx611-penuels-projects-aa802b06.vercel.app",
+  "sha": "48dd90193cd1fd9ad0f504619f55618c89323402",
+  "fixture": "local token and provider transport, generated test signal, real compiled browser client",
+  "cycles": [],
+  "status": "PASS",
+  "reproducedOldSilentFailure": true,
+  "pcmPackets": 174,
+  "streamEnds": 0,
+  "unansweredTurnKeptConnection": true,
+  "closeCodes": [
+    1000
+  ]
+}

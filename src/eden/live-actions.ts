@@ -5,6 +5,7 @@ import type { EdenLiveClarification, EdenLiveContext, EdenLivePublicResult, Eden
 import { edenLocalPageContext, edenPageContext, edenPageRevision, executeEdenAction } from './application-bridge.ts';
 import type { EdenActionResult } from './application-bridge.ts';
 import { ensureEdenSupportPage } from './support-navigation.ts';
+import {presentEdenNavigation} from './visible-action.ts';
 import {EdenLiveServiceError} from './live/session.ts';
 
 /** The one application executor used by text and Live. It never receives a
@@ -14,10 +15,14 @@ export async function applyEdenPublicAction(value: EdenAction, options: { signal
   const action=validateEdenAction(value),expected=options.expectedRevision??edenPageRevision();
   if(!action||options.signal.aborted)return{status:'unavailable',message:'This action is unavailable.'};
   if(expected!==edenPageRevision())return{status:'clarify',message:'The page changed. Please try the action again.'};
-  if(action.type==='navigate-public'){const{navigateEdenPublicPage}=await import('./public-navigation.ts');await navigateEdenPublicPage(action.page,{signal:options.signal,evaluationData:options.evaluationData,publicDirectory:options.publicDirectory});return{status:'done',message:'The public page is open.'};}
+  if(action.type==='show-map'){const {applyPageControlResult}=await import('./page-controls.ts');return applyPageControlResult(edenPageContext().page==='resource'?'back-to-map':'show-map',options.signal);}
+  if(action.type==='navigate-public'){const{navigateEdenPublicPage}=await import('./public-navigation.ts');await presentEdenNavigation(action.page,options.signal,signal=>navigateEdenPublicPage(action.page,{signal,evaluationData:options.evaluationData,publicDirectory:options.publicDirectory}));return edenLocalPageContext().route===action.page?{status:'done',message:'The public page is open.'}:{status:'unavailable',message:'The requested page could not be opened.'};}
   if(action.type==='search'||action.type==='navigate-support'){
-    const navigation=await ensureEdenSupportPage(action,{signal:options.signal,hasSupportPage:()=>['support','resource'].includes(edenPageContext().page),evaluationData:options.evaluationData===true,publicDirectory:options.publicDirectory});
-    if(navigation.initialSearch){const ready=edenLocalPageContext().loading==='ready';return{status:ready?'done':'unavailable',message:ready?'The search completed.':'The search could not finish.'};}
+    if(!['support','resource'].includes(edenPageContext().page)){
+      // Mount the real form first. Its registered operations below own the only
+      // search, so cursor movement and search execution cannot race hydration.
+      await presentEdenNavigation('support',options.signal,signal=>ensureEdenSupportPage({type:'navigate-support'},{signal,hasSupportPage:()=>['support','resource'].includes(edenPageContext().page),evaluationData:options.evaluationData===true,publicDirectory:options.publicDirectory}));
+    }
     return executeEdenAction(action,edenPageRevision(),options.signal);
   }
   if((action.type==='radius'||action.type==='refine')&&!['support','resource'].includes(edenPageContext().page)){
@@ -46,6 +51,7 @@ export type EdenLiveToolExecutorOptions = {
 export function createEdenLiveToolExecutor(options:EdenLiveToolExecutorOptions){
   if(!isEdenLiveCallId(options.callId))throw new Error('Invalid Live call.');
   const calls=new Map<string,{call:EdenLiveToolCall;result:Promise<EdenLiveToolResult>}>();
+  const actions=new Map<string,Promise<EdenLiveToolResult>>();
   function context(){const value=validateEdenLiveContext(options.getContext());if(!value)throw new Error('Public page context is unavailable.');return value;}
   async function run(call:EdenLiveToolCall,signal:AbortSignal):Promise<EdenLiveToolResult>{
     signal.throwIfAborted();
@@ -69,13 +75,23 @@ export function createEdenLiveToolExecutor(options:EdenLiveToolExecutorOptions){
     if(!result||result.outcome!==outcome||afterRevision!==edenPageRevision()||!edenLiveValuesEqual(after,context())||!edenLiveValuesEqual(after,result.context))throw new Error('The action result could not be verified.');
     return result satisfies EdenLiveToolCompletion;
   }
-  return async function executeEdenLiveTool(value:unknown,signal:AbortSignal):Promise<EdenLiveToolResult>{
+  return async function executeEdenLiveTool(value:unknown,signal:AbortSignal,turn?:number):Promise<EdenLiveToolResult>{
     signal.throwIfAborted();
     const call=validateEdenLiveToolCall(value);if(!call)throw new Error('This Live tool is unavailable.');
     const existing=calls.get(call.id);
     if(existing){if(!edenLiveValuesEqual(existing.call,call))throw new Error('This Live tool identifier was already used.');const result=await existing.result;if(!edenLiveValuesEqual(result.context,context()))throw new Error('This Live result is no longer current.');return structuredClone(result);}
     if(calls.size>=32)throw new Error('This call reached its action limit.');
-    const result=run(call,signal).catch(error=>{signal.throwIfAborted();if(error instanceof EdenLiveServiceError)throw error;throw new Error('This Live tool could not be verified.');});
+    // Provider retries may use a new function ID for the same user-turn action.
+    // Reuse only that turn's verified result while the page still matches it.
+    const actionKey=Number.isSafeInteger(turn)&&call.name==='perform_public_resource_action'
+      ? JSON.stringify([turn,call.name,Object.entries(call.args).sort(([a],[b])=>a.localeCompare(b))]):undefined;
+    const previous=actionKey?actions.get(actionKey):undefined;
+    const result=(previous??run(call,signal)).then(value=>{
+      signal.throwIfAborted();
+      if(!edenLiveValuesEqual(value.context,context()))throw Error('This Live result is no longer current.');
+      return value;
+    }).catch(error=>{signal.throwIfAborted();if(error instanceof EdenLiveServiceError)throw error;throw new Error('This Live tool could not be verified.');});
+    if(actionKey&&!previous)actions.set(actionKey,result);
     calls.set(call.id,{call,result});return structuredClone(await result);
   };
 }

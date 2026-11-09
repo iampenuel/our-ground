@@ -35,15 +35,15 @@ const deps=(locations,publicProtection)=>({locations,publicProtection,repo:{},al
 
 test('correct city submits without a provider suggestion ID and keeps representative evidence',async()=>{
  const h=harness({local:[canonical('boston',{exact:true})]}),r=await h.resolve('Boston MA');
- assert.equal(r.status,'resolved');assert.equal(r.location.label,'Boston, MA');assert.equal(r.interpretation.corrected,false);assert.equal(r.location.quality.coordinateSource,'reference');assert.equal(h.references.length,1);assert.equal(h.calls.length,0);assert.equal(h.admissions.length,0);
+ assert.equal(r.status,'resolved');assert.equal(r.location.label,'Boston, MA');assert.equal(r.interpretation.corrected,false);assert.equal(r.location.quality.coordinateSource,'reference');assert.equal(h.references.length,1);assert.equal(h.calls.length,1);assert.equal(h.admissions.length,1);
 });
 for(const[query,key]of [['New Yrok NY','ny'],['San Fransisco CA','sf'],['Philidelphia PA','philly']])test(query+' automatically resolves one credible generic correction',async()=>{
  const h=harness({local:[canonical(key,{edits:query.startsWith('New')?2:1})]}),r=await h.resolve(query);
- assert.equal(r.status,'resolved');assert.equal(r.interpretation.corrected,true);assert.equal(r.interpretation.query,query);assert.equal(r.location.latitude,records[key].latitude);assert.equal(r.location.longitude,records[key].longitude);assert.equal(r.interpretation.scope,'city');assert.equal(h.calls.length,0);assert.equal(h.admissions.length,0);
+ assert.equal(r.status,'resolved');assert.equal(r.interpretation.corrected,true);assert.equal(r.interpretation.query,query);assert.equal(r.location.latitude,records[key].latitude);assert.equal(r.location.longitude,records[key].longitude);assert.equal(r.interpretation.scope,'city');assert.equal(h.calls.length,1);assert.equal(h.admissions.length,1);
 });
 test('explicit city/state context rejects competing state and out-of-state canonical alternatives',async()=>{
  const h=harness({local:[canonical('ny',{matches:3,edits:2}),canonical('nyState',{matches:3,edits:2}),canonical('nyFL',{matches:3,edits:2})]});
- const r=await h.resolve('New Yrok NY');assert.equal(r.status,'resolved');assert.equal(r.location.state,'NY');assert.equal(r.location.quality.precision,'city');assert.equal(h.calls.length,0);
+ const r=await h.resolve('New Yrok NY');assert.equal(r.status,'resolved');assert.equal(r.location.state,'NY');assert.equal(r.location.quality.precision,'city');assert.equal(h.calls.length,1);
 });
 test('ambiguous city returns signed choices and never assigns a geographic center',async()=>{
  const h=harness({local:[canonical('springIL',{exact:true,matches:22}),canonical('springMA',{exact:true,matches:22})]}),r=await h.resolve('Springfield');
@@ -56,7 +56,7 @@ test('submitting a subset of ambiguous choices cannot manufacture automatic elig
 });
 test('completed suggestion receipts avoid a second lookup while accepting only whitespace/case-equivalent query',async()=>{
  const h=harness({local:[canonical('sf')]}),offered=await h.suggest('San Fransisco CA');
- const r=await h.resolve('  SAN   FRANSISCO ca ',reusable(offered.suggestions));assert.equal(r.status,'resolved');assert.equal(h.references.length,1);assert.equal(h.calls.length,0);
+ const r=await h.resolve('  SAN   FRANSISCO ca ',reusable(offered.suggestions));assert.equal(r.status,'resolved');assert.equal(h.references.length,1);assert.equal(h.calls.length,1);
  await assert.rejects(h.resolve('San Fransisco TX',reusable(offered.suggestions)),e=>e.status===422&&e.code==='LOCATION_SELECTION_INVALID');assert.equal(h.references.length,1);
 });
 test('receipt query binding retains meaningful unit and address punctuation',async()=>{
@@ -99,7 +99,7 @@ test('manual submission has a separate bounded client action without changing pr
  const commands=[],token='REPLACE_ME_RESOLVE_REDIS_TOKEN',gate=createPublicProtection({NODE_ENV:'production',UPSTASH_REDIS_REST_URL:'https://fixture.upstash.io',UPSTASH_REDIS_REST_TOKEN:token},async(_url,init)=>{const command=JSON.parse(init.body);commands.push(command);return Response.json({result:command.at(-4)==='location_reference'?[0,35]:[1,0]});});
  const h=harness({local:[canonical('sf')]}),d=deps(h.api,gate);
  const auto=await handleApi(request('suggest',{q:'San Fransisco CA',sessionToken:session}),d);assert.equal(auto.status,429);
- const manual=await handleApi(request('resolve',{q:'San Fransisco CA',sessionToken:session}),d);assert.equal(manual.status,200);assert.equal((await manual.json()).status,'resolved');assert.deepEqual(commands.map(c=>c.at(-4)),['location_reference','location_submit']);assert.deepEqual(commands[1].slice(-3),['60','6','0']);assert.equal(h.calls.length,0);
+ const manual=await handleApi(request('resolve',{q:'San Fransisco CA',sessionToken:session}),d);assert.equal(manual.status,200);assert.equal((await manual.json()).status,'resolved');assert.deepEqual(commands.map(c=>c.at(-4)),['location_reference','location_submit','location']);assert.deepEqual(commands[1].slice(-3),['60','6','0']);assert.equal(h.calls.length,1);
 });
 for(const status of [429,503])test('manual admission '+status+' is fail-closed before local lookup',async()=>{
  const h=harness({local:[canonical('sf')]}),protection={admit:async action=>{assert.equal(action,'location_submit');throw new PublicProtectionError(status,status===429?'RATE_LIMITED':'ABUSE_PROTECTION_UNAVAILABLE','Manual search protection unavailable.',37);}};
@@ -123,8 +123,8 @@ test('canceled local resolution never selects a late point or dispatches a provi
 
 test('explicit ambiguous choice confirmation uses only query-bound returned identity without another lookup',async()=>{
  const h=harness({local:[canonical('springIL',{exact:true,matches:22}),canonical('springMA',{exact:true,matches:22})]}),first=await h.resolve('Springfield');
- assert.equal(first.status,'choose_location');const choices=reusable(first.choices),selected=await h.api.resolve('Springfield',session,choices,undefined,undefined,undefined,async()=>assert.fail('No provider admission'),records.springMA.id);
- assert.equal(selected.status,'resolved');assert.equal(selected.location.state,'MA');assert.equal(h.references.length,1);assert.equal(h.calls.length,0);
+ assert.equal(first.status,'choose_location');const choices=reusable(first.choices),selected=await h.api.resolve('Springfield',session,choices,undefined,undefined,undefined,async()=>h.admissions.push(true),records.springMA.id);
+ assert.equal(selected.status,'resolved');assert.equal(selected.location.state,'MA');assert.equal(h.references.length,1);assert.equal(h.calls.length,1);
  await assert.rejects(h.api.resolve('Springfield',session,choices,undefined,undefined,undefined,undefined,'census:2026:place:forged'),e=>e.status===422);
  await assert.rejects(h.api.resolve('Boston MA',session,choices,undefined,undefined,undefined,undefined,records.springMA.id),e=>e.status===422);
 });
@@ -132,7 +132,7 @@ test('explicit city fallback uses manual admission even when autocomplete admiss
  const h=harness({local:[canonical('boston',{exact:true})],rows:[provider({housenumber:'999',address_line1:'999 Main Street',result_type:'building'})]}),q='123 Main Street, Boston, MA',first=await h.resolve(q);
  assert.equal(first.status,'choose_location');const actions=[],protection={admit:async action=>{actions.push(action);if(action==='location_reference')throw new PublicProtectionError(429,'RATE_LIMITED','Autocomplete limited.',60);}};
  const res=await handleApi(request('resolve',{q,sessionToken:session,choices:reusable(first.choices),selectedId:first.choices[0].id}),deps(h.api,protection));
- assert.equal(res.status,200);const data=await res.json();assert.equal(data.status,'resolved');assert.equal(data.location.quality.kind,'city_fallback');assert.equal(data.location.quality.precision,'city');assert.deepEqual(actions,['location_submit']);assert.equal(h.calls.length,1);
+ assert.equal(res.status,200);const data=await res.json();assert.equal(data.status,'resolved');assert.equal(data.location.quality.kind,'city_fallback');assert.equal(data.location.quality.precision,'city');assert.deepEqual(actions,['location_submit','location']);assert.equal(h.calls.length,2);
 });
 test('explicit state choice still narrows rather than initiating centroid proximity',async()=>{
  const h=harness({local:[canonical('ny',{exact:true,matches:2}),canonical('nyState',{exact:true,matches:2})]}),first=await h.resolve('New York');

@@ -58,7 +58,7 @@ test('typed model plans and composes by ID; only server-checked public title is 
   const command=reduceEdenAgentInput('Find food support near Harrisburg',home);assert.equal(command.status,'supported');
   const plan=await agent.begin({intent:command.intent,context:home,noticeVersion:EDEN_NOTICE_VERSION},'test');
   const after=support([record.id]),reply=await agent.complete({turnToken:plan.turnToken,outcome:'done',resourceIds:after.resourceIds,noticeVersion:EDEN_NOTICE_VERSION,context:after},'test');
-  assert.match(reply.reply,/1 matching directory listing/);assert(reply.reply.includes(record.title));assert.equal(payloads.length,2);
+  assert.match(reply.reply,/1 matching food listing within 10 miles of Harrisburg/);assert(reply.reply.includes(record.title));assert.equal(payloads.length,2);
   const wire=JSON.stringify(payloads);for(const privateField of [record.title,record.id,record.summary,'40.27','-76.88'])assert(!wire.includes(privateField));
   const live=await agent.inspectLiveContext(after);assert(validateEdenLivePublicResult(live));const publicWire=JSON.stringify({...live,context:edenLiveModelContext(live.context)});
   for(const field of [record.title,record.id,record.summary])assert(!publicWire.includes(field));assert.match(publicWire,/needs review/);
@@ -73,8 +73,26 @@ test('published count is independent of the first page; a true empty search and 
   const ids=(await createEdenDirectory(repo,locate).search(q)).ids;
   const result=await agent.inspectLiveContext(support(ids));
   assert(validateEdenLivePublicResult(result));assert.match(result.facts.find(f=>f.id==='result-count').text,/219 matching.*first 20/);
-  repo.search=async()=>({items:[],total:0});const empty=await agent.inspectLiveContext(support([]));assert.match(empty.facts.find(f=>f.id==='result-count').text,/0 matching.*does not mean/);
+  repo.search=async()=>({items:[],total:0});const empty=await agent.inspectLiveContext(support([]));assert.match(empty.facts.find(f=>f.id==='result-count').text,/0 matching food listings within 10 miles of Harrisburg.*does not mean/);
   repo.search=async()=>{throw Error('unavailable');};await assert.rejects(agent.inspectLiveContext(support([])));
+});
+test('a corrected public category must name the reconciled category even when there are no matches',async()=>{
+  const repo={...source(),search:async()=>({total:0,items:[]})};
+  let omitCount=true;
+  const agent=createEdenAgent(env,{repository:repo,directoryCity:locate,create:async payload=>{
+    const name=payload.tools[0].name,context=JSON.parse(payload.input);
+    if(name==='compose_verified_reply')assert(context.required_fact_ids.includes('result-count'));
+    const args=name==='perform_public_resource_action'?{action:{type:'refine',category:'food'}}:
+      {segments:(omitCount?['outcome']:['outcome','result-count']).map(id=>({kind:'fact',id}))};
+    return {status:'requires_action',steps:[{type:'function_call',id:'unit',name,arguments:args}]};
+  }});
+  const before={...support([]),category:'healthcare'},after=support([]);
+  const complete=async()=>{
+    const plan=await agent.begin({intent:{goal:'change-category',category:'food'},context:before,noticeVersion:EDEN_NOTICE_VERSION},'test');
+    return agent.complete({turnToken:plan.turnToken,outcome:'done',resourceIds:[],noticeVersion:EDEN_NOTICE_VERSION,context:after},'test');
+  };
+  assert.match((await complete()).reply,/0 matching food listings within 10 miles of Harrisburg/,'a missing mandatory count is completed from the reconciled directory facts');
+  omitCount=false;assert.match((await complete()).reply,/0 matching food listings within 10 miles of Harrisburg/);
 });
 // This optional local archive is historical API evidence, never a runtime data source.
 const archive=await readFile(new URL('../output/phase-7d/real-directory-harrisburg.json',import.meta.url),'utf8').then(JSON.parse).catch(()=>null);

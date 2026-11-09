@@ -1,0 +1,72 @@
+{
+  "checkedAtUTC": "2026-11-09T05:37:37.783Z",
+  "project": "ourground-staging",
+  "environment": "preview",
+  "credentialValuesRetained": false,
+  "entries": [
+    {
+      "key": "EDEN_LIVE_PROVIDER_SEATS",
+      "type": "encrypted",
+      "target": [
+        "preview"
+      ],
+      "gitBranch": "codex/eden-ux-recovery-20261108"
+    },
+    {
+      "key": "EDEN_LIVE_TESTER_ATTEMPTS_PER_DAY",
+      "type": "encrypted",
+      "target": [
+        "preview"
+      ],
+      "gitBranch": "codex/eden-ux-recovery-20261108"
+    },
+    {
+      "key": "EDEN_LIVE_PROVIDER_ATTEMPTS_PER_DAY",
+      "type": "encrypted",
+      "target": [
+        "preview"
+      ],
+      "gitBranch": "codex/eden-ux-recovery-20261108"
+    },
+    {
+      "key": "EDEN_LIVE_TESTER_STARTS_PER_DAY",
+      "type": "encrypted",
+      "target": [
+        "preview"
+      ],
+      "gitBranch": "codex/eden-ux-recovery-20261108"
+    },
+    {
+      "key": "EDEN_LIVE_TEAM_STARTS_PER_DAY",
+      "type": "encrypted",
+      "target": [
+        "preview"
+      ],
+      "gitBranch": "codex/eden-ux-recovery-20261108"
+    },
+    {
+      "key": "GEOAPIFY_LOCATION_LIVE_APPROVED",
+      "type": "encrypted",
+      "target": [
+        "preview"
+      ],
+      "gitBranch": "codex/eden-ux-recovery-20261108"
+    },
+    {
+      "key": "GEOAPIFY_LOCATION_ENABLED",
+      "type": "encrypted",
+      "target": [
+        "preview"
+      ],
+      "gitBranch": "codex/eden-ux-recovery-20261108"
+    },
+    {
+      "key": "GEOAPIFY_SERVER_API_KEY",
+      "type": "sensitive",
+      "target": [
+        "preview"
+      ],
+      "gitBranch": "codex/eden-ux-recovery-20261108"
+    }
+  ]
+}

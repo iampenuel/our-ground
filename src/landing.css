@@ -10,6 +10,8 @@
    starts within the photograph, with a separate soft wash behind the text. */
 .og-home-hero .og-hero-photo img { position: absolute; right: 0; top: 0; bottom: 0; margin-block: auto; width: min(92%, 1400px); height: 100%; max-height: 941px; object-fit: cover; object-position: right 45%; mask-image: linear-gradient(90deg, transparent, #0008 8%, #000000d9 16%, #000 26%); }
 .og-hero-photo::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(0deg, #202222b3, #20222266 16%, #20222200 38%), linear-gradient(90deg, #202222ed, #202222e6 12%, #202222d6 25%, #202222b3 38%, #2022226e 51%, #2022221f 64%, #20222200 76%); }
+/* The wordmark, headline and first content section share the homepage edge. */
+.og-home :is(.og-header-inner,.og-hero-body,.og-community).og-container { width: calc(100% - var(--og-edge-gutter) * 2); margin-inline: auto; }
 .og-hero-body { width: calc(100% - var(--og-edge-gutter) * 2); padding-block: 2.5rem 1.5rem; }
 .og-hero-body h1 { max-width: min(40rem, 45%); margin: 0 0 1.5rem; font-size: clamp(3.5rem, 4.8vw, 4.5rem); line-height: 1.02; letter-spacing: -.055em; text-wrap: initial; overflow-wrap: break-word; }
 .og-hero-description { max-width: min(25rem, 40%); margin: 0; font-size: 1.0625rem; line-height: 1.6; color: var(--og-inverse-text); }
@@ -143,4 +145,15 @@
   .og-pathway-copy { padding: 1.25rem 1.25rem 5rem; }
   .og-pathway p { padding-right: 0; }
   .og-pathway-arrow { left: 1.25rem; right: auto; bottom: 1.25rem; }
+}
+
+.og-giving { margin-top: 4rem; padding-top: 2.5rem; border-top: 1px solid var(--og-line); }
+.og-giving h2 { margin: 0; font-size: clamp(2rem, 4vw, 3rem); }
+.og-giving p { max-width: 50rem; color: var(--og-muted); line-height: 1.7; }
+.og-giving-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 3rem); margin-top: 2rem; }
+.og-giving-paths article { display: flex; flex-direction: column; align-items: flex-start; padding-top: 1.25rem; border-top: 1px solid var(--og-line); }
+.og-giving-paths h3 { margin: 0; font-size: 1.625rem; }
+.og-giving-paths a { margin-top: auto; min-height: 2.75rem; }
+@media (max-width: 700px) {
+  .og-giving-paths { grid-template-columns: minmax(0, 1fr); }
 }

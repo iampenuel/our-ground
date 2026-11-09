@@ -1,7 +1,7 @@
 // CI uses the real public UI with synthetic, offline transports.
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright-core';
-const base='http://127.0.0.1:4199';
+const base=process.env.RELEASE_BROWSER_BASE ?? 'http://127.0.0.1:4199';
 const browser=await chromium.launch({channel:'chrome',headless:true});
 try{
  for(const [width,height] of [[390,844],[768,1024],[1440,900]]){
@@ -20,7 +20,30 @@ try{
    if(path.endsWith('/resources/search')){searches++;assert.equal(route.request().postDataJSON().category,'community');result={items:[],total:0,page:1,page_size:20,has_next:false};}
    await route.fulfill({json:result});
   });
-  await page.goto(base+'/organizations');await page.getByText(/New organization accounts and editing access are currently closed/).waitFor();
+  await page.goto(base+'/');
+  const pathways=page.locator('.og-pathways');
+  await pathways.waitFor();
+  assert.deepEqual(await pathways.getByRole('link').evaluateAll(links=>links.map(link=>new URL(link.href).pathname)),['/support','/give','/organizations']);
+  await pathways.getByRole('link',{name:/Give.*Support/i}).click();
+  await page.getByRole('link',{name:'Explore ways to give'}).click();
+  assert.equal(new URL(page.url()).hash,'#ways-to-give');
+  assert.deepEqual(await page.locator('#main a[rel~="external"]').evaluateAll(links=>links.map(link=>link.href)),[
+    'https://www.feedingamerica.org/take-action/volunteer',
+    'https://www.feedingamerica.org/ways-to-give/food-donations',
+    'https://www.feedingamerica.org/ways-to-give',
+  ]);
+  await page.goto(base+'/organizations');
+  await page.getByRole('link',{name:'Organization sign in',exact:true}).click();
+  await page.locator('#accountStatus').filter({hasText:/unavailable/}).waitFor();
+  assert.equal(new URL(page.url()).pathname,'/account');
+  assert(await page.locator('#accountWorkspace').isHidden());
+  await page.goBack();
+  await page.getByRole('link',{name:'Request access',exact:true}).click();
+  await page.getByRole('link',{name:'Start an access request'}).click();
+  await page.locator('#accountStatus').filter({hasText:/unavailable/}).waitFor();
+  assert.equal(new URL(page.url()).searchParams.get('intent'),'request');
+  await page.goBack();
+  await page.getByRole('heading',{name:'Request listing access.'}).waitFor();
   await page.getByRole('link',{name:/Find your public listing/}).click();
   await page.locator('[data-category="community"]').click();
   const input=page.locator('#locationInput');await input.fill('Seattle, WA');
@@ -31,7 +54,7 @@ try{
   assert.equal(searches,1);assert(await page.locator('[data-category="community"]').getAttribute('aria-pressed')==='true');
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.goBack();assert.equal(new URL(page.url()).pathname,'/support');
-  await page.goBack();await page.getByRole('heading',{name:/Local knowledge/}).waitFor();
-  await context.close(); console.log(width+'px: first submission, one search, community referrals and back passed');
+  await page.goBack();await page.getByRole('heading',{name:/Care for your.*public listing/i}).waitFor();
+  await context.close(); console.log(width+'px: donor links, organization sign-in/request, resident search, referrals and back passed');
  }
 }finally{await browser.close();}

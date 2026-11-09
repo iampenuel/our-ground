@@ -1,0 +1,41 @@
+{
+  "singleScenario": "PASS",
+  "sha": "384017bf1dd9267dc78ff8be63a2612d6ebf8074",
+  "origin": "https://ourground-staging-1e0l1r9ms-penuels-projects-aa802b06.vercel.app",
+  "scope": "One spaced, targeted category correction after the first failure; clicked food filter and preserved Harrisburg verified by the browser scenario. The probe deliberately stopped before more provider requests.",
+  "step": {
+    "name": "correct category",
+    "route": "/support",
+    "requests": [
+      {
+        "endpoint": "session",
+        "status": 200,
+        "correlation": "c3432cf7-f52a-4ca7-8c21-8edf4073fd5c"
+      },
+      {
+        "endpoint": "understand",
+        "status": 200,
+        "correlation": "1881a863-f4ac-4a41-8cfe-e67f78d8d52b"
+      },
+      {
+        "endpoint": "plan",
+        "status": 200,
+        "correlation": "1881a863-f4ac-4a41-8cfe-e67f78d8d52b"
+      },
+      {
+        "endpoint": "result",
+        "status": 200,
+        "correlation": "1881a863-f4ac-4a41-8cfe-e67f78d8d52b"
+      }
+    ],
+    "trace": {
+      "correlationId": "1881a863-f4ac-4a41-8cfe-e67f78d8d52b",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash-lite",
+      "output": "model-approved-facts",
+      "proposedAction": "refine",
+      "outcome": "confirmed"
+    },
+    "reply": "Your search filters have been updated. Here is the confirmed update: 0 matching food listings within 10 miles of Harrisburg, Pennsylvania. This does not mean local support is unavailable."
+  }
+}

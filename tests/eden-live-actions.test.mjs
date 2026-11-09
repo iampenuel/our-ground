@@ -52,3 +52,15 @@ test('only the fixed categorized service error survives the tool boundary; arbit
     await assert.rejects(denied(call,signal()),error=>!(error instanceof EdenLiveServiceError)&&!error.message.includes('private'));
   }finally{f.dispose();}
 });
+
+
+test('provider reissued IDs share one verified action within a user turn while another user turn may repeat it',async()=>{
+  const f=fixture();try{
+    let grants=0,completions=0;
+    const run=createEdenLiveToolExecutor({callId,getContext:f.get,authorize:async request=>{grants++;return{authorized:true,toolToken,action:request.args};},complete:async request=>{completions++;return{context:request.context,facts,outcome:request.outcome};}});
+    const [a,b]=await Promise.all([run(call,signal(),1),run({...call,id:'reissued-tool'},signal(),1)]);
+    assert.deepEqual(a,b);assert.equal(f.count(),1);assert.equal(grants,1);assert.equal(completions,1);
+    await run({...call,id:'new-user-request'},signal(),2);
+    assert.equal(f.count(),2);assert.equal(grants,2);assert.equal(completions,2);
+  }finally{f.dispose();}
+});

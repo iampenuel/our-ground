@@ -1,6 +1,6 @@
 import { defineConfig, mergeConfig } from 'vite';
 import { resolve } from 'node:path';
-import applicationConfig from './vite.config.ts';
+import {applicationConfig} from './vite.config.ts';
 import { resourcePolicy } from './shared/security-headers.ts';
 // WebAssembly is allowed only on the isolated local character studio document.
 // No application/production CSP, map, account, or server route is changed.
@@ -15,7 +15,7 @@ export default defineConfig(context => {
     }
     next();
   }); };
-  return mergeConfig(applicationConfig(context), {
+  return mergeConfig(applicationConfig(context,false), {
     plugins: [{ name: 'eden-local-preview-wasm', configureServer: configure, configurePreviewServer: configure }],
     build: { outDir: 'dist-eden', rollupOptions: { input: resolve('eden-preview.html') } },
   });

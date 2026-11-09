@@ -33,7 +33,7 @@ export class LiveMicrophoneEncoder {
   private samples: number[] = [];
   private position = 0;
   private pending: number[] = [];
-  encode(frame: Float32Array, sampleRate: number): string[] {
+  encode(frame: Float32Array, sampleRate: number,onPacketRms?:(rms:number)=>void): string[] {
     if (!Number.isFinite(sampleRate) || sampleRate < 8000 || sampleRate > 192000 || frame.length > 8192) throw new Error('Unsupported microphone format.');
     if (this.rate && this.rate !== sampleRate) this.clear();
     this.rate = sampleRate;
@@ -46,6 +46,7 @@ export class LiveMicrophoneEncoder {
       if (this.pending.length === INPUT_CHUNK_SAMPLES) {
         const bytes = new Uint8Array(INPUT_CHUNK_SAMPLES * 2), view = new DataView(bytes.buffer);
         this.pending.forEach((value, i) => view.setInt16(i * 2, Math.round(value * (value < 0 ? 32768 : 32767)), true));
+        onPacketRms?.(Math.sqrt(this.pending.reduce((sum,v)=>sum+v*v,0)/this.pending.length));
         chunks.push(pcmToBase64(bytes)); this.pending = [];
       }
     }

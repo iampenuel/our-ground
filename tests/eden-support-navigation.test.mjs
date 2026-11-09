@@ -121,3 +121,15 @@ test('Rive/audio CSP exception is confined to exact loopback documents in the sp
     [{}, '/eden-assistant.html', '127.0.0.1:5199'], [{}, '/', 'localhost:5199/other'],
   ]) assert.equal(isEdenReviewPreviewRequest({ ...context, ...override }, path, host), false);
 });
+
+
+test('national coarse locality and ZIP actions reach the normal support route',()=>{
+  for(const city of ['Lanham, Maryland','Berkeley, CA','20706','San Fransisco, CA','Snoqualmie Pass, WA']){
+    const url=new URL(edenSupportNavigationUrl({...search,city}),'https://example.test');
+    assert.equal(url.pathname,'/support');
+    assert.equal(url.searchParams.get('category'),'food');assert.equal(url.searchParams.get('radius_miles'),'10');
+    assert(url.searchParams.get('location'));assert(!url.searchParams.has('lat'));assert(!url.searchParams.has('lng'));
+  }
+  assert.equal(new URL(edenSupportNavigationUrl({...search,city:'Lanham, Maryland'}),'https://example.test').searchParams.get('location'),'Lanham, MD');
+  for(const city of ['123 Private Street','38.2,-76.8','<script>','Berkeley, France'])assert.throws(()=>edenSupportNavigationUrl({...search,city}));
+});

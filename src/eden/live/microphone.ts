@@ -1,6 +1,8 @@
 import {liveAudioContextState} from './audio.ts';
 import type {LiveAudioContextState} from './audio.ts';
+export type CaptureInfo = {permissionGranted:boolean;workletReady:boolean;trackEnabled:boolean;trackMuted:boolean;trackLive:boolean;channels:number;rate:number};
 export interface LiveMicrophone {
+  readonly info?:CaptureInfo;
   start(signal: AbortSignal, onStage?: (stage: LiveMicrophonePreparation) => void): Promise<void>;
   setMuted(muted: boolean): void;
   setForwarding?(allowed: boolean): void;
@@ -18,6 +20,10 @@ export class BrowserLiveMicrophone implements LiveMicrophone {
   private onContextState:(state:LiveAudioContextState)=>void;
   constructor(onFrame: (frame: Float32Array, actualSampleRate: number) => void, onFailure: () => void, onContextState:(state:LiveAudioContextState)=>void=()=>{}) { this.onFrame = onFrame; this.onFailure = onFailure;this.onContextState=onContextState; }
   get contextState():LiveAudioContextState { return liveAudioContextState(this.context?.state); }
+  get info():CaptureInfo {
+    const track=this.stream?.getAudioTracks()[0];
+    return {permissionGranted:!!track,workletReady:!!this.node,trackEnabled:track?.enabled===true,trackMuted:track?.muted===true,trackLive:track?.readyState==='live',channels:track?.getSettings?.().channelCount??0,rate:this.context?.sampleRate??0};
+  }
   get active() { return this.contextState==='running' && Boolean(this.stream?.getAudioTracks().some(track => track.readyState === 'live')); }
   async start(signal: AbortSignal, onStage?: (stage: LiveMicrophonePreparation) => void) {
     signal.throwIfAborted();

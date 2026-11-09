@@ -1,20 +1,21 @@
-import { EDEN_CITIES, EDEN_MAX_COMMAND_LENGTH, EDEN_NOTICE_VERSION, interpretEdenCommand, validateEdenAction, validateEdenPageContext } from './eden-assistant.ts';
+import { EDEN_CITIES, edenCityQuery, normalizeEdenCityId, validateEdenCityId, EDEN_MAX_COMMAND_LENGTH, EDEN_NOTICE_VERSION, interpretEdenCommand, validateEdenAction, validateEdenPageContext } from './eden-assistant.ts';
 import type { EdenAction, EdenCategory, EdenCityId, EdenPageContext, EdenRadius } from './eden-assistant.ts';
+import {stateCode,parseLocationQuery} from './us-location.ts';
 import { isEdenSpeechPhrase } from './eden-speech.ts';
 import type { EdenSpeechPhrase } from './eden-speech.ts';
-import {isEdenPublicDestination} from './eden-public-pages.ts';
+import {publicPageHeading,isEdenPublicDestination} from './eden-public-pages.ts';
 import type {EdenPublicDestination} from './eden-public-pages.ts';
 
 export const EDEN_AGENT_RESOURCE_IDS = ['11111111-1111-4111-8111-111111111111', '77777777-7777-4777-8777-777777777777'] as const;
 // Imported service IDs are stable UUIDv5 values minted by the reviewed importers.
 export type EdenAgentResourceId = string;
 export const isImportedResourceId = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value);
-export type EdenAgentContext = EdenPageContext & { directory?: 'public'; cityId?: EdenCityId; resourceIds: EdenAgentResourceId[]; selectedIndex?:number; searchState?:'idle'|'loading'|'ready'|'error';mapState?:'not-shown'|'loading'|'ready'|'unavailable' };
+export type EdenAgentContext = EdenPageContext & { directory?: 'public'; heading?:string; filtered?:true; view?:'list'|'map'; mappedCount?:number; cityId?: EdenCityId; resourceIds: EdenAgentResourceId[]; selectedIndex?:number; searchState?:'idle'|'loading'|'ready'|'error';mapState?:'not-shown'|'loading'|'ready'|'unavailable' };
 
 /** A map finishing its tiles does not change which published listing a command describes. */
 export function sameDirectoryView(a:EdenAgentContext,b:EdenAgentContext|null,includeMapState=false):boolean {
   return b!==null && a.page===b.page && a.category===b.category && a.cityId===b.cityId &&
-    a.radius===b.radius && a.directory===b.directory && a.synthetic===b.synthetic &&
+    a.radius===b.radius && a.heading===b.heading && a.filtered===b.filtered && a.mappedCount===b.mappedCount && a.view===b.view && a.directory===b.directory && a.synthetic===b.synthetic &&
     a.searchState===b.searchState && a.resultCount===b.resultCount && a.selectedIndex===b.selectedIndex &&
     a.resourceIds.length===b.resourceIds.length && a.resourceIds.every((id,i)=>id===b.resourceIds[i]) &&
     (!includeMapState||a.mapState===b.mapState);
@@ -55,7 +56,7 @@ function object(value: unknown): Record<string, unknown> | null {
   } catch { return null; }
 }
 const only = (value: Record<string, unknown>, keys: string[]) => Object.keys(value).every(key => keys.includes(key));
-const city = (value: unknown): value is EdenCityId => EDEN_CITIES.some(item => item.id === value);
+const city = validateEdenCityId;
 const category = (value: unknown): value is EdenCategory => value === 'food' || value === 'healthcare' || value === 'community';
 const radius = (value: unknown): value is EdenRadius => [5, 10, 25, 50].includes(value as number) && typeof value === 'number';
 export function validateEdenAgentResourceIds(value: unknown, directory = false): EdenAgentResourceId[] | null {
@@ -73,24 +74,29 @@ export function validateEdenAgentResourceIds(value: unknown, directory = false):
 }
 export function validateEdenAgentContext(value: unknown): EdenAgentContext | null {
   const input = object(value);
-  if (!input || !only(input, ['page', 'category', 'radius', 'resultCount', 'synthetic', 'directory', 'cityId', 'resourceIds','selectedIndex','searchState','mapState']) || (Object.hasOwn(input, 'cityId') && !city(input.cityId))) return null;
+  if (!input || !only(input, ['page', 'category', 'radius', 'resultCount', 'synthetic', 'directory', 'cityId', 'resourceIds','selectedIndex','searchState','mapState','filtered','view','mappedCount','heading']) || (Object.hasOwn(input, 'cityId') && !city(input.cityId))) return null;
   const safe = validateEdenPageContext({ page: input.page, resultCount: input.resultCount, synthetic: input.synthetic,
     ...(Object.hasOwn(input, 'category') ? { category: input.category } : {}), ...(Object.hasOwn(input, 'radius') ? { radius: input.radius } : {}) });
   const directory = input.directory === 'public' && input.synthetic === false;
   const resourceIds = validateEdenAgentResourceIds(input.resourceIds, directory);
+  const heading=publicPageHeading(input.page,input.heading);
+  if (Object.hasOwn(input,'heading')&&(!directory||!heading))return null;
+  if ((Object.hasOwn(input,'filtered') && (!directory || input.filtered!==true)) ||
+    (Object.hasOwn(input,'view') && (!directory || !['map','list'].includes(String(input.view)))) ||
+    (Object.hasOwn(input,'mappedCount') && (!directory || !Number.isInteger(input.mappedCount) || Number(input.mappedCount)<0 || Number(input.mappedCount)>20))) return null;
   if (!safe || (Object.hasOwn(input,'directory') ? !directory : !safe.synthetic) || !resourceIds || safe.resultCount !== resourceIds.length
     || !['support','resource'].includes(safe.page)&&(resourceIds.length>0||Object.hasOwn(input,'selectedIndex'))
     || Object.hasOwn(input,'selectedIndex')&&(!Number.isInteger(input.selectedIndex)||Number(input.selectedIndex)<1||Number(input.selectedIndex)>safe.resultCount)
     || Object.hasOwn(input,'searchState')&&(typeof input.searchState!=='string'||!['idle','loading','ready','error'].includes(input.searchState))
     || Object.hasOwn(input,'mapState')&&(typeof input.mapState!=='string'||!['not-shown','loading','ready','unavailable'].includes(input.mapState))) return null;
-  return { ...safe, ...(directory ? { directory: 'public' as const } : {}), ...(city(input.cityId) ? { cityId: input.cityId } : {}), resourceIds,...(Object.hasOwn(input,'selectedIndex')?{selectedIndex:Number(input.selectedIndex)}:{}),...(Object.hasOwn(input,'searchState')?{searchState:input.searchState as EdenAgentContext['searchState']}:{}),...(Object.hasOwn(input,'mapState')?{mapState:input.mapState as EdenAgentContext['mapState']}:{}) };
+  return { ...safe, ...(heading?{heading}:{}), ...(input.filtered===true?{filtered:true as const}:{}), ...(input.view==='map'||input.view==='list'?{view:input.view}:{}), ...(Number.isInteger(input.mappedCount)?{mappedCount:Number(input.mappedCount)}:{}), ...(directory ? { directory: 'public' as const } : {}), ...(city(input.cityId) ? { cityId: normalizeEdenCityId(input.cityId)! } : {}), resourceIds,...(Object.hasOwn(input,'selectedIndex')?{selectedIndex:Number(input.selectedIndex)}:{}),...(Object.hasOwn(input,'searchState')?{searchState:input.searchState as EdenAgentContext['searchState']}:{}),...(Object.hasOwn(input,'mapState')?{mapState:input.mapState as EdenAgentContext['mapState']}:{}) };
 }
 export function validateEdenAgentIntent(value: unknown): EdenAgentIntent | null {
   const input = object(value);
   if (!input) return null;
   switch (input.goal) {
     case 'find-resources': return only(input, ['goal', 'category', 'cityId', 'radius']) && category(input.category) && city(input.cityId)
-      && (!Object.hasOwn(input, 'radius') || radius(input.radius)) ? { goal: input.goal, category: input.category, cityId: input.cityId, ...(radius(input.radius) ? { radius: input.radius } : {}) } : null;
+      && (!Object.hasOwn(input, 'radius') || radius(input.radius)) ? { goal: input.goal, category: input.category, cityId: normalizeEdenCityId(input.cityId)!, ...(radius(input.radius) ? { radius: input.radius } : {}) } : null;
     case 'adjust-distance': return only(input, ['goal', 'radius']) && radius(input.radius) ? { goal: input.goal, radius: input.radius } : null;
     case 'inspect-resource': return only(input, ['goal', 'ordinal', 'view']) && Number.isInteger(input.ordinal) && Number(input.ordinal) >= 1 && Number(input.ordinal) <= 20
       && (input.view === 'details' || input.view === 'map') ? { goal: input.goal, ordinal: Number(input.ordinal), view: input.view } : null;
@@ -102,7 +108,7 @@ export function validateEdenAgentIntent(value: unknown): EdenAgentIntent | null 
     case 'check-open-now':return only(input,['goal','ordinal'])&&Number.isInteger(input.ordinal)&&Number(input.ordinal)>=1&&Number(input.ordinal)<=20?{goal:'check-open-now',ordinal:Number(input.ordinal)}:null;
     case 'clarify-search':
       if (input.missing === 'city' && only(input, ['goal', 'missing', 'category']) && category(input.category)) return { goal: input.goal, missing: 'city', category: input.category };
-      if (input.missing === 'category' && only(input, ['goal', 'missing', 'cityId']) && city(input.cityId)) return { goal: input.goal, missing: 'category', cityId: input.cityId };
+      if (input.missing === 'category' && only(input, ['goal', 'missing', 'cityId']) && city(input.cityId)) return { goal: input.goal, missing: 'category', cityId: normalizeEdenCityId(input.cityId)! };
       if (input.missing === 'city-and-category' && only(input, ['goal', 'missing', 'area']) && input.area === 'pennsylvania') return { goal: input.goal, missing: 'city-and-category', area: 'pennsylvania' };
       return null;
     case 'clear-filters': case 'read-results': case 'navigate-support': case 'help': return only(input, ['goal']) ? { goal: input.goal } : null;
@@ -157,14 +163,41 @@ export function validateEdenAgentActionResponse(value: unknown, intent: EdenAgen
   return action ? { engine: 'gemini', turnToken: input.turnToken, action } : null;
 }
 
+type CityCorrection = {status:'supported'; intent:EdenAgentIntent} | {status:'clarify'; message:string; localOnly:true};
+function cityCorrection(text:string, category:EdenCategory|undefined, radius:EdenRadius|undefined):CityCorrection|undefined {
+  // Recognize which clause affirms the city before removing unknown words.
+  // "Berkley, not Harrisburg" must never turn into a Harrisburg search.
+  const clarify:CityCorrection={status:'clarify',localOnly:true,message:'Which city and state should I search? Please enter just the place you want.'};
+  const prefix=/^(?:(?:actually|sorry)[, ]+)?(?:no[, ]+)?i (?:mean|meant)\s+/;
+  const cityKey=(phrase:string)=>phrase.toLowerCase().replace(/[.,]/g,' ').replace(/\s+/g,' ').trim();
+  const known=(phrase:string)=>{if(/\b(?:introduc(?:e|ing|tion)|intro|yourself|your self|yourslef|who|what|your|capabilities|assistant|map|list|listing|result|page|give|giving|donor|donation|organization|healthcare|food|radius|miles)\b/.test(phrase))return;const id=normalizeEdenCityId(phrase);return id?{id}:undefined;};
+  if(!prefix.test(text)){
+    // A lone negation or a reversed correction is not a request for the
+    // recognized city. Ask for one affirmative choice.
+    if(/^no[, ]+not\s+/.test(text) || /^(?:no[, ]+)?not\s+/.test(text) && (/\bi (?:mean|meant)\b/.test(text)||known(text.replace(/^(?:no[, ]+)?not\s+/,''))))return clarify;
+    return;
+  }
+  const [affirmed,excluded,...extra]=text.replace(prefix,'').split(/(?:,?\s+|,)not\s+/);
+  const city=known(affirmed);
+  if(city&&!EDEN_CITIES.some(item=>item.id===city.id)&&parseLocationQuery(edenCityQuery(city.id))?.kind==='city'&&!edenCityQuery(city.id).includes(','))return clarify;
+  // "I meant" also corrects the subject, category, listing or page. Only
+  // unmatched place-like choices should trigger the city/state question.
+  if(!city && /\b(?:introduc(?:e|ing|tion)|intro|yourself|your self|yourslef|who (?:you are|are you)|what you can do|your (?:name|role|purpose)|capabilities|assistant|map|list|listing|result|page|give|giving|donor|donation|organization|healthcare|food|radius|miles)\b/.test(affirmed))return;
+  if(!city || extra.length || (excluded!==undefined && (
+    !/^[a-z]+(?:[ -][a-z]+){0,2}$/.test(cityKey(excluded)) ||
+    /\b(?:and|or|but|not)\b/.test(excluded)||known(excluded)?.id===city.id)))return clarify;
+  return category?{status:'supported',intent:{goal:'find-resources',cityId:city.id,category,...(radius?{radius}:{})}}
+    :{status:'supported',intent:{goal:'clarify-search',missing:'category',cityId:city.id}};
+}
+
 /** Local parsing is solely a privacy reducer. It returns a semantic request for
  * real model inference, never an assistant answer or an executed action.
  */
-export function reduceEdenAgentInput(raw: unknown, context: EdenAgentContext, pending?: EdenAgentIntent): { status: 'supported'; intent: EdenAgentIntent } | { status: 'sensitive' | 'unsupported' | 'clarify'; message: string } {
+export function reduceEdenAgentInput(raw: unknown, context: EdenAgentContext, pending?: EdenAgentIntent): { status: 'supported'; intent: EdenAgentIntent } | { status: 'sensitive' | 'unsupported' | 'clarify'; message: string; localOnly?:true } {
   const safe = validateEdenAgentContext(context);
   if (!safe || typeof raw !== 'string' || raw.length > EDEN_MAX_COMMAND_LENGTH || /[\u0000-\u001f\u007f\p{Cf}]/u.test(raw)) return { status: 'unsupported', message: 'This request cannot be processed safely. Please use a resource category, city, distance or numbered result.' };
   const checkedPending = pending === undefined ? undefined : validateEdenAgentIntent(pending);
-  if (pending !== undefined && checkedPending?.goal !== 'clarify-search') return { status: 'unsupported', message: 'Please send a complete resource request.' };
+  if (pending !== undefined && checkedPending?.goal !== 'clarify-search'&&checkedPending?.goal!=='find-resources') return { status: 'unsupported', message: 'Please send a complete resource request.' };
   // Clarification memory contributes only already validated public enums to
   // reduction. It never fabricates the actual page context sent to the server.
   const { category: _category, cityId: _actualCity, ...rest } = safe;
@@ -172,10 +205,17 @@ export function reduceEdenAgentInput(raw: unknown, context: EdenAgentContext, pe
     ? { ...rest, page: 'home' as const, ...(checkedPending.missing === 'city' ? { category: checkedPending.category }
       : checkedPending.missing === 'category' ? { cityId: checkedPending.cityId } : {}) }
     : safe;
-  const { cityId: _city, resourceIds: _ids, directory:_directory, selectedIndex:_selected,searchState:_search,mapState:_map, ...page } = reduction;
+  const { cityId: _city, resourceIds: _ids, directory:_directory, heading:_heading, filtered:_filtered,view:_view,mappedCount:_mapped, selectedIndex:_selected,searchState:_search,mapState:_map, ...page } = reduction;
   const interpreted = interpretEdenCommand(raw, page);
   if (interpreted.status === 'sensitive') return interpreted;
   const normalized = raw.normalize('NFC').replace(/’/g, "'").trim().toLowerCase().replace(/\s+/g, ' ').replace(/^(?:hey )?eden(?:,|:)?\s+/, '').replace(/^please\s+/, '').replace(/[.!?]$/, '').trim();
+  if(/^(?:continue|continue where we left off|where were we|resume)[?!.]?$/.test(normalized))return{status:'supported',intent:{goal:'explain-page'}};
+  if(checkedPending?.goal==='find-resources'){
+    const region=stateCode(raw),prior=parseLocationQuery(edenCityQuery(checkedPending.cityId));
+    if(region&&prior?.kind==='city'&&!prior.state){const cityId=normalizeEdenCityId(prior.city+', '+region);if(cityId)return{status:'supported',intent:{...checkedPending,cityId}};}
+  }
+  const correction=cityCorrection(normalized,reduction.category,safe.radius);
+  if(correction)return correction;
   if(/^(?:i want to give(?: support)?|i(?:'d| would) like to give(?: support)?|how can i give(?: support)?)$/.test(normalized))return{status:'supported',intent:{goal:'giving-guidance'}};
   if(/^(?:what is our ground about|what does our ground do)$/.test(normalized))return{status:'supported',intent:{goal:'platform-guidance'}};
   if(/^(?:(?:(?:i'm|i am) confused[.!?] )?what can i do here|what can i do (?:on|with) (?:this|the current) page|(?:can you )?explain (?:this|the current) page|what is this page(?: for)?|where am i)$/.test(normalized))return{status:'supported',intent:{goal:'explain-page'}};
@@ -231,6 +271,7 @@ export function reduceEdenAgentInput(raw: unknown, context: EdenAgentContext, pe
     case 'details': case 'select': intent = { goal: 'inspect-resource', ordinal: action.index, view: action.type === 'details' ? 'details' : 'map' }; break;
     case 'refine': intent = { goal: 'change-category', category: action.category }; break;
     case 'read-page':intent={goal:'explain-page'};break;
+    case 'show-map':return {status:'unsupported',message:'Use the directory map control.'}; // Host surface and Live tools validate this control separately.
     case 'navigate-public':intent={goal:'navigate-public',page:action.page};break;
     case 'read-hours':intent={goal:'check-open-now',ordinal:action.index};break;
     default: intent = { goal: action.type };

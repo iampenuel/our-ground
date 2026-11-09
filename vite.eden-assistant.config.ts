@@ -1,6 +1,6 @@
 import { defineConfig, mergeConfig } from 'vite';
 import { resolve } from 'node:path';
-import applicationConfig from './vite.config.ts';
+import {applicationConfig} from './vite.config.ts';
 import { edenLocalReviewHeaders } from './shared/security-headers.ts';
 import {edenPublicPagePolicy} from './src/eden/public-page-policy.ts';
 
@@ -28,7 +28,7 @@ export default defineConfig(context => {
       next();
     });
   };
-  return mergeConfig(applicationConfig(context), {
+  return mergeConfig(applicationConfig(context,false), {
     plugins: [{ name: 'eden-local-agent-review', configureServer: configure }],
     build: { outDir: 'dist-eden-assistant', rollupOptions: { input: resolve('eden-assistant.html') } },
   });

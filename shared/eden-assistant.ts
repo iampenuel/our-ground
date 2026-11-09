@@ -1,11 +1,9 @@
-/** EDEN's initial navigation vocabulary is deliberately finite. This module is
- * shared by the local interpreter and server validators; it contains no provider
- * key, SDK, visitor text storage or network operation.
- */
-import {usStates} from './us-location.ts';
+// Public actions remain finite. Coarse U.S. places use the shared server resolver.
+// This module contains no provider key, SDK, visitor text storage or network I/O.
+import {usStates,parseLocationQuery} from './us-location.ts';
 import {EDEN_PUBLIC_PAGES,isEdenPublicDestination} from './eden-public-pages.ts';
 import type {EdenPublicDestination,EdenPublicPage} from './eden-public-pages.ts';
-export const EDEN_NOTICE_VERSION = 'eden-live-local-2026-11-07';
+export const EDEN_NOTICE_VERSION = 'eden-public-conversation-2026-11-08';
 export const EDEN_MAX_COMMAND_LENGTH = 240;
 export const EDEN_RADII = [5, 10, 25, 50] as const;
 export type EdenRadius = typeof EDEN_RADII[number];
@@ -81,7 +79,33 @@ export const EDEN_CITIES = [
     aliases: [name.toLowerCase()+' '+state.toLowerCase(), name.toLowerCase()+' '+usStates[state].toLowerCase()],
   })),
 ] as const;
-export type EdenCityId = typeof EDEN_CITIES[number]['id'];
+// Example IDs remain compatible. Other coarse U.S. place requests are resolved
+// by the same server location service as the manual directory.
+export type EdenCityId = string;
+export function normalizeEdenCityId(value:unknown):EdenCityId|undefined {
+  if(typeof value!=='string'||value.length>80||/[\p{Cc}\p{Cf}<>@]/u.test(value))return;
+  let query=value.normalize('NFC').trim().replace(/\s+/g,' ').replace(/,\s*$/,'');
+  const key=(text:string)=>text.toLowerCase().replace(/[.,]/g,' ').replace(/\s+/g,' ').trim();
+  const known=EDEN_CITIES.find(city=>[city.id,city.query,city.label,...city.aliases].some(alias=>key(alias)===key(query)));
+  if(known)return known.id;
+  if(/^\d{5}$/.test(query))return query;
+  if(/\d|\b(?:password|credentials|instructions|address|private|donate|reveal|account)\b/i.test(query)||/^(?:can you|tell me|please|show me|find|search|what|who|how|why|i mean|my|our|your|submit|only|within|expand|narrow|change|set|show|delete|pay|make|open|take)\s+/i.test(query))return;
+  if(!query.includes(',')){
+    const ending=Object.entries(usStates).sort((a,b)=>b[1].length-a[1].length).find(([code,name])=>query.toLowerCase().endsWith(' '+name.toLowerCase())||query.toLowerCase().endsWith(' '+code.toLowerCase()));
+    if(ending){const suffix=query.toLowerCase().endsWith(' '+ending[1].toLowerCase())?ending[1]:ending[0];query=query.slice(0,-suffix.length).trim()+', '+ending[0];}
+  }
+  const parsed=parseLocationQuery(query);
+  if(!parsed||parsed.kind!=='city'||parsed.county||parsed.city.split(/\s+/).length>7)return;
+  if(query.includes(',')&&!parsed.state)return;
+  if(!parsed.state&&/\b(?:or|and|then|but|not)\b/i.test(parsed.city))return;
+  if(parsed.state&&parsed.city.toLowerCase()==='new york city'&&parsed.state==='NY')return 'new-york-ny';
+  const city=parsed.city.replace(/\b\p{L}/gu,c=>c.toUpperCase());
+  return city+(parsed.state?', '+parsed.state:'');
+}
+export function validateEdenCityId(value:unknown):value is EdenCityId{return normalizeEdenCityId(value)!==undefined;}
+export function edenCityQuery(city:EdenCityId):string{return EDEN_CITIES.find(item=>item.id===city)?.query??normalizeEdenCityId(city)??'';}
+export function edenCityLabel(city:EdenCityId):string{return EDEN_CITIES.find(item=>item.id===city)?.label??edenCityQuery(city);}
+
 
 /** These commands operate only through the local application adapter. They are
  * deliberately outside the Gemini function vocabulary and cannot be projected.
@@ -91,6 +115,7 @@ export type EdenLocalOnlyAction =
   | { type: 'read-results' }
   | { type: 'clear-filters' }
   | { type: 'read-page' }
+  | { type: 'show-map' }
   | { type: 'navigate-public'; page:EdenPublicDestination }
   | { type: 'read-hours'; index:number };
 export type EdenAction =
@@ -119,7 +144,7 @@ export type EdenInterpretation =
 
 const isRadius = (value: unknown): value is EdenRadius => typeof value === 'number' && EDEN_RADII.some(radius => radius === value);
 const isCategory = (value: unknown): value is EdenCategory => value === 'food' || value === 'healthcare' || value === 'community';
-const isCity = (value: unknown): value is EdenCityId => typeof value === 'string' && EDEN_CITIES.some(city => city.id === value);
+const isCity = validateEdenCityId;
 const owns = (value: Record<string, unknown>, key: string) => Object.hasOwn(value, key);
 
 /** JSON-shaped own data properties only. No getters, prototypes, symbols, arrays,
@@ -148,7 +173,7 @@ export function validateEdenAction(value: unknown): EdenAction | null {
     case 'search': {
       if (!only(action, ['type', 'category', 'city', 'radius']) || !isCategory(action.category)
         || (owns(action, 'city') && !isCity(action.city)) || (owns(action, 'radius') && !isRadius(action.radius))) return null;
-      return { type: 'search', category: action.category, ...(isCity(action.city) ? { city: action.city } : {}), ...(isRadius(action.radius) ? { radius: action.radius } : {}) };
+      return { type: 'search', category: action.category, ...(isCity(action.city) ? { city: normalizeEdenCityId(action.city)! } : {}), ...(isRadius(action.radius) ? { radius: action.radius } : {}) };
     }
     case 'radius':
       return only(action, ['type', 'radius']) && isRadius(action.radius) ? { type: 'radius', radius: action.radius } : null;
@@ -159,7 +184,7 @@ export function validateEdenAction(value: unknown): EdenAction | null {
         ? { type: action.type, index: action.index } : null;
     case 'help':
       return only(action, ['type']) ? { type: 'help' } : null;
-    case 'navigate-support': case 'read-results': case 'clear-filters': case 'read-page':
+    case 'navigate-support': case 'read-results': case 'clear-filters': case 'read-page': case 'show-map':
       return only(action, ['type']) ? { type: action.type } : null;
     case 'navigate-public':return only(action,['type','page'])&&isEdenPublicDestination(action.page)?{type:'navigate-public',page:action.page}:null;
     default: return null;
@@ -172,7 +197,7 @@ export function validateEdenProviderAction(value: unknown): EdenProviderAction |
   // server's incoming provider boundary. City removal happens locally, explicitly.
   if (!action || owns(action, 'city')) return null;
   const safe = validateEdenAction(action);
-  if (!safe || ['navigate-support','read-results','clear-filters','read-page','read-hours','navigate-public'].includes(safe.type)) return null;
+  if (!safe || ['navigate-support','read-results','clear-filters','read-page','read-hours','navigate-public','show-map'].includes(safe.type)) return null;
   return safe as EdenProviderAction;
 }
 
@@ -182,7 +207,7 @@ export function validateEdenProviderAction(value: unknown): EdenProviderAction |
  */
 export function providerEdenAction(action: EdenAction): EdenProviderAction {
   const safe = validateEdenAction(action);
-  if (!safe || safe.type === 'navigate-support' || safe.type === 'read-results' || safe.type === 'clear-filters'||safe.type==='read-page'||safe.type==='read-hours'||safe.type==='navigate-public') throw new Error('Invalid EDEN action.');
+  if (!safe || safe.type === 'navigate-support' || safe.type === 'read-results' || safe.type === 'clear-filters'||safe.type==='read-page'||safe.type==='read-hours'||safe.type==='navigate-public'||safe.type==='show-map') throw new Error('Invalid EDEN action.');
   if (safe.type !== 'search') return safe;
   return { type: 'search', category: safe.category, ...(safe.radius !== undefined ? { radius: safe.radius } : {}) };
 }
@@ -203,13 +228,13 @@ export function validateEdenPageContext(value: unknown): EdenPageContext | null 
 const normalizeCity = (value: string) => value.toLowerCase().replace(/,/g, '').replace(/\.$/, '').replace(/\s+/g, ' ').trim();
 const cityAliases = new Map<string, EdenCityId>();
 for (const city of EDEN_CITIES) for (const alias of city.aliases) cityAliases.set(normalizeCity(alias), city.id);
-const cityFor = (value: string) => cityAliases.get(normalizeCity(value));
+const cityFor = (value: string) => cityAliases.get(normalizeCity(value))??normalizeEdenCityId(value);
 const categoryFor = (value: string): EdenCategory => /^(?:health ?care|medical|clinic)/.test(value) ? 'healthcare' : /^(?:community|housing)/.test(value) ? 'community' : 'food';
 
 const messages = {
-  sensitive: 'Please keep personal, health, financial and insurance details out of this prototype. Use a resource category and a supported city instead.',
-  unsupported: 'I can help with food, healthcare or community resources, a supported city, search distance, and numbered results. Try “Find food assistance in Harrisburg.”',
-  city: 'Choose a supported city, or use the page’s location search for another area. Street addresses and personal locations stay out of this assistant.',
+  sensitive: 'Please keep personal, health, financial and insurance details out of this prototype. Use a resource category and a U.S. city, town or ZIP code instead.',
+  unsupported: 'I can help with food, healthcare or community resources, a U.S. city, town or ZIP code, search distance, and numbered results. Try “Find food assistance in Harrisburg.”',
+  city: 'Choose a U.S. city, town or ZIP code, or use the page’s location search for another area. Street addresses and personal locations stay out of this assistant.',
   category: 'Would you like food resources or healthcare resources?',
   radius: 'Choose a distance of 5, 10, 25 or 50 miles.',
   results: 'Run a search first, then choose a numbered result that is currently shown.',
@@ -292,7 +317,8 @@ export function interpretEdenCommand(raw: unknown, context?: EdenPageContext): E
     if (!checkedContext?.category) return { status: 'clarify', message: messages.category };
     return searchAction(checkedContext.category, cityChange[1], cityChange[2]);
   }
-  const city = cityFor(value);
+  const standalone=cityAliases.has(normalizeCity(value))||/^[\p{L}.'’\-]+$/u.test(value)||/^\d{5}$/.test(value)||Boolean(parseLocationQuery(value)?.kind==='city'&&value.includes(','));
+  const city = standalone?cityFor(value):undefined;
   if (city) return checkedContext?.category ? { status: 'supported', action: { type: 'search', category: checkedContext.category, city } } : { status: 'clarify', message: messages.category };
   return { status: 'unsupported', message: messages.unsupported };
 }

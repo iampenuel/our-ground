@@ -9,8 +9,9 @@ try{
  if(target.schema_version!==1||typeof ref!=='string'||!/^[a-z0-9]{10,30}$/.test(ref)||/REPLACE_ME|PROJECT_REF/i.test(ref))throw Error('Select the reviewed staging Supabase reference.');
  const origin='https://'+ref+'.supabase.co',buildOrigin=exactBuildAuthOrigin(process.env);
  if(buildOrigin&&buildOrigin!==origin)throw Error('Build Auth origin differs from target manifest.');
- const base=JSON.parse(await readFile('vercel.json','utf8')),config=renderVercelSecurityConfig(base,origin);
- if(vercelSecurityConfigProblems(config,origin).length)throw Error('Generated config did not pass its policy check.');
+ const live=process.env.VITE_EDEN_HOSTED_LIVE==='true';
+ const base=JSON.parse(await readFile('vercel.json','utf8')),config=renderVercelSecurityConfig(base,origin,live);
+ if(vercelSecurityConfigProblems(config,origin,live).length)throw Error('Generated config did not pass its policy check.');
  await writeFile(output,JSON.stringify(config,null,2)+'\n',{flag:'wx'});
  console.log(JSON.stringify({status:'PASS',auth_origin:origin,contains_secrets:false,network_requests:0,deployment_authorized:false}));
 }catch{console.error('CSP rendering blocked: choose an exact reviewed target, matching public Auth origin and a new separate output file. No hosted action was performed.');process.exitCode=2;}

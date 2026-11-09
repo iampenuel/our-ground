@@ -13,13 +13,14 @@ export function exactBuildAuthOrigin(env:Record<string,string|undefined>):string
 }
 
 /** Nonsecret local renderer. It neither writes config nor authorizes deployment. */
-export function renderVercelSecurityConfig(base:VercelSecurityConfig,authOrigin?:string):VercelSecurityConfig {
+export function renderVercelSecurityConfig(base:VercelSecurityConfig,authOrigin?:string,live=false):VercelSecurityConfig {
   if(authOrigin && cspAuthOrigin(authOrigin)!==authOrigin)throw Error('Select an exact HTTPS Supabase project origin.');
   const config=structuredClone(base);
   config.git={...config.git,deploymentEnabled:false};
   const documentHeaders=browserSecurityHeaders({https:true,authOrigin});
   documentHeaders['Permissions-Policy']='camera=(), microphone=(self), on-device-speech-recognition=(self), geolocation=(self), payment=()';
   documentHeaders['Content-Security-Policy']=documentHeaders['Content-Security-Policy'].replace("media-src 'none'",'media-src blob:');
+  if(live)documentHeaders['Content-Security-Policy']=documentHeaders['Content-Security-Policy'].replace("connect-src 'self' ","connect-src 'self' wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContentConstrained ");
   config.headers=[
     {source:'/(.*)',headers:Object.entries(documentHeaders).map(([key,value])=>({key,value}))},
     ...privatePaths.map(source=>({source,headers:Object.entries(privateDocumentHeaders).map(([key,value])=>({key,value}))}))
@@ -27,10 +28,10 @@ export function renderVercelSecurityConfig(base:VercelSecurityConfig,authOrigin?
   return config;
 }
 
-export function vercelSecurityConfigProblems(config:VercelSecurityConfig,authOrigin?:string):string[] {
+export function vercelSecurityConfigProblems(config:VercelSecurityConfig,authOrigin?:string,live=false):string[] {
   const problems:string[]=[];
   if(authOrigin && cspAuthOrigin(authOrigin)!==authOrigin)return ['INVALID_AUTH_ORIGIN'];
-  const expected=renderVercelSecurityConfig(config,authOrigin);
+  const expected=renderVercelSecurityConfig(config,authOrigin,live);
   if(config.git?.deploymentEnabled!==false)problems.push('GIT_AUTODEPLOY_NOT_DISABLED');
   if(!Array.isArray(config.headers)||config.headers.length!==expected.headers!.length)return [...problems,'SECURITY_HEADER_RULES_DIFFER'];
   for(const wanted of expected.headers!) {

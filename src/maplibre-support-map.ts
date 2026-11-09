@@ -55,7 +55,7 @@ export async function mountSupportMap(sdk:SDK,container:HTMLElement,key:string,s
       const bounds=new sdk.LngLatBounds();
       bounds.extend([center.longitude,center.latitude]);
       for(const [index,p] of items.entries()) {
-        const button=document.createElement('button');button.type='button';button.className='geo-map-pin';button.textContent=String(index+1);
+        const button=document.createElement('button');button.type='button';button.className='geo-map-pin';button.dataset.edenMapKey=p.place_id;button.textContent=String(index+1);
         button.setAttribute('aria-label',`${index+1}. ${p.name}. Select result`);button.setAttribute('aria-pressed','false');
         const click=()=>select(p.place_id);button.addEventListener('click',click);
         const coords: [number, number] = [mapLongitude(p.longitude, center.longitude), p.latitude];

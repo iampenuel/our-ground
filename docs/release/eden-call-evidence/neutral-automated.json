@@ -1,0 +1,41 @@
+{
+  "sourceSha": "e58a5521f1f1b36be788916ef0883b8399fd3542",
+  "deployment": "dpl_B4StNFc6YvNF1bkR6n6CK8gfDrLM",
+  "tests": {
+    "pass": 813,
+    "fail": 0,
+    "skipped": 0
+  },
+  "frontendTypecheck": "PASS",
+  "backendTypecheck": "PASS",
+  "previewBuild": "PASS",
+  "sourceSecretScan": {
+    "status": "PASS",
+    "files": 1006,
+    "findings": 0
+  },
+  "buildSecretScan": {
+    "status": "PASS",
+    "files": 1080,
+    "findings": 0
+  },
+  "assetHashes": {
+    "status": "PASS",
+    "files": 136
+  },
+  "newGoogleTextRequests": 0,
+  "newGoogleLiveSessions": 0,
+  "newTtsRequests": 0,
+  "scope": "Deterministic Gemini UI replies; actual public directory and Google OAuth chooser; provider Live code unchanged",
+  "harnessCorrections": [
+    "Equivalent minified #fff is normalized before comparing semantic palette values.",
+    "Actual-zoom harness waits for the asynchronous portrait after a full navigation."
+  ],
+  "historicalLiveFailurePreserved": true,
+  "ownerLiveAcceptance": "PASS for owner-reported physical Chrome scenario",
+  "publicArtifactsRoot": "/Volumes/Penuel Back/OurGround-Work/runs/2026-11-08-eden-3fbf44a-3045f215/artifacts/neutral-palette/",
+  "exactServerGeocodingKeyAbsentFromClientArtifacts": {
+    "status": "PASS",
+    "files": 74
+  }
+}

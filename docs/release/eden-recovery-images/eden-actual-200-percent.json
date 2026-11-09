@@ -1,0 +1,93 @@
+{
+  "previousZoom": 1,
+  "actualZoom": 2,
+  "before": {
+    "dpr": 2,
+    "innerWidth": 1440,
+    "innerHeight": 703,
+    "outerWidth": 1440,
+    "outerHeight": 790,
+    "visualScale": 1,
+    "scrollWidth": 1440,
+    "panel": [
+      1012,
+      139,
+      408,
+      544
+    ],
+    "composer": [
+      1013,
+      557,
+      406,
+      87
+    ],
+    "send": [
+      1356,
+      569,
+      44,
+      44
+    ],
+    "transcript": [
+      1013,
+      230,
+      406,
+      328
+    ],
+    "caution": [
+      1031,
+      623,
+      369,
+      18
+    ]
+  },
+  "zoomed": {
+    "dpr": 4,
+    "innerWidth": 720,
+    "innerHeight": 351,
+    "outerWidth": 1440,
+    "outerHeight": 790,
+    "visualScale": 1,
+    "scrollWidth": 720,
+    "panel": [
+      8,
+      8,
+      704,
+      336
+    ],
+    "composer": [
+      9,
+      218,
+      702,
+      87
+    ],
+    "send": [
+      652,
+      229,
+      44,
+      44
+    ],
+    "transcript": [
+      9,
+      86,
+      702,
+      132
+    ],
+    "caution": [
+      23,
+      284,
+      673,
+      18
+    ]
+  },
+  "consentGeometry": {
+    "insideViewport": true,
+    "insideBody": false
+  },
+  "keyboardConsent": {
+    "focused": true,
+    "fullyVisible": true,
+    "bodyScrollTop": 89
+  },
+  "focusRestored": true,
+  "pass": true
+}

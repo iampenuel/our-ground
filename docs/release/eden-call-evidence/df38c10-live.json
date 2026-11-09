@@ -1,0 +1,106 @@
+{
+  "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "df38c102a172cad4b6abc69fb7d18a2c7bb05935",
+  "status": "FAIL",
+  "failedAt": "search",
+  "failure": "page.waitForFunction: Timeout 65000ms exceeded.",
+  "ui": "Eden did not receive playable voice in time. You can continue by text.",
+  "audioInputChunks": 2895,
+  "audioOutputChunks": 154,
+  "requestedVoice": "Aoede",
+  "requestedModel": "models/gemini-3.8-live",
+  "wire": {
+    "sockets": 1,
+    "policy": [],
+    "close": [
+      1000
+    ]
+  },
+  "http": [
+    {
+      "path": "session",
+      "status": 200
+    },
+    {
+      "path": "live/token",
+      "status": 409
+    },
+    {
+      "path": "live/token",
+      "status": 200
+    },
+    {
+      "path": "live/end",
+      "status": 200
+    }
+  ],
+  "observations": {
+    "identity": true,
+    "capabilities": true
+  },
+  "diagnostics": [
+    {
+      "reference": "bf081ccd-5bee-48e5-8bea-7586ca579d85",
+      "model": "gemini-3.8-live",
+      "phase": "error",
+      "stage": "connecting",
+      "failure": "token-request",
+      "preparation": "ready",
+      "tokenHTTP": 409,
+      "service": "EDEN_LIVE_CALL_ACTIVE",
+      "serviceHTTP": 409,
+      "setup": false,
+      "provider": "none",
+      "lastEvent": "token",
+      "inputChunks": 0,
+      "audioChunks": 0,
+      "playbacks": 0,
+      "spokenInterruptions": 0,
+      "microphoneActive": false
+    },
+    {
+      "reference": "f538800d-f275-467e-bd74-f5f3143f7de6",
+      "model": "gemini-3.8-live",
+      "phase": "error",
+      "stage": "processing",
+      "failure": "response-timeout",
+      "preparation": "ready",
+      "tokenHTTP": 200,
+      "setup": true,
+      "provider": "none",
+      "lastEvent": "turn-complete",
+      "inputChunks": 2895,
+      "audioChunks": 154,
+      "playbacks": 3,
+      "spokenInterruptions": 0,
+      "microphoneActive": false,
+      "endHTTP": 200
+    }
+  ],
+  "playerPeakRms": 0.38649287416057876,
+  "tools": [],
+  "turns": [
+    {
+      "step": "introduction",
+      "input": "",
+      "reply": "Hi! I'm Eden. I can help you find food, healthcare, and community resources. You can ask me something like, \"Find food support near Harrisburg.\" What would you like to explore?"
+    },
+    {
+      "step": "identity",
+      "input": "Who are you?",
+      "reply": "I'm Eden, your community-resource navigation assistant. I can help you find food, healthcare, and community resources. What would you like to explore today?"
+    },
+    {
+      "step": "capabilities",
+      "input": "What can you help me do?",
+      "reply": "I can help you find local food banks, healthcare clinics, and other community resources in your area. Just let me know what you're looking for and where."
+    }
+  ],
+  "deniedRetryFixture": {
+    "http": 409,
+    "stage": "token-request",
+    "stoppedTrack": true,
+    "reference": "bf081ccd-5bee-48e5-8bea-7586ca579d85"
+  },
+  "scope": "Synthetic public input, real Google connection. Healthcare turn received no tool or response before deadline."
+}

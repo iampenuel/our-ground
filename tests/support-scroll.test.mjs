@@ -32,6 +32,14 @@ function scrollEnvironment(run) {
  const flush=()=>{while(frames.length)frames.shift()()};
  try{run({element,scrolls,flush,signal:(name,event={})=>[...(listeners.get(name)??[])].forEach(fn=>fn(event)),current:()=>current,invalidate:()=>{current=false},listeners});}finally{for(const[k,v]of Object.entries(originals)){if(v===undefined)delete globalThis[k];else globalThis[k]=v;}}
 }
+test('a follow-up action can take scroll ownership after the final search reveal is queued',()=>scrollEnvironment(({element,scrolls,flush,current})=>{
+  const flow=createSearchReveal(),finish=flow.start(element('status'),current);
+  flush();
+  finish(element('results'));
+  flow.cancel();
+  flush();
+  assert.deepEqual(scrolls.map(s=>s.id),['status']);
+}));
 test('explicit reveal continues once from loading status to actual results and preserves focus',()=>scrollEnvironment(({element,scrolls,flush,current,listeners})=>{
  const flow=createSearchReveal(),finish=flow.start(element('status'),current);flush();finish(element('results'));flush();assert.deepEqual(scrolls.map(s=>s.id),['status','results']);assert([...listeners.values()].every(v=>v.size===0));
 }));

@@ -1,0 +1,27 @@
+{
+  "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sourceCommit": "86cd4eece01ba8252c28c151af3e73a8f063dfca",
+  "unauthenticatedVercel": 302,
+  "checks": [
+    {
+      "endpoint": "/api/v1/org/status",
+      "http": 200,
+      "configured": true
+    },
+    {
+      "endpoint": "/api/v1/org/me",
+      "http": 401,
+      "code": "UNAUTHENTICATED"
+    },
+    {
+      "endpoint": "/api/v1/org/listings",
+      "http": 401,
+      "code": "UNAUTHENTICATED"
+    },
+    {
+      "endpoint": "/api/v1/org/administration/requests",
+      "http": 401,
+      "code": "UNAUTHENTICATED"
+    }
+  ]
+}

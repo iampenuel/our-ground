@@ -16,6 +16,9 @@ test('existing Vercel exports serve rewritten demo routes and reject anonymous e
   const resource = await detail.json();
   assert.equal(resource.data_kind, 'fictional_demo');
   assert.equal(resource.contact.directions_url, null);
+  // The shared dispatcher must not reinterpret a v1 query parameter as a different endpoint.
+  const disguised=await GET(eligibleRequest('http://local/api/v1/unknown?path=resources/'+id));
+  assert.equal(disguised.status,404);
   const missing = await GET(eligibleRequest('http://local/api/index?path=unknown'));
   assert.equal(missing.status, 404);
   assert.match(missing.headers.get('content-type'), /application\/json/);

@@ -1,0 +1,716 @@
+{
+  "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "8ed70c96372068bff5a06ea7e711d7c8c02b63e5",
+  "input": "Locally spoken public phrases injected at browser microphone boundary",
+  "status": "FAIL",
+  "http": [
+    {
+      "path": "session",
+      "status": 200
+    },
+    {
+      "path": "live/token",
+      "status": 409
+    },
+    {
+      "path": "live/token",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/result",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/result",
+      "status": 200
+    },
+    {
+      "path": "live/end",
+      "status": 200
+    }
+  ],
+  "audioInputChunks": 2211,
+  "audioOutputChunks": 103,
+  "providerTurns": 3,
+  "tools": [
+    "perform_public_resource_action",
+    "read_public_page_context",
+    "perform_public_resource_action",
+    "perform_public_resource_action"
+  ],
+  "turns": [
+    {
+      "step": "introduction",
+      "input": "",
+      "reply": "Hi! I'm Eden. I can help you find food, healthcare, and community resources. You can ask me something like, 'Find food support near Harrisburg.' What would you like to explore?"
+    },
+    {
+      "step": "identity",
+      "input": "Who are you?",
+      "reply": "I'm Eden, your communityresource navigation assistant. I can help you find information about food, healthcare, and community services in your area. What would you like to explore today?"
+    },
+    {
+      "step": "details",
+      "input": "Find health care in Harrisburg.Show me the first result.",
+      "reply": "The first result is listed by the HRSA Health Center Program. Since operation hasn't been independently verified and hours aren't structured, you'll need to contact them directly for more information."
+    }
+  ],
+  "errors": [],
+  "workletHTTP": 200,
+  "deniedRetryFixture": {
+    "http": 409,
+    "stage": "token-request",
+    "stoppedTrack": true,
+    "reference": "81e171cd-a669-47a9-a28f-a5343f800bbe"
+  },
+  "preflight": {
+    "advance": 0.4106666666666667,
+    "peak": 0.07999999821186066
+  },
+  "tokenCheck": {
+    "validOnUncorrectedDeviceClock": false,
+    "validOnIssuerClock": true,
+    "config": true,
+    "fields": 8,
+    "model": "gemini-3.8-live",
+    "voice": "Aoede",
+    "maxSeconds": 599,
+    "expiresInMs": 518543,
+    "connectInMs": -21413
+  },
+  "temperature": 1,
+  "requestedModel": "models/gemini-3.8-live",
+  "requestedVoice": "Aoede",
+  "providerByStep": {
+    "introduction": {
+      "frames": 70,
+      "input": 0,
+      "interim": 0,
+      "output": 10,
+      "audio": 32,
+      "tools": 0,
+      "waiting": 0,
+      "generated": 1,
+      "completed": 1,
+      "interrupted": 0,
+      "tinyPCM": 0,
+      "outputSamples": 265920,
+      "outputPeak": 0.81390380859375
+    },
+    "identity": {
+      "frames": 65,
+      "input": 1,
+      "interim": 0,
+      "output": 10,
+      "audio": 29,
+      "tools": 0,
+      "waiting": 0,
+      "generated": 1,
+      "completed": 1,
+      "interrupted": 0,
+      "tinyPCM": 1,
+      "outputSamples": 244321,
+      "outputPeak": 0.78546142578125
+    },
+    "search": {
+      "frames": 21,
+      "input": 1,
+      "interim": 0,
+      "output": 1,
+      "audio": 5,
+      "tools": 2,
+      "waiting": 0,
+      "generated": 0,
+      "completed": 0,
+      "interrupted": 0,
+      "tinyPCM": 1,
+      "outputSamples": 17281,
+      "outputPeak": 0.85491943359375
+    },
+    "details": {
+      "frames": 89,
+      "input": 1,
+      "interim": 0,
+      "output": 12,
+      "audio": 37,
+      "tools": 2,
+      "waiting": 0,
+      "generated": 1,
+      "completed": 2,
+      "interrupted": 1,
+      "tinyPCM": 0,
+      "outputSamples": 313680,
+      "outputPeak": 0.811065673828125
+    }
+  },
+  "setupComplete": true,
+  "sentSignal": {
+    "introduction": {
+      "packets": 608,
+      "nonSilent": 0,
+      "maxRms": 0
+    },
+    "identity": {
+      "packets": 608,
+      "nonSilent": 26,
+      "maxRms": 0.24218027620588334
+    },
+    "search": {
+      "packets": 239,
+      "nonSilent": 67,
+      "maxRms": 0.25921139989776626
+    },
+    "details": {
+      "packets": 756,
+      "nonSilent": 60,
+      "maxRms": 0.2826348598235028
+    }
+  },
+  "muteUnmute": true,
+  "observations": {
+    "identity": true,
+    "search": true,
+    "details": true
+  },
+  "interruptStart": "Eden is speaking",
+  "searchTranscribed": true,
+  "providerInterruptions": 1,
+  "interruptReply": "The first result is listed by the HRSA Health Center Program. Since operation hasn't been independently verified and hours aren't structured, you'll need to contact them directly for more information.",
+  "cursor": [
+    {
+      "target": {
+        "page": "support"
+      },
+      "landed": true,
+      "atMs": 33541
+    },
+    {
+      "target": "location",
+      "landed": true,
+      "atMs": 35173.60000000149
+    },
+    {
+      "target": {
+        "category": "healthcare"
+      },
+      "landed": true,
+      "atMs": 36422.60000000149
+    },
+    {
+      "target": "radius",
+      "landed": true,
+      "atMs": 37639.20000000112
+    },
+    {
+      "target": "submit",
+      "landed": true,
+      "atMs": 38923.20000000112
+    },
+    {
+      "target": "details",
+      "landed": true,
+      "atMs": 49573
+    }
+  ],
+  "endHTTP": 200,
+  "micReleased": true,
+  "characterStates": [
+    "idle",
+    "speaking",
+    "idle",
+    "listening",
+    "idle",
+    "listening",
+    "thinking",
+    "speaking",
+    "thinking",
+    "speaking",
+    "idle",
+    "listening",
+    "thinking",
+    "searching",
+    "thinking",
+    "searching",
+    "thinking",
+    "speaking",
+    "listening",
+    "thinking",
+    "searching",
+    "thinking",
+    "speaking",
+    "thinking",
+    "speaking",
+    "thinking",
+    "listening",
+    "idle"
+  ],
+  "graphPeakByStep": {
+    "introduction": 0.34293193201047206,
+    "identity": 0.2870520701096048,
+    "search": 0,
+    "details": 0.28009013993560355
+  },
+  "failedAt": "details",
+  "failure": "No measured speech playback: search",
+  "ui": "Call ended",
+  "partialProviderInput": "",
+  "partialProviderReply": "",
+  "firstDetailOpen": true,
+  "playerPeakRms": 0.34293193201047206,
+  "playerClock": {
+    "initial": 0,
+    "last": 59.872,
+    "ticks": 1202,
+    "state": "closed"
+  },
+  "paintMarks": [
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 33057.300000000745
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 33393.20000000112
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 33539.800000000745
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 34690
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 35023.5
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 35173.300000000745
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": false,
+      "atMs": 35939.40000000037
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 35939.40000000037
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 36272.90000000037
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 36422.20000000112
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": false,
+      "atMs": 37173.40000000037
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 37173.40000000037
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 37489.60000000149
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 37638.800000000745
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": false,
+      "atMs": 38456.90000000037
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 38456.90000000037
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 38773.300000000745
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 38923
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": false,
+      "atMs": 39790.70000000112
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 49089.70000000112
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 49423.40000000037
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 49572.60000000149
+    }
+  ],
+  "cursorPhases": [
+    {
+      "phase": "target",
+      "atMs": 32055.300000000745
+    },
+    {
+      "phase": "execute",
+      "atMs": 33540.10000000149
+    },
+    {
+      "phase": "applied",
+      "atMs": 33911.10000000149
+    },
+    {
+      "phase": "target",
+      "atMs": 33911.800000000745
+    },
+    {
+      "phase": "execute",
+      "atMs": 35173.60000000149
+    },
+    {
+      "phase": "applied",
+      "atMs": 35174.300000000745
+    },
+    {
+      "phase": "target",
+      "atMs": 35175.20000000112
+    },
+    {
+      "phase": "execute",
+      "atMs": 36422.60000000149
+    },
+    {
+      "phase": "applied",
+      "atMs": 36423
+    },
+    {
+      "phase": "target",
+      "atMs": 36423.40000000037
+    },
+    {
+      "phase": "execute",
+      "atMs": 37639.10000000149
+    },
+    {
+      "phase": "applied",
+      "atMs": 37639.300000000745
+    },
+    {
+      "phase": "target",
+      "atMs": 37639.5
+    },
+    {
+      "phase": "execute",
+      "atMs": 38923.20000000112
+    },
+    {
+      "phase": "applied",
+      "atMs": 39639.20000000112
+    },
+    {
+      "phase": "target",
+      "atMs": 48082.90000000037
+    },
+    {
+      "phase": "execute",
+      "atMs": 49573
+    },
+    {
+      "phase": "applied",
+      "atMs": 50055
+    }
+  ],
+  "diagnostics": [
+    {
+      "reference": "81e171cd-a669-47a9-a28f-a5343f800bbe",
+      "model": "gemini-3.8-live",
+      "phase": "error",
+      "stage": "connecting",
+      "failure": "token-request",
+      "preparation": "ready",
+      "tokenHTTP": 409,
+      "service": "EDEN_LIVE_CALL_ACTIVE",
+      "serviceHTTP": 409,
+      "setup": false,
+      "provider": "none",
+      "capture": {
+        "workletFrames": 0,
+        "signalFrames": 0,
+        "peakRms": 0,
+        "encoded": 0,
+        "dropped": 0,
+        "sentWithSignal": 0,
+        "firstFrameMs": -1,
+        "lastFrameMs": -1,
+        "firstSentMs": -1,
+        "lastSentMs": -1,
+        "serverStarts": 0,
+        "serverEnds": 0,
+        "inputCaptions": 0,
+        "interimCaptions": 0,
+        "outputCaptions": 0,
+        "serverInterruptions": 0,
+        "suppressedAudio": 0
+      },
+      "deviceAtStop": {
+        "permissionGranted": true,
+        "workletReady": true,
+        "trackEnabled": true,
+        "trackMuted": false,
+        "trackLive": true,
+        "channels": 2,
+        "rate": 48000
+      },
+      "replies": [
+        {
+          "turn": 0,
+          "caption": false,
+          "chunks": 0,
+          "bytes": 0,
+          "samples": 0,
+          "peak": 0,
+          "scheduled": 0,
+          "ended": 0,
+          "graphPeakRms": 0,
+          "generated": false,
+          "completed": false,
+          "interrupted": false,
+          "durationMs": 0,
+          "rms": 0,
+          "nonzeroRatio": 0,
+          "usable": false
+        }
+      ],
+      "generationComplete": 0,
+      "waitingForInput": 0,
+      "lastEvent": "token",
+      "completedTurns": 0,
+      "toolsReceived": 0,
+      "inputChunks": 0,
+      "audioChunks": 0,
+      "decodedChunks": 0,
+      "inputContext": "running",
+      "outputContext": "running",
+      "playbacks": 0,
+      "spokenInterruptions": 0,
+      "unansweredTurns": 0,
+      "inputStreamEnds": 0,
+      "microphoneActive": false
+    },
+    {
+      "reference": "936a33ab-ea52-4721-9b73-81d2700ca355",
+      "model": "gemini-3.8-live",
+      "phase": "ended",
+      "stage": "ended",
+      "failure": "none",
+      "preparation": "ready",
+      "tokenHTTP": 200,
+      "setup": true,
+      "provider": "none",
+      "capture": {
+        "workletFrames": 2080,
+        "signalFrames": 143,
+        "peakRms": 0.2887885871296141,
+        "encoded": 2211,
+        "dropped": 0,
+        "sentWithSignal": 153,
+        "firstFrameMs": 1350,
+        "lastFrameMs": 59846,
+        "firstSentMs": 1350,
+        "lastSentMs": 59846,
+        "serverStarts": 0,
+        "serverEnds": 0,
+        "inputCaptions": 3,
+        "interimCaptions": 0,
+        "outputCaptions": 33,
+        "serverInterruptions": 1,
+        "suppressedAudio": 0
+      },
+      "deviceAtStop": {
+        "permissionGranted": true,
+        "workletReady": true,
+        "trackEnabled": true,
+        "trackMuted": false,
+        "trackLive": true,
+        "channels": 2,
+        "rate": 48000
+      },
+      "replies": [
+        {
+          "turn": 1,
+          "caption": true,
+          "chunks": 29,
+          "bytes": 488642,
+          "samples": 244321,
+          "peak": 0.78546142578125,
+          "scheduled": 28,
+          "ended": 28,
+          "graphPeakRms": 0.3414334379507358,
+          "generated": true,
+          "completed": true,
+          "interrupted": false,
+          "durationMs": 10180,
+          "rms": 0.12557788092500768,
+          "nonzeroRatio": 0.9954854474236763,
+          "usable": true
+        },
+        {
+          "turn": 2,
+          "caption": false,
+          "chunks": 0,
+          "bytes": 0,
+          "samples": 0,
+          "peak": 0,
+          "scheduled": 0,
+          "ended": 0,
+          "graphPeakRms": 0,
+          "generated": false,
+          "completed": false,
+          "interrupted": false,
+          "durationMs": 0,
+          "rms": 0,
+          "nonzeroRatio": 0,
+          "usable": false
+        },
+        {
+          "turn": 2,
+          "caption": false,
+          "chunks": 0,
+          "bytes": 0,
+          "samples": 0,
+          "peak": 0,
+          "scheduled": 0,
+          "ended": 0,
+          "graphPeakRms": 0,
+          "generated": false,
+          "completed": false,
+          "interrupted": false,
+          "durationMs": 0,
+          "rms": 0,
+          "nonzeroRatio": 0,
+          "usable": false
+        },
+        {
+          "turn": 2,
+          "caption": true,
+          "chunks": 10,
+          "bytes": 130562,
+          "samples": 65281,
+          "peak": 0.85491943359375,
+          "scheduled": 9,
+          "ended": 1,
+          "graphPeakRms": 0.3451414739569354,
+          "generated": false,
+          "completed": false,
+          "interrupted": true,
+          "durationMs": 2720,
+          "rms": 0.11509761072088992,
+          "nonzeroRatio": 0.9966759087636525,
+          "usable": true
+        },
+        {
+          "turn": 3,
+          "caption": false,
+          "chunks": 0,
+          "bytes": 0,
+          "samples": 0,
+          "peak": 0,
+          "scheduled": 0,
+          "ended": 0,
+          "graphPeakRms": 0,
+          "generated": false,
+          "completed": false,
+          "interrupted": false,
+          "durationMs": 0,
+          "rms": 0,
+          "nonzeroRatio": 0,
+          "usable": false
+        },
+        {
+          "turn": 3,
+          "caption": true,
+          "chunks": 32,
+          "bytes": 531360,
+          "samples": 265680,
+          "peak": 0.811065673828125,
+          "scheduled": 32,
+          "ended": 32,
+          "graphPeakRms": 0.2760164210546162,
+          "generated": true,
+          "completed": true,
+          "interrupted": false,
+          "durationMs": 11070,
+          "rms": 0.12026965908628712,
+          "nonzeroRatio": 0.9934733514001807,
+          "usable": true
+        }
+      ],
+      "generationComplete": 3,
+      "waitingForInput": 0,
+      "lastEvent": "turn-complete",
+      "completedTurns": 3,
+      "toolsReceived": 4,
+      "inputChunks": 2211,
+      "audioChunks": 103,
+      "decodedChunks": 103,
+      "inputContext": "running",
+      "outputContext": "running",
+      "playbacks": 6,
+      "spokenInterruptions": 1,
+      "unansweredTurns": 0,
+      "inputStreamEnds": 3,
+      "microphoneActive": false,
+      "ended": "user",
+      "endHTTP": 200
+    }
+  ],
+  "wire": {
+    "sockets": 1,
+    "policy": [],
+    "close": [
+      1000
+    ]
+  },
+  "audioCaptureStartMs": 2834.4000000003725
+}

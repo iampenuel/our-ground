@@ -1,0 +1,110 @@
+{
+  "sourceCommit": "6424e69b81547ff40c2f12095cc2609ce4bd2c6f",
+  "suite": {
+    "tests": 744,
+    "passed": 744,
+    "failed": 0,
+    "skipped": 0,
+    "logSha256": "72ec4df9bfa5e198016d7fdaa679cbce62ce66110089e90d12003b2fe5f1ecfe"
+  },
+  "typechecks": {
+    "frontend": "PASS",
+    "backend": "PASS"
+  },
+  "build": "PASS",
+  "secretScans": {
+    "stagedChanges": {
+      "files": 12,
+      "status": "PASS"
+    },
+    "cleanCheckoutSource": {
+      "files": 771,
+      "status": "PASS"
+    },
+    "cleanCheckoutSourceAndBundle": {
+      "files": 841,
+      "status": "PASS"
+    },
+    "unrelatedUntrackedFile": "A workspace-wide scan stalled reading an unrelated untracked document. That process was stopped; the file was untouched. Exact staged changes and the clean release checkout were scanned successfully.",
+    "stagedRevealFix": {
+      "files": 3,
+      "status": "PASS"
+    },
+    "stagedEvidence": {
+      "files": 85,
+      "status": "PASS"
+    }
+  },
+  "localCursor": {
+    "status": "PASS",
+    "scope": "Local directory fixture; real action engine and installed ReactDrops",
+    "views": [
+      {
+        "view": "desktop",
+        "executed": 6,
+        "singleSearch": true,
+        "coordinateChecks": true,
+        "safety": true,
+        "errors": []
+      },
+      {
+        "view": "mobile",
+        "executed": 6,
+        "singleSearch": true,
+        "coordinateChecks": true,
+        "safety": true,
+        "errors": []
+      },
+      {
+        "view": "narrow-reduced",
+        "executed": 6,
+        "singleSearch": true,
+        "coordinateChecks": false,
+        "safety": true,
+        "errors": []
+      },
+      {
+        "view": "short",
+        "executed": 6,
+        "singleSearch": true,
+        "coordinateChecks": true,
+        "safety": true,
+        "errors": []
+      }
+    ]
+  },
+  "ci": [
+    {
+      "status": "PASS",
+      "url": "https://github.com/iampenuel/our-ground/actions/runs/42520730558"
+    },
+    {
+      "status": "PASS",
+      "url": "https://github.com/iampenuel/our-ground/actions/runs/42520726784"
+    }
+  ],
+  "production": {
+    "deployment": "dpl_5BLDMWteSXZ8ju8VVcfXttiUQBiq",
+    "sourceCommit": "33574bd80666d67a26a0765bf42a72fa5627fc7f",
+    "unchanged": true
+  },
+  "pr": {
+    "number": 3,
+    "state": "OPEN",
+    "draft": true,
+    "mergedAt": null
+  },
+  "noNewProviderSynthesis": true,
+  "zoom": {
+    "status": "PASS",
+    "receipt": "final-6424e69/zoom/local-cursor-actual-200.json",
+    "sameTaskSearchDetails": true
+  },
+  "protectedQuotaRecovery": {
+    "status": "PASS",
+    "receipt": "final-6424e69/quota/quota-browser.json",
+    "googleError": "controlled transport fixture; real Gemini actions; no speech synthesis"
+  },
+  "localCursorSourceCommit": "6424e69b81547ff40c2f12095cc2609ce4bd2c6f",
+  "localCursorLogSha256": "575da1bc9f0474386139e084e49528cb8d6ea3b4af656594dc927c3f7328e64a"
+}

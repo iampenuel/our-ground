@@ -1,0 +1,208 @@
+{
+  "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "054a4771e39a22678551d29119d515035dc173c3",
+  "status": "FAIL",
+  "failedAt": "map",
+  "failure": "Spoken interruption did not produce a confirmed new identity turn",
+  "audioInputChunks": 4974,
+  "audioOutputChunks": 308,
+  "requestedVoice": "Aoede",
+  "requestedModel": "models/gemini-3.8-live",
+  "wire": {
+    "sockets": 1,
+    "policy": [],
+    "close": [
+      1000
+    ]
+  },
+  "http": [
+    {
+      "path": "session",
+      "status": 200
+    },
+    {
+      "path": "live/token",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/result",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/result",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/result",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/result",
+      "status": 200
+    },
+    {
+      "path": "live/end",
+      "status": 200
+    }
+  ],
+  "endHTTP": 200,
+  "micReleased": true,
+  "observations": {
+    "identity": true,
+    "capabilities": true,
+    "search": true,
+    "details": false,
+    "food": true,
+    "page": true,
+    "map": true
+  },
+  "diagnostics": [
+    {
+      "reference": "00c74652-56d4-416e-8371-8bbd89cbd22c",
+      "model": "gemini-3.8-live",
+      "phase": "ended",
+      "stage": "ended",
+      "failure": "none",
+      "preparation": "ready",
+      "tokenHTTP": 200,
+      "setup": true,
+      "provider": "none",
+      "lastEvent": "turn-complete",
+      "inputChunks": 4974,
+      "audioChunks": 308,
+      "playbacks": 9,
+      "microphoneActive": false,
+      "ended": "user",
+      "endHTTP": 200
+    }
+  ],
+  "playerPeakRms": 0.4245423732351698,
+  "cursor": [
+    {
+      "target": {
+        "page": "support"
+      },
+      "landed": true,
+      "atMs": 50366.39999999991
+    },
+    {
+      "target": "location",
+      "landed": true,
+      "atMs": 51931.299999999814
+    },
+    {
+      "target": {
+        "category": "healthcare"
+      },
+      "landed": true,
+      "atMs": 53181
+    },
+    {
+      "target": "radius",
+      "landed": true,
+      "atMs": 54414.69999999972
+    },
+    {
+      "target": "submit",
+      "landed": true,
+      "atMs": 55697.799999999814
+    },
+    {
+      "target": "select",
+      "landed": true,
+      "atMs": 73230.3999999999
+    },
+    {
+      "target": "location",
+      "landed": true,
+      "atMs": 97529.19999999972
+    },
+    {
+      "target": {
+        "category": "food"
+      },
+      "landed": true,
+      "atMs": 99012.09999999963
+    },
+    {
+      "target": "radius",
+      "landed": true,
+      "atMs": 100279.19999999972
+    },
+    {
+      "target": "submit",
+      "landed": true,
+      "atMs": 101579.09999999963
+    }
+  ],
+  "tools": [
+    "perform_public_resource_action",
+    "read_public_page_context",
+    "perform_public_resource_action",
+    "perform_public_resource_action",
+    "read_public_page_context",
+    "perform_public_resource_action"
+  ],
+  "turns": [
+    {
+      "step": "identity",
+      "input": "",
+      "reply": "Hi! I'm Eden. I can help you find food, healthcare, and community resources. You can ask me something like, 'Find food support near Harrisburg.' What would you like to explore?"
+    },
+    {
+      "step": "capabilities",
+      "input": "What can you help me do?",
+      "reply": "I can help you find public food, healthcare, and community resources in your area. Just let me know what you're looking for and where."
+    },
+    {
+      "step": "search",
+      "input": "Find healthcare in Harrisburg.",
+      "reply": "I found 6 healthcare resources in Harrisburg. Would you like to hear about the first one or see the map?"
+    },
+    {
+      "step": "details",
+      "input": "Show me the first result.",
+      "reply": "The first result is a healthcare provider listed by the HRSA Health Center Program. Please note that their current operation is not independently verified, so you should contact them directly to confirm details."
+    },
+    {
+      "step": "food",
+      "input": "Actually, I meant food support.",
+      "reply": "I couldn't find any food support listings in Harrisburg right now. Would you like to try searching a different location or category?"
+    },
+    {
+      "step": "page",
+      "input": "Can you explain what is on this page?",
+      "reply": "This is the Find Support page, where you can search for food, healthcare, or community resources by location and distance. You can filter results, read source information, and use the map to explore available services."
+    },
+    {
+      "step": "map",
+      "input": "Go back and show me the map.",
+      "reply": "I'm sorry, but the map is currently unavailable. Would you like to try searching for a different location or category?"
+    }
+  ],
+  "scope": "Partial: row selected rather than opened, unconfirmed interruption"
+}

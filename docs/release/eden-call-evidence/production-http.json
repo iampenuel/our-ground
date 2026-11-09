@@ -1,0 +1,39 @@
+{
+  "origin": "https://ourground.vercel.app",
+  "at": "2026-11-08T21:39:06.836Z",
+  "/": {
+    "status": 200,
+    "cspPresent": true,
+    "noSniff": "nosniff",
+    "permissions": "camera=(), microphone=(self), on-device-speech-recognition=(self), geolocation=(self), payment=()",
+    "referrer": "same-origin",
+    "hsts": true
+  },
+  "/ourground-build-evidence.json": {
+    "status": 200
+  },
+  "/account": {
+    "status": 200,
+    "cache": "private, no-store"
+  },
+  "/api/v1/org/status": {
+    "status": 403,
+    "error": "AGE_ACKNOWLEDGMENT_REQUIRED"
+  },
+  "/api/v1/org/me": {
+    "status": 403,
+    "error": "AGE_ACKNOWLEDGMENT_REQUIRED"
+  },
+  "/api/v1/locations/status": {
+    "status": 403,
+    "error": "AGE_ACKNOWLEDGMENT_REQUIRED"
+  },
+  "/api/v1/geoapify/status": {
+    "status": 403,
+    "error": "AGE_ACKNOWLEDGMENT_REQUIRED"
+  },
+  "foreignPreflight": {
+    "status": 403,
+    "allowOrigin": null
+  }
+}

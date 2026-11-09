@@ -3,7 +3,7 @@ import './account.css';
 import { arrow, element, header, escapeHtml as esc } from './ui';
 import { footer } from './navigation';
 import { apiRequest, BackendError } from './api-client';
-import { isSignInConfigured, onSessionChange } from './backend-client';
+import { isSignInConfigured, onAccountIdentityChange } from './backend-client';
 import { dateLabel, reviewBadge, safeLink, listingLabels, proposedValue } from './organization-ui';
 import type { OrganizationAccount, OrganizationAdministration, OrganizationListing, OrganizationClaim, ListingRevision } from '../shared/organization-accounts';
 
@@ -91,7 +91,12 @@ workspace.addEventListener('submit', event => {
   }).finally(() => { submitting = false; button.disabled = false; });
 });
 element('#refreshAdmin').addEventListener('click', () => void refresh());
-const unsubscribe = isSignInConfigured() ? onSessionChange((event,session) => { if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) { generation++; controller?.abort(); clearPrivate(); setStatus('Your session ended. Sign in again to review requests.','warning'); } }) : () => {};
+const unsubscribe = onAccountIdentityChange(signedIn => {
+  if (disposed) return;
+  generation++; controller?.abort(); submitting = false; clearPrivate();
+  if (signedIn) void refresh();
+  else setStatus('Your session ended. Sign in again to review requests.', 'warning');
+});
 window.addEventListener('pagehide', () => { disposed = true; generation++; controller?.abort(); clearPrivate(); unsubscribe(); });
 void refresh();
 

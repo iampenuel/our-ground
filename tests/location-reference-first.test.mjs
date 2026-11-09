@@ -60,11 +60,11 @@ test('new yor keeps all returned Census city/state jurisdictions without a provi
  assert.equal(selected.location.state,'NY');assert.equal(selected.location.source,'reference');
  assert.equal(selected.location.latitude,rows.nyCity.latitude);
  assert.equal(selected.location.quality.coordinateSource,'reference');
- assert.equal(h.providerCalls.length,0);assert.equal(h.admissions.length,0);
+ assert.equal(h.providerCalls.length,1);assert.equal(h.admissions.length,1);
 });
 
 for(const [query,name] of [['San Fransisco','sf'],['Chcago','chicago'],['Boson, MA','boston'],['Philidelphia, PA','philadelphia']]){
- test(query+' uses signed Census correction and representative selection with no Geoapify request',async()=>{
+ test(query+' uses signed Census correction and representative selection with a bounded city-center lookup',async()=>{
   const h=harness({local:[candidate(name)]}),result=await h.suggest(query);
   assert.equal(result.suggestions.length,1);
   const s=result.suggestions[0],decoded=payload(s);
@@ -76,7 +76,7 @@ for(const [query,name] of [['San Fransisco','sf'],['Chcago','chicago'],['Boson, 
   assert.equal(found.location.latitude,rows[name].latitude);assert.equal(found.location.longitude,rows[name].longitude);
   assert.equal(found.location.quality.coordinateSource,'reference');
   assert.match(found.location.quality.explanation,/representative|not.*address/i);
-  assert.equal(h.providerCalls.length,0);assert.equal(h.admissions.length,0);
+  assert.equal(h.providerCalls.length,1);assert.equal(h.admissions.length,1);
  });
 }
 
@@ -182,7 +182,7 @@ test('address city fallback distinguishes Our Ground admission limits from actua
  assert.equal(upstream.providerCalls.length,1);assert.equal(upstream.admissions.length,1);
 });
 
-test('fresh coarse New York NY restoration chooses the exact Census city and state code chooses the state without Geoapify',async()=>{
+test('fresh city restoration retains Census identity and bounds city-center lookup while states stay local',async()=>{
  const local=[candidate('nyFlorida',{exact:true,ambiguous:3}),candidate('nyState',{exact:true,ambiguous:3}),candidate('nyCity',{exact:true,ambiguous:3})];
  const city=harness({local});
  const selected=await city.provider.forward('New York, NY');
@@ -190,7 +190,7 @@ test('fresh coarse New York NY restoration chooses the exact Census city and sta
  assert.equal(selected.location.quality.reference.geographicId,'3651000');
  assert.equal(selected.location.latitude,rows.nyCity.latitude);assert.equal(selected.location.longitude,rows.nyCity.longitude);
  assert.equal(selected.location.quality.coordinateSource,'reference');
- assert.equal(city.providerCalls.length,0);assert.equal(city.admissions.length,0);
+ assert.equal(city.providerCalls.length,1);assert.equal(city.admissions.length,0);
  const state=harness({local}),stateResult=await state.provider.forward('NY');
  assert.equal(stateResult.location.quality.precision,'state');assert.equal(stateResult.location.quality.reference.geographicId,'36');
  assert.equal(stateResult.location.latitude,rows.nyState.latitude);assert.equal(state.providerCalls.length,0);

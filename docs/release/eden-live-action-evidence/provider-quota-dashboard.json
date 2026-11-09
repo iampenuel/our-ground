@@ -1,0 +1,59 @@
+{
+  "observedAtUtc": "2026-11-08T20:20:00Z",
+  "method": "Read-only native Chrome accessibility observations in signed-in Google AI Studio; no synthesis, Live connection, billing or key change",
+  "project": {
+    "name": "Our Ground - EDEN",
+    "id": "gen-lang-client-0351735652",
+    "tier": "Free tier",
+    "keyMatch": "AI Studio masked suffix matched the previously authorized local Our Ground GEMINI_API_KEY. That existing key was authorized and provisioned for this recovery branch. Sensitive Preview values are not returned by an environment pull, so no plaintext runtime-key comparison is claimed."
+  },
+  "dashboardLagMinutes": 15,
+  "timeRange": "last-1-day",
+  "tts": {
+    "model": "gemini-3.8-flash-lite-tts",
+    "dashboardLabel": "Gemini 3.8 Flash Lite TTS",
+    "peakRequestsPerMinute": 2,
+    "requestsPerMinuteLimit": 3,
+    "peakInputTokensPerMinute": 54,
+    "inputTokensPerMinuteLimit": 10000,
+    "peakRequestsPerDay": 12,
+    "requestsPerDayLimit": 10,
+    "rateLimitWarningVisible": true,
+    "usageChart": {
+      "timezone": "UTC-8",
+      "date": "2026-11-08",
+      "hourlyRequestsFromMidnightThrough13": [0,0,0,0,0,1,8,0,1,0,1,0,1,0],
+      "total": 12,
+      "semantics": "Requests per model chart; not treated as a list of successful generations or as proof of which request caused the original staging 429."
+    }
+  },
+  "live": {
+    "model": "gemini-3.8-live",
+    "requestsPerMinuteLimitDisplayed": "Unlimited",
+    "inputTokensPerMinuteLimitDisplayed": 65000,
+    "requestsPerDayLimitDisplayed": "Unlimited",
+    "lastDayUsageDisplayed": 0,
+    "concurrentSessionLimit": null,
+    "interpretation": "Listed free-project access and a token ceiling; not unlimited audio, guaranteed capacity, a hosted Live acceptance test or permission to enable raw audio."
+  },
+  "original429": {
+    "httpStatus": 429,
+    "requestedModel": "gemini-3.8-flash-lite-tts",
+    "requestedVoice": "Aoede",
+    "providerEndpoint": "POST https://generativelanguage.googleapis.com/v1beta/interactions",
+    "providerErrorCode": null,
+    "providerStatus": null,
+    "quotaMetric": null,
+    "quotaId": null,
+    "effectiveLimitInOriginalError": null,
+    "retryDelayInOriginalError": null,
+    "origin": "UNRESOLVED: original response body and expired minute rows were not retained",
+    "known": "The staging application daily speech counter was 3/10 after the failure; one spaced same-model retry succeeded. Current project usage and warning demonstrate provider daily pressure but do not retrospectively prove the first rejection category or origin."
+  },
+  "sources": [
+    "https://aistudio.google.com/api-keys",
+    "https://aistudio.google.com/rate-limit?timeRange=last-1-day&project=gen-lang-client-0351735652",
+    "https://aistudio.google.com/usage?timeRange=last-1-day&project=gen-lang-client-0351735652",
+    "https://ai.google.dev/gemini-api/docs/rate-limits"
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "scope": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "views": [
+    {
+      "label": "desktop",
+      "width": 1440,
+      "height": 900,
+      "scrollWidth": 1440,
+      "panelInside": true,
+      "composerInside": true,
+      "transcript": 288
+    },
+    {
+      "label": "tablet",
+      "width": 768,
+      "height": 1024,
+      "scrollWidth": 768,
+      "panelInside": true,
+      "composerInside": true,
+      "transcript": 288
+    },
+    {
+      "label": "mobile",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "panelInside": true,
+      "composerInside": true,
+      "transcript": 264
+    },
+    {
+      "label": "narrow",
+      "width": 320,
+      "height": 740,
+      "scrollWidth": 320,
+      "panelInside": true,
+      "composerInside": true,
+      "transcript": 264
+    },
+    {
+      "label": "zoom",
+      "width": 720,
+      "height": 450,
+      "scrollWidth": 720,
+      "panelInside": true,
+      "composerInside": true,
+      "transcript": 146
+    }
+  ],
+  "accessibility": [
+    {
+      "view": "desktop",
+      "route": "home+eden",
+      "violations": []
+    },
+    {
+      "view": "desktop",
+      "route": "/give",
+      "violations": []
+    },
+    {
+      "view": "desktop",
+      "route": "/organizations",
+      "violations": []
+    },
+    {
+      "view": "desktop",
+      "route": "/account",
+      "violations": []
+    },
+    {
+      "view": "desktop",
+      "route": "/support",
+      "violations": []
+    },
+    {
+      "view": "tablet",
+      "route": "home+eden",
+      "violations": []
+    },
+    {
+      "view": "mobile",
+      "route": "home+eden",
+      "violations": []
+    },
+    {
+      "view": "mobile",
+      "route": "/give",
+      "violations": []
+    },
+    {
+      "view": "mobile",
+      "route": "/organizations",
+      "violations": []
+    },
+    {
+      "view": "mobile",
+      "route": "/account",
+      "violations": []
+    },
+    {
+      "view": "mobile",
+      "route": "/support",
+      "violations": []
+    },
+    {
+      "view": "narrow",
+      "route": "home+eden",
+      "violations": []
+    },
+    {
+      "view": "zoom",
+      "route": "home+eden",
+      "violations": []
+    }
+  ],
+  "unexpected": [],
+  "wordmark": [
+    {
+      "view": "desktop",
+      "gutter": [
+        60,
+        60,
+        60
+      ],
+      "keyboardHome": true
+    },
+    {
+      "view": "tablet",
+      "gutter": [
+        32,
+        32,
+        32
+      ],
+      "keyboardHome": true
+    },
+    {
+      "view": "mobile",
+      "gutter": [
+        20,
+        20,
+        20
+      ],
+      "keyboardHome": true
+    },
+    {
+      "view": "narrow",
+      "gutter": [
+        20,
+        20,
+        20
+      ],
+      "keyboardHome": true
+    },
+    {
+      "view": "zoom",
+      "gutter": [
+        30,
+        30,
+        30
+      ],
+      "keyboardHome": true
+    }
+  ]
+}

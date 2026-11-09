@@ -5,6 +5,7 @@ const destinations = [
   { id: 'give', href: '/give', label: 'Give Support' },
   { id: 'organizations', href: '/organizations', label: 'For Organizations' },
   { id: 'about', href: '/about', label: 'About' },
+  { id: 'account', href: '/account', label: 'Organization account' },
 ];
 
 export const brand = '<a class="og-brand" href="/" aria-label="Our Ground home">Our Ground</a>';
@@ -19,7 +20,7 @@ export function header(active = ''): string {
 }
 
 export function footer(): string {
-  return `<footer class="og-footer"><div class="og-container og-footer-inner">${brand}<p>One community. Many ways to help.</p><nav aria-label="Footer navigation"><a href="/support">Find Support</a><a href="/give">Give Support</a><a href="/organizations">For Organizations</a><a href="/about#ai-and-imagery">AI &amp; imagery</a><a href="/privacy">Privacy</a></nav></div></footer>`;
+  return `<footer class="og-footer"><div class="og-container og-footer-inner">${brand}<p>One community. Many ways to help.</p><nav aria-label="Footer navigation"><a href="/support">Find Support</a><a href="/give">Give Support</a><a href="/organizations">For Organizations</a><a href="/about">About</a><a href="/account">Organization account</a><a href="/about#ai-and-imagery">AI &amp; imagery</a><a href="/privacy">Privacy</a></nav></div></footer>`;
 }
 
 /** Native disclosure supplies keyboard behavior without an animation dependency. */

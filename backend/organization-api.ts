@@ -14,6 +14,7 @@ export interface OrganizationPrincipal { id:string; email:string; sessionId:stri
 export interface OrganizationDependencies {
   configured:boolean;
   emailConfigured?:boolean;
+  managementDisabled?:boolean;
   verify(token:string):Promise<OrganizationPrincipal|null>;
   startEmail(email:string,origin:string):Promise<void>;
   revokeProvider(token:string):Promise<void>;
@@ -66,9 +67,12 @@ export async function handleOrganization(request:Request,path:string,deps?:Organ
  const requestId=randomUUID();let authorized:{principal:OrganizationPrincipal;context:{requestId:string;sessionHash:string}}|undefined;
  const finish=(value:unknown,status=200,retryAfter?:number)=>{const r=response(value,status);r.headers.set('X-Request-Id',requestId);if(status===429)r.headers.set('Retry-After',String(retryAfter??60));return r;};
  try{
-  if(request.method==='GET'&&path==='/org/status')return finish({configured:Boolean(deps?.configured),method:'email_code',email_enabled:Boolean(deps?.configured&&deps.emailConfigured!==false)});
+  if(request.method==='GET'&&path==='/org/status')return finish({configured:Boolean(deps?.configured),method:'email_code',email_enabled:Boolean(deps?.configured&&!deps.managementDisabled&&deps.emailConfigured!==false),...(deps?.managementDisabled?{management_enabled:false}:{})});
   if(!deps?.configured)fail(503,'ACCOUNT_NOT_CONFIGURED','Organization accounts are not configured yet. You can still find support without signing in.');
   const method=request.method.toUpperCase();
+  // Launch policy is an allowlist: new management operations and legacy aliases are closed too.
+  if(deps.managementDisabled && !(method==='GET'&&path==='/org/account'||method==='POST'&&path==='/org/session/logout'))
+    fail(403,'MANAGEMENT_DISABLED','Organization management is not available at launch.');
   if(method==='POST'&&path==='/org/auth/email'){
    if(deps.emailConfigured===false)fail(503,'AUTH_EMAIL_NOT_CONFIGURED','Email sign-in is not enabled. Use a configured sign-in method or browse without an account.');
    const origin=request.headers.get('origin')??'';if(!deps.allowedOrigins.has(origin))fail(403,'ORIGIN_DENIED','Sign in from an approved Our Ground address.');
@@ -81,7 +85,9 @@ export async function handleOrganization(request:Request,path:string,deps?:Organ
   }
   const {principal,token,context}=await verifiedOrganizationSession(request,deps,requestId,method==='POST'&&path==='/org/session/logout'),actor=principal.id;authorized={principal,context};
   const command=(action:string,input:Record<string,unknown>={})=>deps.store.command(actor,action,input,context);
-  if(method==='GET'&&path==='/org/account'){const data=await command('account.get') as Record<string,unknown>;return finish({...data,email:principal.email});}
+  if(method==='GET'&&path==='/org/account'){
+   if(deps.managementDisabled)return finish({email:principal.email,role:'user',organizations:[],listings:[],claims:[],revisions:[]});
+   const data=await command('account.get') as Record<string,unknown>;return finish({...data,email:principal.email});}
   if(method==='POST'&&path==='/org/session/logout'){
    const b=await body(request);fields(b,[]);await command('session.revoke',{session_hash:sessionHash(principal.sessionId),expires_at:new Date(principal.expiresAt*1000).toISOString()});
    await deps.revokeProvider(token);return finish({signed_out:true});

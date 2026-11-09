@@ -1,0 +1,45 @@
+{
+  "base": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "8ed70c96372068bff5a06ea7e711d7c8c02b63e5",
+  "scope": "dialogue",
+  "steps": [
+    {
+      "name": "describe current page",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200,
+          "correlation": "b402ce13-527b-4f9c-83e4-0cabec59cd74"
+        },
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "0c6e838a-4fb9-43a4-b8e4-cf7af6cb7fb8"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "0c6e838a-4fb9-43a4-b8e4-cf7af6cb7fb8"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "0c6e838a-4fb9-43a4-b8e4-cf7af6cb7fb8"
+        }
+      ],
+      "trace": {
+        "correlationId": "0c6e838a-4fb9-43a4-b8e4-cf7af6cb7fb8",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "details",
+        "outcome": "confirmed"
+      },
+      "reply": "The listing details are open. Here is what the listing says: HHC- South Allison Hill. These are public directory listings, not independently verified operating services. Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified."
+    }
+  ],
+  "errors": [],
+  "status": "FAIL",
+  "failure": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'details'\n- 'read-page'\n"
+}

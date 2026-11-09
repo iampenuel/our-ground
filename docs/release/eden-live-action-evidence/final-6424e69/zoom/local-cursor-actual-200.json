@@ -1,0 +1,219 @@
+{
+  "scope": "local directory and age-status transport fixtures, actual page controls and approved portrait; no Gemini requests",
+  "zoom": 2,
+  "before": {
+    "width": 1440,
+    "height": 703,
+    "dpr": 2
+  },
+  "zoomed": {
+    "width": 720,
+    "height": 351,
+    "dpr": 4,
+    "visualScale": 1,
+    "scrollWidth": 720
+  },
+  "shell": {
+    "panel": {
+      "x": 8,
+      "y": 8,
+      "width": 704,
+      "height": 335.5
+    },
+    "composer": {
+      "x": 9,
+      "y": 217.95703125,
+      "width": 702,
+      "height": 86.9453125
+    },
+    "send": {
+      "x": 651.6015625,
+      "y": 229.3515625,
+      "width": 44,
+      "height": 44
+    },
+    "caution": {
+      "x": 23.3984375,
+      "y": 283.94921875,
+      "width": 673.203125,
+      "height": 17.7578125
+    },
+    "portrait": "svg-profile",
+    "frames": 31
+  },
+  "searchCount": 1,
+  "modelCalls": 0,
+  "confirmedDetails": "done",
+  "hits": [
+    {
+      "target": {
+        "page": "support"
+      },
+      "rect": {
+        "x": 30,
+        "y": 299.59375,
+        "width": 234.3828125,
+        "height": 52
+      },
+      "cssTip": {
+        "x": 147.0931037068367,
+        "y": 321.1546359360218
+      },
+      "cursorLayoutOrigin": {
+        "x": 147.19000244140625,
+        "y": 321.29998779296875
+      },
+      "label": {
+        "left": 166.19000244140625,
+        "top": 321.7265625,
+        "right": 216.128173828125,
+        "bottom": 345.7578430175781
+      },
+      "frontElement": "A",
+      "uid": "64dd1363-3ab8-408b-8c8f-04bc1faf0884"
+    },
+    {
+      "target": "location",
+      "rect": {
+        "x": 94.3984375,
+        "y": 307.5234375,
+        "width": 555.19921875,
+        "height": 44
+      },
+      "cssTip": {
+        "x": 371.9054410517216,
+        "y": 325.1181627899408
+      },
+      "cursorLayoutOrigin": {
+        "x": 372,
+        "y": 325.260009765625
+      },
+      "label": {
+        "left": 390.989990234375,
+        "top": 321.7265625,
+        "right": 441.44219970703125,
+        "bottom": 346.0052185058594
+      },
+      "frontElement": "locationInput",
+      "uid": "b41e2750-7786-4ec3-8d3f-0a643f286f7c"
+    },
+    {
+      "target": {
+        "category": "healthcare"
+      },
+      "rect": {
+        "x": 131.953125,
+        "y": 307.22265625,
+        "width": 108.16015625,
+        "height": 44.3984375
+      },
+      "cssTip": {
+        "x": 185.93933995366098,
+        "y": 324.97397985756396
+      },
+      "cursorLayoutOrigin": {
+        "x": 186.02999877929688,
+        "y": 325.1099853515625
+      },
+      "label": {
+        "left": 205.02999877929688,
+        "top": 321.7265625,
+        "right": 254.75868225097656,
+        "bottom": 345.65704345703125
+      },
+      "frontElement": "BUTTON",
+      "uid": "a25f4867-b2d7-403f-8569-ee583b98cf40"
+    },
+    {
+      "target": "radius",
+      "rect": {
+        "x": 524.84765625,
+        "y": 307.421875,
+        "width": 141.75,
+        "height": 44
+      },
+      "cssTip": {
+        "x": 595.625326770544,
+        "y": 325.06798833310603
+      },
+      "cursorLayoutOrigin": {
+        "x": 595.719970703125,
+        "y": 325.2099914550781
+      },
+      "label": {
+        "left": 614.6699829101562,
+        "top": 321.7265625,
+        "right": 664.8514404296875,
+        "bottom": 345.8749084472656
+      },
+      "frontElement": "radiusInput",
+      "uid": "b9e138a0-6eb7-482f-bc21-41511c7a82b3"
+    },
+    {
+      "target": "submit",
+      "rect": {
+        "x": 53.3984375,
+        "y": 226.22265625,
+        "width": 613.19921875,
+        "height": 48
+      },
+      "cssTip": {
+        "x": 359.9031911432743,
+        "y": 250.0747755676508
+      },
+      "cursorLayoutOrigin": {
+        "x": 360,
+        "y": 250.22000122070312
+      },
+      "label": {
+        "left": 379,
+        "top": 277.2200012207031,
+        "right": 428.457275390625,
+        "bottom": 301.0198669433594
+      },
+      "frontElement": "supportSubmit",
+      "uid": "fb94f320-9420-4930-afec-f60fadf10561"
+    },
+    {
+      "target": {
+        "resultKey": "directory:828e4d8a-d5d7-5527-a75c-2a6f10027a56",
+        "operation": "details"
+      },
+      "rect": {
+        "x": 62.3984375,
+        "y": 325.2890625,
+        "width": 135.6640625,
+        "height": 25.59765625
+      },
+      "cssTip": {
+        "x": 130.13531529903412,
+        "y": 333.7479948401451
+      },
+      "cursorLayoutOrigin": {
+        "x": 130.22999572753906,
+        "y": 333.8900146484375
+      },
+      "label": {
+        "left": 149.30999755859375,
+        "top": 321.7265625,
+        "right": 200.2752685546875,
+        "bottom": 346.2521057128906
+      },
+      "frontElement": "A",
+      "uid": "ad1ac8d9-235e-4e85-b4eb-a69d05ccb90e"
+    }
+  ],
+  "status": "PASS",
+  "verification": {
+    "sourceBase": "11718df5b6e2c73cbd3cd802feb895294948a935",
+    "sourceMode": "working tree after targeted search reveal cancellation; not the previously deployed commit",
+    "sourceSha256": {
+      "src/support-page.ts": "31ff26aea1cf8e28e0e78448e30aac2247a8b80916f8ce71b1000fb51a7c3499",
+      "src/support-scroll.ts": "4df8e3b3452f70c967126e4686f50d4cb254e96bebfda4c2f59da4f375cbea80",
+      "tests/eden-actual-zoom.browser.mjs": "4ee65e062461170aa430586d24e20c506e7e5df45751e7091124995c3146f5ac",
+      "tests/support-scroll.test.mjs": "b204b193f7e325ef927b7d47dfdb2cca731bf44193ace7bf016d922a97a92a24"
+    },
+    "originalFailure": "../original-failure.log",
+    "approach": "Rapid search completion and detail selection in one browser task without a readiness delay; fake directory HTTP, actual Chrome zoom, actual cursor and page handlers."
+  }
+}

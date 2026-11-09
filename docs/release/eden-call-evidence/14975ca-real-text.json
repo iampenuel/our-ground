@@ -1,0 +1,113 @@
+{
+  "origin": "https://ourground-staging-z9lfmd8s0-penuels-projects-aa802b06.vercel.app",
+  "sha": "14975ca9fddaeebcba43891dc1e67b3006c8c146",
+  "scope": "genuine hosted Gemini text and directory actions; no speech synthesis",
+  "steps": [
+    {
+      "name": "harrisburg",
+      "trace": {
+        "correlationId": "334913f9-f8e1-4fff-be1f-0c1b4cb2af42",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "search",
+        "outcome": "confirmed"
+      },
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200
+        },
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 200
+        }
+      ],
+      "searches": 1,
+      "location": "Harrisburg, PA",
+      "reply": "Your search is ready. 6 matching healthcare listings within 10 miles of Harrisburg, Pennsylvania. For your search, HHC- South Allison Hill. These are public directory listings, not independently verified operating services."
+    },
+    {
+      "name": "lanham",
+      "trace": {
+        "correlationId": "edaa3e45-8fb0-4cfe-a22b-025bedf9bd1a",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "search",
+        "outcome": "confirmed"
+      },
+      "requests": [
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 200
+        }
+      ],
+      "searches": 1,
+      "location": "Lanham, MD",
+      "reply": "Your search is ready. 43 matching healthcare listings within 10 miles of Lanham, MD. The first 20 are shown. These are public directory listings, not independently verified operating services. CCI-Ora Glen."
+    },
+    {
+      "name": "details",
+      "trace": {
+        "correlationId": "41687c57-9ebb-493f-88ad-176f35b9e164",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "details",
+        "outcome": "confirmed"
+      },
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200
+        },
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 200
+        }
+      ],
+      "searches": 0,
+      "location": "Lanham, MD",
+      "reply": "The listing details are open. Here is what the listing says: CCI-Ora Glen. Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified. These are public directory listings, not independently verified operating services."
+    },
+    {
+      "name": "berkeley",
+      "trace": {
+        "correlationId": "a66d0729-7c1c-4ef3-bb31-e97c9afc9a52",
+        "provider": "undetermined",
+        "model": null,
+        "output": "unavailable",
+        "proposedAction": "search",
+        "outcome": "failed"
+      },
+      "requests": [
+        {
+          "endpoint": "plan",
+          "status": 200
+        },
+        {
+          "endpoint": "result",
+          "status": 502
+        }
+      ],
+      "searches": 1,
+      "location": "Berkeley, CA",
+      "reply": "The listing details are open. Here is what the listing says: CCI-Ora Glen. Listed by HRSA Health Center Program. Source updated 2026-11-06. Current operation is not independently verified. These are public directory listings, not independently verified operating services."
+    }
+  ],
+  "status": "FAIL",
+  "failure": "{\"name\":\"berkeley\",\"trace\":{\"correlationId\":\"a66d0729-7c1c-4ef3-bb31-e97c9afc9a52\",\"provider\":\"undetermined\",\"model\":null,\"output\":\"unavailable\",\"proposedAction\":\"search\",\"outcome\":\"failed\"},\"requests\":[{\"endpoint\":\"plan\",\"status\":200},{\"endpoint\":\"result\",\"status\":502}]}"
+}

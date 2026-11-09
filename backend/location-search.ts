@@ -3,7 +3,7 @@ import type {GeographicReference,GeographicCandidate} from './geographic-referen
 import {locationQueryContext,providerQuality,explicitProviderCity,namesClose,normalizedName} from './location-quality.ts';
 import {validLocationQuality} from './location-quality-validation.ts';
 import {setTimeout as delay} from 'node:timers/promises';
-import {createHmac,randomBytes,timingSafeEqual} from 'node:crypto';
+import {createHmac,randomBytes,randomUUID,timingSafeEqual} from 'node:crypto';
 import {validPoint,stateCode,supportedState,parseLocationQuery,usStates,placeText} from '../shared/us-location.ts';
 import {isResourceState} from '../shared/resource-geography.ts';
 import {createDiscoveryLimiter} from './geoapify-limits.ts';
@@ -62,6 +62,7 @@ export function createLocationSearch(options:{env:Record<string,string|undefined
  // Only public city/state resolutions are cached, never addresses, GPS,
  // resident identities, requests or resource records. This is not a rate limiter.
  const publicAreaResolutions=new Map<string,{expires:number;point:SelectedLocation}>();
+ const pendingCityCenters=new Map<string,Promise<SelectedLocation>>();
  const sign=(payload:string)=>createHmac('sha256',signingKey).update('ourground:geoapify-selection:v1\0'+payload).digest('base64url');
  const receipt=(id:string,session:string,location:SelectedLocation,submission?:SubmissionEvidence)=>{const data=Buffer.from(JSON.stringify({v:1,id,session,location,...(submission?{submission}:{}),expires:Math.floor(now()/1000)+120})).toString('base64url');return data+'.'+sign(data);};
  function verify(id:string,session:string,value:string,query?:string):SelectedLocation{
@@ -127,9 +128,10 @@ export function createLocationSearch(options:{env:Record<string,string|undefined
  function selected(raw:unknown):SelectedLocation|null{
   const p=object(raw),state=jurisdiction(p);if(!state||!validPoint(p.lat,p.lon))return null;
   const label=text(p.formatted)||[text(p.address_line1)||text(p.name),text(p.city),state,text(p.postcode)].filter(Boolean).join(', ');if(!label)return null;
-  const locality=text(p.city)||text(p.town)||text(p.village)||text(p.municipality);return{label,latitude:p.lat as number,longitude:p.lon as number,state,country:'US',source:'provider',provider:'geoapify',publicQuery:locality?locality+', '+state:state,attribution:fallbackCredit};
+  const neighborhood=p.result_type==='suburb'?(text(p.suburb)||text(p.neighbourhood)||text(p.quarter)||text(p.name)):'';
+  const locality=neighborhood||text(p.city)||text(p.town)||text(p.village)||text(p.municipality);return{label,latitude:p.lat as number,longitude:p.lon as number,state,country:'US',source:'provider',provider:'geoapify',publicQuery:locality?locality+', '+state:state,attribution:fallbackCredit};
  }
- async function forwardExact(query:string,signal?:AbortSignal,client?:string):Promise<LocationRetrieveResponse>{
+ async function forwardExact(query:string,signal?:AbortSignal,client?:string,admitProvider?:LocationProviderAdmission):Promise<LocationRetrieveResponse>{
    // Only an exact two-letter code restores a state-only coarse URL; city names
    // such as New York still require their existing unambiguous city evidence.
    const region=query.trim().toUpperCase(),requestedState=/^[A-Z]{2}$/.test(region)&&isResourceState(region)?region:undefined;
@@ -138,7 +140,7 @@ export function createLocationSearch(options:{env:Record<string,string|undefined
    // Geoapify may return no state for free-text abbreviations such as CA.
    // Use its documented structured state/country contract for coarse state URLs.
    if(requestedState){params.set('state',(usStates as Record<string,string>)[requestedState]??territoryNames[requestedState]);params.set('country','United States');}else params.set('text',query);
-   const data=await request('v1/geocode/search',params,signal,client);
+   const data=await request('v1/geocode/search',params,signal,client,admitProvider);
    if(!Array.isArray(data.results))throw unavailable();
    const matches=list(data.results).filter(raw=>{const p=object(raw),point=selected(raw);if(!point)return false;const assessed=providerQuality(locationQueryContext(query),p);if(!assessed.allowed||(assessed.quality.provider?.confidence??1)<.8||(assessed.quality.provider?.confidenceCityLevel??1)<.8)return false;if(requestedState)return p.result_type==='state'&&point.state===requestedState;if(!parsed)return false;if(parsed.kind==='postcode')return p.postcode===parsed.zip&&p.result_type==='postcode';return p.result_type==='city'&&placeText(p.city??p.name)===placeText(parsed.city)&&(!parsed.state||point.state===parsed.state)&&(!parsed.county||placeText(p.county)===placeText(parsed.county));}).map(raw=>{const point=selected(raw)!;point.quality=providerQuality(locationQueryContext(query),object(raw)).quality;return point;});
    if(matches.length!==1)throw new LocationSearchError(422,'LOCATION_NOT_FOUND','Choose one location from the live suggestions.');return{location:matches[0],attribution:fallbackCredit};
@@ -167,7 +169,7 @@ export function createLocationSearch(options:{env:Record<string,string|undefined
     const location=verify(choice.id,session,choice.receipt,q),scope=locationSearchScope(location);
     const interpretation:LocationInterpretation={query:q.trim(),label:location.label,corrected:normalizedName(q)!==normalizedName(location.label),scope};
     if(scope==='state'||scope==='area')return{status:'narrow_location',location,attribution:found.attribution,interpretation,notice:scope==='state'?'Choose a city or ZIP code within this state. Nearby search does not cover an entire state.':'Choose a city, ZIP code or address within this area. A county or region cannot be represented by a nearby radius.'};
-    if(explicit||automatic.length===1){const selected=await api.retrieve(choice.id,session,choice.receipt,signal,origin,client);return{status:'resolved',location:selected.location,attribution:selected.attribution,interpretation};}
+    if(explicit||automatic.length===1){const selected=await api.retrieve(choice.id,session,choice.receipt,signal,origin,client,admitProvider);return{status:'resolved',location:selected.location,attribution:selected.attribution,interpretation};}
    }
    const precision=found.suggestions.every(s=>s.quality?.kind==='city_fallback'||s.quality?.kind==='uncertain');
    return{status:'choose_location',choices:found.suggestions,attribution:found.attribution,reason:precision?'precision_change':'ambiguous',notice:precision?'The exact address is not confirmed. Review the location or choose Search the city instead.':'Several locations are plausible. Choose the city and state you mean.'};
@@ -186,7 +188,7 @@ export function createLocationSearch(options:{env:Record<string,string|undefined
      const stateOnly=/^[A-Za-z]{2}$/.test(query.trim())&&isResourceState(query.trim().toUpperCase());
      const expectedKind=stateOnly?'state':context.state?'place':undefined;
      const exact=candidates.filter(x=>x.match.exact_match&&(!context.state||x.state===context.state)&&(!expectedKind||x.kind===expectedKind));
-     if(exact.length===1){const point=referenceLocation(exact[0],'canonical_exact');if(point){point.quality={...point.quality!,explanation:'Restored the exact city/state name using its official Census representative point. This is not the previous street address or GPS position and may be far from service clusters.'};return{location:point,attribution:point.attribution!};}}
+     if(exact.length===1){const point=referenceLocation(exact[0],'canonical_exact');if(point){const session=randomUUID();return api.retrieve(exact[0].id,session,receipt(exact[0].id,session,point),signal,undefined,client);}}
     }catch(error){if(signal?.aborted)throw error;}
    }
    let failed:unknown;try{
@@ -258,15 +260,44 @@ export function createLocationSearch(options:{env:Record<string,string|undefined
    const credit=suggestions.some(x=>x.quality?.source==='geoapify')?fallbackCredit+(canonical.length?' · U.S. Census Bureau · 2026 Gazetteer':''):canonical.length?'U.S. Census Bureau · 2026 Gazetteer':fallbackCredit;
    return{suggestions:submissionSuggestions(suggestions,q,session,ranked.length>5||localCandidates.some(x=>x.match.ambiguous_matches>localCandidates.length)),attribution:credit,providerStatus,...(notice?{notice}:{})};
   },
-  async retrieve(id,session,value,signal,_origin,_client,_admitProvider){
+  async retrieve(id,session,value,signal,_origin,client,admitProvider){
    signal?.throwIfAborted();let location=verify(id,session,value);
    if(location.source==='reference'&&location.publicQuery&&location.quality&&location.quality.precision!=='postcode'){
+    const key='public:'+normalizedName(location.publicQuery);
+    const applyCoordinates=(point:SelectedLocation):SelectedLocation=>({...location,
+     latitude:point.latitude,longitude:point.longitude,attribution:point.attribution,
+     quality:{...location.quality!,coordinateSource:point.source==='provider'||point.quality?.source==='geoapify'?'geoapify':point.quality?.coordinateSource??'reference',
+      ...(point.quality?.provider?{provider:point.quality.provider}:{}),explanation:point.quality?.explanation??location.quality!.explanation}});
+    const cached=publicAreaResolutions.get(key);
+    if(cached&&cached.expires>now())return{location:applyCoordinates(cached.point),attribution:cached.point.attribution??fallbackCredit};
     location={...location,quality:{...location.quality,coordinateSource:'reference',explanation:'Using the official Census representative city/state point. It may be far from service clusters and does not validate a street address.'}};
-    // This bounded public-area cache carries only Census city/state evidence,
-    // never resident addresses/GPS, and avoids re-geocoding a coarse return URL.
-    for(const[key,entry]of publicAreaResolutions)if(entry.expires<=now())publicAreaResolutions.delete(key);
-    if(publicAreaResolutions.size>=64)publicAreaResolutions.delete(publicAreaResolutions.keys().next().value!);
-    publicAreaResolutions.set('public:'+normalizedName(location.publicQuery!),{expires:now()+120000,point:location});
+    if(configured&&location.quality!.precision==='city'){
+     let pending=pendingCityCenters.get(key);
+     if(!pending&&pendingCityCenters.size<16){
+      const referencePoint=location;
+      pending=(async()=>{
+       try{
+        const {location:point}=await forwardExact(referencePoint.publicQuery!,signal,client,admitProvider);
+        const evidence=point.quality?.provider;
+        if(point.country==='US'&&point.state===referencePoint.state&&evidence?.resultType==='city'&&
+         (evidence.confidence??0)>=.8&&(evidence.confidenceCityLevel??0)>=.8){
+         return{...referencePoint,latitude:point.latitude,longitude:point.longitude,
+          attribution:fallbackCredit+' · U.S. Census Bureau · 2026 Gazetteer',
+          quality:{...referencePoint.quality!,coordinateSource:'geoapify' as const,provider:evidence,
+           explanation:'City identity follows the Census Gazetteer. Coordinates use a matching Geoapify city point for nearby search; they do not confirm a street address.'}};
+        }
+       }catch{/* A protected provider failure retains the disclosed reference point. */}
+       return referencePoint;
+      })().finally(()=>pendingCityCenters.delete(key));
+      pendingCityCenters.set(key,pending);
+     }
+     if(pending){location=applyCoordinates(await pending);signal?.throwIfAborted();}
+    }
+    // Cache public locality evidence and a bounded provider/fallback decision.
+    // GPS, addresses and resident identifiers never enter this cache.
+    for(const[k,entry]of publicAreaResolutions)if(entry.expires<=now())publicAreaResolutions.delete(k);
+    if(publicAreaResolutions.size>=64&&!publicAreaResolutions.has(key))publicAreaResolutions.delete(publicAreaResolutions.keys().next().value!);
+    publicAreaResolutions.set(key,{expires:now()+120000,point:location});
    }
    return{location,attribution:location.attribution??fallbackCredit};
   },

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {EDEN_NOTICE_VERSION} from '../shared/eden-assistant.ts';
-import {EDEN_LIVE_INTRODUCTION,EDEN_LIVE_MODEL,EDEN_LIVE_VOICE,buildEdenLiveConfig,buildEdenLiveSetup,normalizeEdenLiveWireToolCall,validateEdenLiveConfig,validateEdenLiveContext,validateEdenLiveToolCall,validateEdenLiveTokenRequest,validateEdenLiveTokenResponse,validateEdenLiveToolAuthorization,validateEdenLiveToolCompletion} from '../shared/eden-live.ts';
+import {EDEN_LIVE_INTRODUCTION,EDEN_LIVE_MODEL,EDEN_LIVE_VOICE,validateHostedLiveClock,buildEdenLiveConfig,buildEdenLiveSetup,normalizeEdenLiveWireToolCall,validateEdenLiveConfig,validateEdenLiveContext,validateEdenLiveToolCall,validateEdenLiveTokenRequest,validateEdenLiveTokenResponse,validateEdenLiveToolAuthorization,validateEdenLiveToolCompletion} from '../shared/eden-live.ts';
 const key='a'.repeat(43),now=Date.now();
 const context={page:'support',category:'food',cityId:'harrisburg-pa',radius:10,resultCount:1,synthetic:true,resourceIds:['11111111-1111-4111-8111-111111111111'],selectedIndex:1};
 const token=()=>({token:'auth_tokens/fixture-credential',model:EDEN_LIVE_MODEL,voiceName:EDEN_LIVE_VOICE,maxCallSeconds:300,expiresAt:new Date(now+300_000).toISOString(),newSessionExpiresAt:new Date(now+60_000).toISOString(),callId:key,config:buildEdenLiveConfig()});
@@ -29,7 +29,7 @@ test('token requests and replies bind consent, model, credential type, expiry an
   const request={nonce:key,noticeVersion:EDEN_NOTICE_VERSION,liveAudioAcknowledged:true,context};assert(validateEdenLiveTokenRequest(request));
   for(const extra of [{liveAudioAcknowledged:false},{nonce:'short'},{noticeVersion:'old'},{rawTranscript:'private'},{resumeHandle:'opaque'},{callId:key},{context:{...context,title:'private'}}])assert.equal(validateEdenLiveTokenRequest({...request,...extra}),null);
   assert(validateEdenLiveTokenRequest({...request,callId:key,resumeHandle:'opaque-provider-handle'}));assert(validateEdenLiveTokenResponse(token(),now));
-  for(const extra of [{model:'gemini-2.5-flash'},{voiceName:'Kore'},{token:'permanent-provider-key'},{expiresAt:new Date(now+700_000).toISOString()},{newSessionExpiresAt:new Date(now-1).toISOString()},{maxCallSeconds:301},{apiKey:'server-secret'}])assert.equal(validateEdenLiveTokenResponse({...token(),...extra},now),null);
+  for(const extra of [{model:'gemini-2.5-flash'},{voiceName:'Kore'},{token:'permanent-provider-key'},{expiresAt:new Date(now+700_000).toISOString()},{newSessionExpiresAt:new Date(now-1).toISOString()},{maxCallSeconds:601},{apiKey:'server-secret'}])assert.equal(validateEdenLiveTokenResponse({...token(),...extra},now),null);
 });
 test('public context and calls exclude private prose, unknown capabilities and exotic properties without executing getters',()=>{
   const checked=validateEdenLiveContext(context);assert.deepEqual(checked,context);assert.notEqual(checked.resourceIds,context.resourceIds);
@@ -58,6 +58,7 @@ test('documented omitted zero-argument wire payload normalizes without relaxing 
 // of the runtime action validators; catches schema/validator contract drift.
 function schemaAccepts(schema,value){
   if(schema.enum&&!schema.enum.includes(value))return false;
+  if(typeof value==='string'&&(schema.minLength!==undefined&&value.length<schema.minLength||schema.maxLength!==undefined&&value.length>schema.maxLength||schema.pattern&&!new RegExp(schema.pattern,'u').test(value)))return false;
   if(schema.type==='string'&&typeof value!=='string'||schema.type==='integer'&&!Number.isInteger(value))return false;
   if(schema.minimum!==undefined&&value<schema.minimum||schema.maximum!==undefined&&value>schema.maximum)return false;
   if(schema.type==='object'){
@@ -72,10 +73,23 @@ test('tool schemas require all finite clarification slots and search fields befo
   const declarations=buildEdenLiveConfig().tools[0].functionDeclarations;
   const clarify=declarations.find(tool=>tool.name==='ask_clarification').parametersJsonSchema;
   const actionSchema=declarations.find(tool=>tool.name==='perform_public_resource_action').parametersJsonSchema;
+  assert.equal(validateEdenLiveToolCall({id:'private-place',name:'perform_public_resource_action',args:{type:'search',category:'food',city:'private address',radius:10}}),null,'server city validation remains authoritative for private location prose');
   for(const args of [{missing:'city',category:'food'},{missing:'city',category:'healthcare'},{missing:'category',cityId:'harrisburg-pa'},{missing:'city-and-category',area:'pennsylvania'}]){assert(schemaAccepts(clarify,args));assert(validateEdenLiveToolCall({id:'valid',name:'ask_clarification',args}));}
   for(const args of [{missing:'city'},{missing:'category'},{missing:'city-and-category'},{missing:'city',cityId:'harrisburg-pa'},{missing:'category',category:'food'},{missing:'city',category:'food',area:'pennsylvania'},{missing:'city-and-category',area:'new-york'},{missing:'city',category:'private'}])assert.equal(schemaAccepts(clarify,args),false,JSON.stringify(args));
   const search={type:'search',category:'food',city:'harrisburg-pa',radius:10};assert(schemaAccepts(actionSchema,search));
   for(const key of ['type','category','city','radius']){const missing={...search};delete missing[key];assert.equal(schemaAccepts(actionSchema,missing),false,key);}
-  for(const args of [{type:'radius',radius:5},{type:'refine',category:'healthcare'},{type:'details',index:1},{type:'select',index:20},{type:'help'},{type:'navigate-support'},{type:'read-results'},{type:'clear-filters'},{type:'read-page'},{type:'read-hours',index:1},{type:'navigate-public',page:'give'}]){assert(schemaAccepts(actionSchema,args));assert(validateEdenLiveToolCall({id:'valid',name:'perform_public_resource_action',args}));}
-  for(const args of [{...search,index:1},{...search,radius:13},{...search,city:'private address'},{type:'radius'},{type:'details',index:0},{type:'help',category:'food'},{type:'refine',category:'food',radius:5},{type:'navigate-public',page:'account'},{type:'navigate-public',page:'https://evil.invalid'},{type:'read-hours',index:21}])assert.equal(schemaAccepts(actionSchema,args),false,JSON.stringify(args));
+  for(const args of [{type:'radius',radius:5},{type:'refine',category:'healthcare'},{type:'details',index:1},{type:'select',index:20},{type:'help'},{type:'navigate-support'},{type:'read-results'},{type:'clear-filters'},{type:'read-page'},{type:'show-map'},{type:'read-hours',index:1},{type:'navigate-public',page:'give'}]){assert(schemaAccepts(actionSchema,args));assert(validateEdenLiveToolCall({id:'valid',name:'perform_public_resource_action',args}));}
+  for(const args of [{...search,index:1},{...search,radius:13},{type:'radius'},{type:'details',index:0},{type:'help',category:'food'},{type:'refine',category:'food',radius:5},{type:'navigate-public',page:'account'},{type:'navigate-public',page:'https://evil.invalid'},{type:'read-hours',index:21}])assert.equal(schemaAccepts(actionSchema,args),false,JSON.stringify(args));
+});
+
+test('hosted Live preserves actual remaining authority when device and issuer clocks differ',()=>{
+  const header=new Date(now).toUTCString();
+  for(const clock of [now-82000,now+82000]){
+    const t=validateHostedLiveClock(token(),header,250,clock);
+    assert(validateEdenLiveTokenResponse(t,clock));
+    assert(Date.parse(t.expiresAt)-clock<=300000);
+    assert(Date.parse(t.newSessionExpiresAt)-clock<=60000);
+  }
+  assert.equal(validateHostedLiveClock(token(),header,61000,now),null);
+  assert.equal(validateHostedLiveClock(token(),null,10),null);
 });
