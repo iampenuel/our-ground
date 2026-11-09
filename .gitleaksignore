@@ -1,0 +1,6 @@
+# Exact historical false positives reviewed in the public-release audit.
+# These values are SHA-256 file hashes and browser-key fingerprints, not credentials.
+# Keep ignores scoped to the commit, path, rule, and line; never add broad patterns.
+6d390eefc5923841e9d6ddcac76f17fcab1dc098:docs/release/eden-call-evidence/neutral-preservation.json:generic-api-key:16
+dce1f61feea591fa3840b4c087de56e700a03d98:docs/release/builds.json:generic-api-key:8
+dce1f61feea591fa3840b4c087de56e700a03d98:docs/release/builds.json:generic-api-key:17
