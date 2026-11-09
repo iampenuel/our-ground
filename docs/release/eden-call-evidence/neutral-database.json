@@ -1,0 +1,157 @@
+{
+  "at": "2026-11-09T12:51:20.506Z",
+  "staging": {
+    "ref": "hrmocmvdmshoghclxyjs",
+    "read_only": "on",
+    "listing_assignments": 0,
+    "memberships": 0,
+    "admins": 0,
+    "published_real": 17520,
+    "published_demo": 0,
+    "org_rls": true,
+    "browser_membership_read": false,
+    "sources": [
+      {
+        "source_id": "hrsa-health-centers",
+        "published_total": 16419,
+        "near_lanham_10_miles": 68
+      },
+      {
+        "source_id": "hud-housing-counselors",
+        "published_total": 508,
+        "near_lanham_10_miles": 7
+      },
+      {
+        "source_id": "pgc-food-assistance",
+        "published_total": 60,
+        "near_lanham_10_miles": 49
+      },
+      {
+        "source_id": "philly-food-sites",
+        "published_total": 324,
+        "near_lanham_10_miles": 0
+      },
+      {
+        "source_id": "seattle-food-resources",
+        "published_total": 209,
+        "near_lanham_10_miles": 0
+      }
+    ],
+    "privileges": [
+      {
+        "relname": "organization_claims",
+        "rls": true,
+        "anon_select": false,
+        "authenticated_select": false
+      },
+      {
+        "relname": "organization_listing_access",
+        "rls": true,
+        "anon_select": false,
+        "authenticated_select": false
+      },
+      {
+        "relname": "organization_memberships",
+        "rls": true,
+        "anon_select": false,
+        "authenticated_select": false
+      }
+    ],
+    "migrationTables": [
+      {
+        "table_schema": "our_ground_meta",
+        "table_name": "migrations"
+      }
+    ],
+    "schemaFunctions": [
+      {
+        "name": "organization_command"
+      }
+    ],
+    "migrationJournal": {
+      "present": true,
+      "count": 19,
+      "expectedCount": 19,
+      "missing": [],
+      "mismatched": [],
+      "unexpected": []
+    }
+  },
+  "production": {
+    "ref": "amcqkonluwavilekgjww",
+    "read_only": "on",
+    "listing_assignments": 0,
+    "memberships": 0,
+    "admins": 0,
+    "published_real": 17520,
+    "published_demo": 0,
+    "org_rls": true,
+    "browser_membership_read": false,
+    "sources": [
+      {
+        "source_id": "hrsa-health-centers",
+        "published_total": 16419,
+        "near_lanham_10_miles": 68
+      },
+      {
+        "source_id": "hud-housing-counselors",
+        "published_total": 508,
+        "near_lanham_10_miles": 7
+      },
+      {
+        "source_id": "pgc-food-assistance",
+        "published_total": 60,
+        "near_lanham_10_miles": 49
+      },
+      {
+        "source_id": "philly-food-sites",
+        "published_total": 324,
+        "near_lanham_10_miles": 0
+      },
+      {
+        "source_id": "seattle-food-resources",
+        "published_total": 209,
+        "near_lanham_10_miles": 0
+      }
+    ],
+    "privileges": [
+      {
+        "relname": "organization_claims",
+        "rls": true,
+        "anon_select": false,
+        "authenticated_select": false
+      },
+      {
+        "relname": "organization_listing_access",
+        "rls": true,
+        "anon_select": false,
+        "authenticated_select": false
+      },
+      {
+        "relname": "organization_memberships",
+        "rls": true,
+        "anon_select": false,
+        "authenticated_select": false
+      }
+    ],
+    "migrationTables": [
+      {
+        "table_schema": "our_ground_meta",
+        "table_name": "migrations"
+      }
+    ],
+    "schemaFunctions": [
+      {
+        "name": "organization_command"
+      }
+    ],
+    "migrationJournal": {
+      "present": true,
+      "count": 19,
+      "expectedCount": 19,
+      "missing": [],
+      "mismatched": [],
+      "unexpected": []
+    }
+  }
+}

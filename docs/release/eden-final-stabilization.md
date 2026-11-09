@@ -1,5 +1,7 @@
 # Our Ground — final staging qualification, November 9
 
+**Historical qualification snapshot.** The owner subsequently reported successful physical Chrome multi-turn Live acceptance. The [neutral visual-release report](eden-neutral-palette.md) contains the updated acceptance and current production decision. The failed call and its original evidence below are retained unchanged.
+
 **Decision: NO-GO for production.** The scoped UI, location and admission changes are implemented and deployed. The final real Live acceptance failed on the second spoken request, before any tool call. That failure is preserved below; continuous voice and physical pronunciation are not passed.
 
 ## Exact release identity

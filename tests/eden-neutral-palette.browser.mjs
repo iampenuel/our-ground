@@ -60,7 +60,9 @@ try{
      roles[name]={color:s.color,background:s.backgroundColor,effectiveBackground:solid(e),border:s.borderTopColor,borderWidth:s.borderTopWidth,font:s.fontFamily,fontSize:s.fontSize,fontWeight:s.fontWeight,lineHeight:s.lineHeight,outline:s.outlineStyle,outlineColor:s.outlineColor,opacity:s.opacity,x:r.x,y:r.y,width:r.width,height:r.height};
      if(e instanceof HTMLInputElement||e instanceof HTMLTextAreaElement)roles[name].placeholder=getComputedStyle(e,'::placeholder').color;
    }
-   const root=getComputedStyle(document.documentElement),tokens=Object.fromEntries(tokenNames.map(name=>[name,root.getPropertyValue(name).trim().toLowerCase()]));
+   const root=getComputedStyle(document.documentElement);
+   const tokenColor=value=>/^#[0-9a-f]{3}$/.test(value)?'#'+[...value.slice(1)].map(c=>c+c).join(''):value;
+   const tokens=Object.fromEntries(tokenNames.map(name=>[name,tokenColor(root.getPropertyValue(name).trim().toLowerCase())]));
    const hero=document.querySelector('.og-home-hero'),image=hero?.querySelector('img');
    return {tokens,roles,width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,reduced:matchMedia('(prefers-reduced-motion: reduce)').matches,
      hero:hero?{background:getComputedStyle(hero).background,overlay:getComputedStyle(hero.querySelector('.og-hero-photo')??hero,'::after').backgroundImage,image:image?new URL(image.currentSrc||image.src,location.href).pathname:null}:null};

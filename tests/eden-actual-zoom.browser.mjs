@@ -65,6 +65,7 @@ try{
   assert(launcherInvitation.left>=0&&launcherInvitation.right<=zoomed.width&&launcherInvitation.top>=0&&launcherInvitation.bottom<=zoomed.height,'Launcher invitation clips at 200%');
   evidence.push(['local-wordmark-actual-200.jpg',await p.screenshot({type:'jpeg',quality:82})]);
   await p.locator('.eden-launch').click();
+  await p.waitForFunction(()=>document.querySelector('#eden-assistant')?.dataset.edenPortrait==='svg-profile'&&Number(document.querySelector('.eden-portrait svg')?.dataset.profileFrames)>0);
   const shell=await p.evaluate(()=>{const rect=s=>{const r=document.querySelector(s).getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};};
     return {panel:rect('#eden-panel'),composer:rect('.eden-composer'),send:rect('[data-send]'),caution:rect('#eden-input-help'),portrait:document.querySelector('#eden-assistant').dataset.edenPortrait,frames:Number(document.querySelector('.eden-portrait svg').dataset.profileFrames)};
   });assert.equal(shell.portrait,'svg-profile');assert(shell.frames>0);assert(shell.caution.height>0);assert(shell.send.width>=44);assert(shell.composer.y+shell.composer.height<=shell.panel.y+shell.panel.height+1);
