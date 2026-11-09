@@ -13,6 +13,6 @@
 }
 #eden-action-pointer .showcase-pointer-cursor-arrow{filter:none}
 /* Only the cursor indicates an agent press. Target focus remains browser-owned. */
-.eden-action-status{position:fixed;left:16px;bottom:max(16px,env(safe-area-inset-bottom));max-width:min(25rem,calc(100vw - 32px));padding:8px 12px;background:#faf9f4;color:#171717;border:1px solid #d4d7ce;border-radius:8px;font:500 13px/1.4 system-ui,sans-serif;z-index:2147482999;pointer-events:none}
+.eden-action-status{position:fixed;left:16px;bottom:max(16px,env(safe-area-inset-bottom));max-width:min(25rem,calc(100vw - 32px));padding:8px 12px;background:var(--og-white);color:var(--og-ink);border:1px solid var(--og-line);border-radius:8px;font:500 13px/1.4 system-ui,sans-serif;z-index:2147482999;pointer-events:none}
 .eden-action-status[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){#eden-action-pointer{display:none!important}}

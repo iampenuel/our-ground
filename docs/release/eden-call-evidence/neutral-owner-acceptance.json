@@ -1,0 +1,26 @@
+{
+  "reportedOnLocalDate": "2026-11-09",
+  "source": "Owner's final visual refinement and production qualification brief",
+  "classification": "owner-observed physical Chrome acceptance",
+  "status": "PASS for the described multi-turn scenario",
+  "previouslyVerifiedStagingRuntime": "08b1685d42b4ec6285433f7d84a5f20aec3c194a",
+  "sessionRuntimeIndependentlyAttested": false,
+  "observations": [
+    "Audible identity, purpose and audience explanations",
+    "Contextual examples and additional website questions",
+    "Understood a support search near Berkeley",
+    "Asked which category and accepted community support",
+    "Performed the page-aware search",
+    "Discussed the first listing and its details",
+    "Continued naturally until the owner deliberately ended the call"
+  ],
+  "ownerApprovedCharacterVoiceAvatarCursorAndPageAwareness": true,
+  "limitations": [
+    "No session correlation or independently captured runtime manifest was supplied with this report",
+    "This is not a provider reliability, concurrency or capacity guarantee",
+    "No separate phonetic pronunciation, Safari or screen-reader acceptance was explicitly supplied",
+    "The previous automated missing-provider-progress failure is retained unchanged"
+  ],
+  "historicalFailureReceipt": "final-live-failure.json",
+  "newLiveProviderRequestsForThisCssPass": 0
+}
