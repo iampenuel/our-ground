@@ -51,3 +51,17 @@ test('a conflicting path parameter cannot disguise a private API route',async()=
  }
  assert.equal(publicApiRoute(new URL(origin+'/api/v1/resources/search?path=correction-reports')),'resources/search');
 });
+test('production sign-in preserves an OAuth deep link behind the age gate without opening staff or other account pages',async()=>{
+ const prod={...config,VERCEL_ENV:'production',VERCEL_PROJECT_ID:'prj_4li6QnqulPgPbJpxMW2L9hczDNrS',ACCOUNT_RELEASE_MODE:'signin_only'};
+ const path='/auth/callback?code=synthetic-one-time-code';
+ const gate=await adultGate(req(path),prod);
+ assert.equal(gate.headers.get('referrer-policy'),'no-referrer');assert.match(await gate.text(),/return" value="\/auth\/callback\?code=synthetic-one-time-code"/);
+ const decide=age=>adultGate(req('/eligibility',{method:'POST',headers:{origin},body:new URLSearchParams({age,return:path})}),prod);
+ const accepted=await decide('19plus');assert.equal(accepted.headers.get('location'),origin+path);
+ const cookie=accepted.headers.get('set-cookie').split(';')[0],get=p=>req(p,{headers:{cookie}});
+ for(const p of [path,'/account'])assert.equal(await adultGate(get(p),prod),null);
+ for(const p of ['/account/admin','/auth/anything','/staff'])assert.equal((await adultGate(get(p),prod)).status,404);
+ for(const c of [{...prod,ACCOUNT_RELEASE_MODE:undefined},{...prod,VERCEL_PROJECT_ID:'wrong'}])assert.equal((await adultGate(get(path),c)).status,404);
+ const denied=(await decide('under19')).headers.get('set-cookie').split(';')[0];
+ assert.equal((await adultGate(req(path,{headers:{cookie:denied}}),prod)).status,403);
+});

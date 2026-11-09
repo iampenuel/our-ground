@@ -44,7 +44,7 @@ const status = element<HTMLElement>('#accountStatus'), emailForm = element<HTMLF
 const google = element<HTMLButtonElement>('#googleSignIn');
 const logout = element<HTMLButtonElement>('#signOut'), retry = element<HTMLButtonElement>('#refreshAccount');
 const requestAccess = () => new URLSearchParams(location.search).get('intent') === 'request';
-let requestFocused = false, accountReady = false, currentUser: string | undefined;
+let managementEnabled = true, requestFocused = false, accountReady = false, currentUser: string | undefined;
 let generation = 0, controller: AbortController | null = null, disposed = false, email = '', signingIn = false, emailEnabled=false;
 const setStatus = (text: string, state = 'info') => { status.textContent = text; status.dataset.state = state; };
 function invalidate() { generation++; controller?.abort(); controller = null; return generation; }
@@ -61,7 +61,7 @@ function showSignedOut(message?: string) {
   logout.hidden = true; google.hidden = !googleEnabled; emailForm.hidden = !emailEnabled; codeForm.hidden = true;
   element('#accessTitle').textContent = 'Organization sign in';
   if (!message && (emailEnabled || googleEnabled)) {
-    message = requestAccess() ? 'Sign in to request access for your organization.'
+    message = requestAccess() && managementEnabled ? 'Sign in to request access for your organization.'
       : emailEnabled ? 'Sign in with a code sent to your email.' : 'Continue with Google to sign in.';
   }
   setStatus(message ?? unavailableMessage);
@@ -78,8 +78,9 @@ async function refresh() {
   if (!isSignInConfigured()) { setStatus(unavailableMessage); return; }
   setStatus('Checking your account…', 'loading');
   try {
-    const availability = await apiRequest<{ configured: boolean; email_enabled:boolean }>('org/status', { signal });
+    const availability = await apiRequest<{ configured: boolean; email_enabled:boolean; management_enabled?:boolean }>('org/status', { signal });
     if (disposed || current !== generation) return;
+    managementEnabled = availability.management_enabled !== false;
     accountReady = availability.configured === true;
     emailEnabled = accountReady && availability.email_enabled === true;
     if (!availability.configured) { setStatus(unavailableMessage); return; }
@@ -96,7 +97,12 @@ async function refresh() {
     }
     currentUser = data.session.user.id;
     element('#accessTitle').textContent = 'Your account';
-    logout.hidden = false; element('#accountWorkspace').hidden = false; element('#adminLink').hidden = account.role !== 'admin';
+    logout.hidden = false;
+    if (!managementEnabled) {
+      setStatus('You are signed in. Organization management is not available at launch. You can still browse public listings.', 'success');
+      return;
+    }
+    element('#accountWorkspace').hidden = false; element('#adminLink').hidden = account.role !== 'admin';
     setStatus(account.listings.length ? 'You are signed in. Your assigned listings are ready below.' : account.claims.some(claim => claim.status === 'pending') ? 'Your access request is pending review. You can check its status below.' : 'You are signed in. Request organization access below to get started.', 'success');
     element('#memberships').innerHTML = account.organizations.map(org => `<li>${esc(org.name)} — assigned organization</li>`).join('');
     element('#serviceList').innerHTML = listingCards(account.listings);

@@ -182,9 +182,9 @@ async function handleApiInternal(request: Request, deps: Dependencies,requestId:
       if (!id) fail(404, 'NOT_FOUND', 'Resource not found.');
       return json({ id, status: 'open', message: 'Thank you. The report was received.' }, 202);
     }
-    if (method === 'GET' && path === '/me') return deps.organizations?.configured?handleOrganization(request,'/org/account',deps.organizations):json(await account(request, deps));
+    if (method === 'GET' && path === '/me') return (deps.organizations?.configured||deps.organizations?.managementDisabled)?handleOrganization(request,'/org/account',deps.organizations):json(await account(request, deps));
     if (method === 'GET' && path === '/services') {
-      if(deps.organizations?.configured) return handleOrganization(request,'/org/listings',deps.organizations);
+      if(deps.organizations?.configured||deps.organizations?.managementDisabled) return handleOrganization(request,'/org/listings',deps.organizations);
       const user = await account(request, deps);
       const page = numeric(url.searchParams.get('page'), 'page', 1, 100, 1);
       const pageSize = numeric(url.searchParams.get('page_size'), 'page_size', 1, 50, 20);
@@ -195,7 +195,7 @@ async function handleApiInternal(request: Request, deps: Dependencies,requestId:
     const serviceId = /^\/services\/([0-9a-f-]+)$/i.exec(path)?.[1];
     if (method === 'GET' && serviceId) {
       if (!uuid.test(serviceId)) fail(404, 'NOT_FOUND', 'Service not found.');
-      if(deps.organizations?.configured) return handleOrganization(request,'/org/listings/'+serviceId,deps.organizations);
+      if(deps.organizations?.configured||deps.organizations?.managementDisabled) return handleOrganization(request,'/org/listings/'+serviceId,deps.organizations);
       const user = await account(request, deps);
       if (!await deps.repo.canEditService(serviceId, user)) fail(404, 'NOT_FOUND', 'Service not found.');
       const service = await deps.repo.editableService(serviceId, user);
@@ -204,7 +204,7 @@ async function handleApiInternal(request: Request, deps: Dependencies,requestId:
     }
     if (method === 'PATCH' && serviceId) {
       if (!uuid.test(serviceId)) fail(404, 'NOT_FOUND', 'Service not found.');
-      if(deps.organizations?.configured)return handleOrganization(request,'/org/listings/'+serviceId+'/legacy-write',deps.organizations);
+      if(deps.organizations?.configured||deps.organizations?.managementDisabled)return handleOrganization(request,'/org/listings/'+serviceId+'/legacy-write',deps.organizations);
       const user = await account(request, deps);
       if (!await deps.repo.canEditService(serviceId, user)) fail(404, 'NOT_FOUND', 'Service not found.');
       fail(409, 'REVIEW_REQUIRED', 'Submit proposed changes from your organization workspace for administrator review.');

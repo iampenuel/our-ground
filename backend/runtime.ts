@@ -80,8 +80,11 @@ export function productionDependencies(): Dependencies {
   const directoryCity=reference?createDirectoryCityLookup(reference,Date.now,locations):undefined;
   const eden=createEdenService(process.env,{agentRepository:repo,directoryCity});
   const auth = createOrganizationAuth(process.env), store = new PostgresOrganizationStore();
+  // Only the designated protected preview may serve the organization-management workflow on Vercel.
+  const hostedSignInOnly = process.env.VERCEL_ENV==='production'||process.env.VERCEL==='1'&&!(process.env.VERCEL_ENV==='preview'&&process.env.VERCEL_PROJECT_ID==='prj_eU9xRSetSQYTbkAce2cYIR5zx8c2');
   const organizations: OrganizationDependencies = {
-    configured: mode === 'postgres' && Boolean(process.env.DATABASE_URL) && auth.configured,
+    managementDisabled: hostedSignInOnly,
+    configured: (!hostedSignInOnly||process.env.ACCOUNT_RELEASE_MODE==='signin_only') && mode === 'postgres' && Boolean(process.env.DATABASE_URL) && auth.configured,
     emailConfigured:auth.emailConfigured, verify: auth.verify, startEmail: auth.startEmail, revokeProvider: auth.revokeProvider,
     allowedOrigins: new Set(accountAllowedOrigins(process.env.ACCOUNT_ALLOWED_ORIGINS)),
     rateSalt: process.env.DATABASE_URL ?? '', store,limitAuth:request=>publicProtection.admit('auth',request),limitLogout:request=>publicProtection.admit('logout',request)
