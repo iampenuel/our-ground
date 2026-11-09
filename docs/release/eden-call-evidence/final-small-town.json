@@ -1,0 +1,38 @@
+{
+  "origin": "https://ourground-staging-c87obfk6q-penuels-projects-aa802b06.vercel.app",
+  "sha": "08b1685d42b4ec6285433f7d84a5f20aec3c194a",
+  "scope": "real location and directory services; fixture Gemini decisions",
+  "cases": [
+    {
+      "input": "Monowi, NE",
+      "expectedLabel": "Monowi, NE",
+      "stage": "complete",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "Monowi, NE",
+      "manualQuery": "Monowi, NE",
+      "manualCenter": [
+        42.829106,
+        -98.3294392
+      ],
+      "coordinateSource": "geoapify",
+      "edenDiagnostic": {
+        "outcome": "done",
+        "plannedCity": "Monowi, NE",
+        "completedCity": "Monowi, NE",
+        "resultCount": 0,
+        "reply": "The resolved location has 0 matching directory listings."
+      },
+      "edenCityId": "Monowi, NE",
+      "edenLocation": "Monowi, NE",
+      "edenQuery": "Monowi, NE",
+      "edenCenter": [
+        42.829106,
+        -98.3294392
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 0
+    }
+  ],
+  "status": "PASS"
+}

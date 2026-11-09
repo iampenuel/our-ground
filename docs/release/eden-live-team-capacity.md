@@ -1,6 +1,6 @@
 # Protected team voice testing
 
-The `ourground-staging` Preview admits **24 confirmed Live call starts per UTC day**, with **6 per signed tester browser**. A new Eden session in the same browser does not replenish its allowance. This is browser fairness behind the Vercel access gate, not account-level tracking. Text, Read reply and organization permissions use separate controls.
+The recovery branch's `ourground-staging` Preview now admits **48 confirmed Live call starts per UTC day**, with **12 per signed tester browser**, **60/16 credential attempts** and **two provider slots**. The defaults remain24/6 starts and32/8 attempts; only branch-scoped Preview overrides were changed. The [final hosted status and qualification](eden-final-stabilization.md) verify the actual policy and its current Live failure. A new Eden session in the same browser does not replenish its allowance. This is browser fairness behind the Vercel access gate, not account-level tracking. Text, Read reply and organization permissions use separate controls. The remaining original test evidence below describes the earlier24/6 policy and is historical.
 
 | Server-only Preview setting | Default | Maximum |
 |---|---:|---:|

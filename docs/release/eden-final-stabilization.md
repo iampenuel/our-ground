@@ -1,63 +1,99 @@
-# Eden final stabilization and qualification
+# Our Ground — final staging qualification, November 9
 
-The protected alias currently serves **`fe2c8d691ee7a7fd710b852b264c7c043bdd01fd`**, deployment `dpl_AszytnU8qi29poqytBfKJD1YEJ9N`. [Team staging](https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app) · [Immutable candidate](https://ourground-staging-l7a5pa2cn-penuels-projects-aa802b06.vercel.app).
+**Decision: NO-GO for production.** The scoped UI, location and admission changes are implemented and deployed. The final real Live acceptance failed on the second spoken request, before any tool call. That failure is preserved below; continuous voice and physical pronunciation are not passed.
 
-## Implemented corrections
+## Exact release identity
 
-| Cause | Correction |
+- Runtime source: `08b1685d42b4ec6285433f7d84a5f20aec3c194a` — [18 changed implementation/test files](https://github.com/iampenuel/our-ground/commit/08b1685d42b4ec6285433f7d84a5f20aec3c194a).
+- Deployment: `dpl_7hMstZkryTKiKGXm2RjhCPDZYRHd`, [immutable protected candidate](https://ourground-staging-c87obfk6q-penuels-projects-aa802b06.vercel.app).
+- [Protected owner-test alias](https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app) serves the same SHA. [All136 deployed asset hashes match](eden-live-action-evidence/deployment-08b1685.json); fixture mode is false. Anonymous requests remain behind Vercel protection.
+- Branch `codex/eden-ux-recovery-20261108`, PR#3 remains open/draft/unmerged. A subsequent evidence-only commit contains browser harness refinements and this report; it does not change deployed application code. The final delivery states that separate PR HEAD.
+- Production remains deployment `dpl_5BLDMWteSXZ8ju8VVcfXttiUQBiq`, [rechecked read-only](eden-call-evidence/final-production-baseline.json). Its previously audited SHA is `33574bd80666d67a26a0765bf42a72fa5627fc7f`; the latest CLI inspection independently confirms deployment ID but does not expose a SHA. No production setting, deployment, billing or key was changed.
+
+## Implemented and passing
+
+The source changes restore the launcher invitation, add one-shot entrance and page-load-only dismissal, and improve admission/reset/expiry messaging. Existing nationwide parsing, city-coordinate enrichment, grounded replies, action deduplication, Aoede pronunciation instructions and interruption receipts are preserved.
+
+| Area | Result and evidence |
 |---|---|
-| Green agent target outlines and the pointer's default click ring | Removed agent-only CSS decoration and disabled the ring. Keyboard focus remains visible. The overlay remains transparent and never dispatches clicks. |
-| Duplicate provider IDs and repeated pointer movement | Completed actions have a user-turn-scoped semantic receipt in addition to function-ID receipts. Reissued calls reuse verified results while the page matches. A new deliberate user turn can search again. Superseded animation/scroll work is canceled, including old cleanup timers. |
-| Live prompt requested search followed by automatic details | Search now executes once and narrates its actual results. Details require the visitor's request. |
-| Empty chat showed a generic heading, with inconsistent remount state | Restored a compact warm welcome. Reopening and same-host remount preserve it and the log. New chat resets it. Initial page load starts neither chat nor audio. |
-| Example city IDs were authoritative at schema, routing and page boundaries | Coarse U.S. locality/state and ZIP input now uses the existing Census/Geoapify resolver. Manual and Eden actions share verified points, ambiguity choices and spelling correction. Country, address privacy, source and context checks remain enforced. |
-| Blocking/interruption work could outlive its turn | Pending work is canceled, replacement tools await the old turn ending, and completed actions remain receipts. Numeric rendered/canceled buffer durations inform continuation without claiming exact words heard or persisting raw audio. |
-| Short-E name pronunciation | Added EE-den guidance to Live instructions and TTS speech metadata, preserving written Eden and Aoede. Actual pronunciation on this version awaits the combined physical acceptance test. |
-| A real Berkeley reply omitted a mandatory source-fact ID | Complete only missing required immutable facts after validating the model's IDs. Unknown IDs, arbitrary prose and malformed responses still fail. No second model request is made. |
-| Census San Francisco point is offshore | Added strict, admitted, cached city-coordinate enrichment through the existing Geoapify provider. Census identity/provenance remains. It is inactive while staging geocoding is disabled. |
+| Geoapify configuration | **PASS.** The owner-authorized existing server key is a sensitive secret on **Preview only, exact recovery branch**. Both separate location flags are enabled. [Redacted Vercel scope metadata](eden-call-evidence/final-preview-env-scope.json). Hosted requests now use verified urban city centers. No server key is a VITE value. Provider-account plan/restrictions were not independently changed or certified by a successful request. |
+| Automated checks | **PASS813/813**, none skipped; both typechecks and Preview build pass. Staged18-file, isolated984-file source and1058-file build secret scans report zero findings. [Receipt](eden-call-evidence/final-automated.json). The final full suite replaced one timing-sensitive permission fixture with a controlled clock. |
+| Responsive/accessibility | **PASS**, five widths including320px,13 axe scans, zero violations/page errors. Header/hero/community gutters align and keyboard Home works. [Layout](eden-call-evidence/final-layout.json). |
+| Actual Chrome200% | **PASS on exact compiled protected build**: zoom2,720CSSpx,dpr4, gutters30/30/30; invitation and EDEN labels visible; six arrow-tip landings, one fixture search and correct details, no Gemini calls. Compiled executor chunk hash verified. [Receipt](eden-call-evidence/final-actual-zoom.json). |
+| Launcher invitation | **PASS** at desktop/mobile/reduced motion. Approved copy and Click to chat; X is memory-only for this page load; refresh restores it; opening hides/closing restores unless dismissed; SPA navigation preserves state without replay. Launcher300ms, bubble180ms after160ms (340ms total); reduced motion static. No automatic focus, chat, microphone or audio. [Receipt](eden-call-evidence/final-launcher.json). |
+| Cursor/action lifecycle | **PASS local regressions and hosted fixtures.** Function-ID and per-user-turn semantic dedup reuse verified results while page state matches; new deliberate user turns may repeat. Superseded visual work and stale hide/scroll timers are canceled. ReactDrops clickEffect is disabled and custom agent-target green outlines removed. Near-black labeled pointer, subtle press, pointer transparency and keyboard focus remain. The animation never invokes native clicks. [200% proof](eden-call-evidence/final-actual-zoom.json), [prior focused UI proof](eden-call-evidence/stabilization-focused-ui.json). |
+| Genuine Gemini text | **PASS**, one final San Francisco request: plan/result200, providerGemini/model`gemini-3.5-flash-lite`, one directory operation,142 matches within10miles/first20 displayed, source-quality disclosure. [Receipt](eden-call-evidence/final-real-text.json). Earlier genuine Harrisburg→Lanham→first-result and corrected Berkeley results remain separately recorded, not relabeled as new tests. |
+| Live local/browser fixtures | **PASS**. Tests cover sequential turns, matched tool responses, cancellation/interruption, continuation receipts, dedup and cleanup. Three compiled-browser fixture cycles cover microphone/player release, silent-caption failure, advancing PCM graph and deliberate restart. **No Google call** in these cycles. [Receipt](eden-call-evidence/final-live-fixtures.json). |
+| Google/auth security | **PASS limited current smoke**: visible Google button, actual Google chooser, staging Supabase authorize, canonical `/auth/callback`, PKCE, private/no-store account, anonymous data401; no foreign CORS grant. [Receipt](eden-call-evidence/08b1685-auth.json), [HTTP](eden-call-evidence/final-http.json). Earlier real Google sign-in, reload, second-tab persistence and cross-tab logout are documented in the [real identity test](eden-auth-recovery-2026-11-08.md). The later56.8-minute refresh is supported by [database timing](eden-call-evidence/staging-refresh-audit.json) and [post-refresh requests/denials](eden-call-evidence/refreshed-account-requests.json). Current chooser checks do not replace actual account testing. |
 
-Changes are in the shared Eden contracts, existing directory/location adapters, page/action bridge, Live controller/player, pointer and hosted panel. [Source comparison](https://github.com/iampenuel/our-ground/compare/2665050781818a169461132b5d200699a6bbb5e4...fe2c8d691ee7a7fd710b852b264c7c043bdd01fd).
+### Nationwide manual/Eden matrix
 
-## Verification
+**All11 manual cases and all11 Eden cases PASS** against the actual protected geocoder and directory. Gemini decisions in this matrix are explicit fixtures; actual model inference is verified separately above. Both entrypoints use identical coordinates, category/radius and canonical location. Each resolved Eden command issues one directory request. No fabricated coordinates or resources are used. Counts below are displayed rows at5miles, capped20.
 
-**PASS** — 805 automated tests, none skipped, both typechecks, build and secret scan. [All 136 deployed assets match](eden-live-action-evidence/deployment-fe2c8d6.json). All frontend assets are [identical](eden-call-evidence/stabilization-ui-identical.json) to the preceding protected candidate's tested assets.
+| Input | Manual | Eden | Result |
+|---|---|---|---|
+| Lanham, Maryland | PASS | PASS | Geoapify city center,5rows |
+| Harrisburg, Pennsylvania | PASS | PASS | Geoapify city center,4rows |
+| Berkeley, California | PASS | PASS | Geoapify city center,20rows |
+| Baltimore, Maryland | PASS | PASS | Geoapify city center,20rows |
+| Philadelphia, Pennsylvania | PASS | PASS | Geoapify city center,20rows |
+| New York City, New York | PASS | PASS | Geoapify city center,20rows |
+| San Francisco, California | PASS | PASS | `37.7879363,-122.4075201`,20rows; offshore-reference defect resolved |
+| San Fransisco, CA | PASS | PASS | Corrected to San Francisco, same city point/results |
+| ZIP20706 | PASS | PASS | Census ZCTA point,4rows; state is optional for ZCTA |
+| Berkeley without state | PASS | PASS | Clarification, zero directory queries |
+| Monowi, Nebraska | PASS | PASS | Real resolved location, zero matching healthcare rows; never called unsupported |
 
-**PASS** — [five responsive widths and thirteen axe scans](eden-call-evidence/stabilization-ui.json), zero violations or page errors. [Focused checks](eden-call-evidence/stabilization-focused-ui.json) confirm one greeting, New chat, reduced motion, visible keyboard focus, no green target outline/ring/native click and no automatic audio. [Actual 200% Chrome zoom](eden-call-evidence/stabilization-zoom.json) confirms six cursor landings, unclipped EDEN labels, one search and keyboard Home. The old zoom fixture lacked the required U.S. country value and was corrected before this pass.
+[Full matrix](eden-call-evidence/final-geography.json) · [small-town recording receipt](eden-call-evidence/final-small-town.json). Existing source/error tests distinguish unresolved, ambiguous, unavailable-provider, reference fallback and resolved-empty states. Directory completeness remains unverified; imported records retain provenance/quality disclosures and incorrect-information reporting. Last read-only database audit found17,520 published non-demo listings and zero published demo listings in each database. HRSA, HUD and approved local food sources remain intact. [Database/source/RLS audit](eden-call-evidence/stabilization-database.json).
 
-[Welcome screenshot](eden-call-evidence/stabilization-welcome.jpg) · [Near-black pointer](eden-call-evidence/stabilization-pointer.jpg) · [Genuine Gemini search recording](eden-call-evidence/stabilization-cursor-search.webm).
+### Voice policy and retry behavior
 
-### Location results
+The **hosted status confirms48 team /12 per signed tester browser confirmed starts per UTC day;60 team /16 per browser credential attempts; two provider-risk slots;600-second maximum**. Browser fairness is protected-preview visitor fairness, not per-Google-account identity. Source defaults remain24/6 and32/8; only the authorized recovery-branch Preview overrides were raised. The48-call local simulation verifies fairness and the ceiling without48 Google requests.
 
-These tests use actual protected geocoding/directory services with explicitly controlled Gemini decisions. They verify page behavior independently of model inference. The separate genuine Gemini results below supply inference evidence.
+Tentative setup permits expire or release on failed initialization and do not become successful-call consumption. Issued credentials remain separately budgeted and can retain a risk slot until expiry even after End Call; the key cannot be revoked by browser cleanup. [Read-only final aggregate](eden-call-evidence/final-staging-counters.json) counted all48 slots:11 confirmed,0 provisional,17 attempts; one credential-risk slot remained temporarily reserved. No counters were reset.
 
-| Required input | Manual / Eden result |
-|---|---|
-| Lanham, Maryland | PASS, same resolved point and one search |
-| Harrisburg, Pennsylvania | PASS, same resolved point and one search |
-| Berkeley, California | PASS, same resolved point and one search |
-| Baltimore, Maryland | PASS, same resolved point and one search |
-| New York City, New York | PASS, same resolved point and one search |
-| Philadelphia, Pennsylvania | PASS, same resolved point and one search |
-| San Francisco, California | FAIL current hosted city-center check, staging falls back to the offshore Census point |
-| San Fransisco | PASS spelling correction and manual/Eden consistency on `14975ca`, city-center qualification blocked by the same Geoapify configuration |
-| ZIP 20706 | PASS, same valid ZCTA point, four listings, one search. ZIP state is optional. An initial harness assertion incorrectly required it and was corrected. |
-| Berkeley without state | PASS, clarification, no directory query |
-| Monowi, Nebraska | PASS, resolved place with zero matching records, one search |
+Confirmed daily exhaustion carries an authoritative UTC `resetAt`, displayed with the visitor's timezone/date. Pending setup reservations instead report temporary capacity with a conservative at-most90-second retry, not a false midnight reset. Occupied provider slots use known lease deadlines; unknown lease metadata supplies no fabricated deadline. Google token429 uses only actual RetryInfo/Retry-After, and WebSocket quota without timing has no invented reset. Remaining time uses a monotonic deadline, brief60/15-second warnings and graceful expiry. Local tests cover incorrect device clocks, timezone/DST and all these classifications. Text and page controls remain available.
 
-[Initial corrected-candidate matrix](eden-call-evidence/fe2c8d6-geography-initial.json) · [ZIP confirmation](eden-call-evidence/14975ca-zip-confirmed.json) · [Ambiguity](eden-call-evidence/fe2c8d6-ambiguous.json) · [Resolved empty](eden-call-evidence/fe2c8d6-empty.json) · [Full controlled local matrix](eden-call-evidence/stabilization-local-geography.json).
+The previously inspected Google project was **Our Ground–EDEN**, `gen-lang-client-0351735652`, **Free tier**: Live65K inputTPM, displayed peak2.15K; displayed RPM1/Unlimited and RPD10/Unlimited. That dashboard did not grant numerical concurrency or48 successful sessions. The current application change preserves two slots and existing request/credential controls. [Provider observations and sources](eden-live-team-capacity.md). No extra quota purchase, billing change or model/voice substitution occurred. The historical TTS429 still lacks its original provider body; its exact original quota metric/origin cannot be reconstructed. [TTS diagnosis](eden-voice-quota-diagnosis-2026-11-08.md).
 
-**PASS genuine Gemini steps** — Harrisburg search, correction to Lanham and first-result details each completed through the real text engine. Search counts were 1, 1 and 0 respectively. The same run's Berkeley result returned `EDEN_AGENT_COMPOSITION_REQUIRED` 502, correlation `a66d0729-7c1c-4ef3-bb31-e97c9afc9a52`. After the mandatory-fact correction, [one targeted genuine Berkeley search](eden-call-evidence/fe2c8d6-berkeley.json) passed with 131 source-backed listings within ten miles, the first 20 displayed. [Original mixed-result receipt](eden-call-evidence/14975ca-real-text.json).
+SEMA remains a read-only reference, not a migration: its older3.1preview/Kore setup and adjacent SDK context-compression configuration are distinct from its actual raw WebSocket hook. Eden retains constrained short-lived credentials, standard3.8Live/Aoede and authorized public tools. Existing bounded resumption cannot extend the original signed deadline. **15–30-minute/compressed rollover behavior is not enabled or qualified.** [Detailed source-based comparison](eden-sema-voice-comparison-2026-11-08.md).
 
-**PENDING physical audio** — the owner confirmed conversation and actions on `2665050`, then requested pronunciation and interruption refinements. One combined physical test was requested on this corrected code. No additional automated Live or TTS requests were made during this stabilization pass. Pronunciation and natural continuation are not marked passed from text instructions or fixtures alone.
+## Release-blocking Live result
 
-**PASS security smoke checks** — [Google chooser/canonical PKCE callback, anonymous organization denial and effective limits](eden-call-evidence/fe2c8d6-auth.json). [Fresh database checks](eden-call-evidence/stabilization-database.json) found RLS and no direct anonymous/authenticated membership grants, zero assigned test memberships/admins and 17,520 published non-demo services in both databases. Existing PGC food data includes 60 listings, with 49 near the public Lanham test point. [HTTP boundaries](eden-call-evidence/stabilization-http.json) deny unauthorized access and foreign CORS grants. Positive assigned-user authorization remains BLOCKED.
+**FAIL on this final runtime.** [Sanitized real-call receipt](eden-call-evidence/final-live-failure.json), correlation`e2921035-961c-42b1-9f55-c48f2b9356d8`:
 
-## Exact current blocker and production decision
+- One real connection used `models/gemini-3.8-live`, requested Aoede; token, connected and End Call returned200. A deliberately mocked409 before the real call proved retry and stopped capture without minting.
+- Introduction produced35 audio chunks (~10.77seconds rendered), then “Who are you?” was transcribed and answered with25 more chunks (~8.03seconds rendered). Actual output analyser peaks were nonzero and clocks advanced.
+- “Find healthcare in Harrisburg” sent67 non-silent browser-observed WebSocket audio frames, maxRMS~0.254. **No provider transcription, tool call, audio, or other inbound provider event followed before the65-second acceptance deadline.** Consequently this call did not search, narrate results or reach its first-result follow-up.
+- There were4434 transmitted audio packets,93 with signal, zero dropped or suppressed audio, running input/output contexts, no CSP violation and no provider429/error/abnormal socket close. The UI's bounded unanswered-turn handler retained the connection and offered speaking/text. End returned200, all microphone tracks stopped, socket closed1000.
+- A read-only comparison found the earlier passing run used the same fixture (68 non-silent search packets, comparableRMS) and the same single `audioStreamEnd` from the earlier explicit mute test. No application turn-boundary/forwarding block was reproduced by five focused local regressions. This evidence proves browser-observed transmission, **not Google receipt**, and does not prove a Google defect.
 
-**NO-GO.** Staging has `GEOAPIFY_LOCATION_ENABLED=false`, `GEOAPIFY_LOCATION_LIVE_APPROVED=false` and no server key. The existing local Geoapify key returned a [matching San Francisco city point with confidence 1](eden-call-evidence/stabilization-geocoder-probe.json). Automatic approval review rejected persisting that separate credential to Vercel because the earlier explicit credential authorization covered Gemini. A branch-scoped Geoapify secret/flag approval is pending. Minimum next step is that approval, a redeploy of the unchanged verified artifact with updated Preview environment, and the hosted city-center check.
+The first browser attempt separately hit a first-party protection transport error and exited before producing a call receipt. The verification harness now aborts failed routed requests and preserves `finally` cleanup plus bounded sanitized endpoint metadata. One bounded retry produced the real failure above. No retry storm, audio-pipeline rewrite, guessed VAD/model change or silent fallback was introduced.
 
-Production also needs the missing Supabase/browser OAuth configuration, approved production Live opt-in, Geoapify configuration/restriction verification, real assigned-organization authorization and manual Safari/VoiceOver acceptance. [Redacted environment audit](eden-call-evidence/final-production-env.json). The code now supports a disabled-by-default production Live gate requiring the exact production project, the enabled client flag and `EDEN_LIVE_PRODUCTION_APPROVED=true`. No production environment value was changed.
+**Minimum next correction:** isolate and resolve the missing second-turn provider progress with this receipt and a bounded diagnostic, then require a real same-call search narration and contextual follow-up. The earlier successful `2665050` acceptance cannot pass this runtime by inheritance. Physical EE-den pronunciation, natural “continue/where were we?”, and owner microphone acceptance remain **BLOCKED behind that gate**. Pronunciation guidance is deployed in Live and Read reply; no auditory pronunciation PASS is claimed. No new owner physical test is requested while hosted acceptance fails.
 
-Limits remain 24 confirmed team starts/day, 6 per signed tester browser, 32/8 provider attempts, two slots and ten minutes. Source, dependencies and credentials remain on internal APFS. Public screenshots and recordings use `/Volumes/Penuel Back/OurGround-Work`. No nationwide directory completeness claim is made.
+## Production gates and decision
 
-The [production checklist and rollback procedure](eden-production-cutover.md) describe the final owner-controlled cutover. PR #3 remains a draft and production remains at the audited deployment.
+**NO-GO.** Apart from the Live failure, the minimum independent gates are:
+
+1. **BLOCKED assigned-organization positive authorization.** The last staging/production database audit found zero approved memberships, listing assignments and administrators. Real unassigned denial passed; no privileged access was granted. An owner-approved nonproduction membership and listing grant are required for a real positive/foreign-listing test.
+2. **BLOCKED production OAuth/client configuration.** Production needs its own matching Supabase URLs/publishable keys, Google provider and callbacks, canonical site/redirect allowlist and exact origins. Presence/chooser on staging does not pass production. [Redacted difference audit](eden-call-evidence/final-production-env.json).
+3. **BLOCKED production geocoding/Live authorization.** Production's separate location flags and explicit Live approval are absent. Verify its key restrictions, provider terms/quota and privacy/abuse configuration using its own credentials. Staging authorization is not transferable.
+4. **BLOCKED manual Safari/VoiceOver and final physical Live/pronunciation acceptance.** Automated axe and Chrome results are not hardware/screen-reader acceptance.
+5. Explicit owner release approval after those checks. PR#3 is not merged.
+
+The [production cutover runbook](eden-production-cutover.md) gives exact project guards, build/security checks, unaliased candidate command, promotion and rollback. The production rollback command is prepared for the rechecked baseline, **not executed against production**:
+
+```sh
+vercel rollback dpl_5BLDMWteSXZ8ju8VVcfXttiUQBiq --scope penuels-projects-aa802b06 --yes
+```
+
+Re-resolve the production alias before cutover; code rollback does not reverse OAuth, environment or database changes. No database migration is proposed here.
+
+## Visual evidence and storage
+
+[Desktop invitation](eden-call-evidence/final-welcome.jpg) · [320px invitation](eden-call-evidence/final-mobile-welcome.jpg) · [actual200% pointer](eden-call-evidence/final-cursor-200.jpg) · [genuine Gemini search](eden-call-evidence/final-real-search.jpg) · [resolved empty town](eden-call-evidence/final-small-town.jpg).
+
+Public screenshots/recordings are on mounted writable exFAT `/Volumes/Penuel Back/OurGround-Work/runs/2026-11-08-eden-3fbf44a-3045f215/artifacts/final-qualification/`: `08b1685-invitation/invitation-desktop.webm`, `08b1685-real-text/` (real text search recording), `08b1685-small-town/location-search.webm`, `08b1685-live-retry/call-screen.webm` and synthetic-only `call-audio.webm`. The current failed Live recording contains introduction/identity only, not a successful resource action; the historical successful resource/follow-up recording remains labeled `2665050`.
+
+Source, Git, dependencies, credentials and sensitive build output remain on internal APFS; the external exFAT drive is used for public artifacts, not permission/symlink-dependent builds. No reformat, backup modification or unrelated deletion occurred.

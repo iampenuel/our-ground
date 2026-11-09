@@ -1,0 +1,324 @@
+{
+  "origin": "https://ourground-staging-c87obfk6q-penuels-projects-aa802b06.vercel.app",
+  "sha": "08b1685d42b4ec6285433f7d84a5f20aec3c194a",
+  "scope": "real location and directory services; fixture Gemini decisions",
+  "cases": [
+    {
+      "input": "Lanham, Maryland",
+      "expectedLabel": "Lanham, MD",
+      "stage": "complete",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "Lanham, MD",
+      "manualQuery": "Lanham, MD",
+      "manualCenter": [
+        38.9670551,
+        -76.8619166
+      ],
+      "coordinateSource": "geoapify",
+      "edenDiagnostic": {
+        "outcome": "done",
+        "plannedCity": "Lanham, MD",
+        "completedCity": "Lanham, MD",
+        "resultCount": 5,
+        "reply": "The resolved location has 5 matching directory listings."
+      },
+      "edenCityId": "Lanham, MD",
+      "edenLocation": "Lanham, MD",
+      "edenQuery": "Lanham, MD",
+      "edenCenter": [
+        38.9670551,
+        -76.8619166
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 5
+    },
+    {
+      "input": "Harrisburg, Pennsylvania",
+      "expectedLabel": "Harrisburg, PA",
+      "stage": "complete",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "Harrisburg, PA",
+      "manualQuery": "Harrisburg, PA",
+      "manualCenter": [
+        40.2663107,
+        -76.8861122
+      ],
+      "coordinateSource": "geoapify",
+      "edenDiagnostic": {
+        "outcome": "done",
+        "plannedCity": "harrisburg-pa",
+        "completedCity": "harrisburg-pa",
+        "resultCount": 4,
+        "reply": "The resolved location has 4 matching directory listings."
+      },
+      "edenCityId": "harrisburg-pa",
+      "edenLocation": "Harrisburg, PA",
+      "edenQuery": "Harrisburg, PA",
+      "edenCenter": [
+        40.2663107,
+        -76.8861122
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 4
+    },
+    {
+      "input": "Berkeley, California",
+      "expectedLabel": "Berkeley, CA",
+      "stage": "complete",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "Berkeley, CA",
+      "manualQuery": "Berkeley, CA",
+      "manualCenter": [
+        37.8708393,
+        -122.272863
+      ],
+      "coordinateSource": "geoapify",
+      "edenDiagnostic": {
+        "outcome": "done",
+        "plannedCity": "Berkeley, CA",
+        "completedCity": "Berkeley, CA",
+        "resultCount": 20,
+        "reply": "The resolved location has 20 matching directory listings."
+      },
+      "edenCityId": "Berkeley, CA",
+      "edenLocation": "Berkeley, CA",
+      "edenQuery": "Berkeley, CA",
+      "edenCenter": [
+        37.8708393,
+        -122.272863
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 20
+    },
+    {
+      "input": "Baltimore, Maryland",
+      "expectedLabel": "Baltimore, MD",
+      "stage": "complete",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "Baltimore, MD",
+      "manualQuery": "Baltimore, MD",
+      "manualCenter": [
+        39.2908816,
+        -76.610759
+      ],
+      "coordinateSource": "geoapify",
+      "edenDiagnostic": {
+        "outcome": "done",
+        "plannedCity": "baltimore-md",
+        "completedCity": "baltimore-md",
+        "resultCount": 20,
+        "reply": "The resolved location has 20 matching directory listings."
+      },
+      "edenCityId": "baltimore-md",
+      "edenLocation": "Baltimore, MD",
+      "edenQuery": "Baltimore, MD",
+      "edenCenter": [
+        39.2908816,
+        -76.610759
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 20
+    },
+    {
+      "input": "New York City, New York",
+      "expectedLabel": "New York, NY",
+      "stage": "complete",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "New York, NY",
+      "manualQuery": "New York, NY",
+      "manualCenter": [
+        40.7127281,
+        -74.0060152
+      ],
+      "coordinateSource": "geoapify",
+      "edenDiagnostic": {
+        "outcome": "done",
+        "plannedCity": "new-york-ny",
+        "completedCity": "new-york-ny",
+        "resultCount": 20,
+        "reply": "The resolved location has 20 matching directory listings."
+      },
+      "edenCityId": "new-york-ny",
+      "edenLocation": "New York, NY",
+      "edenQuery": "New York, NY",
+      "edenCenter": [
+        40.7127281,
+        -74.0060152
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 20
+    },
+    {
+      "input": "Philadelphia, Pennsylvania",
+      "expectedLabel": "Philadelphia, PA",
+      "stage": "complete",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "Philadelphia, PA",
+      "manualQuery": "Philadelphia, PA",
+      "manualCenter": [
+        39.9527237,
+        -75.1635262
+      ],
+      "coordinateSource": "geoapify",
+      "edenDiagnostic": {
+        "outcome": "done",
+        "plannedCity": "philadelphia-pa",
+        "completedCity": "philadelphia-pa",
+        "resultCount": 20,
+        "reply": "The resolved location has 20 matching directory listings."
+      },
+      "edenCityId": "philadelphia-pa",
+      "edenLocation": "Philadelphia, PA",
+      "edenQuery": "Philadelphia, PA",
+      "edenCenter": [
+        39.9527237,
+        -75.1635262
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 20
+    },
+    {
+      "input": "San Francisco, California",
+      "expectedLabel": "San Francisco, CA",
+      "stage": "complete",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "San Francisco, CA",
+      "manualQuery": "San Francisco, CA",
+      "manualCenter": [
+        37.7879363,
+        -122.4075201
+      ],
+      "coordinateSource": "geoapify",
+      "edenDiagnostic": {
+        "outcome": "done",
+        "plannedCity": "San Francisco, CA",
+        "completedCity": "San Francisco, CA",
+        "resultCount": 20,
+        "reply": "The resolved location has 20 matching directory listings."
+      },
+      "edenCityId": "San Francisco, CA",
+      "edenLocation": "San Francisco, CA",
+      "edenQuery": "San Francisco, CA",
+      "edenCenter": [
+        37.7879363,
+        -122.4075201
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 20
+    },
+    {
+      "input": "San Fransisco, CA",
+      "expectedLabel": "San Francisco, CA",
+      "stage": "complete",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "San Francisco, CA",
+      "manualQuery": "San Francisco, CA",
+      "manualCenter": [
+        37.7879363,
+        -122.4075201
+      ],
+      "coordinateSource": "geoapify",
+      "edenDiagnostic": {
+        "outcome": "done",
+        "plannedCity": "San Fransisco, CA",
+        "completedCity": "San Fransisco, CA",
+        "resultCount": 20,
+        "reply": "The resolved location has 20 matching directory listings."
+      },
+      "edenCityId": "San Fransisco, CA",
+      "edenLocation": "San Francisco, CA",
+      "edenQuery": "San Francisco, CA",
+      "edenCenter": [
+        37.7879363,
+        -122.4075201
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 20
+    },
+    {
+      "input": "20706",
+      "expectedLabel": "20706",
+      "stage": "complete",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "20706",
+      "manualQuery": "20706",
+      "manualCenter": [
+        38.965617,
+        -76.851234
+      ],
+      "coordinateSource": "reference",
+      "edenDiagnostic": {
+        "outcome": "done",
+        "plannedCity": "20706",
+        "completedCity": "20706",
+        "resultCount": 4,
+        "reply": "The resolved location has 4 matching directory listings."
+      },
+      "edenCityId": "20706",
+      "edenLocation": "20706",
+      "edenQuery": "20706",
+      "edenCenter": [
+        38.965617,
+        -76.851234
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 4
+    },
+    {
+      "input": "Berkeley",
+      "expectedLabel": null,
+      "stage": "complete",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualOutcome": "clarification",
+      "edenDiagnostic": {
+        "outcome": "failed",
+        "plannedCity": "Berkeley",
+        "completedCity": null,
+        "resultCount": 0,
+        "reply": "Choose a more specific location before I describe results."
+      },
+      "edenOutcome": "clarification"
+    },
+    {
+      "input": "Monowi, NE",
+      "expectedLabel": "Monowi, NE",
+      "stage": "complete",
+      "manual": "PASS",
+      "eden": "PASS",
+      "manualLocation": "Monowi, NE",
+      "manualQuery": "Monowi, NE",
+      "manualCenter": [
+        42.829106,
+        -98.3294392
+      ],
+      "coordinateSource": "geoapify",
+      "edenDiagnostic": {
+        "outcome": "done",
+        "plannedCity": "Monowi, NE",
+        "completedCity": "Monowi, NE",
+        "resultCount": 0,
+        "reply": "The resolved location has 0 matching directory listings."
+      },
+      "edenCityId": "Monowi, NE",
+      "edenLocation": "Monowi, NE",
+      "edenQuery": "Monowi, NE",
+      "edenCenter": [
+        42.829106,
+        -98.3294392
+      ],
+      "directoryRequestsForEden": 1,
+      "directoryCount": 0
+    }
+  ],
+  "status": "PASS"
+}

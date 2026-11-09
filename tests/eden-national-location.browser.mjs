@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright-core';
 import {createServer} from 'vite';
-import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {mkdir,readFile,writeFile,rename} from 'node:fs/promises';
 import {join} from 'node:path';
 import {EDEN_NOTICE_VERSION,edenCityQuery} from '../shared/eden-assistant.ts';
 import {conversationChoices} from '../shared/eden-conversation.ts';
@@ -40,9 +40,9 @@ function point(query){
 }
 const browser=await chromium.launch({channel:'chrome'});
 try{
- const ctx=await browser.newContext({viewport:{width:1280,height:900},reducedMotion:'reduce'});
+ const ctx=await browser.newContext({viewport:{width:1280,height:900},reducedMotion:'reduce',...(process.env.GEOGRAPHY_RECORD==='1'?{recordVideo:{dir:out,size:{width:1280,height:900}}}:{})});
  if(real)await protectRecoveryOrigin(ctx,origin,process.env.VERCEL_OIDC_TOKEN);
- const p=await ctx.newPage();p.setDefaultTimeout(20000);const counts={resources:0,resolutions:0};
+ const p=await ctx.newPage(),video=p.video();p.setDefaultTimeout(20000);const counts={resources:0,resolutions:0};
  let lastDirectoryBody,lastPlannedCity,lastEdenContext,lastEdenOutcome;
  // These routes are always fixtures, even with real directory verification.
  await ctx.route(origin+'/api/v1/eden/hosted/**',async route=>{
@@ -119,8 +119,9 @@ try{
    else{await waitSearch(previous);assert.equal(lastEdenOutcome,'done','the actual action must finish before narration');assert.equal(lastEdenContext.cityId,lastPlannedCity,'the completed point must retain the authorized locality identity');record.eden='PASS';record.edenCityId=lastEdenContext.cityId;record.edenLocation=await p.locator('#locationInput').inputValue();record.edenQuery=lastDirectoryBody.location.publicQuery;record.edenCenter=[lastDirectoryBody.location.latitude,lastDirectoryBody.location.longitude];assert.equal(record.edenQuery,record.manualQuery);assert.deepEqual(record.edenCenter,record.manualCenter);assert.equal(await p.locator('#radiusInput').inputValue(),'5');record.directoryRequestsForEden=counts.resources-previous;record.directoryCount=lastEdenContext.resultCount;if(input==='Monowi, NE')assert.equal(record.directoryCount,0,'the resolved small-town case must verify an honest empty directory result');}
    record.stage='complete';
    if(input==='Lanham, Maryland'||input==='Berkeley')await p.screenshot({path:join(out,input.startsWith('Lanham')?'lanham.jpg':'berkeley-clarification.jpg'),quality:80});
+   if(input==='Monowi, NE')await p.screenshot({path:join(out,'resolved-small-town.jpg'),quality:80});
  }
- report.status='PASS';await ctx.close();
+ report.status='PASS';await ctx.close();if(video)await rename(await video.path(),join(out,'location-search.webm'));
 }catch(error){
  report.failure=String(error.message).split('\n')[0].slice(0,180);
  const primitive=value=>typeof value==='string'?value.slice(0,160):typeof value==='number'||typeof value==='boolean'||value===null?value:undefined;

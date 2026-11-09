@@ -23,6 +23,7 @@ try{
    ['lanham','Actually, I meant Lanham, Maryland.','Lanham',1],
    ['details','Show me the first result.','Lanham',0],
    ['berkeley','Actually, I meant Berkeley, California.','Berkeley',1],
+   ['sf','Find healthcare in San Francisco, California, within 10 miles.','San Francisco',1],
  ]){
    if(process.env.STABILIZATION_CASE&&name!==process.env.STABILIZATION_CASE)continue;
    const requestText=process.env.STABILIZATION_CASE==='berkeley'?'Find healthcare in Berkeley, California, within 10 miles.':text;
