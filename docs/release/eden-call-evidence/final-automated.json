@@ -25,11 +25,22 @@
   "testHarnessCorrections": [
     "Preparation timeout now uses controlled clocks after a timing race in one full run.",
     "Protected browser transport failures abort the request and preserve finally cleanup; exceptions never print request headers.",
-    "Current aggregate audit counts all48 configured permit slots."
+    "Current aggregate audit counts all48 configured permit slots.",
+    "The legacy CI recovery location fixture now includes the required US country."
   ],
   "publicArtifactsRoot": "/Volumes/Penuel Back/OurGround-Work/runs/2026-11-08-eden-3fbf44a-3045f215/artifacts/final-qualification/",
   "exactServerGeocodingKeyAbsentFromClientArtifacts": {
     "status": "PASS",
     "files": 74
+  },
+  "localCiBrowserSuites": {
+    "status": "PASS",
+    "suites": [
+      "release-browser",
+      "eden-recovery-browser",
+      "eden-pointer-browser",
+      "organization-oauth-browser"
+    ],
+    "provider": "fixture; no third-party AI/OAuth"
   }
 }

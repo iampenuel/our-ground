@@ -9,7 +9,7 @@ try{
  const page=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce'});
  const searches=[],unexpected=[];
  page.on('pageerror',error=>unexpected.push(error.name));
- const location={label:'Harrisburg, PA',publicQuery:'Harrisburg, PA',state:'PA',latitude:40.27,longitude:-76.88,source:'reference',precision:'locality',quality:{kind:'canonical_exact',source:'reference',precision:'city',coordinateSource:'reference',sourceName:'Census fixture',explanation:'Representative city point.'}};
+ const location={label:'Harrisburg, PA',publicQuery:'Harrisburg, PA',state:'PA',country:'US',latitude:40.27,longitude:-76.88,source:'reference',precision:'locality',quality:{kind:'canonical_exact',source:'reference',precision:'city',coordinateSource:'reference',sourceName:'Census fixture',explanation:'Representative city point.'}};
  await page.route('**/eligibility',route=>route.fulfill({json:{eligible:true,denied:false}}));
  await page.route('**/api/v1/**',route=>{
    const path=new URL(route.request().url()).pathname;
