@@ -116,6 +116,14 @@ export function conversationChoices(symbols:string[], context:EdenAgentContext, 
     }
     return profiles;
   }
+  // A selected listing is context, not permission to open it again. Keep
+  // explicit page descriptions and in-place category corrections on topic.
+  if(affirmative('page')&&has('question','read')&&symbols.every(v=>['question','read','selected','page'].includes(v)))
+    return [{kind:'intent',intent:{goal:'explain-page'}}];
+  if(context.cityId&&['support','resource'].includes(context.page)&&has('correction','change')&&symbols.every(v=>['correction','change','support','food','healthcare','community'].includes(v))){
+    const categories=(['food','healthcare','community'] as const).filter(c=>affirmative(c));
+    if(categories.length===1)return [{kind:'intent',intent:{goal:'change-category',category:categories[0]}}];
+  }
   if(affirmative('back')&&affirmative('map')&&symbols.every(v=>['back','map','sequence','inspect','go'].includes(v))){
     // After a category correction there may no longer be a detail to close.
     // A registered map control on the results page satisfies the same request.
@@ -132,7 +140,7 @@ export function conversationChoices(symbols:string[], context:EdenAgentContext, 
   if(has('listing','results'))add({goal:'read-results'});
   const ordinal=symbols.find(v=>['first','second','third','fourth'].includes(v)&&affirmative(v));
   const index=ordinal?['first','second','third','fourth'].indexOf(ordinal)+1:context.selectedIndex;
-  if(index&&index<=context.resultCount){
+  if(index&&index<=context.resultCount&&(ordinal||has('inspect','listing','hours'))){
     add({goal:'inspect-resource',ordinal:index,view:'details'});
     if(has('hours'))add({goal:'check-open-now',ordinal:index});
   }

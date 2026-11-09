@@ -65,9 +65,9 @@ await p.addInitScript(()=>{
     connect.call(this,capture);g.qaOutput=capture.stream;
     const analyser=this;g.qaOutputClock={initial:this.context.currentTime,last:this.context.currentTime,ticks:0,state:this.context.state};const clock=g.qaOutputClock;
     const values=new Float32Array(analyser.fftSize);g.qaLevelTimer=setInterval(()=>{
-      g.qaStepPeak[g.qaStep]=Math.max(g.qaStepPeak[g.qaStep]??0,g.qaCurrentOutput??0);clock.last=analyser.context.currentTime;clock.ticks++;clock.state=analyser.context.state;
+      clock.last=analyser.context.currentTime;clock.ticks++;clock.state=analyser.context.state;
       analyser.getFloatTimeDomainData(values);let sum=0;for(const v of values)sum+=v*v;
-      g.qaCurrentOutput=Math.sqrt(sum/values.length);g.qaMaxOutput=Math.max(g.qaMaxOutput,g.qaCurrentOutput);
+      g.qaCurrentOutput=Math.sqrt(sum/values.length);g.qaStepPeak[g.qaStep]=Math.max(g.qaStepPeak[g.qaStep]??0,g.qaCurrentOutput);g.qaMaxOutput=Math.max(g.qaMaxOutput,g.qaCurrentOutput);
     },50);
   }
   return result;

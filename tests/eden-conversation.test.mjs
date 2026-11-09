@@ -136,3 +136,12 @@ test('compound requests bind the ordinal only after the directory search; back/m
   assert(selection.some(c=>c.intent?.goal==='inspect-resource'&&c.intent.ordinal===2));
   assert(!selection.some(c=>c.intent?.goal==='inspect-resource'&&c.intent.ordinal===1));
 });
+
+test('an open selection does not authorize reopening it for a page explanation or a category correction',()=>{
+  const ctx={page:'resource',synthetic:false,directory:'public',cityId:'harrisburg-pa',category:'healthcare',radius:10,resourceIds:['0005636b-49ce-579d-a98c-746b42e2e886'],resultCount:1,selectedIndex:1};
+  const choices=q=>conversationChoices(projectPublicRequest(q),ctx,['back-to-map']);
+  assert.deepEqual(choices("Can you explain what's on this page?"),[{kind:'intent',intent:{goal:'explain-page'}}]);
+  assert.deepEqual(choices('Actually, I meant food support.'),[{kind:'intent',intent:{goal:'change-category',category:'food'}}]);
+  assert(choices('Show me the first result.').some(v=>v.intent?.goal==='inspect-resource'));
+  assert(!choices('Actually, I meant healthcare, not food.').some(v=>v.intent?.goal==='change-category'&&v.intent.category==='food'));
+});

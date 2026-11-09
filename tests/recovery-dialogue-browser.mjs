@@ -12,6 +12,7 @@ const out=process.env.RECOVERY_IMAGES??'docs/release/eden-next-verification';awa
 const captureOnly=process.env.RECOVERY_DIALOGUE_CAPTURE_ONLY==='1',record=process.env.RECOVERY_DIALOGUE_RECORD==='1';
 if(captureOnly)assert(record,'Capture-only requires a real browser recording');
 const receiptName=captureOnly?'dialogue-cursor-capture.json':'dialogue.json';
+const fromResults=process.env.RECOVERY_DIALOGUE_FROM_RESULTS==='1';
 const finalAcceptance=process.env.RECOVERY_DIALOGUE_SEVEN==='1';
 const report={base,sha,scope:captureOnly?'compound-recording':'dialogue',steps:[],errors:[],status:'FAIL'};
 const browser=await chromium.launch({channel:'chrome',args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
@@ -27,7 +28,15 @@ try{
    const row={endpoint:path.split('/').at(-1),status:r.status(),correlation:r.headers()['x-eden-correlation-id']??null};requests.push(row);
    if(!r.ok()){const code=(await r.json().catch(()=>null))?.error?.code;if(typeof code==='string'&&/^EDEN_[A-Z0-9_]{1,60}$/.test(code))row.code=code;}
  });
- await p.goto(base+'/?edenDiagnostics=1');
+ if(process.env.RECOVERY_READ_REPLY==='1')await p.addInitScript(()=>{
+   const play=HTMLMediaElement.prototype.play;
+   HTMLMediaElement.prototype.play=function(){if(this instanceof HTMLAudioElement)window.qaReadPlayer=this;return play.call(this);};
+ });
+ await p.goto(base+(fromResults?'/support?edenDiagnostics=1':'/?edenDiagnostics=1'));
+ if(fromResults){
+   await p.locator('[data-category="healthcare"]').click();const q=p.locator('#locationInput');await q.fill('Harrisburg, PA');await q.press('Enter');
+   await p.locator('[data-card-key^="directory:"]').first().waitFor();
+ }
  const proof=await p.evaluate(async()=>(await(await fetch('/ourground-build-evidence.json')).json()).source_commit);
  assert.equal(proof,sha);
  if(!captureOnly)await p.locator('.eden-launch').click();
@@ -62,26 +71,43 @@ try{
    return step;
  }
  if(!captureOnly){
-   for(const [name,input,topic] of [
+   if(!fromResults){for(const [name,input,topic] of [
      ['identity','Who are you?','identity'],['introduction','Give me an intro of who you are.','identity'],
      ['correction','I meant introduce yourself, not the donation page.','identity'],['capabilities','What can you actually help me do?','capabilities'],
    ]){
      if(finalAcceptance&&['introduction','correction'].includes(name))continue;
      const step=await ask(name,finalAcceptance&&name==='capabilities'?'What can you help me do?':input);assert.equal(step.route,'/');assert.equal(step.trace.proposedAction,topic);
      assert.equal(step.trace.output,'model-approved-facts');assert.match(step.reply,topic==='identity'?/Eden.*Our Ground.*assistant/:/public directory|explore a listing|show results/i);
+     if(name==='identity'&&process.env.RECOVERY_READ_REPLY==='1'){
+       report.readReply={status:'FAIL'};
+       try{
+         const response=p.waitForResponse(r=>new URL(r.url()).pathname.endsWith('/hosted/speech'),{timeout:45000});
+         await p.locator('[data-speak]').click();const r=await response;
+         report.readReply.http=r.status();report.readReply.voice=r.headers()['x-eden-speech-voice'];
+         if(r.ok()){
+           await p.waitForFunction(()=>window.qaReadPlayer?.currentTime>.15,null,{timeout:15000});
+           report.readReply.seconds=await p.evaluate(()=>window.qaReadPlayer.duration);
+           assert.equal(report.readReply.voice,'Aoede');report.readReply.status='PASS';
+         }else{const body=await r.json();report.readReply.code=body.error?.code;report.readReply.category=body.error?.quota?.category;report.readReply.retryAfter=r.headers()['retry-after']??null;}
+       }catch{report.readReply.failure='No verified playback';}
+     }
      assert(step.requests.some(r=>r.endpoint==='understand')&&!step.requests.some(r=>r.endpoint==='plan'));
    }
    const search=await ask('healthcare search','Find healthcare in Harrisburg.');assert.equal(search.route,'/support');
    assert.equal(await p.locator('#locationInput').inputValue(),'Harrisburg, PA');
+   }
    const first=p.locator('[data-card-key^="directory:"]').first(),title=(await first.locator('.discovery-select > span:not([class])').innerText()).trim();
-   const detail=await ask('first visible result','Show me the first result.');assert.equal(detail.trace.proposedAction,'details');assert(detail.reply.includes(title));
+   if(fromResults&&process.env.RECOVERY_OPEN_RESULT_MANUALLY==='1'){
+     await first.locator('[data-resource-open]').first().click();
+   }else{const detail=await ask('first visible result','Show me the first result.');assert.equal(detail.trace.proposedAction,'details');assert(detail.reply.includes(title));}
    assert(await p.locator('[data-resource-content]:visible').count()>0);
    if(finalAcceptance){
-     const food=await ask('correct category','Actually, I meant food support.');
+     if(process.env.RECOVERY_DIALOGUE_PAGE_ONLY!=='1'){const food=await ask('correct category','Actually, I meant food support.');
      assert(['search','refine'].includes(food.trace.proposedAction));
      assert(await p.locator('[data-category="food"][aria-pressed="true"],[data-need="food"][aria-pressed="true"]').count()>0);
      if(!/food|pantry|pantries/i.test(food.reply))report.errors.push('The confirmed correction did not name food support');
      assert.equal(await p.locator('#locationInput').inputValue(),'Harrisburg, PA');
+     }
      const page=await ask('describe current page',"Can you explain what's on this page?");
      assert.equal(page.trace.proposedAction,'read-page');assert.match(page.reply,/support|results|directory|food|map/i);
    }
