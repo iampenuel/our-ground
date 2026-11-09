@@ -5,11 +5,13 @@ import {LocationSearchError} from './location-search.ts';
 import {EDEN_LIVE_MAX_CALL_SECONDS} from '../shared/eden-live.ts';
 import {createHostedLive} from './eden-hosted-live.ts';
 import {EdenLiveError} from './eden-live.ts';
-import {createHash,randomBytes,randomUUID} from 'node:crypto';
+import {createHash,createHmac,randomBytes,randomUUID} from 'node:crypto';
 import type {Dependencies} from './app.ts';
 import {adultSessionNonce} from './adult-access.ts';
 import {stagingProjectId} from './staging-limiter.ts';
 import {redis} from './hosted-store.ts';
+import {publicAdmissionScript} from './anonymous-protection.ts';
+import {clientNetwork} from './geoapify-limits.ts';
 import {createEdenAgent, type EdenHostedTurnStore, type EdenAgentOptions} from './eden-agent.ts';
 import {EDEN_TEXT_MODELS,EdenProviderError} from './eden-provider.ts';
 import {EDEN_TTS_MODELS,EdenSpeechError,synthesizePublicSpeech} from './eden-speech.ts';
@@ -102,6 +104,17 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
       if(typeof storedBinding!=='string'||storedBinding.split('|')[0]!==binding)reject(401,'EDEN_SESSION_EXPIRED','Start an EDEN session.');
       if(path.startsWith('live/')){
         if(!liveEnabled)reject(403,'EDEN_LIVE_DISABLED','Calls are unavailable here.');
+        if(path==='live/token' && env.VERCEL_ENV==='production'){
+          // A new signed age cookie must not reset the public mint burst limit.
+          // Only a short-lived keyed digest reaches Redis.
+          const network=clientNetwork(request.headers.get('x-vercel-forwarded-for')??undefined);
+          const digest=createHmac('sha256',env.ADULT_SESSION_SECRET!).update('eden-public-mint|'+network).digest('hex');
+          const prefix='og:adult:eden:v1:mint-network';
+          const admission=await store(['EVAL',publicAdmissionScript,'2',prefix+':'+digest,prefix+':shared','live','900','4','0']);
+          if(!Array.isArray(admission)||admission.length!==2||![0,1].includes(admission[0])||!Number.isSafeInteger(admission[1]))
+            throw new EdenLiveError('EDEN_LIMITER_UNAVAILABLE',503);
+          if(admission[0]===0)throw new EdenLiveError('EDEN_LIVE_START_THROTTLED',429,admission[1]);
+        }
         const result=await live(path,body,session,binding,Number(String(storedBinding).split('|')[1]),request.signal);
         if(await store(['GET',sessionKey])!==storedBinding)reject(401,'EDEN_SESSION_EXPIRED','The session ended.');
         return response(result);

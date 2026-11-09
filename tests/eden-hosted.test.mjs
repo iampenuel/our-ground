@@ -203,10 +203,11 @@ test('production Live requires explicit approval, the exact production project a
    ['prj_4li6QnqulPgPbJpxMW2L9hczDNrS','true','false',false],
    ['prj_4li6QnqulPgPbJpxMW2L9hczDNrS','true','true',true],
  ]){
-   const handle=createHostedEden(deps,{...env,VERCEL_PROJECT_ID:project,EDEN_LIVE_PRODUCTION_APPROVED:approved,VITE_EDEN_HOSTED_LIVE:client},{store:memory()});
+   const limits={EDEN_LIVE_TEAM_STARTS_PER_DAY:'16',EDEN_LIVE_TESTER_STARTS_PER_DAY:'2',EDEN_LIVE_PROVIDER_ATTEMPTS_PER_DAY:'24',EDEN_LIVE_TESTER_ATTEMPTS_PER_DAY:'4',EDEN_LIVE_PROVIDER_SEATS:'1'};
+   const handle=createHostedEden(deps,{...env,...limits,VERCEL_PROJECT_ID:project,EDEN_LIVE_PRODUCTION_APPROVED:approved,VITE_EDEN_HOSTED_LIVE:client},{store:memory()});
    const r=await handle(new Request(origin+'/api/v1/eden/hosted/status',{headers:{cookie:age,'x-vercel-ip-country':'US'}}),'status');
    assert.equal(r.status,200);const body=await r.json();assert.equal(body.liveTokensAvailable,expected);
-   if(expected){assert.equal(body.liveTestLimits.teamStarts,24);assert.equal(body.liveTestLimits.seats,2);assert.equal(body.liveTestLimits.maxCallSeconds,600);}
+   if(expected){assert.equal(body.liveTestLimits.teamStarts,16);assert.equal(body.liveTestLimits.seats,1);assert.equal(body.liveTestLimits.maxCallSeconds,600);}
  }
 });
 
@@ -226,4 +227,22 @@ test('hosted daily voice errors provide authoritative reset and retry times with
  assert(Number.isFinite(serverNow));assert(wait>=0&&wait<=86400);
  assert(Math.abs(wait-(Date.parse(resetAt)-serverNow)/1000)<=2);
  assert.doesNotMatch(JSON.stringify(body),/GEMINI_API_KEY|auth_tokens/);
+});
+test('a public mint cannot evade a network throttle by creating a new adult session',async()=>{
+ const seen=[];const base=memory();const age=await cookie();
+ const prod={...env,VERCEL_PROJECT_ID:'prj_4li6QnqulPgPbJpxMW2L9hczDNrS',VITE_EDEN_HOSTED_LIVE:'true',EDEN_LIVE_PRODUCTION_APPROVED:'true',EDEN_LIVE_TEAM_STARTS_PER_DAY:'16',EDEN_LIVE_TESTER_STARTS_PER_DAY:'2',EDEN_LIVE_PROVIDER_ATTEMPTS_PER_DAY:'24',EDEN_LIVE_TESTER_ATTEMPTS_PER_DAY:'4',EDEN_LIVE_PROVIDER_SEATS:'1'};
+ const handle=createHostedEden(deps,prod,{store:async cmd=>{
+  if(cmd[0]==='EVAL'&&cmd[3]?.startsWith('og:adult:eden:v1:mint-network:')){seen.push(cmd[3]);return [0,120];}
+  return base(cmd);
+ }});
+ for(const c of [age,await cookie()]){
+  const headers={cookie:c,'x-vercel-forwarded-for':'192.0.2.42'};
+  const opened=await handle(req('session',{acknowledged:true,noticeVersion},{headers}),'session');const {sessionToken}=await opened.json();
+  const denial=await handle(req('live/token',{}, {headers:{...headers,Authorization:'Bearer '+sessionToken}}),'live/token');
+  assert.equal(denial.status,429);assert.equal((await denial.json()).error.code,'EDEN_LIVE_START_THROTTLED');assert.equal(denial.headers.get('Retry-After'),'120');
+ }
+ assert.equal(seen.length,2);assert.equal(seen[0],seen[1]);assert(!seen[0].includes('192.0.2.42'));
+ const noLimits=createHostedEden(deps,{...prod,EDEN_LIVE_PROVIDER_SEATS:undefined},{store:base});
+ const status=await noLimits(new Request(origin+'/api/v1/eden/hosted/status',{headers:{cookie:age,'x-vercel-ip-country':'US'}}),'status');
+ assert.equal((await status.json()).liveTokensAvailable,false);
 });
