@@ -1,0 +1,702 @@
+{
+  "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "b7e727831b4ba917a9e00d53cfd877ce09b608eb",
+  "input": "Locally spoken public phrases injected at browser microphone boundary",
+  "status": "FAIL",
+  "http": [
+    {
+      "path": "session",
+      "status": 200
+    },
+    {
+      "path": "live/token",
+      "status": 409
+    },
+    {
+      "path": "live/token",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/result",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/result",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/result",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/tool",
+      "status": 200
+    },
+    {
+      "path": "live/result",
+      "status": 200
+    },
+    {
+      "path": "live/end",
+      "status": 200
+    }
+  ],
+  "audioInputChunks": 4503,
+  "audioOutputChunks": 174,
+  "providerTurns": 4,
+  "tools": [
+    "perform_public_resource_action",
+    "read_public_page_context",
+    "perform_public_resource_action",
+    "perform_public_resource_action",
+    "read_public_page_context",
+    "perform_public_resource_action"
+  ],
+  "turns": [
+    {
+      "step": "introduction",
+      "input": "",
+      "reply": "Hi! I'm Eden. I can help you find food, healthcare, and community resources. You can ask me something like, 'Find food support near Harrisburg.' What would you like to explore?"
+    },
+    {
+      "step": "details",
+      "input": "Find health care in Harrisburg.Show me the first result.",
+      "reply": "The first result is a healthcare listing provided by the HRSA Health Center Program. Please contact the provider directly to confirm their current hours and service availability."
+    },
+    {
+      "step": "food",
+      "input": "Actually, I meant food support.",
+      "reply": "I couldn't find any food support listings within 10 miles of Harrisburg. Would you like me to expand the search radius?"
+    },
+    {
+      "step": "page",
+      "input": "Can you explain what is on this page?",
+      "reply": "This page allows you to search for food, healthcare, or community resources by location and distance. You can filter results, view details, and use the map to explore available services in your area."
+    }
+  ],
+  "errors": [],
+  "workletHTTP": 200,
+  "deniedRetryFixture": {
+    "http": 409,
+    "stage": "token-request",
+    "stoppedTrack": true,
+    "reference": "9a1838f6-d832-4957-ab5a-822f203969a8"
+  },
+  "preflight": {
+    "advance": 0.42133333333333334,
+    "peak": 0.07999999821186066
+  },
+  "tokenCheck": {
+    "validOnUncorrectedDeviceClock": false,
+    "validOnIssuerClock": true,
+    "config": true,
+    "fields": 8,
+    "model": "gemini-3.8-live",
+    "voice": "Aoede",
+    "maxSeconds": 599,
+    "expiresInMs": 518523,
+    "connectInMs": -21431
+  },
+  "requestedModel": "models/gemini-3.8-live",
+  "requestedVoice": "Aoede",
+  "providerByStep": {
+    "introduction": {
+      "frames": 158,
+      "input": 0,
+      "interim": 0,
+      "output": 10,
+      "audio": 76,
+      "tools": 0,
+      "waiting": 0,
+      "generated": 1,
+      "completed": 1,
+      "interrupted": 0,
+      "tinyPCM": 0,
+      "outputSamples": 795600,
+      "outputPeak": 0.81927490234375
+    },
+    "search": {
+      "frames": 19,
+      "input": 1,
+      "interim": 0,
+      "output": 1,
+      "audio": 4,
+      "tools": 2,
+      "waiting": 0,
+      "generated": 0,
+      "completed": 0,
+      "interrupted": 0,
+      "tinyPCM": 0,
+      "outputSamples": 18000,
+      "outputPeak": 0.8812255859375
+    },
+    "details": {
+      "frames": 84,
+      "input": 1,
+      "interim": 0,
+      "output": 11,
+      "audio": 36,
+      "tools": 1,
+      "waiting": 0,
+      "generated": 1,
+      "completed": 2,
+      "interrupted": 1,
+      "tinyPCM": 1,
+      "outputSamples": 287521,
+      "outputPeak": 0.74847412109375
+    },
+    "food": {
+      "frames": 54,
+      "input": 1,
+      "interim": 0,
+      "output": 6,
+      "audio": 22,
+      "tools": 1,
+      "waiting": 0,
+      "generated": 1,
+      "completed": 1,
+      "interrupted": 0,
+      "tinyPCM": 1,
+      "outputSamples": 154561,
+      "outputPeak": 0.759368896484375
+    },
+    "page": {
+      "frames": 82,
+      "input": 1,
+      "interim": 0,
+      "output": 10,
+      "audio": 36,
+      "tools": 1,
+      "waiting": 0,
+      "generated": 1,
+      "completed": 1,
+      "interrupted": 0,
+      "tinyPCM": 1,
+      "outputSamples": 275521,
+      "outputPeak": 0.804229736328125
+    },
+    "map": {
+      "frames": 8,
+      "input": 1,
+      "interim": 0,
+      "output": 0,
+      "audio": 0,
+      "tools": 1,
+      "waiting": 0,
+      "generated": 0,
+      "completed": 0,
+      "interrupted": 0,
+      "tinyPCM": 0
+    }
+  },
+  "setupComplete": true,
+  "sentSignal": {
+    "introduction": {
+      "packets": 1723,
+      "nonSilent": 0,
+      "maxRms": 0
+    },
+    "search": {
+      "packets": 191,
+      "nonSilent": 67,
+      "maxRms": 0.258215412671788
+    },
+    "details": {
+      "packets": 683,
+      "nonSilent": 60,
+      "maxRms": 0.28902447143166393
+    },
+    "food": {
+      "packets": 539,
+      "nonSilent": 78,
+      "maxRms": 0.2770703865388244
+    },
+    "page": {
+      "packets": 799,
+      "nonSilent": 90,
+      "maxRms": 0.2891305740003743
+    },
+    "map": {
+      "packets": 568,
+      "nonSilent": 67,
+      "maxRms": 0.297656986637601
+    }
+  },
+  "muteUnmute": true,
+  "interruptStart": "Eden is speaking",
+  "searchTranscribed": true,
+  "observations": {
+    "search": true,
+    "details": true,
+    "food": true,
+    "page": true
+  },
+  "providerInterruptions": 1,
+  "interruptReply": "The first result is a healthcare listing provided by the HRSA Health Center Program. Please contact the provider directly to confirm their current hours and service availability.",
+  "failedAt": "map",
+  "failure": "Call ended: The microphone stream could not continue. You can continue by text.",
+  "ui": "The microphone stream could not continue. You can continue by text.",
+  "partialProviderInput": "Go back and show me the map.",
+  "partialProviderReply": "",
+  "firstDetailOpen": false,
+  "playerPeakRms": 0.35378806240578015,
+  "playerClock": {
+    "initial": 0,
+    "last": 112.624,
+    "ticks": 2252,
+    "state": "closed"
+  },
+  "cursor": [
+    {
+      "target": {
+        "page": "support"
+      },
+      "landed": true,
+      "atMs": 43622.5
+    },
+    {
+      "target": "location",
+      "landed": true,
+      "atMs": 45237.299999999814
+    },
+    {
+      "target": {
+        "category": "healthcare"
+      },
+      "landed": true,
+      "atMs": 46470.700000000186
+    },
+    {
+      "target": "radius",
+      "landed": true,
+      "atMs": 47705.40000000037
+    },
+    {
+      "target": "submit",
+      "landed": true,
+      "atMs": 48986.700000000186
+    },
+    {
+      "target": "details",
+      "landed": true,
+      "atMs": 58804.5
+    },
+    {
+      "target": "location",
+      "landed": true,
+      "atMs": 75819.79999999981
+    },
+    {
+      "target": {
+        "category": "food"
+      },
+      "landed": true,
+      "atMs": 77087.40000000037
+    },
+    {
+      "target": "radius",
+      "landed": true,
+      "atMs": 78335.79999999981
+    },
+    {
+      "target": "submit",
+      "landed": true,
+      "atMs": 79637.20000000019
+    }
+  ],
+  "paintMarks": [
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 43157.799999999814
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 43474.60000000056
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 43621.40000000037
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 44772.799999999814
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 45088.5
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 45236.90000000037
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": false,
+      "atMs": 46005.700000000186
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 46005.700000000186
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 46321.700000000186
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 46470.299999999814
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": false,
+      "atMs": 47220.799999999814
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 47220.799999999814
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 47555.200000000186
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 47704.90000000037
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": false,
+      "atMs": 48522
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 48522
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 48837.200000000186
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 48986.40000000037
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": false,
+      "atMs": 49965.60000000056
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 58336.5
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 58654.799999999814
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 58804
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 75354.5
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 75670.79999999981
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 75819.5
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": false,
+      "atMs": 76620.20000000019
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 76620.20000000019
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 76937.40000000037
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 77087
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": false,
+      "atMs": 77871.10000000056
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 77871.10000000056
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 78186.60000000056
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 78335.60000000056
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": false,
+      "atMs": 79152.20000000019
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": true,
+      "atMs": 79152.20000000019
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": true,
+      "atMs": 79487.40000000037
+    },
+    {
+      "attribute": "data-cursor-press",
+      "on": false,
+      "atMs": 79636.90000000037
+    },
+    {
+      "attribute": "data-cursor-hover",
+      "on": false,
+      "atMs": 80123.40000000037
+    }
+  ],
+  "cursorPhases": [
+    {
+      "phase": "target",
+      "atMs": 42062.799999999814
+    },
+    {
+      "phase": "execute",
+      "atMs": 43621.700000000186
+    },
+    {
+      "phase": "applied",
+      "atMs": 43998.200000000186
+    },
+    {
+      "phase": "target",
+      "atMs": 43999.10000000056
+    },
+    {
+      "phase": "execute",
+      "atMs": 45237.299999999814
+    },
+    {
+      "phase": "applied",
+      "atMs": 45238.799999999814
+    },
+    {
+      "phase": "target",
+      "atMs": 45239.700000000186
+    },
+    {
+      "phase": "execute",
+      "atMs": 46470.60000000056
+    },
+    {
+      "phase": "applied",
+      "atMs": 46471.299999999814
+    },
+    {
+      "phase": "target",
+      "atMs": 46471.90000000037
+    },
+    {
+      "phase": "execute",
+      "atMs": 47705.40000000037
+    },
+    {
+      "phase": "applied",
+      "atMs": 47705.5
+    },
+    {
+      "phase": "target",
+      "atMs": 47705.700000000186
+    },
+    {
+      "phase": "execute",
+      "atMs": 48986.700000000186
+    },
+    {
+      "phase": "applied",
+      "atMs": 49812.700000000186
+    },
+    {
+      "phase": "target",
+      "atMs": 57335.60000000056
+    },
+    {
+      "phase": "execute",
+      "atMs": 58804.40000000037
+    },
+    {
+      "phase": "applied",
+      "atMs": 59232.299999999814
+    },
+    {
+      "phase": "target",
+      "atMs": 74475.90000000037
+    },
+    {
+      "phase": "execute",
+      "atMs": 75819.79999999981
+    },
+    {
+      "phase": "applied",
+      "atMs": 75821.90000000037
+    },
+    {
+      "phase": "target",
+      "atMs": 75823.10000000056
+    },
+    {
+      "phase": "execute",
+      "atMs": 77087.29999999981
+    },
+    {
+      "phase": "applied",
+      "atMs": 77087.60000000056
+    },
+    {
+      "phase": "target",
+      "atMs": 77088.20000000019
+    },
+    {
+      "phase": "execute",
+      "atMs": 78335.79999999981
+    },
+    {
+      "phase": "applied",
+      "atMs": 78335.90000000037
+    },
+    {
+      "phase": "target",
+      "atMs": 78336.10000000056
+    },
+    {
+      "phase": "execute",
+      "atMs": 79637.20000000019
+    },
+    {
+      "phase": "applied",
+      "atMs": 79972.90000000037
+    }
+  ],
+  "diagnostics": [
+    {
+      "reference": "9a1838f6-d832-4957-ab5a-822f203969a8",
+      "model": "gemini-3.8-live",
+      "phase": "error",
+      "stage": "connecting",
+      "failure": "token-request",
+      "preparation": "ready",
+      "tokenHTTP": 409,
+      "service": "EDEN_LIVE_CALL_ACTIVE",
+      "serviceHTTP": 409,
+      "setup": false,
+      "provider": "none",
+      "lastEvent": "token",
+      "completedTurns": 0,
+      "toolsReceived": 0,
+      "inputChunks": 0,
+      "audioChunks": 0,
+      "decodedChunks": 0,
+      "inputContext": "running",
+      "outputContext": "running",
+      "playbacks": 0,
+      "spokenInterruptions": 0,
+      "unansweredTurns": 0,
+      "inputStreamEnds": 0,
+      "microphoneActive": false
+    },
+    {
+      "reference": "e6023e28-f063-49bb-8d2c-6efa45fd8cd6",
+      "model": "gemini-3.8-live",
+      "phase": "error",
+      "stage": "processing",
+      "failure": "microphone-stream",
+      "preparation": "ready",
+      "tokenHTTP": 200,
+      "setup": true,
+      "provider": "none",
+      "lastEvent": "message",
+      "completedTurns": 4,
+      "toolsReceived": 6,
+      "inputChunks": 4503,
+      "audioChunks": 171,
+      "decodedChunks": 171,
+      "inputContext": "running",
+      "outputContext": "running",
+      "playbacks": 5,
+      "spokenInterruptions": 1,
+      "unansweredTurns": 0,
+      "inputStreamEnds": 4,
+      "microphoneActive": false
+    }
+  ],
+  "micReleased": true,
+  "wire": {
+    "sockets": 1,
+    "policy": [],
+    "close": [
+      1011
+    ]
+  },
+  "audioCaptureStartMs": 3101.2000000001863
+}

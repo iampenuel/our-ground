@@ -33,8 +33,16 @@ export function connectEdenLive(token: EdenLiveTokenResponse, callbacks: LiveCon
     socket.binaryType = 'arraybuffer';
     let closed = false, ready = false, chain = Promise.resolve();
     let errorDeadline:ReturnType<typeof setTimeout>|undefined;
+    const awaitingClose=()=>{errorDeadline??=setTimeout(()=>failure({kind:'socket-error'}),500);};
     const connection: LiveConnection = {
-      send(value) { if (closed || !ready || socket.readyState !== WebSocket.OPEN || socket.bufferedAmount > 128_000) throw new Error('Voice connection unavailable.'); socket.send(JSON.stringify(value)); },
+      send(value) {
+        if(closed||!ready)throw new Error('Voice connection unavailable.');
+        // Chrome can enter CLOSING while a microphone callback is in flight.
+        // Preserve the subsequent close code; no unsent packet/action is replayed.
+        if(socket.readyState!==WebSocket.OPEN){awaitingClose();return;}
+        if(socket.bufferedAmount>128_000){failure({kind:'socket-error'});return;}
+        try{socket.send(JSON.stringify(value));}catch{awaitingClose();}
+      },
       close() { if (closed) return; closed = true; clearTimeout(errorDeadline); signal.removeEventListener('abort', cancel); socket.onmessage = null; socket.onerror = null; socket.onclose = null; try { socket.close(1000, 'Call ended'); } catch { /* Already closed. */ } reject(new Error('Call ended.')); },
     };
     const cancel = () => connection.close(); signal.addEventListener('abort', cancel, {once: true});
@@ -56,7 +64,7 @@ export function connectEdenLive(token: EdenLiveTokenResponse, callbacks: LiveCon
       }).catch(() => failure({kind:'invalid-message'}));
     };
     // Chrome emits a detail-free error before the informative close event.
-    socket.onerror = () => {errorDeadline??=setTimeout(()=>failure({kind:'socket-error'}),500);};
+    socket.onerror = awaitingClose;
     socket.onclose = event => failure({kind:'socket-close',closeReason:classifyLiveClose(event.reason), ...(Number.isInteger(event.code) && event.code >= 1000 && event.code <= 4999 ? {code:event.code} : {})});
     if (signal.aborted) connection.close();
   });

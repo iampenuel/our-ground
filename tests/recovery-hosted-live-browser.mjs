@@ -206,6 +206,10 @@ finally{
    const released=p.waitForResponse(r=>new URL(r.url()).pathname.endsWith('/hosted/live/end'),{timeout:8000}).then(r=>r.status()).catch(()=>null);
    await p.locator('[data-live-end]').click().catch(()=>{});receipt.endHTTP=await released;
  }
+ if(receipt.tokenCheck&&!receipt.endHTTP){
+   const prior=receipt.http.findLast(r=>r.path==='live/end');
+   receipt.endHTTP=prior?.status??await p.waitForResponse(r=>new URL(r.url()).pathname.endsWith('/hosted/live/end'),{timeout:8000}).then(r=>r.status()).catch(()=>null);
+ }
  receipt.diagnostics=await p.evaluate(()=>JSON.parse(document.querySelector('[data-live-diagnostic]')?.dataset.liveDiagnostic??'[]')).catch(()=>[]);
  receipt.micReleased=await p.evaluate(()=>window.qaTracks.length>0&&window.qaTracks.every(t=>t.readyState==='ended')).catch(()=>false);
  receipt.wire=await p.evaluate(()=>window.qaWire).catch(()=>null);

@@ -509,3 +509,15 @@ test('a generated caption with only one PCM sample and no completed turn release
     assert.equal(h.controller.snapshot.diagnostic.turnComplete,0);assert.equal(h.controller.snapshot.microphoneActive,false);assert.equal(h.releases.length,1);
   }finally{globalThis.setTimeout=original;h.cleanup();}
 });
+
+test('a PCM callback during a remote socket close preserves 1011 without blaming microphone capture',async()=>{
+  const original=Object.getOwnPropertyDescriptor(globalThis,'WebSocket'),sockets=[];
+  class Socket{static OPEN=1;readyState=1;bufferedAmount=0;sent=[];constructor(){sockets.push(this);}send(value){this.sent.push(value);}close(){this.readyState=3;}}
+  Object.defineProperty(globalThis,'WebSocket',{configurable:true,value:Socket});
+  try{
+    const closed=[],pending=connectEdenLive(token(),{message(){},closed:d=>closed.push(d)},new AbortController().signal);
+    const socket=sockets[0];socket.onopen();socket.onmessage({data:'{"setupComplete":{}}'});const c=await pending;
+    socket.readyState=2;c.send({realtimeInput:{audio:{data:'AAAA'}}});assert.equal(socket.sent.length,1,'only setup was delivered');
+    socket.onclose({code:1011,reason:'internal service error'});assert.deepEqual(closed,[{kind:'socket-close',closeReason:'other',code:1011}]);
+  }finally{if(original)Object.defineProperty(globalThis,'WebSocket',original);else delete globalThis.WebSocket;}
+});

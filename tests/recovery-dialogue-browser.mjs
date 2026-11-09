@@ -22,9 +22,10 @@ try{
  await protectRecoveryOrigin(p,base,process.env.VERCEL_OIDC_TOKEN);
  p.on('pageerror',e=>report.errors.push(e.name));
  const requests=[];
- p.on('response',r=>{
+ p.on('response',async r=>{
    const path=new URL(r.url()).pathname;if(!path.startsWith('/api/v1/eden/hosted/'))return;
-   requests.push({endpoint:path.split('/').at(-1),status:r.status(),correlation:r.headers()['x-eden-correlation-id']??null});
+   const row={endpoint:path.split('/').at(-1),status:r.status(),correlation:r.headers()['x-eden-correlation-id']??null};requests.push(row);
+   if(!r.ok()){const code=(await r.json().catch(()=>null))?.error?.code;if(typeof code==='string'&&/^EDEN_[A-Z0-9_]{1,60}$/.test(code))row.code=code;}
  });
  await p.goto(base+'/?edenDiagnostics=1');
  const proof=await p.evaluate(async()=>(await(await fetch('/ourground-build-evidence.json')).json()).source_commit);
