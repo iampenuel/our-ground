@@ -4,7 +4,7 @@ A student-built resource directory that helps people find food, healthcare, and 
 
 [Visit Our Ground](https://ourground.vercel.app) · [Architecture](docs/ARCHITECTURE.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
 
-![Our Ground homepage with Eden’s welcome](docs/showcase/homepage.jpg)
+![Our Ground homepage featuring Eden and her welcome message](docs/showcase/our-ground-homepage-eden.png)
 
 ## Find support, then understand the next step
 
