@@ -573,3 +573,33 @@ test('queue acceptance and provider progress remain distinct for a delayed match
     assert.equal(h.controller.snapshot.phase,'listening');assert.doesNotMatch(JSON.stringify(t),/delayed-result|Search complete/);
   }finally{h.cleanup();}
 });
+
+test('a cancelled tool waits boundedly for provider idle and ignores its late action result',async()=>{
+  let resolveTool;
+  const h=harness({options:{allowSpokenInterruption:true,onToolCall:()=>new Promise(resolve=>{resolveTool=resolve;})}});
+  const original=globalThis.setTimeout,timers=[];
+  try{
+    await h.intro();
+    globalThis.setTimeout=(fn,ms,...args)=>{const id=original(fn,ms,...args);timers.push({ms,fire:()=>{clearTimeout(id);fn(...args);}});return id;};
+    h.speech();
+    const call={id:'cancelled-search',name:'read_public_page_context',args:{}};
+    h.message({toolCall:{functionCalls:[call]}});await settle();
+    h.message({toolCallCancellation:{ids:[call.id]}});await settle();
+    assert.equal(h.controller.snapshot.diagnostic.pendingTools,0);
+    assert.equal(h.controller.snapshot.phase,'processing');
+    assert(timers.some(t=>t.ms===25000),'cancelled processing retains a bounded response wait');
+    const replies=()=>h.connections[0].sent.flatMap(x=>x.toolResponse?.functionResponses??[]);
+    assert.equal(replies().length,0);
+    const completed=h.controller.snapshot.diagnostic.turnComplete;
+    h.message({serverContent:{waitingForInput:true}});await settle();
+    assert.equal(h.controller.snapshot.phase,'listening');
+    assert.equal(h.controller.snapshot.forwarding,true);
+    assert.equal(h.controller.snapshot.diagnostic.turnComplete,completed,'provider idle does not count as a spoken reply');
+    resolveTool({outcome:'done',context});await settle();
+    assert.equal(replies().length,0,'late cancelled action result is never sent');
+    h.speech();h.audio();await h.finish();
+    assert.equal(h.controller.snapshot.phase,'listening');
+    assert.equal(h.controller.snapshot.diagnostic.failure,'none');
+    assert.equal(h.requests.length,1);
+  }finally{globalThis.setTimeout=original;h.cleanup();}
+});

@@ -349,6 +349,18 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
       ]);
     }finally{done=true;cancelTimer(actionTimer);removeAbort();}
   }
+  function cancelledToolSettled(){
+    if(pendingTools)return;
+    setPhase(playbackActive?'speaking':'processing');
+    expectResponse();
+    if(receivedAudio||outputText||reply.caption||reply.chunks>0){
+      if(complete)void finishOutput();
+      return;
+    }
+    // Cancellation can leave no replacement output. Await the provider's idle
+    // signal with a watchdog, without sending the abandoned tool's late result.
+    complete=false;previousOutputSettled=true;responseBegun=false;
+  }
   function toolCall(value: unknown, epoch: number) {
     if (!active() || epoch !== generation) return;
     diagnostic.toolCallsReceived++;
@@ -374,12 +386,12 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     pendingTools++; complete = false; drainGeneration++; beginResponse(); setPhase('acting'); clearResponseTimer();
     actionQueue = actionQueue.then(async () => {
       if (!active() || epoch !== generation) return;
-      if (entry.cancelled) { pendingTools--; if (!pendingTools) { setPhase('processing'); void finishOutput(); } return; }
+      if (entry.cancelled) { pendingTools--;cancelledToolSettled();return; }
       diagnostic.toolsStarted++;trace('tool-start');
       const response=await runTool(call,entry);
       if (!active() || epoch !== generation) return;
       pendingTools--;
-      if (entry.cancelled) { if (!pendingTools) { setPhase('processing'); void finishOutput(); } return; }
+      if (entry.cancelled) { cancelledToolSettled();return; }
       if(response.ok===false||response.outcome==='failed'){diagnostic.toolsFailed++;trace('tool-failed');}else{diagnostic.toolsCompleted++;trace('tool-complete');}
       if (JSON.stringify(response).length > 16_000) { fail(SAFE_FAILURE,'tool-response'); return; }
       entry.response = response; entry.handoff.actionCompletedAt=elapsed(); complete = false; receivedAudio = false;outputText='';nextReply(); drainGeneration++;
