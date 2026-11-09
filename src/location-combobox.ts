@@ -50,12 +50,22 @@ export function mountLocationCombobox<T extends LocationOption,L extends Selecte
   }
   function dismiss(){controller.dismiss();}
   const submitter = (target:EventTarget|null) => target instanceof Element && target.closest('button[type="submit"], input[type="submit"]')?.closest('form') === root.closest('form');
-  let submittingPointer=false;
+  let activatingControl=false;
   function outside(event:PointerEvent){
-    submittingPointer=Boolean(submitter(event.target));
-    if(!submittingPointer && !root.contains(event.target as Node))dismiss();
+    const target=event.target;
+    const outsideField=target instanceof Element && !root.contains(target);
+    // Dismissing changes the form height. Keep the target under a pointer
+    // until its click has reached the button, link, or other control.
+    activatingControl=Boolean(outsideField&&target.closest('button,input,select,textarea,label,a[href]'));
+    if(outsideField&&!activatingControl)dismiss();
   }
-  function focusOut(event:FocusEvent){if(!root.contains(event.relatedTarget as Node|null) && !submittingPointer && !submitter(event.relatedTarget))dismiss();}
+  function finishActivation(event:MouseEvent){
+    if(!activatingControl)return;
+    activatingControl=false;
+    if(!submitter(event.target))dismiss();
+  }
+  function cancelActivation(){activatingControl=false;}
+  function focusOut(event:FocusEvent){if(!root.contains(event.relatedTarget as Node|null) && !activatingControl && !submitter(event.relatedTarget))dismiss();}
   async function selectPoint(point:{latitude:number;longitude:number;accuracy?:number},source:'device'|'map') {
     if(!coordinatesAllowed){controller.error('Choose real search before using a current or map location.');return;}
     abortPoint();controller.dismiss();options.invalidated();
@@ -77,10 +87,10 @@ export function mountLocationCombobox<T extends LocationOption,L extends Selecte
   const composeEnd=()=>{composing=false;typed();};
   const keepInputFocus=(event:PointerEvent)=>{event.preventDefault();};
   const choose=(event:MouseEvent)=>{const option=(event.target as Element).closest<HTMLElement>('[data-location-option]');if(!option?.dataset.locationOption)return;event.preventDefault();input.focus({preventScroll:true});void controller.choose(option.dataset.locationOption);};
-  input.addEventListener('input',typed);input.addEventListener('keydown',keydown);input.addEventListener('compositionstart',composeStart);input.addEventListener('compositionend',composeEnd);root.addEventListener('focusout',focusOut);document.addEventListener('pointerdown',outside);list.addEventListener('pointerdown',keepInputFocus);list.addEventListener('click',choose);clear.addEventListener('click',clearInput);get('dismissLocations').addEventListener('click',dismiss);gps.addEventListener('click',currentLocation);retry.addEventListener('click',retrySearch);
+  input.addEventListener('input',typed);input.addEventListener('keydown',keydown);input.addEventListener('compositionstart',composeStart);input.addEventListener('compositionend',composeEnd);root.addEventListener('focusout',focusOut);document.addEventListener('pointerdown',outside);document.addEventListener('click',finishActivation);document.addEventListener('pointercancel',cancelActivation);list.addEventListener('pointerdown',keepInputFocus);list.addEventListener('click',choose);clear.addEventListener('click',clearInput);get('dismissLocations').addEventListener('click',dismiss);gps.addEventListener('click',currentLocation);retry.addEventListener('click',retrySearch);
   return {
     selected:()=>controller.snapshot().selection,
-    prepareSubmission(){submittingPointer=false;abortPoint();return{...controller.prepareSubmission(),query:input.value};},
+    prepareSubmission(){activatingControl=false;abortPoint();return{...controller.prepareSubmission(),query:input.value};},
     confirmSubmission(location:L){abortPoint();controller.confirm(location,false);},
 
     busy:()=>controller.snapshot().busy||pointRequest!==null,
@@ -89,6 +99,6 @@ export function mountLocationCombobox<T extends LocationOption,L extends Selecte
     selectPoint,
     invalidate(){abortPoint();controller.input(input.value,false);},
     showSelectionRequired(){controller.error('Choose a location suggestion to confirm where to search, or use your current location.');input.focus();},
-    destroy(){disposed=true;abortPoint();controller.destroy();input.removeEventListener('input',typed);input.removeEventListener('keydown',keydown);input.removeEventListener('compositionstart',composeStart);input.removeEventListener('compositionend',composeEnd);root.removeEventListener('focusout',focusOut);document.removeEventListener('pointerdown',outside);list.removeEventListener('pointerdown',keepInputFocus);list.removeEventListener('click',choose);clear.removeEventListener('click',clearInput);get('dismissLocations').removeEventListener('click',dismiss);gps.removeEventListener('click',currentLocation);retry.removeEventListener('click',retrySearch);}
+    destroy(){disposed=true;abortPoint();controller.destroy();input.removeEventListener('input',typed);input.removeEventListener('keydown',keydown);input.removeEventListener('compositionstart',composeStart);input.removeEventListener('compositionend',composeEnd);root.removeEventListener('focusout',focusOut);document.removeEventListener('pointerdown',outside);document.removeEventListener('click',finishActivation);document.removeEventListener('pointercancel',cancelActivation);list.removeEventListener('pointerdown',keepInputFocus);list.removeEventListener('click',choose);clear.removeEventListener('click',clearInput);get('dismissLocations').removeEventListener('click',dismiss);gps.removeEventListener('click',currentLocation);retry.removeEventListener('click',retrySearch);}
   };
 }
