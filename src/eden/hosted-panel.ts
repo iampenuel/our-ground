@@ -7,7 +7,7 @@ export function renderHostedPanel(panel: HTMLElement) {
   panel.replaceChildren(header);
   header.insertAdjacentHTML('afterend', `
     <div class="eden-page"><span data-context></span></div>
-    <div class="eden-body" id="eden-conversation">
+    <div class="eden-body" id="eden-conversation" role="region" aria-label="Eden conversation" tabindex="0">
       <div data-history>
         <p class="eden-welcome">Hi! I’m Eden. I can help you find food, healthcare, and community resources, and guide you around this page. What would you like to explore?</p>
         <div class="eden-log" role="log" aria-label="Conversation with Eden" aria-live="polite" aria-relevant="additions"></div>
