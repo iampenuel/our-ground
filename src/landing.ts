@@ -8,12 +8,6 @@ export function mountLandingPage(root:HTMLElement=element('#app')){
 disposePublicPage();
 document.title = 'Our Ground — Stronger communities grow here.';
 
-const pathways = [
-  { href: '/support', title: 'Find<br>Support', description: 'Explore food, healthcare and community support near you.', photo: 'flowers-search' as const, className: 'og-pathway--find' },
-  { href: '/give', title: 'Give<br>Support', description: 'Give time, food, or money through official giving programs.', photo: 'food-support' as const, className: 'og-pathway--give' },
-  { href: '/organizations', title: 'For<br>Organizations', description: 'Sign in, request listing access, or check your public information.', photo: 'landscape-story' as const, className: 'og-pathway--organizations' },
-];
-
 root.innerHTML = `
   <div class="og-home">${header()}
     <main id="main" tabindex="-1">
@@ -29,14 +23,6 @@ root.innerHTML = `
           <div><span>Places</span><p>Stronger<br>communities.</p></div>
           <div><span>Possibilities</span><p>A healthier,<br> more connected tomorrow.</p></div>
         </div>
-      </section>
-      <section class="og-community og-container" aria-labelledby="community-title">
-        <div class="og-community-intro">
-          <div><p class="og-eyebrow">A more connected tomorrow</p><h2 class="og-display" id="community-title">Support looks<br>different everywhere.<br>It belongs everywhere.</h2></div>
-          <div class="og-community-copy"><p>Our Ground brings residents, donors, and community organizations to a shared starting point. Explore local food and healthcare information, find ways to contribute, and help keep community resources in view.</p><a class="og-text-link" href="/about">Learn more about our mission ${arrow}</a></div>
-        </div>
-        <div class="og-pathways">${pathways.map((path) => `<a class="og-pathway ${path.className}" href="${path.href}">${photograph(path.photo)}<div class="og-pathway-copy"><h3 class="og-display">${path.title}</h3><p>${path.description}</p></div><span class="og-pathway-arrow" aria-hidden="true">${arrow}</span></a>`).join('')}</div>
-        <div class="og-community-principle"><p class="og-display">A stronger, healthier community isn’t just possible —<br>it’s something we build together.</p><span aria-hidden="true"></span></div>
       </section>
     </main>
     ${footer()}

@@ -22,7 +22,7 @@ try{
    receipt.accessibility.push({view:label,route,violations});}
   }
   await p.goto(base);await p.locator('h1').first().waitFor();
-  const gutter=await p.evaluate(()=>['header .og-brand','#home-title','#community-title'].map(q=>document.querySelector(q).getBoundingClientRect().left));
+  const gutter=await p.evaluate(()=>['header .og-brand','#home-title','.og-hero-description','.og-hero-actions','.og-hero-values'].map(q=>document.querySelector(q).getBoundingClientRect().left));
   assert(Math.max(...gutter)-Math.min(...gutter)<=1,'Homepage gutter mismatch: '+gutter);
   await shot('homepage-'+label);
   await p.goto(base+'/about');await p.locator('header .og-brand').waitFor();

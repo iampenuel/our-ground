@@ -21,10 +21,37 @@ try{
    await route.fulfill({json:result});
   });
   await page.goto(base+'/');
-  const pathways=page.locator('.og-pathways');
-  await pathways.waitFor();
-  assert.deepEqual(await pathways.getByRole('link').evaluateAll(links=>links.map(link=>new URL(link.href).pathname)),['/support','/give','/organizations']);
-  await pathways.getByRole('link',{name:/Give.*Support/i}).click();
+  const hero=page.locator('.og-home-hero'),actions=hero.locator('.og-hero-actions');
+  await hero.waitFor();
+  assert.equal(await hero.getByRole('heading',{level:1}).innerText(),'Stronger\ncommunities\ngrow here.');
+  assert.deepEqual(await actions.getByRole('link').evaluateAll(links=>links.map(link=>new URL(link.href).pathname)),['/support','/give']);
+  assert.deepEqual(await hero.locator('.og-hero-values span').allTextContents(),['People','Places','Possibilities']);
+  assert.equal(await page.locator('.og-community,.og-pathways,#community-title').count(),0);
+  assert(await page.evaluate(()=>{
+    const hero=document.querySelector('.og-home-hero'),main=hero.parentElement,footer=document.querySelector('.og-home > .og-footer');
+    return main.children.length===1&&main.nextElementSibling===footer&&Math.abs(footer.getBoundingClientRect().top-hero.getBoundingClientRect().bottom)<=1;
+  }),'The existing footer must follow the hero without a replacement section or gap');
+  assert.deepEqual(await page.locator('.og-footer nav').getByRole('link').evaluateAll(links=>links.slice(0,3).map(link=>new URL(link.href).pathname)),['/support','/give','/organizations']);
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  await actions.getByRole('link',{name:'Find support near you'}).focus();
+  await page.keyboard.press('Tab');
+  assert(await actions.getByRole('link',{name:'Give support',exact:true}).evaluate(link=>link===document.activeElement));
+  await page.keyboard.press('Tab');
+  assert(await page.locator('.og-footer .og-brand').evaluate(link=>link===document.activeElement),'Hero keyboard flow must continue into the footer');
+  for(const href of ['/support','/give','/organizations']){
+    const menu=page.locator('.og-mobile-menu');
+    if(await menu.isVisible())await menu.locator('summary').click();
+    const navigation=page.locator('header nav:visible');
+    assert.deepEqual(await navigation.getByRole('link').evaluateAll(links=>links.slice(0,3).map(link=>new URL(link.href).pathname)),['/support','/give','/organizations']);
+    await navigation.locator('a[href="'+href+'"]').click();
+    await page.waitForURL(url=>url.pathname===href);await hero.waitFor({state:'detached'});
+    await page.locator('main h1').waitFor();assert.equal(new URL(page.url()).pathname,href);
+    await page.locator('header .og-brand').click();await hero.waitFor();
+  }
+  await actions.getByRole('link',{name:'Find support near you'}).click();
+  await page.locator('#locationInput').waitFor();assert.equal(new URL(page.url()).pathname,'/support');
+  await page.locator('header .og-brand').click();await hero.waitFor();
+  await actions.getByRole('link',{name:'Give support',exact:true}).click();
   await page.getByRole('link',{name:'Explore ways to give'}).click();
   assert.equal(new URL(page.url()).hash,'#ways-to-give');
   assert.deepEqual(await page.locator('#main a[rel~="external"]').evaluateAll(links=>links.map(link=>link.href)),[
@@ -55,6 +82,6 @@ try{
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.goBack();assert.equal(new URL(page.url()).pathname,'/support');
   await page.goBack();await page.getByRole('heading',{name:/Care for your.*public listing/i}).waitFor();
-  await context.close(); console.log(width+'px: donor links, organization sign-in/request, resident search, referrals and back passed');
+  await context.close(); console.log(width+'px: preserved hero, direct footer, audience navigation, donor links, organization sign-in/request, resident search, referrals and back passed');
  }
 }finally{await browser.close();}

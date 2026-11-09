@@ -54,7 +54,7 @@ try{
   const actual=await settings.evaluate(async()=>{await new Promise(resolve=>chrome.settingsPrivate.setDefaultZoom(2,resolve));return await new Promise(resolve=>chrome.settingsPrivate.getDefaultZoom(resolve));});
   assert.equal(actual,2);await p.bringToFront();await p.waitForFunction(dpr=>devicePixelRatio>=dpr*1.99,before.dpr);
   const zoomed=await p.evaluate(()=>({width:innerWidth,height:innerHeight,dpr:devicePixelRatio,visualScale:visualViewport.scale,scrollWidth:document.documentElement.scrollWidth}));
-  const gutter=await p.evaluate(()=>['header .og-brand','#home-title','#community-title'].map(q=>document.querySelector(q).getBoundingClientRect().left));
+  const gutter=await p.evaluate(()=>['header .og-brand','#home-title','.og-hero-description','.og-hero-actions','.og-hero-values'].map(q=>document.querySelector(q).getBoundingClientRect().left));
   assert(Math.max(...gutter)-Math.min(...gutter)<=1,'200% homepage gutter mismatch: '+gutter);
   await p.goto(base+'/about');await p.locator('header .og-brand').waitFor();
   for(let i=0;i<8&&!await p.locator('header .og-brand').evaluate(e=>e===document.activeElement);i++)await p.keyboard.press('Tab');

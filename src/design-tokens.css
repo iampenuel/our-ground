@@ -76,11 +76,11 @@ main:focus { outline: none; }
 .og-text-link { display: inline-flex; align-items: center; gap: .75rem; min-height: 2.75rem; color: var(--og-green); font: 500 .875rem/1.5 var(--og-sans); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .3em; }
 .og-text-link:hover { color: var(--og-green); }
 .og-home :focus-visible, .og-entry :focus-visible, .og-site-header :focus-visible, .og-footer :focus-visible { outline: 3px solid var(--og-blue); outline-offset: 5px; }
-.og-home-hero :focus-visible, .og-pathway:focus-visible { outline-color: var(--og-gold-light); }
+.og-home-hero :focus-visible { outline-color: var(--og-gold-light); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
-  .og-button, .og-pathway, .og-site-header a, .og-site-header summary { transition: none !important; }
+  .og-button, .og-site-header a, .og-site-header summary { transition: none !important; }
   .og-button:active { transform: none; }
 }
 @media (prefers-contrast: more) {

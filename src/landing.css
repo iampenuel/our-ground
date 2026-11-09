@@ -10,8 +10,8 @@
    starts within the photograph, with a separate soft wash behind the text. */
 .og-home-hero .og-hero-photo img { position: absolute; right: 0; top: 0; bottom: 0; margin-block: auto; width: min(92%, 1400px); height: 100%; max-height: 941px; object-fit: cover; object-position: right 45%; mask-image: linear-gradient(90deg, transparent, #0008 8%, #000000d9 16%, #000 26%); }
 .og-hero-photo::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(0deg, #202222b3, #20222266 16%, #20222200 38%), linear-gradient(90deg, #202222ed, #202222e6 12%, #202222d6 25%, #202222b3 38%, #2022226e 51%, #2022221f 64%, #20222200 76%); }
-/* The wordmark, headline and first content section share the homepage edge. */
-.og-home :is(.og-header-inner,.og-hero-body,.og-community).og-container { width: calc(100% - var(--og-edge-gutter) * 2); margin-inline: auto; }
+/* The wordmark and hero copy share the homepage edge. */
+.og-home :is(.og-header-inner,.og-hero-body).og-container { width: calc(100% - var(--og-edge-gutter) * 2); margin-inline: auto; }
 .og-hero-body { width: calc(100% - var(--og-edge-gutter) * 2); padding-block: 2.5rem 1.5rem; }
 .og-hero-body h1 { max-width: min(40rem, 45%); margin: 0 0 1.5rem; font-size: clamp(3.5rem, 4.8vw, 4.5rem); line-height: 1.02; letter-spacing: -.055em; text-wrap: initial; overflow-wrap: break-word; }
 .og-hero-description { max-width: min(25rem, 40%); margin: 0; font-size: 1.0625rem; line-height: 1.6; color: var(--og-inverse-text); }
@@ -23,45 +23,7 @@
 .og-hero-values { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.3fr); gap: 1.25rem; width: min(35rem, calc(100% - var(--og-edge-gutter) * 2)); margin: 0 auto 0 var(--og-edge-gutter); padding-block: 1rem 3rem; overflow-wrap: break-word; }
 .og-hero-values span { font-size: .75rem; color: var(--og-inverse-text); }
 .og-hero-values p { max-width: 14rem; margin: .5rem 0 0; font-size: 1rem; line-height: 1.35; letter-spacing: -.02em; }
-/* Breathing room belongs to the cream section after the photographic hero. */
-.og-community { padding-top: clamp(4.5rem, 6vw, 6rem); }
-.og-community-intro { display: grid; grid-template-columns: 1.25fr 1fr; align-items: end; gap: clamp(2rem, 5vw, 5rem); margin-bottom: 3rem; }
-.og-community-intro h2 { margin: 1.25rem 0 0; font-size: clamp(2.25rem, 1.5rem + 1.7vw, 3.25rem); line-height: 1.08; }
-.og-community-copy { padding-bottom: .25rem; max-width: 29rem; }
-.og-community-copy p { margin: 0 0 1rem; color: var(--og-muted); font-size: 1rem; line-height: 1.75; }
-.og-pathways { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
-/* One link per card. Only the photograph clips; the keyboard outline stays outside. */
-.og-pathway { position: relative; display: grid; grid-template-rows: auto 1fr; min-width: 0; border: 1px solid var(--og-ink); border-radius: var(--og-radius); color: var(--og-white); background: var(--og-ink); text-decoration: none; transition: border-color 180ms ease; }
-.og-pathway .og-photograph { aspect-ratio: 16 / 9; border-radius: calc(var(--og-radius) - 1px) calc(var(--og-radius) - 1px) 0 0; }
-.og-pathway img { transition: transform 180ms ease; }
-.og-home .og-pathway:focus-visible { outline-color: var(--og-blue); }
-.og-pathway-copy { min-width: 0; display: grid; grid-template-rows: auto 1fr; padding: 1.5rem 1.5rem 1.75rem; }
-.og-pathway h3 { min-height: 2.08em; margin: 0 0 1rem; font-size: clamp(2rem, 1.5rem + 1vw, 2.625rem); line-height: 1.04; letter-spacing: -.05em; overflow-wrap: break-word; }
-.og-pathway p { align-self: start; min-height: 4.65em; margin: 0; padding-right: 3.75rem; color: var(--og-inverse-text); font-size: 1rem; line-height: 1.55; }
-.og-pathway-arrow { position: absolute; right: 1.5rem; bottom: 1.75rem; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 50%; background: var(--og-white); color: var(--og-ink); transition: background-color 180ms ease; }
-.og-pathway-arrow svg { width: 1.25rem; height: 1.25rem; transition: transform 180ms ease; }
-@media (hover: hover) and (pointer: fine) {
-  .og-pathway:hover { border-color: var(--og-border-strong); }
-  .og-pathway:hover img { transform: scale(1.02); }
-  .og-pathway:hover .og-pathway-arrow { background: var(--og-warning-surface); }
-  .og-pathway:hover .og-pathway-arrow svg { transform: translateX(3px); }
-}
-.og-pathway:active { border-color: var(--og-gold-light); transition: none; }
-.og-pathway:active .og-pathway-arrow { background: var(--og-gold-light); transition: none; }
-@media (prefers-reduced-motion: reduce) {
-  .og-pathway img, .og-pathway-arrow svg { transform: none !important; }
-}
-@media (forced-colors: active) {
-  .og-pathway { border-color: CanvasText; }
-  .og-pathway-arrow { border: 1px solid ButtonText; }
-  .og-pathway:active { border-color: Highlight; }
-}
-.og-community-principle { padding: 5rem 1rem 4rem; text-align: center; }
-.og-community-principle p { margin: 0; font-size: clamp(1.375rem, 2.1vw, 2rem); line-height: 1.45; font-style: italic; letter-spacing: -.035em; }
-.og-community-principle > span { display: block; width: 2.5rem; height: 1px; margin: 2rem auto 0; background: var(--og-border-strong); }
-/* Photography framing and the existing audience entry pages. */
-.og-pathway--find img { object-position: 55% 55%; }
-.og-pathway--organizations img { object-position: 50% 50%; }
+/* The existing audience entry pages. */
 .og-entry-main { padding-block: clamp(3rem, 5vw, 4.5rem); }
 .og-entry-intro { max-width: 54rem; }
 .og-entry-intro h1 { margin: 1.5rem 0; font-size: var(--og-editorial-display); line-height: 1.06; }
@@ -93,27 +55,13 @@
   .og-hero-description { max-width: 32rem; }
   .og-hero-actions { max-width: 100%; }
 }
-@media (max-width: 1050px) {
-  .og-community-intro { gap: 3rem; }
-
-}
 @media (max-width: 900px) {
-  .og-community { padding-top: 3rem; }
   .og-entry-intro--give { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
-  .og-community-intro { grid-template-columns: 1fr 1fr; gap: 2rem; }
-  .og-community-intro h2 { font-size: 2.25rem; }
-  .og-community-copy p { font-size: .9375rem; }
-  .og-pathways { gap: .875rem; }
 
-  .og-pathway-copy { padding: 1.25rem 1.25rem 5rem; }
-  .og-pathway h3 { font-size: 1.625rem; }
-  .og-pathway p { padding-right: 0; }
-  .og-pathway-arrow { left: 1.25rem; right: auto; bottom: 1.25rem; }
   .og-entry-intro--organizations { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
   .og-entry-intro--organizations .og-editorial-photo { margin: 0; max-width: 38rem; }
 }
 @media (max-width: 600px) {
-  .og-community { padding-top: 2.5rem; }
   .og-hero-body { padding-block: 2rem; }
   .og-hero-body h1 { font-size: clamp(2.5rem, 11vw, 2.875rem); line-height: 1.02; margin-bottom: 1.25rem; }
   .og-hero-description { max-width: 23rem; font-size: 1rem; }
@@ -123,28 +71,10 @@
   .og-hero-values > div:last-child { grid-column: 1 / -1; }
   .og-hero-values p { font-size: 1rem; }
   .og-hero-values > div:last-child p br { display: none; }
-  .og-community-intro { grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
-  .og-community-intro h2 { font-size: clamp(2rem, 8vw, 2.75rem); }
-  .og-community-copy { max-width: none; }
-  .og-community-copy p { font-size: 1rem; }
-  .og-pathways { grid-template-columns: 1fr; grid-auto-rows: 1fr; gap: 1rem; }
-  .og-pathway .og-photograph { aspect-ratio: 3 / 2; }
-  .og-pathway-copy { padding: 1.5rem 1.5rem 1.75rem; }
-  .og-pathway h3 { font-size: clamp(2rem, 1.5rem + 3vw, 2.625rem); }
-  .og-pathway p { max-width: none; padding-right: 3.75rem; font-size: 1rem; }
-  .og-pathway-arrow { left: auto; right: 1.5rem; bottom: 1.75rem; width: 2.75rem; height: 2.75rem; }
-  .og-community-principle { padding: 3.5rem 0; }
-  .og-community-principle p br { display: none; }
   .og-entry-main { padding-block: 3rem; }
 
   .og-entry-lead { font-size: 1rem; }
   .og-entry-sections { grid-template-columns: 1fr; gap: 2rem; margin-top: 3rem; }
-}
-
-@media (min-width: 901px) and (max-width: 1050px) {
-  .og-pathway-copy { padding: 1.25rem 1.25rem 5rem; }
-  .og-pathway p { padding-right: 0; }
-  .og-pathway-arrow { left: 1.25rem; right: auto; bottom: 1.25rem; }
 }
 
 .og-giving { margin-top: 4rem; padding-top: 2.5rem; border-top: 1px solid var(--og-line); }
