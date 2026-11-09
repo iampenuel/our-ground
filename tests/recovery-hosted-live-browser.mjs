@@ -20,7 +20,7 @@ p.on('pageerror',e=>receipt.errors.push(e.name));
 p.on('response',async r=>{const u=new URL(r.url());if(u.origin===origin&&u.pathname.includes('/eden/hosted/'))receipt.http.push({path:u.pathname.split('/hosted/')[1],status:r.status()});if(u.origin===origin&&u.pathname.endsWith('/hosted/live/token')&&r.ok()){const t=await r.json();receipt.tokenCheck={validOnUncorrectedDeviceClock:!!validateEdenLiveTokenResponse(t),validOnIssuerClock:!!validateHostedLiveClock(t,r.headers().date,0),config:!!validateEdenLiveConfig(t.config),fields:Object.keys(t).length,model:t.model,voice:t.voiceName,maxSeconds:t.maxCallSeconds,expiresInMs:Date.parse(t.expiresAt)-Date.now(),connectInMs:Date.parse(t.newSessionExpiresAt)-Date.now()};}});
 p.on('websocket',ws=>{
  if(new URL(ws.url()).hostname!=='generativelanguage.googleapis.com')return;
- ws.on('framesent',({payload})=>{const m=JSON.parse(String(payload));if(m.setup){receipt.requestedModel=m.setup.model;receipt.requestedVoice=m.setup.generationConfig?.speechConfig?.voiceConfig?.prebuiltVoiceConfig?.voiceName;}
+ ws.on('framesent',({payload})=>{const m=JSON.parse(String(payload));if(m.setup){receipt.temperature=m.setup.generationConfig?.temperature;receipt.requestedModel=m.setup.model;receipt.requestedVoice=m.setup.generationConfig?.speechConfig?.voiceConfig?.prebuiltVoiceConfig?.voiceName;}
  if(m.realtimeInput?.audio){
    receipt.audioInputChunks++;
    // Count signal-bearing PCM packets, then discard them. This harness only
@@ -53,7 +53,7 @@ p.on('websocket',ws=>{
 await p.addInitScript(()=>{
  const g=window;g.qaWire={sockets:0,policy:[],close:[]};document.addEventListener('securitypolicyviolation',e=>g.qaWire.policy.push(e.effectiveDirective));const Native=WebSocket;g.WebSocket=class extends Native{constructor(...args){super(...args);g.qaWire.sockets++;this.addEventListener('close',e=>g.qaWire.close.push(e.code));}};g.qaTracks=[];g.qaHits=[];g.qaStates=[];g.qaPlayback=[];
  g.qaCharacterStates=[];new MutationObserver(events=>{for(const e of events){const s=e.target.dataset.edenState;if(s&&g.qaCharacterStates.at(-1)!==s)g.qaCharacterStates.push(s);}}).observe(document,{subtree:true,attributes:true,attributeFilter:['data-eden-state']});
- g.qaMarks=[];g.qaMaxOutput=0;
+ g.qaMarks=[];g.qaMaxOutput=0;g.qaStep='introduction';g.qaStepPeak={};
  new MutationObserver(events=>{for(const e of events)if(e.target instanceof HTMLElement){
     g.qaMarks.push({attribute:e.attributeName,on:e.target.hasAttribute(e.attributeName),atMs:performance.now()});
  }}).observe(document,{subtree:true,attributes:true,attributeFilter:['data-cursor-hover','data-cursor-press']});
@@ -65,7 +65,7 @@ await p.addInitScript(()=>{
     connect.call(this,capture);g.qaOutput=capture.stream;
     const analyser=this;g.qaOutputClock={initial:this.context.currentTime,last:this.context.currentTime,ticks:0,state:this.context.state};const clock=g.qaOutputClock;
     const values=new Float32Array(analyser.fftSize);g.qaLevelTimer=setInterval(()=>{
-      clock.last=analyser.context.currentTime;clock.ticks++;clock.state=analyser.context.state;
+      g.qaStepPeak[g.qaStep]=Math.max(g.qaStepPeak[g.qaStep]??0,g.qaCurrentOutput??0);clock.last=analyser.context.currentTime;clock.ticks++;clock.state=analyser.context.state;
       analyser.getFloatTimeDomainData(values);let sum=0;for(const v of values)sum+=v*v;
       g.qaCurrentOutput=Math.sqrt(sum/values.length);g.qaMaxOutput=Math.max(g.qaMaxOutput,g.qaCurrentOutput);
     },50);
@@ -98,7 +98,7 @@ async function waitListening(){
 }
 const expectedInput={identity:/who.*you/i,capabilities:/help/i,search:/Harrisburg/i,details:/first.*result/i,food:/food/i,page:/page/i,map:/map/i};
 async function utter(label){
- activeStep=label;
+ activeStep=label;await p.evaluate(v=>{window.qaStep=v;},label);
  const bytes=await readFile(join(process.env.EDEN_QA_SPEECH_DIR,label+'.wav'));
  await p.evaluate(raw=>window.qaSay(raw),bytes.toString('base64'));
 }
@@ -155,6 +155,7 @@ try{
  const interrupt=process.env.EDEN_QA_INTERRUPT==='1';
  await waitListening();
  assert(receipt.setupComplete&&receipt.audioOutputChunks>0);
+ assert.equal(receipt.temperature,1);
  await p.locator('[data-live-mute]').click();assert.equal(await p.locator('[data-live-mute]').getAttribute('aria-pressed'),'true');await p.locator('[data-live-mute]').click();receipt.muteUnmute=true;
  for(const name of (process.env.EDEN_QA_TURNS??'identity,search,details').split(',')){
    let reply='';
@@ -192,12 +193,15 @@ try{
  assert(Object.values(receipt.observations).every(Boolean),'One or more requested actions were not confirmed');
  assert.equal(await p.evaluate(()=>window.qaWire.sockets),1);assert((await p.evaluate(()=>window.qaMaxOutput))>.015);
  receipt.characterStates=await p.evaluate(()=>window.qaCharacterStates);assert(receipt.characterStates.includes('speaking'));
+ receipt.graphPeakByStep=await p.evaluate(()=>window.qaStepPeak);
+ for(const step of ['introduction',...Object.keys(receipt.observations)])assert(receipt.graphPeakByStep[step]>.001&&receipt.providerByStep[step].outputPeak>.002&&receipt.providerByStep[step].outputSamples>=1200,'No measured speech playback: '+step);
  receipt.status='PASS';
 }catch(e){process.exitCode=1;receipt.failedAt=activeStep;receipt.failure=String(e.message).split('\n')[0].slice(0,240);receipt.ui=await p.locator('[data-live-state]').innerText().catch(()=>'');}
 finally{
  receipt.partialProviderInput=input.slice(0,160); // Test-generated public phrases only.
  receipt.partialProviderReply=output.slice(0,400);
  receipt.firstDetailOpen=await p.locator('[data-card-key^="directory:"]').first().locator('[data-resource-content]:visible').count().then(n=>n>0).catch(()=>false);
+ receipt.graphPeakByStep=await p.evaluate(()=>window.qaStepPeak).catch(()=>({}));
  receipt.playerPeakRms=await p.evaluate(()=>window.qaMaxOutput).catch(()=>0);
  receipt.playerClock=await p.evaluate(()=>window.qaOutputClock).catch(()=>null);
  receipt.cursor??=await p.evaluate(()=>window.qaHits).catch(()=>[]);

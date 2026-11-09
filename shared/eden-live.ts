@@ -140,7 +140,7 @@ const directoryInstruction = liveInstruction('Use the returned data-kind fact: f
 export function buildEdenLiveConfig(options: { resumeHandle?: string; directory?:boolean } = {}): EdenLiveConfig {
   if (options.resumeHandle !== undefined && !isEdenLiveResumeHandle(options.resumeHandle)) throw new Error('Invalid Live recovery handle.');
   return {
-    responseModalities: ['AUDIO'], temperature: .3, maxOutputTokens: 1024,
+    responseModalities: ['AUDIO'], temperature: options.directory ? 1 : .3, maxOutputTokens: 1024,
     speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: EDEN_LIVE_VOICE } } },
     systemInstruction: { parts: [{ text: options.directory ? directoryInstruction : EDEN_LIVE_SYSTEM_INSTRUCTION }] },
     inputAudioTranscription: {}, outputAudioTranscription: {}, sessionResumption: options.resumeHandle ? { handle: options.resumeHandle } : {},

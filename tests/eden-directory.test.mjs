@@ -76,6 +76,24 @@ test('published count is independent of the first page; a true empty search and 
   repo.search=async()=>({items:[],total:0});const empty=await agent.inspectLiveContext(support([]));assert.match(empty.facts.find(f=>f.id==='result-count').text,/0 matching food listings within 10 miles of Harrisburg.*does not mean/);
   repo.search=async()=>{throw Error('unavailable');};await assert.rejects(agent.inspectLiveContext(support([])));
 });
+test('a corrected public category must name the reconciled category even when there are no matches',async()=>{
+  const repo={...source(),search:async()=>({total:0,items:[]})};
+  let omitCount=true;
+  const agent=createEdenAgent(env,{repository:repo,directoryCity:locate,create:async payload=>{
+    const name=payload.tools[0].name,context=JSON.parse(payload.input);
+    if(name==='compose_verified_reply')assert(context.required_fact_ids.includes('result-count'));
+    const args=name==='perform_public_resource_action'?{action:{type:'refine',category:'food'}}:
+      {segments:(omitCount?['outcome']:['outcome','result-count']).map(id=>({kind:'fact',id}))};
+    return {status:'requires_action',steps:[{type:'function_call',id:'unit',name,arguments:args}]};
+  }});
+  const before={...support([]),category:'healthcare'},after=support([]);
+  const complete=async()=>{
+    const plan=await agent.begin({intent:{goal:'change-category',category:'food'},context:before,noticeVersion:EDEN_NOTICE_VERSION},'test');
+    return agent.complete({turnToken:plan.turnToken,outcome:'done',resourceIds:[],noticeVersion:EDEN_NOTICE_VERSION,context:after},'test');
+  };
+  await assert.rejects(complete(),{code:'EDEN_AGENT_COMPOSITION_REQUIRED'});
+  omitCount=false;assert.match((await complete()).reply,/0 matching food listings within 10 miles of Harrisburg/);
+});
 // This optional local archive is historical API evidence, never a runtime data source.
 const archive=await readFile(new URL('../output/phase-7d/real-directory-harrisburg.json',import.meta.url),'utf8').then(JSON.parse).catch(()=>null);
 test('historical Harrisburg HRSA coordinates and service IDs survive refinement and marker selection (archive replay only)',{skip:!archive},async()=>{

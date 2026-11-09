@@ -464,7 +464,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       }
       if (!failed && item.action.type==='read-hours') requirements.requiredFactIds.push('hours-unverified');
       if (!failed && directory && item.action.type==='read-hours') requirements.requiredFactIds.push(`resource-${item.action.index}-hours`);
-      if (!failed && (item.action.type === 'search' || item.action.type === 'radius')) requirements.requiredFactIds.push('result-count');
+      if (!failed && (item.action.type === 'search' || item.action.type === 'radius' || (directory && item.action.type === 'refine' && item.query))) requirements.requiredFactIds.push('result-count');
       if (!failed && item.action.type === 'radius') requirements.requiredFactIds.push('search-radius');
       if (!failed && item.action.type === 'details') {
         requirements.requiredFactIds.push(`resource-${item.action.index}-title`);

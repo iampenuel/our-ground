@@ -3,14 +3,15 @@ import type {LiveAudioContextState} from './audio.ts';
 
 export interface LiveOutput {
   init(): Promise<void>;
-  enqueue(data: string, mimeType: string): void;
+  enqueue(data: string, mimeType: string, samples?:Float32Array<ArrayBuffer>, observed?:PlaybackObservation): void;
   drain(signal: AbortSignal): Promise<void>;
   setMuted(muted: boolean): void;
   stop(): void;
   close(): void;
   readonly contextState?: LiveAudioContextState;
 }
-type Scheduled = {source: AudioBufferSourceNode; start: number; end: number};
+export type PlaybackObservation={scheduled:number;ended:number;graphPeakRms:number};
+type Scheduled = {source: AudioBufferSourceNode; start: number; end: number; observed?:PlaybackObservation};
 /** Ordered PCM playback; audible activity comes from the actual output graph. */
 export class LivePcmOutput implements LiveOutput {
   private context: AudioContext | undefined;
@@ -19,7 +20,7 @@ export class LivePcmOutput implements LiveOutput {
   private sources = new Set<Scheduled>();
   private waiters = new Set<{resolve: () => void; reject: () => void; cleanup: () => void}>();
   private next = 0; private generation = 0; private muted = false; private frame: number | undefined;
-  private active = false;
+  private active = false; private lastSignal=-Infinity;
   private onLevel: (level: number) => void; private onActivity: (active: boolean) => void; private contextFactory: () => AudioContext;
   private onContextState:(state:LiveAudioContextState)=>void;
   constructor(onLevel: (level: number) => void, onActivity: (active: boolean) => void,
@@ -36,22 +37,22 @@ export class LivePcmOutput implements LiveOutput {
     if (this.context !== context || context.state !== 'running') throw new Error('Audio playback did not start.');
     this.onContextState(this.contextState);
   }
-  enqueue(data: string, mimeType: string) {
+  enqueue(data: string, mimeType: string, decoded?:Float32Array<ArrayBuffer>, observed?:PlaybackObservation) {
     const context = this.context, gain = this.gain;
     if (!context || !gain || context.state !== 'running') throw new Error('Audio playback is unavailable.');
-    const samples = decodeLivePcm(data, mimeType);
+    const samples = decoded ?? decodeLivePcm(data, mimeType);
     const start = Math.max(this.next, context.currentTime + .015), end = start + samples.length / LIVE_OUTPUT_RATE;
     if (end - context.currentTime > 60 || this.sources.size >= 2048) throw new Error('Voice playback exceeded its limit.');
     const buffer = context.createBuffer(1, samples.length, LIVE_OUTPUT_RATE); buffer.copyToChannel(samples, 0);
     const source = context.createBufferSource(); source.buffer = buffer; source.connect(gain);
-    const scheduled = {source, start, end}, generation = this.generation;
+    const scheduled = {source, start, end, observed}, generation = this.generation;
     source.onended = () => {
       source.disconnect();
       if (generation !== this.generation) return;
-      this.sources.delete(scheduled); this.resolveDrain();
+      if(observed)observed.ended++; this.sources.delete(scheduled); this.resolveDrain();
     };
     this.sources.add(scheduled); this.next = end;
-    try { source.start(start); } catch (error) { this.sources.delete(scheduled); source.disconnect(); throw error; }
+    try { source.start(start); if(observed)observed.scheduled++; } catch (error) { this.sources.delete(scheduled); source.disconnect(); throw error; }
     this.animate();
   }
   private animate() {
@@ -60,11 +61,17 @@ export class LivePcmOutput implements LiveOutput {
       this.frame = undefined;
       const context = this.context, analyser = this.analyser;
       if (!context || !analyser) return;
-      const playing = !this.muted && context.state === 'running' && [...this.sources].some(item => context.currentTime >= item.start && context.currentTime < item.end);
-      if (playing !== this.active) { this.active = playing; this.onActivity(playing); }
-      let level = 0;
-      if (playing) { const data = new Float32Array(analyser.fftSize); analyser.getFloatTimeDomainData(data); level = Math.min(1, Math.sqrt(data.reduce((sum, value) => sum + value * value, 0) / data.length) * 4); }
-      this.onLevel(Number.isFinite(level) ? level : 0);
+      const current=[...this.sources].filter(item=>context.currentTime>=item.start&&context.currentTime<item.end);
+      let rms=0;
+      if (!this.muted&&context.state==='running'&&current.length) {
+        const data=new Float32Array(analyser.fftSize);analyser.getFloatTimeDomainData(data);
+        rms=Math.sqrt(data.reduce((sum,value)=>sum+value*value,0)/data.length);
+        for(const item of current)if(item.observed)item.observed.graphPeakRms=Math.max(item.observed.graphPeakRms,rms);
+      }
+      if(rms>.001)this.lastSignal=context.currentTime;
+      const playing=!!current.length&&!this.muted&&context.state==='running'&&context.currentTime-this.lastSignal<.12;
+      if(playing!==this.active){this.active=playing;this.onActivity(playing);}
+      this.onLevel(Math.min(1,rms*4));
       if (this.sources.size) this.frame = requestAnimationFrame(tick);
     };
     this.frame = requestAnimationFrame(tick);
@@ -82,7 +89,7 @@ export class LivePcmOutput implements LiveOutput {
   private resolveDrain() { if (this.sources.size) return; for (const waiter of [...this.waiters]) { this.waiters.delete(waiter); waiter.cleanup(); waiter.resolve(); } }
   setMuted(muted: boolean) { this.muted = muted; if (this.gain) this.gain.gain.value = muted ? 0 : 1; if (muted) { this.active = false; this.onActivity(false); this.onLevel(0); } }
   stop() {
-    this.generation++;
+    this.generation++;this.lastSignal=-Infinity;
     for (const {source} of this.sources) { source.onended = null; try { source.stop(); } catch { /* Already ended. */ } source.disconnect(); }
     this.sources.clear(); this.next = 0;
     for (const waiter of [...this.waiters]) waiter.reject();

@@ -29,6 +29,21 @@ export function mountHostedLive(host:HTMLElement,o:Options){
   let executor:ReturnType<typeof createEdenLiveToolExecutor>|undefined,callId:string|undefined;
   let interval:ReturnType<typeof setInterval>|undefined;
   let previousStatus='',spoken=false,correlation='',tokenStatus:number|undefined;
+  const indicator=el('[data-live-input]'),caption=el('[data-live-caption]');
+  let sessionState:EdenLiveSnapshot|undefined,lastSentAt=-Infinity,lastSignalAt=-Infinity;
+  function resetCaption(){caption.querySelector('span')!.textContent='';caption.hidden=true;}
+  function renderMic(){
+    const s=sessionState;if(!s)return;
+    const fresh=s.microphoneForwarding&&performance.now()-lastSentAt<750;
+    indicator.hidden=!s.microphoneActive;
+    const detected=fresh&&performance.now()-lastSignalAt<350;
+    const mic=s.microphoneMuted?'Microphone muted':!fresh?'Microphone paused':detected?'Detecting sound':'Microphone active';
+    if(indicator.textContent!==mic)indicator.textContent=mic;
+    indicator.dataset.signal=String(detected);
+    const playing=(s.diagnostic?.playbackStarts??0)>(s.diagnostic?.playbackEnds??0);
+    const label=s.reason??(s.phase==='listening'?(fresh?'Listening':'Waiting for microphone audio…'):s.phase==='speaking'&&!playing?'Thinking…':labels[s.phase]);
+    if(label!==previousStatus){state.textContent=label;previousStatus=label;}
+  }
   let released:Promise<void>=Promise.resolve();
   const details=el<HTMLDetailsElement>('[data-live-details]'),receiptText=el('[data-live-receipt]');
   const recent:Record<string,unknown>[]=[];
@@ -40,7 +55,7 @@ export function mountHostedLive(host:HTMLElement,o:Options){
     // transcripts, token/call IDs, raw provider errors, persistence or uploads.
     host.dataset.liveDiagnostic=JSON.stringify(recent);
     const latest=recent.at(-1)!;
-    receiptText.textContent=Object.entries(latest).filter(([,v])=>v!==undefined).map(([k,v])=>k+': '+v).join(' · ');
+    receiptText.textContent=Object.entries(latest).filter(([,v])=>v!==undefined).map(([k,v])=>k+': '+(typeof v==='object'?JSON.stringify(v):v)).join(' · ');
   }
   function release(id:string){
     const reference=correlation;
@@ -57,7 +72,7 @@ export function mountHostedLive(host:HTMLElement,o:Options){
     host.dataset.livePhase=s.phase;actions.hidden=!active;call.hidden=active||!consent.hidden;
     mute.textContent=s.microphoneMuted?'Unmute':'Mute';mute.setAttribute('aria-pressed',String(s.microphoneMuted));
     el('[data-live-interrupt]').hidden=!['introducing','speaking','processing'].includes(s.phase);
-    const label=s.reason??labels[s.phase];if(label!==previousStatus){state.textContent=label;previousStatus=label;}
+    sessionState=s;renderMic();
     // Playback events reflect the PCM player's scheduled audible interval.
     const playing=(s.diagnostic?.playbackStarts??0)>(s.diagnostic?.playbackEnds??0)&&active;
     if(playing&&!spoken)o.portrait.playbackStarted();
@@ -69,7 +84,7 @@ export function mountHostedLive(host:HTMLElement,o:Options){
     clock.textContent='';
     if(active&&deadline){
       const tick=()=>{const left=Math.max(0,Math.ceil((deadline-Date.now())/1000));clock.textContent=Math.floor(left/60)+':'+String(left%60).padStart(2,'0');};
-      tick();interval=setInterval(tick,1000);
+      tick();interval=setInterval(()=>{tick();renderMic();},350);
     }
     if(!active){
       executor=undefined;callId=undefined;
@@ -78,7 +93,7 @@ export function mountHostedLive(host:HTMLElement,o:Options){
         remember({reference:correlation,model:d.model,phase:s.phase,stage:d.failurePhase??s.phase,failure:d.failure,
           preparation:d.preparation,tokenHTTP:tokenStatus,service:d.serviceCode,serviceHTTP:d.serviceStatus,
           setup:d.setupComplete===true,closeCode:d.closeCode,closeReason:d.closeReason,provider:d.providerCategory,providerHTTP:d.providerStatus,
-          lastEvent:d.lastEvent,completedTurns:d.turnComplete,toolsReceived:d.toolCallsReceived,inputChunks:d.inputChunks,audioChunks:d.audioChunks,decodedChunks:d.decodedChunks,inputContext:d.inputContext,outputContext:d.outputContext,playbacks:d.playbackStarts,spokenInterruptions:d.spokenInterruptions??0,unansweredTurns:d.unansweredTurns??0,inputStreamEnds:d.inputStreamEnds??0,microphoneActive:s.microphoneActive,ended:d.endReason});
+          capture:d.capture,deviceAtStop:d.device,replies:d.replies,generationComplete:d.generationComplete,waitingForInput:d.waitingForInput,lastEvent:d.lastEvent,completedTurns:d.turnComplete,toolsReceived:d.toolCallsReceived,inputChunks:d.inputChunks,audioChunks:d.audioChunks,decodedChunks:d.decodedChunks,inputContext:d.inputContext,outputContext:d.outputContext,playbacks:d.playbackStarts,spokenInterruptions:d.spokenInterruptions??0,unansweredTurns:d.unansweredTurns??0,inputStreamEnds:d.inputStreamEnds??0,microphoneActive:s.microphoneActive,ended:d.endReason});
         details.hidden=s.phase!=='error'&&s.phase!=='permission-required';
       }
     }
@@ -118,19 +133,23 @@ export function mountHostedLive(host:HTMLElement,o:Options){
       const result=await executor(tool,signal);
       return {...result,context:edenLiveModelContext(result.context)};
     },
-    onState:update,onTranscript(){},onAudioLevel:level=>{if(spoken)o.portrait.level(level);}
+    onState:update,onTranscript(){},
+    onUnplayedCaption:text=>{caption.querySelector('span')!.textContent=text;caption.hidden=false;},
+    onInputLevel:level=>{if(level>.06)lastSignalAt=performance.now();},
+    onInputSent:()=>{const now=performance.now(),resumed=now-lastSentAt>750;lastSentAt=now;if(resumed)renderMic();},
+    onAudioLevel:level=>{if(spoken)o.portrait.level(level);}
   });
   const closeConsent=()=>{consent.hidden=true;call.hidden=false;o.changed(false);};
   el('[data-live-cancel]').onclick=()=>{closeConsent();call.focus();};
   el('[data-live-confirm]').onclick=()=>{
-    correlation=crypto.randomUUID();tokenStatus=undefined;details.hidden=true;details.open=false;closeConsent();void live.start({microphoneConsent:true});
+    resetCaption();lastSentAt=lastSignalAt=-Infinity;correlation=crypto.randomUUID();tokenStatus=undefined;details.hidden=true;details.open=false;closeConsent();void live.start({microphoneConsent:true});
   };
   mute.onclick=()=>live.setMicrophoneMuted(!live.snapshot.microphoneMuted);
   el('[data-live-interrupt]').onclick=()=>live.stopSpeaking();
   el('[data-live-end]').onclick=()=>{live.end();call.focus();};
   return {
     prompt(){o.changed(true);state.textContent='';consent.hidden=false;call.hidden=true;el('[data-live-confirm]').focus();},
-    end(){closeConsent();if(!['idle','ended','error','permission-required'].includes(live.snapshot.phase))live.end();},
-    dispose(){clearInterval(interval);live.dispose();}
+    end(){resetCaption();closeConsent();if(!['idle','ended','error','permission-required'].includes(live.snapshot.phase))live.end();},
+    dispose(){resetCaption();clearInterval(interval);live.dispose();}
   };
 }

@@ -1,7 +1,7 @@
 import { buildEdenLiveSetup } from '../../../shared/eden-live.ts';
 import type { EdenLiveTokenResponse } from '../../../shared/eden-live.ts';
 
-export interface LiveConnection { send(value: unknown): void; close(): void }
+export interface LiveConnection { send(value: unknown): boolean | void; close(): void }
 export type LiveProviderCategory = 'none' | 'rate-limit-or-quota' | 'overload' | 'authentication' | 'invalid-request' | 'provider-other';
 export type LiveCloseReason='no-detail'|'policy'|'authentication'|'quota'|'overload'|'protocol'|'other';
 export function classifyLiveClose(reason:string):LiveCloseReason{
@@ -36,12 +36,12 @@ export function connectEdenLive(token: EdenLiveTokenResponse, callbacks: LiveCon
     const awaitingClose=()=>{errorDeadline??=setTimeout(()=>failure({kind:'socket-error'}),500);};
     const connection: LiveConnection = {
       send(value) {
-        if(closed||!ready)throw new Error('Voice connection unavailable.');
+        if(closed||!ready)return false;
         // Chrome can enter CLOSING while a microphone callback is in flight.
         // Preserve the subsequent close code; no unsent packet/action is replayed.
-        if(socket.readyState!==WebSocket.OPEN){awaitingClose();return;}
-        if(socket.bufferedAmount>128_000){failure({kind:'socket-error'});return;}
-        try{socket.send(JSON.stringify(value));}catch{awaitingClose();}
+        if(socket.readyState!==WebSocket.OPEN){awaitingClose();return false;}
+        if(socket.bufferedAmount>128_000){failure({kind:'socket-error'});return false;}
+        try{socket.send(JSON.stringify(value));return true;}catch{awaitingClose();return false;}
       },
       close() { if (closed) return; closed = true; clearTimeout(errorDeadline); signal.removeEventListener('abort', cancel); socket.onmessage = null; socket.onerror = null; socket.onclose = null; try { socket.close(1000, 'Call ended'); } catch { /* Already closed. */ } reject(new Error('Call ended.')); },
     };

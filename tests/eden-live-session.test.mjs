@@ -22,7 +22,7 @@ function harness(overrides={}){
     frames(value,count){for(let i=0;i<count;i++)this.frame(value);},speech(){this.frames(.2,8);},
     playback(value){activity(value);},inputState(value){onInputState(value);},outputState(value){onOutputState(value);},
     flush(){queued=0;for(const resolve of drains.splice(0))resolve();},
-    audio(){this.message({serverContent:{modelTurn:{parts:[{inlineData:{data:'AAAA',mimeType:'audio/pcm;rate=24000'}}]}}});},
+    audio(data=Buffer.alloc(4800,32).toString('base64')){this.message({serverContent:{modelTurn:{parts:[{inlineData:{data,mimeType:'audio/pcm;rate=24000'}}]}}});},
     async finish(){this.message({serverContent:{turnComplete:true}});this.flush();await settle();},
     async intro(){await controller.start({microphoneConsent:true});this.audio();await this.finish();},
     cleanup(){controller.dispose();for(const[name,value]of saved){if(value)Object.defineProperty(globalThis,name,value);else delete globalThis[name];}}};return result;
@@ -406,7 +406,7 @@ test('native transport pins v1beta constrained endpoint, waits setup and closes 
     assert.equal(sockets[0].sent[0].setup.generationConfig.speechConfig.voiceConfig.prebuiltVoiceConfig.voiceName,'Aoede');
     abort.abort();await assert.rejects(pending);assert.equal(sockets[0].closed,true);
     const nextAbort=new AbortController(),messages=[],connected=connectEdenLive(token(),{message:value=>messages.push(value),closed(){}},nextAbort.signal);const socket=sockets[1];socket.onopen();socket.onmessage({data:new TextEncoder().encode('{"setupComplete":{}}').buffer});
-    const connection=await connected;connection.send({realtimeInput:{text:'synthetic request'}});assert.equal(messages.length,1);nextAbort.abort();assert.equal(socket.closed,true);assert.throws(()=>connection.send({}));
+    const connection=await connected;connection.send({realtimeInput:{text:'synthetic request'}});assert.equal(messages.length,1);nextAbort.abort();assert.equal(socket.closed,true);assert.equal(connection.send({}),false);
   }finally{if(original)Object.defineProperty(globalThis,'WebSocket',original);else delete globalThis.WebSocket;}
 });
 
@@ -441,12 +441,13 @@ test('a provider interruption followed by a separate old turnComplete preserves 
   const h=harness({options:{allowSpokenInterruption:true}});try{
     await h.controller.start({microphoneConsent:true});h.audio();h.playback(true);
     assert(h.controller.snapshot.microphoneForwarding);h.speech();
-    assert.equal(h.controller.snapshot.phase,'listening');
+    assert.equal(h.controller.snapshot.phase,'introducing','local signal cannot cut playback');
     h.audio(); // In-flight audio from the old response, before Google acknowledges the interruption.
-    assert.equal(h.controller.snapshot.phase,'listening');assert(h.controller.snapshot.forwarding);
-    assert.equal(h.controller.snapshot.diagnostic.spokenInterruptions,1);
+    assert.equal(h.controller.snapshot.phase,'introducing');assert(h.controller.snapshot.forwarding);
+    assert.equal(h.controller.snapshot.diagnostic.spokenInterruptions??0,0);
     assert.equal(h.connections[0].sent.filter(v=>v.realtimeInput?.audioStreamEnd).length,0);
     h.message({serverContent:{interrupted:true}});
+    assert.equal(h.controller.snapshot.diagnostic.spokenInterruptions,1);
     h.message({serverContent:{turnComplete:true}});await settle();
     assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.controller.snapshot.diagnostic.failure,'none');
     h.frames(0,44);assert.equal(h.controller.snapshot.phase,'processing');
@@ -503,7 +504,7 @@ test('a generated caption with only one PCM sample and no completed turn release
   try{
     await h.controller.start({microphoneConsent:true});
     globalThis.setTimeout=(fn,ms,...args)=>{const id=original(fn,ms,...args);timers.push({ms,run:()=>{clearTimeout(id);fn(...args);}});return id;};
-    h.message({serverContent:{outputTranscription:{text:'Public test caption.'}}});h.audio();
+    h.message({serverContent:{outputTranscription:{text:'Public test caption.'}}});h.audio('AAAA');
     h.message({serverContent:{generationComplete:true}});timers.find(t=>t.ms===3500).run();
     assert.equal(h.controller.snapshot.diagnostic.failure,'audio-missing');assert.match(h.controller.snapshot.reason,/too little audio/);
     assert.equal(h.controller.snapshot.diagnostic.turnComplete,0);assert.equal(h.controller.snapshot.microphoneActive,false);assert.equal(h.releases.length,1);
@@ -520,4 +521,20 @@ test('a PCM callback during a remote socket close preserves 1011 without blaming
     socket.readyState=2;c.send({realtimeInput:{audio:{data:'AAAA'}}});assert.equal(socket.sent.length,1,'only setup was delivered');
     socket.onclose({code:1011,reason:'internal service error'});assert.deepEqual(closed,[{kind:'socket-close',closeReason:'other',code:1011}]);
   }finally{if(original)Object.defineProperty(globalThis,'WebSocket',original);else delete globalThis.WebSocket;}
+});
+
+test('captioned full-length silence is not speech; the user can restart without replay or leaked caption',async()=>{
+  const captions=[],h=harness({options:{allowSpokenInterruption:true,onUnplayedCaption:t=>captions.push(t)}});
+  try{
+    await h.controller.start({microphoneConsent:true});
+    h.frames(.25,12);h.message({voiceActivity:{voiceActivityType:'ACTIVITY_START'}});
+    h.message({serverContent:{inputTranscription:{text:'Synthetic input.'},outputTranscription:{text:'Synthetic reply.'}}});
+    h.audio(Buffer.alloc(48000).toString('base64'));h.message({serverContent:{generationComplete:true,turnComplete:true}});
+    const d=h.controller.snapshot.diagnostic,r=d.replies.at(-1);
+    assert.equal(d.failure,'audio-missing');assert.deepEqual(captions,['Synthetic reply.']);assert.equal(r.durationMs,1000);
+    assert.equal(r.nonzeroRatio,0);assert.equal(r.usable,false);assert.equal(d.capture.serverStarts,1);assert.equal(d.capture.inputCaptions,1);
+    assert(d.capture.encoded>0&&d.capture.sentWithSignal>0);assert.equal(d.capture.encoded,d.inputChunks);
+    assert(!JSON.stringify(d).includes('Synthetic'));assert.equal(h.releases.length,1);assert.equal(h.controller.snapshot.microphoneActive,false);
+    await h.intro();assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.requests.length,2);assert.equal(h.actions.length,0);
+  }finally{h.cleanup();}
 });

@@ -1,0 +1,7 @@
+{
+  "source":"Physical Chrome tab's Call details, read without reload; owner independently reported silence. No physical audio was recorded.",
+  "sha":"48dd90193cd1fd9ad0f504619f55618c89323402",
+  "deployment":"dpl_95HY4W1JCkiahMqMC8bLLHR5Eh8y",
+  "reference":"d6b623b6-752e-40b1-91db-e92c678484a7",
+  "model":"gemini-3.8-live","phase":"error","stage":"processing","failure":"audio-missing","preparation":"ready","tokenHTTP":200,"setup":true,"provider":"none","lastEvent":"generation-complete","completedTurns":0,"toolsReceived":1,"inputChunks":2398,"audioChunks":190,"decodedChunks":190,"inputContext":"running","outputContext":"running","playbacks":4,"spokenInterruptions":4,"unansweredTurns":0,"inputStreamEnds":0,"microphoneActive":false,"endHTTP":200,"physicalAcceptance":"FAIL"
+}

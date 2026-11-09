@@ -184,3 +184,10 @@
 .eden-live-strip [data-live-state]{display:block}.eden-live-strip [data-live-clock]{font-variant-numeric:tabular-nums}
 
 .eden-live-strip [data-live-details]{overflow-wrap:anywhere}.eden-live-strip [data-live-details] summary{cursor:pointer}
+
+[data-live-input]:not([hidden]) {display:inline-block;margin-inline-start:.45rem;font-size:.78em;}
+[data-live-input]::before {content:"";display:inline-block;width:.45em;height:.45em;border-radius:50%;margin-inline-end:.35em;border:1px solid currentColor;vertical-align:.08em;}
+[data-live-input][data-signal=true]::before {background:currentColor;}
+[data-live-caption] {overflow-wrap:anywhere;}
+[data-live-caption] strong {display:block;}
+[data-live-receipt] {overflow-wrap:anywhere;}

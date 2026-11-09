@@ -78,7 +78,9 @@ try{
    assert(await p.locator('[data-resource-content]:visible').count()>0);
    if(finalAcceptance){
      const food=await ask('correct category','Actually, I meant food support.');
-     assert(['search','refine'].includes(food.trace.proposedAction));assert.match(food.reply,/food|pantry|pantries/i);
+     assert(['search','refine'].includes(food.trace.proposedAction));
+     assert(await p.locator('[data-category="food"][aria-pressed="true"],[data-need="food"][aria-pressed="true"]').count()>0);
+     if(!/food|pantry|pantries/i.test(food.reply))report.errors.push('The confirmed correction did not name food support');
      assert.equal(await p.locator('#locationInput').inputValue(),'Harrisburg, PA');
      const page=await ask('describe current page',"Can you explain what's on this page?");
      assert.equal(page.trace.proposedAction,'read-page');assert.match(page.reply,/support|results|directory|food|map/i);
