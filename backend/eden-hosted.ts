@@ -1,3 +1,4 @@
+import {isEdenLiveDailyLimit} from '../shared/eden-live-timing.ts';
 import {liveCapacity} from './eden-live-capacity.ts';
 import {DirectoryLocationError} from './directory-city.ts';
 import {LocationSearchError} from './location-search.ts';
@@ -181,8 +182,16 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
         return result;
       }
       if(error instanceof EdenLiveError || error instanceof EdenSpeechError || error instanceof RequestInputError){
-        const result=response({error:{code:error.code,message:error.message}},error.status);
-        if(error instanceof EdenLiveError&&error.retryAfterSeconds)result.headers.set('Retry-After',String(error.retryAfterSeconds));
+        const now=Date.now();
+        const resetAt=error instanceof EdenLiveError&&isEdenLiveDailyLimit(error.code)?error.resetAt:undefined;
+        const delay=error instanceof EdenLiveError?error.retryAfterSeconds:undefined;
+        const retryAt=resetAt??(Number.isSafeInteger(delay)&&delay!>=0&&delay!<=31*86400?new Date(now+delay!*1000).toISOString():undefined);
+        const result=response({error:{code:error.code,message:error.message,...(resetAt?{resetAt}:{}),...(retryAt?{retryAt}:{})}},error.status);
+        if(error instanceof EdenLiveError){
+          result.headers.set('Date',new Date(now).toUTCString());
+          const wait=resetAt?Math.max(0,Math.ceil((Date.parse(resetAt)-now)/1000)):delay;
+          if(wait!==undefined)result.headers.set('Retry-After',String(wait));
+        }
         return result;
       }
       return response({error:{code:'EDEN_UNAVAILABLE',message:'The assistant is temporarily unavailable.'}},503);

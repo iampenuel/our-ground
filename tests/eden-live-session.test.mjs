@@ -54,15 +54,17 @@ test('microphone denial leaves text fallback and does not mint a provider creden
   }finally{h.cleanup();}
 });
 
-test('preparation is bounded, distinguishes pending permission from paused output, and never mints before readiness',async()=>{
+test('preparation is bounded, distinguishes pending permission from paused output, and never mints before readiness',async t=>{
+  t.mock.timers.enable({apis:['setTimeout']});
+  const microtasks=async()=>{for(let i=0;i<10;i++)await Promise.resolve();};
   let grant;const micGate=new Promise(resolve=>{grant=resolve;}),pendingMic={active:false,start:()=>micGate,setMuted(){},stop(){this.stopped=true;}};
   const pending=harness({dependencies:{microphone:()=>pendingMic,preparationTimeoutMs:10}});try{
-    await pending.controller.start({microphoneConsent:true});assert.equal(pending.controller.snapshot.phase,'permission-required');assert.equal(pending.controller.snapshot.diagnostic.failure,'permission-pending');assert.match(pending.controller.snapshot.reason,/still pending/);assert.equal(pending.requests.length,0);assert.equal(pendingMic.stopped,true);
-    const before=pending.controller.snapshot;grant();await settle();assert.deepEqual(pending.controller.snapshot,before,'late preparation cannot resurrect a timed-out call');
+    const start=pending.controller.start({microphoneConsent:true});await microtasks();t.mock.timers.tick(10);await start;assert.equal(pending.controller.snapshot.phase,'permission-required');assert.equal(pending.controller.snapshot.diagnostic.failure,'permission-pending');assert.match(pending.controller.snapshot.reason,/still pending/);assert.equal(pending.requests.length,0);assert.equal(pendingMic.stopped,true);
+    const before=pending.controller.snapshot;grant();await microtasks();assert.deepEqual(pending.controller.snapshot,before,'late preparation cannot resurrect a timed-out call');
   }finally{pending.cleanup();}
   let resume;const outputGate=new Promise(resolve=>{resume=resolve;}),paused=harness({dependencies:{output:()=>({init:()=>outputGate,enqueue(){},drain:async()=>{},setMuted(){},stop(){},close(){}}),preparationTimeoutMs:10}});try{
-    const start=paused.controller.start({microphoneConsent:true});await settle();assert.equal(paused.controller.snapshot.diagnostic.preparation,'audio-output-pending');assert.equal(paused.controller.snapshot.microphoneActive,true);assert.match(paused.controller.snapshot.reason,/browser audio playback/);
-    await start;assert.equal(paused.controller.snapshot.phase,'error');assert.equal(paused.controller.snapshot.diagnostic.failure,'audio-output-timeout');assert.equal(paused.controller.snapshot.microphoneActive,false);assert.equal(paused.requests.length,0);resume();await settle();assert.equal(paused.controller.snapshot.phase,'error');
+    const start=paused.controller.start({microphoneConsent:true});await microtasks();assert.equal(paused.controller.snapshot.diagnostic.preparation,'audio-output-pending');assert.equal(paused.controller.snapshot.microphoneActive,true);assert.match(paused.controller.snapshot.reason,/browser audio playback/);
+    t.mock.timers.tick(10);await start;assert.equal(paused.controller.snapshot.phase,'error');assert.equal(paused.controller.snapshot.diagnostic.failure,'audio-output-timeout');assert.equal(paused.controller.snapshot.microphoneActive,false);assert.equal(paused.requests.length,0);resume();await microtasks();assert.equal(paused.controller.snapshot.phase,'error');
   }finally{paused.cleanup();}
 });
 
@@ -661,4 +663,30 @@ test('an interrupted deferred action advances the user turn and queues a replace
       assert.equal(h.requests.length,1);
     }finally{h.cleanup();}
   }
+});
+
+test('voice admission explains personal, shared and provider limits with only authoritative retry times',async()=>{
+ const resetAt='2026-11-10T00:00:00.000Z',retryAt='2026-11-09T23:56:26.000Z';
+ for(const [category,code,timing] of [
+   ['local-limit','EDEN_LIVE_TESTER_START_LIMIT',{resetAt,retryAt:resetAt}],
+   ['local-limit','EDEN_LIVE_TEAM_START_LIMIT',{resetAt,retryAt:resetAt}],
+   ['local-limit','EDEN_LIVE_CAPACITY',{retryAt}],
+   ['rate-limit-or-quota','EDEN_LIVE_PROVIDER_QUOTA',{}],
+   ['rate-limit-or-quota','EDEN_LIVE_PROVIDER_QUOTA',{retryAt}],
+ ]){
+   const error=new EdenLiveServiceError(category,429,code,timing.retryAt?386:undefined,timing);
+   let attempts=0;const h=harness({options:{getToken:async()=>{attempts++;throw error;}}});
+   try{
+     await h.controller.start({microphoneConsent:true});
+     const snapshot=h.controller.snapshot;
+     assert.equal(snapshot.phase,'error');assert.equal(h.connections.length,0);assert.equal(attempts,1);
+     assert.equal(snapshot.microphoneActive,false);assert.doesNotMatch(snapshot.reason,/tester browser|protected call slots|00:00 UTC/);
+     if(code.includes('START_LIMIT')){assert.match(snapshot.reason,/voice allowance/);assert.match(snapshot.reason,/2026/);assert.equal(snapshot.diagnostic.resetAt,resetAt);}
+     if(code==='EDEN_LIVE_CAPACITY'){assert.match(snapshot.reason,/around/);assert.equal(snapshot.diagnostic.retryAt,retryAt);}
+     if(code==='EDEN_LIVE_PROVIDER_QUOTA'){
+       assert.equal(snapshot.diagnostic.resetAt,undefined);assert.match(snapshot.reason,/Google/);
+       if(!timing.retryAt)assert.doesNotMatch(snapshot.reason,/2026|resets|midnight/);
+     }
+   }finally{h.cleanup();}
+ }
 });

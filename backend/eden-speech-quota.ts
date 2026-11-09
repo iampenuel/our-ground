@@ -53,6 +53,18 @@ function googlePayload(e:Record<string,unknown>){
   }
   return {};
 }
+/** Shared structured Google RetryInfo/Retry-After parser. Never infer a reset. */
+export function googleRetryAfterSeconds(error:unknown,now=Date.now()):number|undefined {
+  const input=obj(error),body=googlePayload(input);
+  let retry=headerRetry(input.headers,now);
+  for(const detail of Array.isArray(body.details)?body.details.slice(0,16):[]){
+    const item=obj(detail);
+    if(item['@type']!=='type.googleapis.com/google.rpc.RetryInfo')continue;
+    const seconds=retrySeconds(item.retryDelay??item.retry_delay);
+    if(seconds!==undefined)retry=Math.max(seconds,retry??0);
+  }
+  return retry;
+}
 function category(violations:Violation[]):SpeechQuotaCategory{
   if(violations.some(v=>v.effectiveLimit===0))return 'zero-allowance';
   const labels=violations.map(v=>(v.quotaId??'')+' '+(v.quotaMetric??'')).join(' ');
@@ -66,7 +78,7 @@ export function googleSpeechQuota(error:unknown,model:string,now=Date.now()):Spe
   if(Number(e.status??e.statusCode??e.code??body.code)!==429)return;
   const violations:Violation[]=[];
   let providerReason:string|undefined;
-  let retryAfterSeconds=headerRetry(e.headers,now);
+  const retryAfterSeconds=googleRetryAfterSeconds(error,now);
   const add=(metricInput:unknown,idInput:unknown,limitInput:unknown)=>{
     const quotaMetric=metric(metricInput),quotaId=identifier(idInput),effectiveLimit=limitValue(limitInput);
     if(!quotaMetric&&!quotaId&&effectiveLimit===undefined)return;
@@ -83,9 +95,6 @@ export function googleSpeechQuota(error:unknown,model:string,now=Date.now()):Spe
     }else if(d['@type']==='type.googleapis.com/google.rpc.ErrorInfo'){
       const m=obj(d.metadata);add(m.quota_metric,m.quota_limit,m.quota_limit_value);
       if(typeof d.reason==='string'&&/^(RATE_LIMIT_EXCEEDED|QUOTA_EXCEEDED|RESOURCE_EXHAUSTED)$/.test(d.reason))providerReason=d.reason;
-    }else if(d['@type']==='type.googleapis.com/google.rpc.RetryInfo'){
-      const seconds=retrySeconds(d.retryDelay??d.retry_delay);
-      if(seconds!==undefined)retryAfterSeconds=Math.max(seconds,retryAfterSeconds??0);
     }
   }
   // Some Gemini versions omit a zero proto value from QuotaFailure but give it

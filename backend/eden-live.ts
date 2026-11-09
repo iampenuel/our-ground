@@ -2,6 +2,8 @@ import { GoogleGenAI } from '@google/genai';
 import type { CreateAuthTokenParameters } from '@google/genai';
 import { createHash, randomBytes } from 'node:crypto';
 import { isEdenHostedRuntime } from './eden-provider.ts';
+import { googleRetryAfterSeconds } from './eden-speech-quota.ts';
+import { canonicalLiveTimestamp } from '../shared/eden-live-timing.ts';
 import { buildEdenLiveConfig } from '../shared/eden-live.ts';
 
 // Official free-tier pricing and v1beta token constraints retrieved 2026-11-07.
@@ -9,8 +11,8 @@ import { buildEdenLiveConfig } from '../shared/eden-live.ts';
 export const EDEN_LIVE_MODEL = 'gemini-3.8-live' as const;
 export const EDEN_LIVE_LIMITS = Object.freeze({ maxCallSeconds: 300, connectSeconds: 60, minCallSeconds: 15, mintsPerSession: 3, mintsPerDay: 6, timeoutMs: 12_000, maxRememberedNonces: 100 });
 export class EdenLiveError extends Error {
-  code: string; status: number; retryAfterSeconds?:number;
-  constructor(code: string, status = 503, retryAfterSeconds?:number) { super('The voice call is unavailable. Please try again after the current call limit or continue with text.'); this.code = code; this.status = status; this.retryAfterSeconds=retryAfterSeconds; }
+  code: string; status: number; retryAfterSeconds?:number;resetAt?:string;
+  constructor(code: string, status = 503, retryAfterSeconds?:number,resetAt?:string) { super('The voice call is unavailable. Please try again after the current call limit or continue with text.'); this.code = code; this.status = status; this.retryAfterSeconds=Number.isSafeInteger(retryAfterSeconds)&&retryAfterSeconds!>=0&&retryAfterSeconds!<=31*86400?retryAfterSeconds:undefined;this.resetAt=canonicalLiveTimestamp(resetAt); }
 }
 export type EdenLiveToken = {
   token: string; callId: string; expiresAt: string; newSessionExpiresAt: string;
@@ -137,7 +139,7 @@ export async function issueEdenLiveToken(secret:string, callId:string, expires:n
     combined.throwIfAborted();
   } catch (error) {
     const status = Number(object(error)?.status ?? object(error)?.code);
-    throw new EdenLiveError(status === 429 ? 'EDEN_LIVE_PROVIDER_QUOTA' : combined.aborted ? 'EDEN_LIVE_CANCELLED' : 'EDEN_LIVE_PROVIDER_UNAVAILABLE', status === 429 ? 429 : 503);
+    throw new EdenLiveError(status === 429 ? 'EDEN_LIVE_PROVIDER_QUOTA' : combined.aborted ? 'EDEN_LIVE_CANCELLED' : 'EDEN_LIVE_PROVIDER_UNAVAILABLE', status === 429 ? 429 : 503,status===429?googleRetryAfterSeconds(error,now()):undefined);
   }
   const returned = object(result), token = returned?.name;
   if (typeof token !== 'string' || !/^auth_tokens\/[A-Za-z0-9._~+\/=-]{1,8192}$/.test(token) || (secret && token.includes(secret))

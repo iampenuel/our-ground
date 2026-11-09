@@ -77,3 +77,17 @@ test('invalid staging overrides fail closed and no setting enables three provide
  assert.equal(liveCapacity({EDEN_LIVE_TEAM_STARTS_PER_DAY:'33'}),null);
  assert.equal(liveCapacity({EDEN_LIVE_TEAM_STARTS_PER_DAY:'20'}).teamStarts,20);
 });
+
+test('invited Preview overrides allow 48 confirmed starts with 12 per browser while retaining two provider slots',async()=>{
+ const policy=liveCapacity({EDEN_LIVE_TEAM_STARTS_PER_DAY:'48',EDEN_LIVE_TESTER_STARTS_PER_DAY:'12',EDEN_LIVE_PROVIDER_ATTEMPTS_PER_DAY:'60',EDEN_LIVE_TESTER_ATTEMPTS_PER_DAY:'16',EDEN_LIVE_PROVIDER_SEATS:'2'});
+ assert.deepEqual(policy,{teamStarts:48,testerStarts:12,teamAttempts:60,testerAttempts:16,seats:2});
+ const h=harness(policy);try{
+   for(let i=0;i<48;i++){
+     const tester='invited-'+i%4,session='session-'+i,call=await h.start(tester,session);
+     await h.setup(call,tester,session);await h.end(call,tester,session);h.advance(601000);
+   }
+   await assert.rejects(h.start('invited-0','new-session'),{code:'EDEN_LIVE_TESTER_START_LIMIT'});
+   await assert.rejects(h.start('another-invite'),{code:'EDEN_LIVE_TEAM_START_LIMIT'});
+   assert.equal(h.mints,48);
+ }finally{h.done();}
+});

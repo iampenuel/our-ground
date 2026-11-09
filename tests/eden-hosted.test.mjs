@@ -209,3 +209,21 @@ test('production Live requires explicit approval, the exact production project a
    if(expected){assert.equal(body.liveTestLimits.teamStarts,24);assert.equal(body.liveTestLimits.seats,2);assert.equal(body.liveTestLimits.maxCallSeconds,600);}
  }
 });
+
+
+test('hosted daily voice errors provide authoritative reset and retry times without calling Google',async()=>{
+ const now=Date.now(),day=new Date(now).toISOString().slice(0,10),resetAt=new Date(Date.parse(day+'T00:00:00Z')+86400000).toISOString();
+ const projectBudget='og:adult:eden:v1:rate:live:'+createHash('sha256').update('project:'+day).digest('hex');
+ const backing=memory(),store=command=>command[0]==='GET'&&command[1]===projectBudget?Promise.resolve('32'):backing(command);
+ const preview={...env,VERCEL_ENV:'preview',VERCEL_PROJECT_ID:'prj_eU9xRSetSQYTbkAce2cYIR5zx8c2',VITE_EDEN_HOSTED_LIVE:'true'};
+ const handle=createHostedEden(deps,preview,{store}),headers={cookie:await cookie()};
+ const opening=await handle(req('session',{noticeVersion,acknowledged:true},{headers}),'session');
+ headers.Authorization='Bearer '+(await opening.json()).sessionToken;
+ const r=await handle(req('live/token',{noticeVersion,liveAudioAcknowledged:true,nonce:'n'.repeat(43),context:ctx},{headers}),'live/token');
+ assert.equal(r.status,429);const body=await r.json();
+ assert.equal(body.error.code,'EDEN_LIVE_PROVIDER_BUDGET');assert.equal(body.error.resetAt,resetAt);assert.equal(body.error.retryAt,resetAt);
+ const serverNow=Date.parse(r.headers.get('Date')),wait=Number(r.headers.get('Retry-After'));
+ assert(Number.isFinite(serverNow));assert(wait>=0&&wait<=86400);
+ assert(Math.abs(wait-(Date.parse(resetAt)-serverNow)/1000)<=2);
+ assert.doesNotMatch(JSON.stringify(body),/GEMINI_API_KEY|auth_tokens/);
+});

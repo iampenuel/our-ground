@@ -1,3 +1,4 @@
+import {readEdenLiveRetryTiming,edenLiveCallTime} from '../../shared/eden-live-timing.ts';
 import {EDEN_NOTICE_VERSION} from '../../shared/eden-assistant.ts';
 import {isEdenLiveCallId,edenLiveModelContext,validateEdenLiveContext,validateHostedLiveClock} from '../../shared/eden-live.ts';
 import {currentHostedContext} from './hosted-conversation.ts';
@@ -28,6 +29,11 @@ export function mountHostedLive(host:HTMLElement,o:Options){
   const state=el('[data-live-state]'),clock=el('[data-live-clock]');
   let executor:ReturnType<typeof createEdenLiveToolExecutor>|undefined,callId:string|undefined;
   let interval:ReturnType<typeof setInterval>|undefined;
+  let timedDeadline:number|undefined,monotonicDeadline=0;
+  const expiryWarning=document.createElement('p');
+  expiryWarning.dataset.liveExpiryWarning='';expiryWarning.className='eden-caution';
+  expiryWarning.setAttribute('role','status');expiryWarning.hidden=true;
+  actions.insertAdjacentElement('afterend',expiryWarning);
   let previousStatus='',spoken=false,correlation='',tokenStatus:number|undefined;
   const indicator=el('[data-live-input]'),caption=el('[data-live-caption]');
   let sessionState:EdenLiveSnapshot|undefined,lastSentAt=-Infinity,lastSignalAt=-Infinity;
@@ -83,15 +89,22 @@ export function mountHostedLive(host:HTMLElement,o:Options){
     const deadline=s.diagnostic?.appDeadline;
     clock.textContent='';
     if(active&&deadline){
-      const tick=()=>{const left=Math.max(0,Math.ceil((deadline-Date.now())/1000));clock.textContent=Math.floor(left/60)+':'+String(left%60).padStart(2,'0');};
+      if(timedDeadline!==deadline){timedDeadline=deadline;monotonicDeadline=performance.now()+Math.max(0,deadline-Date.now());}
+      const tick=()=>{
+        const time=edenLiveCallTime(monotonicDeadline,performance.now());
+        clock.textContent=time.label;
+        if(expiryWarning.textContent!==time.warning)expiryWarning.textContent=time.warning;
+        expiryWarning.hidden=!time.warning;
+      };
       tick();interval=setInterval(()=>{tick();renderMic();},350);
     }
     if(!active){
+      timedDeadline=undefined;expiryWarning.hidden=true;expiryWarning.textContent='';
       executor=undefined;callId=undefined;
       const d=s.diagnostic;
       if(correlation&&d){
         remember({reference:correlation,model:d.model,phase:s.phase,stage:d.failurePhase??s.phase,failure:d.failure,
-          preparation:d.preparation,tokenHTTP:tokenStatus,service:d.serviceCode,serviceHTTP:d.serviceStatus,
+          preparation:d.preparation,tokenHTTP:tokenStatus,service:d.serviceCode,serviceHTTP:d.serviceStatus,retryAt:d.retryAt,resetAt:d.resetAt,
           setup:d.setupComplete===true,closeCode:d.closeCode,closeReason:d.closeReason,provider:d.providerCategory,providerHTTP:d.providerStatus,
           capture:d.capture,deviceAtStop:d.device,replies:d.replies,generationComplete:d.generationComplete,waitingForInput:d.waitingForInput,lastEvent:d.lastEvent,completedTurns:d.turnComplete,toolsReceived:d.toolCallsReceived,toolHandoffs:d.toolHandoffs,inputChunks:d.inputChunks,audioChunks:d.audioChunks,decodedChunks:d.decodedChunks,inputContext:d.inputContext,outputContext:d.outputContext,playbacks:d.playbackStarts,spokenInterruptions:d.spokenInterruptions??0,unansweredTurns:d.unansweredTurns??0,inputStreamEnds:d.inputStreamEnds??0,microphoneActive:s.microphoneActive,ended:d.endReason});
         details.hidden=s.phase!=='error'&&s.phase!=='permission-required';
@@ -105,8 +118,12 @@ export function mountHostedLive(host:HTMLElement,o:Options){
     throw await serviceError(r);
   }
   async function serviceError(r:Response){
-    const code=(await r.json().catch(()=>null))?.error?.code;
-    return new EdenLiveServiceError(code==='EDEN_LIVE_PROVIDER_QUOTA'?'rate-limit-or-quota':r.status===429?'local-limit':r.status===403||r.status===401?'access':'application',r.status,code,Number(r.headers.get('retry-after')));
+    const error=(await r.json().catch(()=>null))?.error;
+    const code=error?.code;
+    const header=r.headers.get('retry-after');
+    const retry=header&&/^\d{1,7}$/.test(header)?Number(header):undefined;
+    const timing=readEdenLiveRetryTiming(error,r.headers.get('date'),retry);
+    return new EdenLiveServiceError(code==='EDEN_LIVE_PROVIDER_QUOTA'?'rate-limit-or-quota':r.status===429?'local-limit':r.status===403||r.status===401?'access':'application',r.status,code,retry,timing);
   }
   const live=createEdenLiveSession({
     allowSpokenInterruption:true,getContext:publicContext,

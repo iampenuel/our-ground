@@ -5,6 +5,7 @@ import {hearOneCommand,localEnglishVoices,prepareLocalRecognition} from './comma
 import {mountHostedPortrait} from './runtime/hosted-portrait.ts';
 import {renderHostedPanel} from './hosted-panel.ts';
 import {HostedVoiceError,readHostedReply} from './hosted-playback.ts';
+import {mountEdenIntroduction} from './runtime/introduction.ts';
 
 const noticeKey='og.eden.notice',voiceKey='og.eden.deviceVoice';
 const pageNames={home:'Our Ground',support:'Find Support',give:'Give Support',organizations:'For Organizations',about:'About',privacy:'Privacy',discover:'Discovery',resource:'Resource details'};
@@ -16,6 +17,7 @@ export function mountHostedEden(host:HTMLElement) {
   host.dataset.hostedMounted='true';
   const get=<T extends HTMLElement>(s:string)=>host.querySelector<T>(s)!;
   const panel=get('#eden-panel'),launch=get<HTMLButtonElement>('.eden-launch');
+  const introduction=mountEdenIntroduction(get('.eden-introduction'),get<HTMLButtonElement>('[data-intro-dismiss]'),{homepage:location.pathname==='/',launcher:launch,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches});
   host.classList.add('eden-hosted');renderHostedPanel(panel);
   const portrait=mountHostedPortrait(host);
   const input=get<HTMLTextAreaElement>('#eden-command'),status=get('.eden-state'),log=get('.eden-log'),body=get('.eden-body');
@@ -58,7 +60,7 @@ export function mountHostedEden(host:HTMLElement) {
     p.textContent=text;row.append(p);log.append(row);while(log.childElementCount>16)log.firstElementChild?.remove();
     controls();if(user||follow)body.scrollTop=body.scrollHeight;
   }
-  function context(){get('[data-context]').textContent=pageNames[edenLocalPageContext().route];}
+  function context(){const route=edenLocalPageContext().route;get('[data-context]').textContent=pageNames[route];introduction.setPageAllowed(route==='home');}
   function showSettings(value:boolean){
     if(playback){stopPlayback();notify();}
     showingSettings=value;settings.hidden=!value;get('[data-history]').hidden=value;get('.eden-composer').hidden=value;
@@ -240,8 +242,8 @@ export function mountHostedEden(host:HTMLElement) {
   }
   function show(open:boolean,focus=true){
     panel.hidden=!open;launch.hidden=open;portrait.show(open);if(open)get('.eden-unread').hidden=true;launch.setAttribute('aria-expanded',String(open));document.body.classList.toggle('eden-assistant-open',open);
-    if(open){touch();void refreshEligibility();context();if(focus)get('[data-expand]').focus({preventScroll:true});}
-    else{live?.end();stopDictation();stopPlayback();cancelConsent();notify();if(showingSettings)showSettings(false);launch.focus({preventScroll:true});}
+    if(open){introduction.temporarilyHide();touch();void refreshEligibility();context();if(focus)get('[data-expand]').focus({preventScroll:true});}
+    else{introduction.restore();live?.end();stopDictation();stopPlayback();cancelConsent();notify();if(showingSettings)showSettings(false);launch.focus({preventScroll:true});}
     layout();controls();
   }
   function keydown(e:KeyboardEvent){
@@ -258,6 +260,7 @@ export function mountHostedEden(host:HTMLElement) {
   context();populateVoices();window.speechSynthesis?.addEventListener('voiceschanged',populateVoices);
   voiceSelect.addEventListener('change',()=>{stopPlayback();voicePreference=voiceSelect.value;store(voiceKey,voicePreference);});
   launch.addEventListener('click',()=>show(true));get('[data-minimize]').addEventListener('click',()=>show(false));
+  get('[data-intro-open]').addEventListener('click',()=>show(true));
   get('[data-close]').addEventListener('click',()=>{forget();show(false);});
   get('[data-expand]').addEventListener('click',()=>{expanded=!expanded;host.classList.toggle('eden-expanded',expanded);get('[data-expand]').setAttribute('aria-pressed',String(expanded));get('[data-expand]').setAttribute('aria-label',expanded?'Restore compact chat':'Expand chat');layout();});
   settingsButton.addEventListener('click',()=>showSettings(!showingSettings));
@@ -274,7 +277,7 @@ export function mountHostedEden(host:HTMLElement) {
   input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();void send();}});
   panel.addEventListener('keydown',keydown);mobile.addEventListener('change',layout);window.visualViewport?.addEventListener('resize',layout);window.visualViewport?.addEventListener('scroll',layout);
   document.addEventListener('visibilitychange',hide);
-  window.addEventListener('pagehide',()=>{forget();live?.dispose();portrait.dispose();if(inertApp)inertApp.inert=priorInert;unsubscribe();window.speechSynthesis?.removeEventListener('voiceschanged',populateVoices);document.removeEventListener('visibilitychange',hide);mobile.removeEventListener('change',layout);window.visualViewport?.removeEventListener('resize',layout);window.visualViewport?.removeEventListener('scroll',layout);},{once:true});
+  window.addEventListener('pagehide',()=>{forget();introduction.dispose();live?.dispose();portrait.dispose();if(inertApp)inertApp.inert=priorInert;unsubscribe();window.speechSynthesis?.removeEventListener('voiceschanged',populateVoices);document.removeEventListener('visibilitychange',hide);mobile.removeEventListener('change',layout);window.visualViewport?.removeEventListener('resize',layout);window.visualViewport?.removeEventListener('scroll',layout);},{once:true});
   window.addEventListener('pageshow',e=>{if(e.persisted)location.reload();});
   controls();if(new URLSearchParams(location.search).get('eden')==='1')show(true,false);
 }

@@ -12,7 +12,8 @@
 .eden-unread{position:absolute;right:2px;top:2px;width:12px;height:12px;border:2px solid var(--og-paper);border-radius:50%;background:var(--og-green)}
 .eden-introduction{position:fixed;right:max(1.5rem,env(safe-area-inset-right));bottom:calc(max(1.5rem,env(safe-area-inset-bottom)) + 92px);display:flex;align-items:flex-start;gap:.3rem;width:264px;max-width:calc(100vw - 2rem);padding:.7rem .45rem .7rem .95rem;border:1px solid #d5d9cd;border-radius:1rem 1rem .3rem 1rem;background:var(--og-paper);box-shadow:0 3px 14px #1c332c0d}
 .eden-intro-open{flex:1;min-height:44px;padding:.1rem 0;border:0;background:transparent;color:var(--og-green-deep);font-size:.875rem;line-height:1.55;text-align:left}
-.eden-introduction .eden-icon{flex-shrink:0;width:32px;height:32px;min-width:32px;min-height:32px;font-size:1.1rem;margin-top:-.3rem}
+.eden-intro-cue{display:block;font-size:.72rem;color:var(--og-muted);margin-top:.2rem}
+.eden-introduction .eden-icon{flex-shrink:0;width:44px;height:44px;min-width:44px;min-height:44px;font-size:1.1rem;margin-top:-.3rem}
 .eden-panel{position:fixed;right:max(1.25rem,env(safe-area-inset-right));bottom:max(1.25rem,env(safe-area-inset-bottom));top:auto;width:390px;max-width:calc(100vw - 2.5rem);height:min(480px,calc(100dvh - 2.5rem));display:flex;flex-direction:column;overflow:hidden;isolation:isolate;border:1px solid #d1d6ca;border-radius:1rem;background:var(--og-white);box-shadow:0 6px 24px #1c332c12}
 .eden-expanded .eden-panel{top:1rem;bottom:1rem;width:min(520px,calc(100vw - 2rem));height:auto;max-height:none}
 .eden-header{display:flex;align-items:center;gap:.8rem;flex-shrink:0;min-height:64px;padding:.6rem .85rem;background:var(--og-paper);border-bottom:1px solid var(--og-line)}
