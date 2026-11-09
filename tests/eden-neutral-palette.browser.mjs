@@ -100,7 +100,7 @@ try{
    if(audit){await p.evaluate(axe);const violations=await p.evaluate(async()=>{const result=await window.axe.run(document,{runOnly:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']});return result.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary})).slice(0,8)}));});report.accessibility.push({view:name,violations});if(phase==='after')assert.equal(violations.length,0,'Axe violations '+name);}
  }
  await p.goto(origin);await p.locator('#home-title').waitFor();await p.locator('.eden-launch').waitFor();await capture('desktop-home-closed');
- const gutters=await p.evaluate(()=>['header .og-brand','#home-title','#community-title'].map(q=>document.querySelector(q).getBoundingClientRect().left));
+ const gutters=await p.evaluate(()=>['header .og-brand','#home-title','.og-hero-description','.og-hero-actions','.og-hero-values'].map(q=>document.querySelector(q).getBoundingClientRect().left));
  assert(Math.max(...gutters)-Math.min(...gutters)<=1);report.gutters=gutters;
  await p.locator('.eden-launch').click();await p.locator('#eden-command').waitFor();await capture('desktop-home-eden-open');
  async function ask(text){
