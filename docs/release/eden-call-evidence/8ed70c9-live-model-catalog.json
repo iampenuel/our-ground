@@ -1,0 +1,20 @@
+[
+  {
+    "id": "gemini-3.8-live",
+    "http": 200,
+    "listed": true,
+    "methods": [
+      "bidiGenerateContent"
+    ],
+    "defaultTemperature": 1
+  },
+  {
+    "id": "gemini-3.1-flash-live-preview",
+    "http": 200,
+    "listed": true,
+    "methods": [
+      "bidiGenerateContent"
+    ],
+    "defaultTemperature": 1
+  }
+]

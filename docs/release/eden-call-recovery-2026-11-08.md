@@ -1,5 +1,7 @@
 # Eden Live and homepage acceptance — November 8, 2026
 
+**Historical checkpoint.** The [latest physical audio investigation, protected URLs, runtime tests and release gates](eden-physical-audio-recovery.md) supersede the status below.
+
 [Protected staging alias](https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app) · [Immutable candidate](https://ourground-staging-nt49tx611-penuels-projects-aa802b06.vercel.app) · [Draft PR #3](https://github.com/iampenuel/our-ground/pull/3). Application SHA: `48dd90193cd1fd9ad0f504619f55618c89323402`; deployment `dpl_95HY4W1JCkiahMqMC8bLLHR5Eh8y` in **ourground-staging**, Preview. Production is unchanged.
 
 **Physical acceptance on this build: FAIL.** The [physical Chrome receipt](eden-call-evidence/48dd901-physical.json) records four local interruptions, no completed provider turn, 190 decoded packets, both contexts running and the final caption with less than 50 ms of PCM. The owner heard silence. The older instrumentation cannot establish whether local echo, human interruption or provider output dominated.

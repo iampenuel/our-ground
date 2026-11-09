@@ -1,0 +1,85 @@
+{
+  "origin": "https://ourground-staging-1e0l1r9ms-penuels-projects-aa802b06.vercel.app",
+  "sha": "384017bf1dd9267dc78ff8be63a2612d6ebf8074",
+  "fixture": "local token and provider transport, generated test signal, real compiled browser client",
+  "cycles": [
+    {
+      "toneGraph": {
+        "turn": 0,
+        "caption": false,
+        "chunks": 1,
+        "bytes": 9600,
+        "samples": 4800,
+        "peak": 0.091552734375,
+        "scheduled": 1,
+        "ended": 1,
+        "graphPeakRms": 0.06562778326958911,
+        "generated": true,
+        "completed": true,
+        "interrupted": false,
+        "durationMs": 200,
+        "rms": 0.06469657321625391,
+        "nonzeroRatio": 0.9995833333333334,
+        "usable": true
+      },
+      "cycle": 1,
+      "allTracksEnded": true,
+      "activeLeases": 0,
+      "sockets": 1,
+      "minted": 1
+    },
+    {
+      "toneGraph": {
+        "turn": 0,
+        "caption": false,
+        "chunks": 1,
+        "bytes": 9600,
+        "samples": 4800,
+        "peak": 0.091552734375,
+        "scheduled": 1,
+        "ended": 1,
+        "graphPeakRms": 0.06562856396633988,
+        "generated": true,
+        "completed": true,
+        "interrupted": false,
+        "durationMs": 200,
+        "rms": 0.06469657321625391,
+        "nonzeroRatio": 0.9995833333333334,
+        "usable": true
+      },
+      "cycle": 3,
+      "allTracksEnded": true,
+      "activeLeases": 0,
+      "sockets": 3,
+      "minted": 3
+    }
+  ],
+  "status": "PASS",
+  "silentCaptionRecovered": true,
+  "character": {
+    "states": [
+      "idle",
+      "speaking",
+      "idle",
+      "listening",
+      "thinking",
+      "listening",
+      "idle",
+      "listening",
+      "idle",
+      "speaking",
+      "idle",
+      "listening",
+      "idle"
+    ],
+    "renderer": "svg-profile"
+  },
+  "pcmPackets": 1549,
+  "streamEnds": 1,
+  "unansweredTurnKeptConnection": true,
+  "closeCodes": [
+    1000,
+    1000,
+    1000
+  ]
+}

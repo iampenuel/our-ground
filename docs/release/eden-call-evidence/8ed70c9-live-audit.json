@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "scope": "Real hosted Chrome with generated public speech; not physical acceptance",
+  "sha": "8ed70c96372068bff5a06ea7e711d7c8c02b63e5",
+  "sourceSHA256": "0645a1ba7150c787a7efe7b8a046db29b0d8f1267e5bd0534157dc1e67dc5ada",
+  "originalRunner": "FAIL",
+  "originalFailure": "No measured speech playback: search",
+  "inputChunks": 2211,
+  "signalPackets": 153,
+  "recognizedUtterances": 3,
+  "explicitVadStarts": 0,
+  "outputGraphPeakRms": {
+    "introduction": 0.34293193201047206,
+    "identity": 0.2870520701096048,
+    "interruptedSearch": 0.3451414739569354,
+    "details": 0.28009013993560355
+  },
+  "providerConfirmedInterruptions": 1,
+  "cursorTargets": 6,
+  "releaseHTTP": 200,
+  "webSocketClose": 1000,
+  "allTracksEnded": true
+}

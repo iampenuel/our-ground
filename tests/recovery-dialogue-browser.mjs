@@ -58,6 +58,9 @@ try{
      return rows.length&&rows[rows.length-1]!==last||Boolean(document.querySelector('[data-retry]:not([hidden])'));
    },prior,{timeout:60000});await prior?.dispose();
    const step={name,route:new URL(p.url()).pathname,requests:requests.slice(index),trace:JSON.parse(await p.locator('#eden-assistant').getAttribute('data-turn-diagnostic')??'null')};
+   if(step.trace?.outcome==='failed'){
+     const notice=await p.locator('.eden-state').textContent();step.safeNotice=/page or selection changed/i.test(notice)?'stale-page':/verify the proposed action/i.test(notice)?'action-verification':/usage limit/i.test(notice)?'usage-limit':'unspecified';
+   }
    report.steps.push(step);
    assert(step.trace,'No turn diagnostic');
    assert.deepEqual(Object.keys(step.trace).sort(),['correlationId','model','outcome','output','proposedAction','provider'].sort());

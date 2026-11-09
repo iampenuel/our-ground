@@ -1,0 +1,39 @@
+{
+  "base": "https://ourground-staging-1e0l1r9ms-penuels-projects-aa802b06.vercel.app",
+  "sha": "384017bf1dd9267dc78ff8be63a2612d6ebf8074",
+  "scope": "dialogue",
+  "steps": [
+    {
+      "name": "correct category",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200,
+          "correlation": "206bbd55-c2b6-4703-8fc9-78a254316386"
+        },
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "932fb055-bb1f-472f-a766-92401d71daf1"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "932fb055-bb1f-472f-a766-92401d71daf1"
+        }
+      ],
+      "trace": {
+        "correlationId": "932fb055-bb1f-472f-a766-92401d71daf1",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "unavailable",
+        "proposedAction": null,
+        "outcome": "failed"
+      }
+    }
+  ],
+  "errors": [],
+  "status": "FAIL",
+  "failure": "{\"name\":\"correct category\",\"status\":[[\"session\",200],[\"understand\",200],[\"plan\",200]],\"trace\":{\"correlationId\":\"932fb055-bb1f-472f-a766-92401d71daf1\",\"provider\":\"gemini\",\"model\":\"gemini-3.5-flash-lite\",\"output\":\"unavailable\",\"proposedAction\":null,\"outcome\":\"failed\"}}\n+ actual - expected\n\n+ 'failed'\n- 'confirmed'\n"
+}

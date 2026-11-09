@@ -1,0 +1,64 @@
+{
+  "base": "https://ourground-staging-1e0l1r9ms-penuels-projects-aa802b06.vercel.app",
+  "sha": "384017bf1dd9267dc78ff8be63a2612d6ebf8074",
+  "scope": "dialogue",
+  "steps": [
+    {
+      "name": "describe current page",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "session",
+          "status": 200,
+          "correlation": "05495ac8-6727-4cfd-ba92-fd58548d67b3"
+        },
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "b3ef290f-3b8c-4581-b7c1-d9195b1d17cf"
+        },
+        {
+          "endpoint": "plan",
+          "status": 200,
+          "correlation": "b3ef290f-3b8c-4581-b7c1-d9195b1d17cf"
+        },
+        {
+          "endpoint": "result",
+          "status": 200,
+          "correlation": "b3ef290f-3b8c-4581-b7c1-d9195b1d17cf"
+        }
+      ],
+      "trace": {
+        "correlationId": "b3ef290f-3b8c-4581-b7c1-d9195b1d17cf",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "model-approved-facts",
+        "proposedAction": "read-page",
+        "outcome": "confirmed"
+      },
+      "reply": "Here is what you can do on this page. Resource details show the selected listing and its available source information. The map section is open. The current view shows 6 public directory listings. These are public directory listings, not independently verified operating services."
+    },
+    {
+      "name": "return to map",
+      "route": "/support",
+      "requests": [
+        {
+          "endpoint": "understand",
+          "status": 200,
+          "correlation": "8a6a08f2-6a96-4cfd-be8f-c006b73ad324"
+        }
+      ],
+      "trace": {
+        "correlationId": "8a6a08f2-6a96-4cfd-be8f-c006b73ad324",
+        "provider": "gemini",
+        "model": "gemini-3.5-flash-lite",
+        "output": "page-control-result",
+        "proposedAction": "back-to-map",
+        "outcome": "confirmed"
+      },
+      "reply": "The map section is open, but the map is unavailable. The list still shows your results."
+    }
+  ],
+  "errors": [],
+  "status": "PASS"
+}
