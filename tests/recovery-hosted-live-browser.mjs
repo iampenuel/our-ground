@@ -33,12 +33,12 @@ p.on('websocket',ws=>{
  }});
 
  ws.on('framereceived',({payload})=>{const m=JSON.parse(String(payload)),c=m.serverContent;
- receipt.providerByStep??={};const tally=receipt.providerByStep[activeStep]??={frames:0,input:0,interim:0,output:0,audio:0,tools:0,waiting:0,completed:0,interrupted:0};
+ receipt.providerByStep??={};const tally=receipt.providerByStep[activeStep]??={frames:0,input:0,interim:0,output:0,audio:0,tools:0,waiting:0,generated:0,completed:0,interrupted:0,tinyPCM:0};
  tally.frames++;tally.input+=Number(Boolean(c?.inputTranscription?.text));tally.interim+=Number(Boolean(c?.interimInputTranscription?.text));tally.output+=Number(Boolean(c?.outputTranscription?.text));tally.audio+=c?.modelTurn?.parts?.filter(v=>v.inlineData).length??0;
- tally.tools+=m.toolCall?.functionCalls?.length??0;tally.waiting+=Number(c?.waitingForInput===true);tally.completed+=Number(c?.turnComplete===true);tally.interrupted+=Number(c?.interrupted===true);
+ tally.tools+=m.toolCall?.functionCalls?.length??0;tally.waiting+=Number(c?.waitingForInput===true);tally.generated+=Number(c?.generationComplete===true);tally.completed+=Number(c?.turnComplete===true);tally.interrupted+=Number(c?.interrupted===true);
  for(const part of c?.modelTurn?.parts??[]){if(!part.inlineData?.mimeType?.startsWith('audio/pcm'))continue;
    const pcm=Buffer.from(part.inlineData.data,'base64');let peak=0;for(let i=0;i+1<pcm.length;i+=2)peak=Math.max(peak,Math.abs(pcm.readInt16LE(i)/32768));
-   tally.outputSamples=(tally.outputSamples??0)+Math.floor(pcm.length/2);tally.outputPeak=Math.max(tally.outputPeak??0,peak);
+   tally.outputSamples=(tally.outputSamples??0)+Math.floor(pcm.length/2);tally.outputPeak=Math.max(tally.outputPeak??0,peak);tally.tinyPCM+=Number(pcm.length<=4);
  }
  if(Number.isInteger(m.error?.code))receipt.providerErrorCode=m.error.code;
  if(m.setupComplete)receipt.setupComplete=true;
@@ -196,6 +196,8 @@ try{
 }catch(e){process.exitCode=1;receipt.failedAt=activeStep;receipt.failure=String(e.message).split('\n')[0].slice(0,240);receipt.ui=await p.locator('[data-live-state]').innerText().catch(()=>'');}
 finally{
  receipt.partialProviderInput=input.slice(0,160); // Test-generated public phrases only.
+ receipt.partialProviderReply=output.slice(0,400);
+ receipt.firstDetailOpen=await p.locator('[data-card-key^="directory:"]').first().locator('[data-resource-content]:visible').count().then(n=>n>0).catch(()=>false);
  receipt.playerPeakRms=await p.evaluate(()=>window.qaMaxOutput).catch(()=>0);
  receipt.playerClock=await p.evaluate(()=>window.qaOutputClock).catch(()=>null);
  receipt.cursor??=await p.evaluate(()=>window.qaHits).catch(()=>[]);

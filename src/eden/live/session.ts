@@ -92,7 +92,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
   let output: LiveOutput | undefined, microphone: LiveMicrophone | undefined, token: EdenLiveTokenResponse | undefined;
   let generation = 0, connectionEpoch = 0, turn = 0, turns = 0, deadline = 0, recoveries = 0;
   let introPlayed = false, introducing = false, complete = false, discardOutput = false, receivedAudio = false, drainGeneration = 0, pendingTools = 0;
-  let consecutiveMisses=0,toolsAtTurnStart=0;
+  let consecutiveMisses=0,toolsAtTurnStart=0,inputPacketSinceEnd=false,replySamples=0,toolPauseSequence=0;
   let resumeHandle: string | undefined, pendingResumeHandle: string | undefined, voiceMs = 0, silenceMs = 0, userActive = false;
   let onsetVoicedMs = 0, onsetGapMs = 0;
   let previousOutputSettled=false,responseBegun=false,interruptedTurnEnding=false,playbackActive=false;
@@ -132,10 +132,10 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
       fail('Eden did not receive playable voice in time. You can continue by text.','response-timeout');
     },25_000);
   }
-  function endInputStream(){send({realtimeInput:{audioStreamEnd:true}});diagnostic.inputStreamEnds=(diagnostic.inputStreamEnds??0)+1;}
+  function endInputStream(){inputPacketSinceEnd=false;send({realtimeInput:{audioStreamEnd:true}});diagnostic.inputStreamEnds=(diagnostic.inputStreamEnds??0)+1;}
 
   function cleanup() {
-    interruptedTurnEnding=false;playbackActive=false;generation++; connectionEpoch++; drainGeneration++; abort?.abort(); abort = undefined; connectionAbort?.abort(); connectionAbort = undefined;
+    inputPacketSinceEnd=false;replySamples=0;interruptedTurnEnding=false;playbackActive=false;generation++; connectionEpoch++; drainGeneration++; abort?.abort(); abort = undefined; connectionAbort?.abort(); connectionAbort = undefined;
     for (const id of timers) clearTimeout(id); timers.clear(); responseTimer = undefined;
     microphone?.stop(); microphone = undefined; connection?.close(); connection = undefined; output?.close(); output = undefined;
     encoder.clear(); onsetVoicedMs = 0; onsetGapMs = 0; ledger.clear(); pendingTools = 0; actionQueue = Promise.resolve(); resumeHandle = undefined; pendingResumeHandle = undefined;
@@ -194,7 +194,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
   function startUserTurn() {
     if (userActive) return true;
     if (++turns > 24 || deps.now() >= deadline) { end('This call reached its time or turn limit. Text is still available.','turn-limit'); return false; }
-    toolsAtTurnStart=diagnostic.toolsStarted;turn++; inputText = ''; outputText = ''; receivedAudio = false; complete = false; discardOutput = false; resumeHandle = undefined; pendingResumeHandle = undefined; onsetVoicedMs = 0; onsetGapMs = 0; userActive = true;responseBegun=false;
+    toolsAtTurnStart=diagnostic.toolsStarted;replySamples=0;turn++; inputText = ''; outputText = ''; receivedAudio = false; complete = false; discardOutput = false; resumeHandle = undefined; pendingResumeHandle = undefined; onsetVoicedMs = 0; onsetGapMs = 0; userActive = true;responseBegun=false;
     return true;
   }
   function microphoneFrame(frame: Float32Array, rate: number) {
@@ -226,7 +226,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
         }
       } else if (userActive) silenceMs += duration;
       else if (onsetVoicedMs > 0 && (onsetGapMs += duration) >= LOCAL_SPEECH_GAP_MS) { onsetVoicedMs = 0; onsetGapMs = 0; }
-      for (const data of encoder.encode(frame, rate)) { send({realtimeInput: {audio: {data, mimeType: 'audio/pcm;rate=16000'}}}); diagnostic.inputChunks++; }
+      for (const data of encoder.encode(frame, rate)) { send({realtimeInput: {audio: {data, mimeType: 'audio/pcm;rate=16000'}}}); diagnostic.inputChunks++;inputPacketSinceEnd=true; }
       if (userActive && (silenceMs >= 900 || voiceMs >= 30_000)) closeUserTurn();
     } catch { fail('The microphone stream could not continue. You can continue by text.','microphone-stream'); }
   }
@@ -318,6 +318,14 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     diagnostic.toolCalls++; diagnostic.lastEvent = 'tool';
     const entry = {signature, cancelled: false, response: undefined as Record<string, unknown> | undefined, sentEpoch: undefined as number | undefined, abort: new AbortController()}; ledger.set(call.id, entry);
     resumeHandle = undefined; pendingResumeHandle = undefined;
+    if(!pendingTools&&options.allowSpokenInterruption&&inputPacketSinceEnd){
+      // The worklet intentionally withholds microphone audio during public actions.
+      // Flush Google's automatic VAD only if this is a real, sustained stream gap.
+      const connectionWhenPaused=connectionEpoch,pause=++toolPauseSequence;
+      timer(()=>{if(active()&&connectionEpoch===connectionWhenPaused&&pause===toolPauseSequence&&pendingTools&&inputPacketSinceEnd){
+        try{endInputStream();}catch{fail(SAFE_FAILURE,'microphone-stream');}
+      }},1000);
+    }
     pendingTools++; complete = false; drainGeneration++; beginResponse(); setPhase('acting'); clearResponseTimer();
     actionQueue = actionQueue.then(async () => {
       if (!active() || epoch !== generation) return;
@@ -329,7 +337,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
       if (entry.cancelled) { if (!pendingTools) { setPhase('processing'); void finishOutput(); } return; }
       if(response.ok===false||response.outcome==='failed'){diagnostic.toolsFailed++;trace('tool-failed');}else{diagnostic.toolsCompleted++;trace('tool-complete');}
       if (JSON.stringify(response).length > 16_000) { fail(SAFE_FAILURE,'tool-response'); return; }
-      entry.response = response; entry.sentEpoch = connectionEpoch; complete = false; receivedAudio = false; drainGeneration++;
+      entry.response = response; entry.sentEpoch = connectionEpoch; complete = false; receivedAudio = false;replySamples=0; drainGeneration++;
       send({toolResponse: {functionResponses: [{id: call.id, name: call.name, response}]}}); setPhase(pendingTools ? 'acting' : 'processing'); if(!pendingTools)expectResponse();
     }).catch(() => fail(SAFE_FAILURE,'tool-response'));
   }
@@ -367,12 +375,23 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
         beginResponse();
         if (!discardOutput) {
           if (typeof inline.data !== 'string' || typeof inline.mimeType !== 'string') { fail(SAFE_FAILURE,'audio-format'); return; }
-          try { output?.enqueue(inline.data, inline.mimeType);diagnostic.decodedChunks++; } catch { fail('Eden received voice audio that could not be played. Text is still available.','audio-format'); return; }
+          try { output?.enqueue(inline.data, inline.mimeType);diagnostic.decodedChunks++;
+            replySamples+=Math.floor((inline.data.length*3/4-(inline.data.endsWith('==')?2:inline.data.endsWith('=')?1:0))/2); } catch { fail('Eden received voice audio that could not be played. Text is still available.','audio-format'); return; }
           if (!receivedAudio) { receivedAudio = true;trace('audio'); clearResponseTimer(); responseTimer = timer(() => fail('The voice turn took too long. You can continue by text.','turn-timeout'),60_000); }
         }
       }
     }
-    if (content?.generationComplete === true) { diagnostic.generationComplete++; diagnostic.lastEvent = 'generation-complete';trace('generation-complete'); }
+    if (content?.generationComplete === true) {
+      diagnostic.generationComplete++; diagnostic.lastEvent = 'generation-complete';trace('generation-complete');
+      // A caption and several one-sample PCM packets cannot voice a spoken reply.
+      // Never invent a protocol completion, repeat a tool, or switch voices.
+      if(options.allowSpokenInterruption&&!content.turnComplete&&!pendingTools&&!interruptedTurnEnding&&outputText.trim()&&replySamples<1200){
+        const revision=drainGeneration,gen=generation,turnAtGeneration=turn;
+        timer(()=>{if(active()&&generation===gen&&turn===turnAtGeneration&&revision===drainGeneration&&!pendingTools&&!complete&&replySamples<1200){
+          fail('Google returned a caption but too little audio to play this reply. You can start a new call or continue by text.','audio-missing');
+        }},3500);
+      }
+    }
     if(content?.turnComplete===true&&interruptedTurnEnding){
       interruptedTurnEnding=false;discardOutput=false;receivedAudio=false;complete=false;
     }else if (content?.turnComplete === true) {

@@ -484,3 +484,28 @@ test('continuous hosted input begins after setup without an animation or output 
     h.controller.end();h.frames(.3,4);assert.equal(h.controller.snapshot.forwarding,false);
   }finally{h.cleanup();}
 });
+
+test('a long public action flushes paused continuous input once without transmitting microphone audio during the action',async()=>{
+  let resolveTool;const h=harness({options:{allowSpokenInterruption:true,onToolCall:()=>new Promise(resolve=>{resolveTool=resolve;})}});
+  const original=globalThis.setTimeout,timers=[];
+  try{
+    await h.intro();h.frames(0,4);
+    globalThis.setTimeout=(fn,ms,...args)=>{const id=original(fn,ms,...args);timers.push({ms,run:()=>{clearTimeout(id);fn(...args);}});return id;};
+    h.message({toolCall:{functionCalls:[{id:'pause-tool',name:'read_public_page_context',args:{}}]}});await settle();
+    const sent=h.connections[0].sent,pcm=sent.filter(x=>x.realtimeInput?.audio).length;
+    h.frames(.3,80);assert.equal(sent.filter(x=>x.realtimeInput?.audio).length,pcm);
+    timers.find(t=>t.ms===1000).run();assert.equal(sent.filter(x=>x.realtimeInput?.audioStreamEnd).length,1);
+    resolveTool({ok:true});await settle();h.frames(0,4);assert(sent.filter(x=>x.realtimeInput?.audio).length>pcm);
+  }finally{globalThis.setTimeout=original;h.cleanup();}
+});
+test('a generated caption with only one PCM sample and no completed turn releases the call with an explicit audio failure',async()=>{
+  const h=harness({options:{allowSpokenInterruption:true}}),original=globalThis.setTimeout,timers=[];
+  try{
+    await h.controller.start({microphoneConsent:true});
+    globalThis.setTimeout=(fn,ms,...args)=>{const id=original(fn,ms,...args);timers.push({ms,run:()=>{clearTimeout(id);fn(...args);}});return id;};
+    h.message({serverContent:{outputTranscription:{text:'Public test caption.'}}});h.audio();
+    h.message({serverContent:{generationComplete:true}});timers.find(t=>t.ms===3500).run();
+    assert.equal(h.controller.snapshot.diagnostic.failure,'audio-missing');assert.match(h.controller.snapshot.reason,/too little audio/);
+    assert.equal(h.controller.snapshot.diagnostic.turnComplete,0);assert.equal(h.controller.snapshot.microphoneActive,false);assert.equal(h.releases.length,1);
+  }finally{globalThis.setTimeout=original;h.cleanup();}
+});
