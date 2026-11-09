@@ -471,3 +471,16 @@ test('one unanswered hosted utterance leaves the same connection available witho
     assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.requests.length,1);assert.equal(h.releases.length,0);
   }finally{globalThis.setTimeout=original;h.cleanup();}
 });
+
+test('continuous hosted input begins after setup without an animation or output callback',async()=>{
+  const h=harness({options:{allowSpokenInterruption:true}});
+  try{
+    await h.controller.start({microphoneConsent:true});
+    assert.equal(h.controller.snapshot.phase,'introducing');assert.equal(h.controller.snapshot.diagnostic.playbackStarts,0);
+    h.frames(0,4);const count=h.connections[0].sent.filter(m=>m.realtimeInput?.audio).length;
+    assert(count>0,'the server receives the live input clock before the intro plays');
+    h.controller.setMicrophoneMuted(true);h.frames(.3,4);
+    assert.equal(h.connections[0].sent.filter(m=>m.realtimeInput?.audio).length,count,'mute stops introduction input');
+    h.controller.end();h.frames(.3,4);assert.equal(h.controller.snapshot.forwarding,false);
+  }finally{h.cleanup();}
+});

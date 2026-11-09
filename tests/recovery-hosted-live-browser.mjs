@@ -33,6 +33,14 @@ p.on('websocket',ws=>{
  }});
 
  ws.on('framereceived',({payload})=>{const m=JSON.parse(String(payload)),c=m.serverContent;
+ receipt.providerByStep??={};const tally=receipt.providerByStep[activeStep]??={frames:0,input:0,interim:0,output:0,audio:0,tools:0,waiting:0,completed:0,interrupted:0};
+ tally.frames++;tally.input+=Number(Boolean(c?.inputTranscription?.text));tally.interim+=Number(Boolean(c?.interimInputTranscription?.text));tally.output+=Number(Boolean(c?.outputTranscription?.text));tally.audio+=c?.modelTurn?.parts?.filter(v=>v.inlineData).length??0;
+ tally.tools+=m.toolCall?.functionCalls?.length??0;tally.waiting+=Number(c?.waitingForInput===true);tally.completed+=Number(c?.turnComplete===true);tally.interrupted+=Number(c?.interrupted===true);
+ for(const part of c?.modelTurn?.parts??[]){if(!part.inlineData?.mimeType?.startsWith('audio/pcm'))continue;
+   const pcm=Buffer.from(part.inlineData.data,'base64');let peak=0;for(let i=0;i+1<pcm.length;i+=2)peak=Math.max(peak,Math.abs(pcm.readInt16LE(i)/32768));
+   tally.outputSamples=(tally.outputSamples??0)+Math.floor(pcm.length/2);tally.outputPeak=Math.max(tally.outputPeak??0,peak);
+ }
+ if(Number.isInteger(m.error?.code))receipt.providerErrorCode=m.error.code;
  if(m.setupComplete)receipt.setupComplete=true;
  if(c?.interrupted){interruptedResponseEnding=true;receipt.providerInterruptions=(receipt.providerInterruptions??0)+1;output='';}
  if(c?.inputTranscription?.text)input+=c.inputTranscription.text;
@@ -55,7 +63,9 @@ await p.addInitScript(()=>{
   if(this instanceof AnalyserNode&&args[0]===this.context.destination){
     const capture=this.context.createMediaStreamDestination();
     connect.call(this,capture);g.qaOutput=capture.stream;
-    const analyser=this;const values=new Float32Array(analyser.fftSize);g.qaLevelTimer=setInterval(()=>{
+    const analyser=this;g.qaOutputClock={initial:this.context.currentTime,last:this.context.currentTime,ticks:0,state:this.context.state};const clock=g.qaOutputClock;
+    const values=new Float32Array(analyser.fftSize);g.qaLevelTimer=setInterval(()=>{
+      clock.last=analyser.context.currentTime;clock.ticks++;clock.state=analyser.context.state;
       analyser.getFloatTimeDomainData(values);let sum=0;for(const v of values)sum+=v*v;
       g.qaCurrentOutput=Math.sqrt(sum/values.length);g.qaMaxOutput=Math.max(g.qaMaxOutput,g.qaCurrentOutput);
     },50);
@@ -129,6 +139,16 @@ try{
  assert.equal(attempt.service,'EDEN_LIVE_CALL_ACTIVE');assert.equal(attempt.tokenHTTP,409);assert.equal(attempt.microphoneActive,false);
  assert(await p.evaluate(()=>window.qaTracks.length===1&&window.qaTracks[0].readyState==='ended'));
  receipt.deniedRetryFixture={http:409,stage:attempt.failure,stoppedTrack:true,reference:attempt.reference};
+ // Do not spend a real credential if this Chrome process cannot render audio.
+ receipt.preflight=await p.evaluate(async()=>{
+   const ctx=new AudioContext(),meter=ctx.createAnalyser(),tone=ctx.createOscillator(),gain=ctx.createGain(),quiet=ctx.createGain();
+   try{await ctx.resume();gain.gain.value=.08;quiet.gain.value=0;tone.connect(gain);gain.connect(meter);meter.connect(quiet);quiet.connect(ctx.destination);
+     const start=ctx.currentTime;let peak=0;const samples=new Float32Array(meter.fftSize);tone.start();tone.stop(start+.3);
+     for(let i=0;i<10;i++){await new Promise(resolve=>setTimeout(resolve,40));meter.getFloatTimeDomainData(samples);for(const sample of samples)peak=Math.max(peak,Math.abs(sample));}
+     return {advance:ctx.currentTime-start,peak};
+   }finally{await ctx.close();}
+ });
+ assert(receipt.preflight.advance>.2&&receipt.preflight.peak>.015,'Chrome output clock unavailable; stopped before mint');
  await p.locator('[data-live-start]').click();await p.locator('[data-live-confirm]').waitFor();
  activeStep='introduction';await p.locator('[data-live-confirm]').click();
  await p.waitForFunction(()=>window.qaOutput&&window.qaDest&&window.qaTracks.length===2&&window.qaTracks.at(-1).readyState==='live',null,{timeout:18000});audioStartAt=await p.evaluate(()=>performance.now());await p.evaluate(()=>window.qaRecord());
@@ -177,6 +197,7 @@ try{
 finally{
  receipt.partialProviderInput=input.slice(0,160); // Test-generated public phrases only.
  receipt.playerPeakRms=await p.evaluate(()=>window.qaMaxOutput).catch(()=>0);
+ receipt.playerClock=await p.evaluate(()=>window.qaOutputClock).catch(()=>null);
  receipt.cursor??=await p.evaluate(()=>window.qaHits).catch(()=>[]);
  receipt.paintMarks=await p.evaluate(()=>window.qaMarks).catch(()=>[]);receipt.cursorPhases=await p.evaluate(()=>window.qaStates).catch(()=>[]);
  if(await p.locator('[data-live-end]').isVisible().catch(()=>false)){

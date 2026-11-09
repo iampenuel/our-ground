@@ -1,0 +1,130 @@
+{
+  "origin": "https://ourground-staging-git-eden10-penuels-projects-aa802b06.vercel.app",
+  "sha": "6b35db58835b2d4e879338656bc75ef1ad5124bc",
+  "input": "Locally spoken public phrases injected at browser microphone boundary",
+  "status": "FAIL",
+  "http": [
+    {
+      "path": "session",
+      "status": 200
+    },
+    {
+      "path": "live/token",
+      "status": 409
+    },
+    {
+      "path": "live/token",
+      "status": 200
+    },
+    {
+      "path": "live/end",
+      "status": 200
+    }
+  ],
+  "audioInputChunks": 0,
+  "audioOutputChunks": 29,
+  "providerTurns": 0,
+  "tools": [],
+  "turns": [],
+  "errors": [],
+  "workletHTTP": 200,
+  "deniedRetryFixture": {
+    "http": 409,
+    "stage": "token-request",
+    "stoppedTrack": true,
+    "reference": "e2469e45-23f1-414e-9b39-8b6ba54f93b1"
+  },
+  "tokenCheck": {
+    "validOnUncorrectedDeviceClock": false,
+    "validOnIssuerClock": true,
+    "config": true,
+    "fields": 8,
+    "model": "gemini-3.8-live",
+    "voice": "Aoede",
+    "maxSeconds": 599,
+    "expiresInMs": 518549,
+    "connectInMs": -21414
+  },
+  "requestedModel": "models/gemini-3.8-live",
+  "requestedVoice": "Aoede",
+  "providerByStep": {
+    "introduction": {
+      "frames": 63,
+      "input": 0,
+      "interim": 0,
+      "output": 13,
+      "audio": 29,
+      "tools": 0,
+      "waiting": 0,
+      "completed": 0,
+      "interrupted": 0
+    }
+  },
+  "setupComplete": true,
+  "failedAt": "introduction",
+  "failure": "page.waitForFunction: Timeout 60000ms exceeded.",
+  "ui": "Eden is introducing herself",
+  "partialProviderInput": "",
+  "playerPeakRms": 0,
+  "cursor": [],
+  "paintMarks": [],
+  "cursorPhases": [],
+  "endHTTP": 200,
+  "diagnostics": [
+    {
+      "reference": "e2469e45-23f1-414e-9b39-8b6ba54f93b1",
+      "model": "gemini-3.8-live",
+      "phase": "error",
+      "stage": "connecting",
+      "failure": "token-request",
+      "preparation": "ready",
+      "tokenHTTP": 409,
+      "service": "EDEN_LIVE_CALL_ACTIVE",
+      "serviceHTTP": 409,
+      "setup": false,
+      "provider": "none",
+      "lastEvent": "token",
+      "completedTurns": 0,
+      "toolsReceived": 0,
+      "inputChunks": 0,
+      "audioChunks": 0,
+      "playbacks": 0,
+      "spokenInterruptions": 0,
+      "unansweredTurns": 0,
+      "inputStreamEnds": 0,
+      "microphoneActive": false
+    },
+    {
+      "reference": "d01a3a6e-d68c-4abe-b03e-4f7228e5338a",
+      "model": "gemini-3.8-live",
+      "phase": "ended",
+      "stage": "ended",
+      "failure": "none",
+      "preparation": "ready",
+      "tokenHTTP": 200,
+      "setup": true,
+      "provider": "none",
+      "lastEvent": "generation-complete",
+      "completedTurns": 0,
+      "toolsReceived": 0,
+      "inputChunks": 0,
+      "audioChunks": 29,
+      "playbacks": 0,
+      "spokenInterruptions": 0,
+      "unansweredTurns": 0,
+      "inputStreamEnds": 0,
+      "microphoneActive": false,
+      "ended": "user",
+      "endHTTP": 200
+    }
+  ],
+  "micReleased": true,
+  "wire": {
+    "sockets": 1,
+    "policy": [],
+    "close": [
+      1000
+    ]
+  },
+  "audioCaptureStartMs": 2936.100000000559
+}

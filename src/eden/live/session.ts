@@ -107,7 +107,9 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
   // A network gap between adjacent PCM packets must not discard the middle of
   // a visitor's word. Keep capture open throughout an audible response.
   const duringPlayback=()=>options.allowSpokenInterruption===true&&(phase==='speaking'||phase==='introducing')&&diagnostic.playbackStarts>0;
-  const forwarding = () => active() && (phase === 'listening'||duringPlayback()||(options.allowSpokenInterruption===true&&phase==='processing'&&introPlayed)) && !micMuted && Boolean(microphone?.active) && !deps.document.hidden && pendingTools === 0;
+  // Once setup succeeds, continuous mode supplies the input clock even before
+  // the first speaker animation. Mute, visibility and tool admission still apply.
+  const forwarding = () => active() && (phase === 'listening'||duringPlayback()||(options.allowSpokenInterruption===true&&((phase==='introducing'&&diagnostic.setupComplete)||(phase==='processing'&&introPlayed)))) && !micMuted && Boolean(microphone?.active) && !deps.document.hidden && pendingTools === 0;
   const snapshot = (): EdenLiveSnapshot => ({phase, microphoneActive: Boolean(microphone?.active), forwarding: forwarding(), microphoneForwarding: forwarding(), microphoneMuted: micMuted, speakerMuted, ...(reason ? {reason} : {}), diagnostic:{...diagnostic,pendingTools,resumable:Boolean(resumeHandle),timeline:diagnostic.timeline.map(item=>({...item}))}});
   const publish = () => { microphone?.setForwarding?.(forwarding()); if (!disposed) options.onState(snapshot()); };
   function trace(event:LiveEvent){diagnostic.timeline.push({elapsedMs:Math.max(0,Math.round(deps.now()-diagnostic.startedAt)),connection:connectionEpoch,turn,phase,event});if(diagnostic.timeline.length>32)diagnostic.timeline.shift();}
