@@ -1,6 +1,7 @@
 import { buildEdenLiveSetup } from '../../../shared/eden-live.ts';
 import type { EdenLiveTokenResponse } from '../../../shared/eden-live.ts';
 
+/** A true send result means local queue acceptance. It does not acknowledge provider receipt. */
 export interface LiveConnection { send(value: unknown): boolean | void; close(): void }
 export type LiveProviderCategory = 'none' | 'rate-limit-or-quota' | 'overload' | 'authentication' | 'invalid-request' | 'provider-other';
 export type LiveCloseReason='no-detail'|'policy'|'authentication'|'quota'|'overload'|'protocol'|'other';

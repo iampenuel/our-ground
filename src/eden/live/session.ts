@@ -26,11 +26,13 @@ export class EdenLiveServiceError extends Error {
 const captureCounters=()=>({workletFrames:0,signalFrames:0,peakRms:0,encoded:0,dropped:0,sentWithSignal:0,firstFrameMs:-1,lastFrameMs:-1,firstSentMs:-1,lastSentMs:-1,serverStarts:0,serverEnds:0,inputCaptions:0,interimCaptions:0,outputCaptions:0,serverInterruptions:0,suppressedAudio:0});
 type LiveEvent='phase'|'token'|'setup'|'generation-complete'|'turn-complete'|'waiting-for-input'|'playback-start'|'playback-end'|'tool-start'|'tool-complete'|'tool-failed'|'tool-timeout'|'input-state'|'output-state'|'go-away'|'resume-handle'|'recovering'|'closed'|'ended'|'audio';
 type LiveTimelineEvent={elapsedMs:number;connection:number;turn:number;phase:EdenLivePhase;event:LiveEvent};
+type ToolHandoff = {ordinal:number;name:SharedLiveToolCall['name'];receivedAt:number;actionCompletedAt?:number;queueAcceptedAt?:number;sendRejectedAt?:number;providerEventAt?:number;captionAt?:number;audioAt?:number;turnCompletedAt?:number;cancelledAt?:number};
+type ToolEntry = {signature:string;response?:Record<string,unknown>;sentEpoch?:number;cancelled:boolean;abort:AbortController;handoff:ToolHandoff};
 type ToolField = 'id' | 'name' | 'args' | 'partialArgs' | 'willContinue';
 type ToolArgField = 'type' | 'category' | 'city' | 'radius' | 'index' | 'page' | 'missing' | 'cityId' | 'area';
 type ShapeType = 'absent' | 'null' | 'object' | 'array' | 'string' | 'number' | 'boolean' | 'other';
 export type EdenLiveToolShape = {status: 'invalid-call' | 'missing-id' | 'invalid-id' | 'unrecognized-name' | 'extra-fields' | 'args-not-object' | 'args-invalid'; knownFields: ToolField[]; unknownKeyCount: number; name: EdenLiveToolCall['name'] | 'unrecognized'; idType: ShapeType; idLength: number; idRegexValid: boolean; argsType: ShapeType; argFields: ToolArgField[]; unknownArgKeyCount: number; partialArgsPresent: boolean; partialArgsCount: number; willContinue: 'absent' | 'true' | 'false' | 'invalid'};
-export type EdenLiveDiagnostic = {capture:ReturnType<typeof captureCounters>;device?:CaptureInfo;replies:ReturnType<typeof summarizeReply>[];failure: EdenLiveFailure; preparation: 'not-started' | LiveMicrophonePreparation | 'audio-output-pending'; lastEvent: 'none' | 'preparing' | 'token' | 'setup' | 'message' | 'audio' | 'generation-complete' | 'turn-complete' | 'waiting-for-input' | 'tool' | 'closed' | 'recovering'; connections: number; messages: number; audioChunks: number; generationComplete: number; turnComplete: number; toolCalls: number; toolCallsReceived: number; rejectedArguments: number; inputChunks: number; recoveries: number; closeCode?: number; closeReason?:LiveTransportClose['closeReason']; setupComplete?:boolean; spokenInterruptions?:number; unansweredTurns?:number; inputStreamEnds?:number; failurePhase?:EdenLivePhase; retryAfterSeconds?:number; toolShape?: EdenLiveToolShape;callRef:string;model:typeof import('../../../shared/eden-live.ts').EDEN_LIVE_MODEL;connectionGeneration:number;startedAt:number;appDeadline:number;tokenExpiresAt:number;inputContext:LiveAudioContextState;outputContext:LiveAudioContextState;toolsStarted:number;toolsCompleted:number;toolsFailed:number;pendingTools:number;waitingForInput:number;playbackStarts:number;playbackEnds:number;decodedChunks:number;resumable:boolean;goAwaySeconds?:number;providerCategory:LiveProviderCategory;providerStatus?:number;serviceCategory?:EdenLiveServiceCategory;serviceStatus?:number;serviceCode?:string;endReason?:'user'|'hidden'|'app-expiry'|'turn-limit';timeline:LiveTimelineEvent[]};
+export type EdenLiveDiagnostic = {capture:ReturnType<typeof captureCounters>;device?:CaptureInfo;replies:ReturnType<typeof summarizeReply>[];failure: EdenLiveFailure; preparation: 'not-started' | LiveMicrophonePreparation | 'audio-output-pending'; lastEvent: 'none' | 'preparing' | 'token' | 'setup' | 'message' | 'audio' | 'generation-complete' | 'turn-complete' | 'waiting-for-input' | 'tool' | 'closed' | 'recovering'; connections: number; messages: number; audioChunks: number; generationComplete: number; turnComplete: number; toolCalls: number; toolCallsReceived: number; rejectedArguments: number; inputChunks: number; recoveries: number; closeCode?: number; closeReason?:LiveTransportClose['closeReason']; setupComplete?:boolean; spokenInterruptions?:number; unansweredTurns?:number; inputStreamEnds?:number; failurePhase?:EdenLivePhase; retryAfterSeconds?:number; toolShape?: EdenLiveToolShape;callRef:string;model:typeof import('../../../shared/eden-live.ts').EDEN_LIVE_MODEL;connectionGeneration:number;startedAt:number;appDeadline:number;tokenExpiresAt:number;inputContext:LiveAudioContextState;outputContext:LiveAudioContextState;toolsStarted:number;toolsCompleted:number;toolsFailed:number;pendingTools:number;waitingForInput:number;playbackStarts:number;playbackEnds:number;decodedChunks:number;resumable:boolean;goAwaySeconds?:number;providerCategory:LiveProviderCategory;providerStatus?:number;serviceCategory?:EdenLiveServiceCategory;serviceStatus?:number;serviceCode?:string;endReason?:'user'|'hidden'|'app-expiry'|'turn-limit';timeline:LiveTimelineEvent[];toolHandoffs:ToolHandoff[]};
 export type EdenLiveSnapshot = {phase: EdenLivePhase; microphoneActive: boolean; forwarding: boolean; microphoneForwarding: boolean; microphoneMuted: boolean; speakerMuted: boolean; reason?: string; diagnostic?: EdenLiveDiagnostic};
 export type EdenLiveTranscript = {role: 'user' | 'assistant'; text: string; final: boolean; turnId: string};
 export type EdenLiveToolCall = SharedLiveToolCall;
@@ -67,7 +69,7 @@ class LivePreparationFailure extends Error {
   constructor(failure: EdenLiveFailure) { super('Call preparation unavailable.'); this.failure = failure; }
 }
 let callSequence=0;
-const freshDiagnostic = (): EdenLiveDiagnostic => ({capture:captureCounters(),replies:[],failure:'none',preparation:'not-started',lastEvent:'none',connections:0,messages:0,audioChunks:0,generationComplete:0,turnComplete:0,toolCalls:0,toolCallsReceived:0,rejectedArguments:0,inputChunks:0,recoveries:0,callRef:'',model:'gemini-3.8-live',connectionGeneration:0,startedAt:0,appDeadline:0,tokenExpiresAt:0,inputContext:'uninitialized',outputContext:'uninitialized',toolsStarted:0,toolsCompleted:0,toolsFailed:0,pendingTools:0,waitingForInput:0,playbackStarts:0,playbackEnds:0,decodedChunks:0,resumable:false,providerCategory:'none',timeline:[]});
+const freshDiagnostic = (): EdenLiveDiagnostic => ({capture:captureCounters(),replies:[],failure:'none',preparation:'not-started',lastEvent:'none',connections:0,messages:0,audioChunks:0,generationComplete:0,turnComplete:0,toolCalls:0,toolCallsReceived:0,rejectedArguments:0,inputChunks:0,recoveries:0,callRef:'',model:'gemini-3.8-live',connectionGeneration:0,startedAt:0,appDeadline:0,tokenExpiresAt:0,inputContext:'uninitialized',outputContext:'uninitialized',toolsStarted:0,toolsCompleted:0,toolsFailed:0,pendingTools:0,waitingForInput:0,playbackStarts:0,playbackEnds:0,decodedChunks:0,resumable:false,providerCategory:'none',timeline:[],toolHandoffs:[]});
 const LOCAL_SPEECH_ONSET_MS = 160, LOCAL_SPEECH_GAP_MS = 80;
 const ARGUMENT_GUIDANCE: Record<EdenLiveToolCall['name'],string> = {
   read_public_page_context: 'Use an empty args object. No fields are accepted.',
@@ -98,7 +100,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
   let output: LiveOutput | undefined, microphone: LiveMicrophone | undefined, token: EdenLiveTokenResponse | undefined;
   let generation = 0, connectionEpoch = 0, turn = 0, turns = 0, deadline = 0, recoveries = 0;
   let introPlayed = false, introducing = false, complete = false, discardOutput = false, receivedAudio = false, drainGeneration = 0, pendingTools = 0;
-  let consecutiveMisses=0,toolsAtTurnStart=0,inputPacketSinceEnd=false,toolPauseSequence=0;
+  let consecutiveMisses=0,toolsAtTurnStart=0;
   let resumeHandle: string | undefined, pendingResumeHandle: string | undefined, voiceMs = 0, silenceMs = 0, userActive = false;
   let onsetVoicedMs = 0, onsetGapMs = 0;
   let previousOutputSettled=false,responseBegun=false,interruptedTurnEnding=false,playbackActive=false;
@@ -119,7 +121,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
   let seenMessages = new WeakSet<object>();
   let diagnostic = freshDiagnostic();
   const encoder = new LiveMicrophoneEncoder();
-  const ledger = new Map<string, {signature: string; response?: Record<string, unknown>; sentEpoch?: number; cancelled: boolean; abort: AbortController}>();
+  const ledger = new Map<string, ToolEntry>();
   let actionQueue = Promise.resolve();
   const active = () => Boolean(abort && !abort.signal.aborted && !disposed);
   // A network gap between adjacent PCM packets must not discard the middle of
@@ -128,7 +130,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
   // Once setup succeeds, continuous mode supplies the input clock even before
   // the first speaker animation. Mute, visibility and tool admission still apply.
   const forwarding = () => active() && (phase === 'listening'||duringPlayback()||(options.allowSpokenInterruption===true&&((phase==='introducing'&&diagnostic.setupComplete)||(phase==='processing'&&introPlayed)))) && !micMuted && Boolean(microphone?.active) && !deps.document.hidden && pendingTools === 0;
-  const snapshot = (): EdenLiveSnapshot => ({phase, microphoneActive: Boolean(microphone?.active), forwarding: forwarding(), microphoneForwarding: forwarding(), microphoneMuted: micMuted, speakerMuted, ...(reason ? {reason} : {}), diagnostic:{...diagnostic,device:microphone?.info??diagnostic.device,capture:{...diagnostic.capture},replies:replyHistory.map(summarizeReply),pendingTools,resumable:Boolean(resumeHandle),timeline:diagnostic.timeline.map(item=>({...item}))}});
+  const snapshot = (): EdenLiveSnapshot => ({phase, microphoneActive: Boolean(microphone?.active), forwarding: forwarding(), microphoneForwarding: forwarding(), microphoneMuted: micMuted, speakerMuted, ...(reason ? {reason} : {}), diagnostic:{...diagnostic,device:microphone?.info??diagnostic.device,capture:{...diagnostic.capture},replies:replyHistory.map(summarizeReply),pendingTools,resumable:Boolean(resumeHandle),timeline:diagnostic.timeline.map(item=>({...item})),toolHandoffs:diagnostic.toolHandoffs.map(item=>({...item}))}});
   const publish = () => { microphone?.setForwarding?.(forwarding()); if (!disposed) options.onState(snapshot()); };
   function trace(event:LiveEvent){diagnostic.timeline.push({elapsedMs:Math.max(0,Math.round(deps.now()-diagnostic.startedAt)),connection:connectionEpoch,turn,phase,event});if(diagnostic.timeline.length>32)diagnostic.timeline.shift();}
   const setPhase = (value: EdenLivePhase, message?: string) => { phase = value; reason = message;trace('phase'); if (value !== 'listening') { onsetVoicedMs = 0; onsetGapMs = 0; encoder.clear(); options.onInputLevel?.(0); } publish(); };
@@ -150,10 +152,10 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
       fail('Eden did not receive playable voice in time. You can continue by text.','response-timeout');
     },25_000);
   }
-  function endInputStream(){inputPacketSinceEnd=false;if(send({realtimeInput:{audioStreamEnd:true}}))diagnostic.inputStreamEnds=(diagnostic.inputStreamEnds??0)+1;}
+  function endInputStream(){if(send({realtimeInput:{audioStreamEnd:true}}))diagnostic.inputStreamEnds=(diagnostic.inputStreamEnds??0)+1;}
 
   function cleanup() {
-    if(microphone?.info)diagnostic.device=microphone.info;silentTimer=undefined;inputPacketSinceEnd=false;interruptedTurnEnding=false;playbackActive=false;generation++; connectionEpoch++; drainGeneration++; abort?.abort(); abort = undefined; connectionAbort?.abort(); connectionAbort = undefined;
+    if(microphone?.info)diagnostic.device=microphone.info;silentTimer=undefined;interruptedTurnEnding=false;playbackActive=false;generation++; connectionEpoch++; drainGeneration++; abort?.abort(); abort = undefined; connectionAbort?.abort(); connectionAbort = undefined;
     for (const id of timers) clearTimeout(id); timers.clear(); responseTimer = undefined;
     microphone?.stop(); microphone = undefined; connection?.close(); connection = undefined; output?.close(); output = undefined;
     encoder.clear(); onsetVoicedMs = 0; onsetGapMs = 0; ledger.clear(); pendingTools = 0; actionQueue = Promise.resolve(); resumeHandle = undefined; pendingResumeHandle = undefined;
@@ -248,7 +250,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
       const packetRms:number[]=[];
       for (const data of encoder.encode(frame, rate,(chunkRms)=>{packetRms.push(chunkRms);})) {
         cap.encoded++;const signal=(packetRms.shift()??0)>.015;
-        if(send({realtimeInput:{audio:{data,mimeType:'audio/pcm;rate=16000'}}})){diagnostic.inputChunks++;inputPacketSinceEnd=true;options.onInputSent?.();if(signal)cap.sentWithSignal++;cap.lastSentMs=ms;if(cap.firstSentMs<0){cap.firstSentMs=ms;publish();}}
+        if(send({realtimeInput:{audio:{data,mimeType:'audio/pcm;rate=16000'}}})){diagnostic.inputChunks++;options.onInputSent?.();if(signal)cap.sentWithSignal++;cap.lastSentMs=ms;if(cap.firstSentMs<0){cap.firstSentMs=ms;publish();}}
         else cap.dropped++;
       }
       if (userActive && (silenceMs >= 900 || voiceMs >= 30_000)) closeUserTurn();
@@ -303,16 +305,36 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     const signature = JSON.stringify({name,args:Object.fromEntries(Object.entries(args).sort())}), old = ledger.get(id);
     if (old) {
       if (old.signature !== signature) { fail(SAFE_FAILURE,'tool-conflict'); return true; }
-      if (old.response && !old.cancelled && old.sentEpoch !== connectionEpoch) { send({toolResponse:{functionResponses:[{id,name,response:old.response}]}}); old.sentEpoch=connectionEpoch; }
+      if (old.response && !old.cancelled && old.sentEpoch !== connectionEpoch) sendToolResponse(id,name,old);
       return true;
     }
     if (diagnostic.rejectedArguments >= 2 || ledger.size >= 64 || introducing || discardOutput) return false;
     const response = {ok:false,error:{code:'EDEN_LIVE_ARGUMENTS_INVALID',instruction:ARGUMENT_GUIDANCE[name]},message:'Nothing changed. Correct the arguments using the declared schema and retry with a new function-call ID.'};
-    ledger.set(id,{signature,response,sentEpoch:connectionEpoch,cancelled:false,abort:new AbortController()});
+    const entry=toolEntry(signature,name);entry.response=response;ledger.set(id,entry);
     diagnostic.rejectedArguments++; diagnostic.lastEvent='tool'; resumeHandle=undefined; pendingResumeHandle=undefined;
     beginResponse(); if (!active()) return true;
     complete=false;receivedAudio=false;drainGeneration++;
-    send({toolResponse:{functionResponses:[{id,name,response}]}});setPhase(pendingTools?'acting':'processing');expectResponse();
+    if(sendToolResponse(id,name,entry)){setPhase(pendingTools?'acting':'processing');expectResponse();}
+    return true;
+  }
+  function toolEntry(signature:string, name:EdenLiveToolCall['name']):ToolEntry {
+    const handoff:ToolHandoff={ordinal:diagnostic.toolCallsReceived,name,receivedAt:elapsed()};
+    diagnostic.toolHandoffs.push(handoff);
+    if(diagnostic.toolHandoffs.length>8)diagnostic.toolHandoffs.shift();
+    return {signature,cancelled:false,abort:new AbortController(),handoff};
+  }
+  function elapsed(){return Math.max(0,Math.round(deps.now()-diagnostic.startedAt));}
+  function sendToolResponse(id:string,name:EdenLiveToolCall['name'],entry:ToolEntry){
+    if(entry.cancelled||!entry.response)return false;
+    // The wrapper acknowledges local queue acceptance. Provider progress is
+    // measured separately when subsequent inbound events arrive.
+    if(!send({toolResponse:{functionResponses:[{id,name,response:entry.response}]}})){
+      entry.handoff.sendRejectedAt=elapsed();
+      fail('The page action finished, but its result could not be sent to the voice connection. You can continue by text.','tool-response');
+      return false;
+    }
+    entry.sentEpoch=connectionEpoch;
+    entry.handoff.queueAcceptedAt=elapsed();
     return true;
   }
   async function runTool(call:EdenLiveToolCall,entry:{abort:AbortController}):Promise<Record<string,unknown>>{
@@ -340,21 +362,15 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     const old = ledger.get(call.id);
     if (old) {
       if (old.signature !== signature) { fail(SAFE_FAILURE,'tool-conflict'); return; }
-      if (old.response && !old.cancelled && old.sentEpoch !== connectionEpoch) { send({toolResponse: {functionResponses: [{id: call.id, name: call.name, response: old.response}]}}); old.sentEpoch = connectionEpoch; }
+      if (old.response && !old.cancelled && old.sentEpoch !== connectionEpoch) sendToolResponse(call.id,call.name,old);
       return;
     }
     if (ledger.size >= 64 || introducing || discardOutput) { fail('The call received an unsupported action. Text is still available.','tool-limit'); return; }
     diagnostic.toolCalls++; diagnostic.lastEvent = 'tool';
-    const entry = {signature, cancelled: false, response: undefined as Record<string, unknown> | undefined, sentEpoch: undefined as number | undefined, abort: new AbortController()}; ledger.set(call.id, entry);
+    const entry=toolEntry(signature,call.name);ledger.set(call.id,entry);
     resumeHandle = undefined; pendingResumeHandle = undefined;
-    if(!pendingTools&&options.allowSpokenInterruption&&inputPacketSinceEnd){
-      // The worklet intentionally withholds microphone audio during public actions.
-      // Flush Google's automatic VAD only if this is a real, sustained stream gap.
-      const connectionWhenPaused=connectionEpoch,pause=++toolPauseSequence;
-      timer(()=>{if(active()&&connectionEpoch===connectionWhenPaused&&pause===toolPauseSequence&&pendingTools&&inputPacketSinceEnd){
-        try{endInputStream();}catch{fail(SAFE_FAILURE,'microphone-stream');}
-      }},1000);
-    }
+    // A blocking call already owns the provider's turn. Pause capture without
+    // injecting another realtime turn boundary while the tool is outstanding.
     pendingTools++; complete = false; drainGeneration++; beginResponse(); setPhase('acting'); clearResponseTimer();
     actionQueue = actionQueue.then(async () => {
       if (!active() || epoch !== generation) return;
@@ -366,14 +382,23 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
       if (entry.cancelled) { if (!pendingTools) { setPhase('processing'); void finishOutput(); } return; }
       if(response.ok===false||response.outcome==='failed'){diagnostic.toolsFailed++;trace('tool-failed');}else{diagnostic.toolsCompleted++;trace('tool-complete');}
       if (JSON.stringify(response).length > 16_000) { fail(SAFE_FAILURE,'tool-response'); return; }
-      entry.response = response; entry.sentEpoch = connectionEpoch; complete = false; receivedAudio = false;outputText='';nextReply(); drainGeneration++;
-      send({toolResponse: {functionResponses: [{id: call.id, name: call.name, response}]}}); setPhase(pendingTools ? 'acting' : 'processing'); if(!pendingTools)expectResponse();
+      entry.response = response; entry.handoff.actionCompletedAt=elapsed(); complete = false; receivedAudio = false;outputText='';nextReply(); drainGeneration++;
+      if(sendToolResponse(call.id,call.name,entry)){setPhase(pendingTools ? 'acting' : 'processing');if(!pendingTools)expectResponse();}
     }).catch(() => fail(SAFE_FAILURE,'tool-response'));
   }
   function message(value: Record<string, unknown>, epoch: number, socketEpoch: number) {
     if (!active() || epoch !== generation || socketEpoch !== connectionEpoch || seenMessages.has(value)) return;
     seenMessages.add(value);
     diagnostic.messages++; diagnostic.lastEvent = 'message';
+    for(const entry of ledger.values()){
+      if(entry.sentEpoch!==socketEpoch||entry.cancelled||entry.handoff.turnCompletedAt!==undefined)continue;
+      const h=entry.handoff,c=record(value.serverContent),at=elapsed();
+      h.providerEventAt??=at;
+      if(record(c?.outputTranscription)?.text)h.captionAt??=at;
+      if(Array.isArray(record(c?.modelTurn)?.parts)&&
+        (record(c?.modelTurn)!.parts as unknown[]).some(p=>record(record(p)?.inlineData)))h.audioAt??=at;
+      if(c?.turnComplete===true)h.turnCompletedAt??=at;
+    }
     const content = record(value.serverContent), resume = record(value.sessionResumptionUpdate);
     const cap=diagnostic.capture,activity=record(value.voiceActivity)?.voiceActivityType??record(value.voiceActivityDetectionSignal)?.vadSignalType;
     if(activity==='ACTIVITY_START'||activity==='VAD_SIGNAL_TYPE_SOS')cap.serverStarts++;
@@ -397,7 +422,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
       }
     }
     const cancelled = record(value.toolCallCancellation)?.ids;
-    if (Array.isArray(cancelled)) for (const id of cancelled) if (typeof id === 'string') { const entry = ledger.get(id); if (entry) { entry.cancelled = true; entry.abort.abort(); } }
+    if (Array.isArray(cancelled)) for (const id of cancelled) if (typeof id === 'string') { const entry = ledger.get(id); if (entry) { entry.cancelled = true; entry.handoff.cancelledAt=elapsed(); entry.abort.abort(); } }
     const calls = record(value.toolCall)?.functionCalls;
     if (Array.isArray(calls)) { if (calls.length > 4) { fail(SAFE_FAILURE,'tool-limit'); return; } for (const call of calls) toolCall(call, epoch); }
     const input = record(content?.inputTranscription), interim = record(content?.interimInputTranscription), spoken = record(content?.outputTranscription);

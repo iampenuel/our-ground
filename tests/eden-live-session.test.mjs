@@ -406,7 +406,7 @@ test('native transport pins v1beta constrained endpoint, waits setup and closes 
     assert.equal(sockets[0].sent[0].setup.generationConfig.speechConfig.voiceConfig.prebuiltVoiceConfig.voiceName,'Aoede');
     abort.abort();await assert.rejects(pending);assert.equal(sockets[0].closed,true);
     const nextAbort=new AbortController(),messages=[],connected=connectEdenLive(token(),{message:value=>messages.push(value),closed(){}},nextAbort.signal);const socket=sockets[1];socket.onopen();socket.onmessage({data:new TextEncoder().encode('{"setupComplete":{}}').buffer});
-    const connection=await connected;connection.send({realtimeInput:{text:'synthetic request'}});assert.equal(messages.length,1);nextAbort.abort();assert.equal(socket.closed,true);assert.equal(connection.send({}),false);
+    const connection=await connected;assert.equal(connection.send({realtimeInput:{text:'synthetic request'}}),true,'native void return is locally accepted by the wrapper');assert.equal(socket.sent.length,2,'one frame was handed to the native queue');assert.equal(messages.length,1,'queue acceptance did not manufacture a provider response');nextAbort.abort();assert.equal(socket.closed,true);assert.equal(connection.send({}),false);
   }finally{if(original)Object.defineProperty(globalThis,'WebSocket',original);else delete globalThis.WebSocket;}
 });
 
@@ -486,7 +486,7 @@ test('continuous hosted input begins after setup without an animation or output 
   }finally{h.cleanup();}
 });
 
-test('a long public action flushes paused continuous input once without transmitting microphone audio during the action',async()=>{
+test('a blocking action sends its matched result without injecting a realtime turn boundary',async()=>{
   let resolveTool;const h=harness({options:{allowSpokenInterruption:true,onToolCall:()=>new Promise(resolve=>{resolveTool=resolve;})}});
   const original=globalThis.setTimeout,timers=[];
   try{
@@ -495,8 +495,14 @@ test('a long public action flushes paused continuous input once without transmit
     h.message({toolCall:{functionCalls:[{id:'pause-tool',name:'read_public_page_context',args:{}}]}});await settle();
     const sent=h.connections[0].sent,pcm=sent.filter(x=>x.realtimeInput?.audio).length;
     h.frames(.3,80);assert.equal(sent.filter(x=>x.realtimeInput?.audio).length,pcm);
-    timers.find(t=>t.ms===1000).run();assert.equal(sent.filter(x=>x.realtimeInput?.audioStreamEnd).length,1);
-    resolveTool({ok:true});await settle();h.frames(0,4);assert(sent.filter(x=>x.realtimeInput?.audio).length>pcm);
+    for(const timer of timers.filter(t=>t.ms===1000))timer.run();
+    assert.equal(sent.filter(x=>x.realtimeInput?.audioStreamEnd).length,0,'a pending blocking result must survive the capture pause');
+    resolveTool({ok:true});await settle();
+    const responses=sent.flatMap(x=>x.toolResponse?.functionResponses??[]);
+    assert.deepEqual(responses,[{id:'pause-tool',name:'read_public_page_context',response:{ok:true}}]);
+    h.message({serverContent:{outputTranscription:{text:'Six healthcare listings are displayed.'}}});h.audio();await h.finish();
+    assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.controller.snapshot.diagnostic.failure,'none');
+    h.speech();h.frames(0,43);h.audio();await h.finish();assert.equal(h.controller.snapshot.phase,'listening');
   }finally{globalThis.setTimeout=original;h.cleanup();}
 });
 test('a generated caption with only one PCM sample and no completed turn releases the call with an explicit audio failure',async()=>{
@@ -536,5 +542,34 @@ test('captioned full-length silence is not speech; the user can restart without 
     assert(d.capture.encoded>0&&d.capture.sentWithSignal>0);assert.equal(d.capture.encoded,d.inputChunks);
     assert(!JSON.stringify(d).includes('Synthetic'));assert.equal(h.releases.length,1);assert.equal(h.controller.snapshot.microphoneActive,false);
     await h.intro();assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.requests.length,2);assert.equal(h.actions.length,0);
+  }finally{h.cleanup();}
+});
+
+
+test('a locally rejected tool result is never marked queued or retried as a page action',async()=>{
+  const h=harness();try{
+    await h.intro();const wire=h.connections[0],original=wire.send;
+    wire.send=value=>value.toolResponse?false:original(value);
+    const call={id:'reject-result',name:'read_public_page_context',args:{}};
+    h.message({toolCall:{functionCalls:[call]}});await settle();
+    const d=h.controller.snapshot.diagnostic;
+    assert.equal(d.failure,'tool-response');assert.equal(d.toolHandoffs[0].queueAcceptedAt,undefined);
+    assert.equal(typeof d.toolHandoffs[0].sendRejectedAt,'number');assert.equal(h.actions.length,1);
+    assert.equal(h.controller.snapshot.microphoneActive,false);assert.equal(h.releases.length,1);
+  }finally{h.cleanup();}
+});
+
+test('queue acceptance and provider progress remain distinct for a delayed matched tool reply',async()=>{
+  let resolveTool;const h=harness({options:{onToolCall:()=>new Promise(resolve=>{resolveTool=resolve;})}});try{
+    await h.intro();const call={id:'delayed-result',name:'read_public_page_context',args:{}};
+    h.message({toolCall:{functionCalls:[call]}});await settle();resolveTool({outcome:'done',context});await settle();
+    let t=h.controller.snapshot.diagnostic.toolHandoffs[0];assert.equal(typeof t.queueAcceptedAt,'number');
+    assert.equal(t.providerEventAt,undefined);assert.equal(h.controller.snapshot.phase,'processing');
+    const responses=h.connections[0].sent.flatMap(x=>x.toolResponse?.functionResponses??[]);
+    assert.equal(responses[0].id,call.id);assert.equal(responses[0].name,call.name);
+    h.message({serverContent:{outputTranscription:{text:'Search complete.'}}});h.audio();await h.finish();
+    t=h.controller.snapshot.diagnostic.toolHandoffs[0];
+    for(const field of ['receivedAt','actionCompletedAt','queueAcceptedAt','providerEventAt','captionAt','audioAt','turnCompletedAt'])assert.equal(typeof t[field],'number',field);
+    assert.equal(h.controller.snapshot.phase,'listening');assert.doesNotMatch(JSON.stringify(t),/delayed-result|Search complete/);
   }finally{h.cleanup();}
 });

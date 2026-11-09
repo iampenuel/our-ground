@@ -93,7 +93,7 @@ export function mountHostedLive(host:HTMLElement,o:Options){
         remember({reference:correlation,model:d.model,phase:s.phase,stage:d.failurePhase??s.phase,failure:d.failure,
           preparation:d.preparation,tokenHTTP:tokenStatus,service:d.serviceCode,serviceHTTP:d.serviceStatus,
           setup:d.setupComplete===true,closeCode:d.closeCode,closeReason:d.closeReason,provider:d.providerCategory,providerHTTP:d.providerStatus,
-          capture:d.capture,deviceAtStop:d.device,replies:d.replies,generationComplete:d.generationComplete,waitingForInput:d.waitingForInput,lastEvent:d.lastEvent,completedTurns:d.turnComplete,toolsReceived:d.toolCallsReceived,inputChunks:d.inputChunks,audioChunks:d.audioChunks,decodedChunks:d.decodedChunks,inputContext:d.inputContext,outputContext:d.outputContext,playbacks:d.playbackStarts,spokenInterruptions:d.spokenInterruptions??0,unansweredTurns:d.unansweredTurns??0,inputStreamEnds:d.inputStreamEnds??0,microphoneActive:s.microphoneActive,ended:d.endReason});
+          capture:d.capture,deviceAtStop:d.device,replies:d.replies,generationComplete:d.generationComplete,waitingForInput:d.waitingForInput,lastEvent:d.lastEvent,completedTurns:d.turnComplete,toolsReceived:d.toolCallsReceived,toolHandoffs:d.toolHandoffs,inputChunks:d.inputChunks,audioChunks:d.audioChunks,decodedChunks:d.decodedChunks,inputContext:d.inputContext,outputContext:d.outputContext,playbacks:d.playbackStarts,spokenInterruptions:d.spokenInterruptions??0,unansweredTurns:d.unansweredTurns??0,inputStreamEnds:d.inputStreamEnds??0,microphoneActive:s.microphoneActive,ended:d.endReason});
         details.hidden=s.phase!=='error'&&s.phase!=='permission-required';
       }
     }

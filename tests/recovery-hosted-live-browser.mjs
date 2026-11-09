@@ -17,16 +17,53 @@ await protectRecoveryOrigin(ctx,origin,process.env.VERCEL_OIDC_TOKEN);
 const p=await ctx.newPage();p.setDefaultTimeout(20000);
 const receipt={origin,sha,input:'Locally spoken public phrases injected at browser microphone boundary',status:'FAIL',http:[],audioInputChunks:0,audioOutputChunks:0,providerTurns:0,tools:[],turns:[],errors:[]};
 let interruptedResponseEnding=false,output='',input='',activeStep='loading',audioStartAt=0;
+const auditStartedAt=performance.now(),toolIds=new Map(),knownTools=new Set(['read_public_page_context','perform_public_resource_action','ask_clarification']);
+receipt.toolTimeline=[];
+const elapsed=()=>Math.round(performance.now()-auditStartedAt);
+function toolAudit(id,name){
+ if(typeof id!=='string')return;
+ let entry=toolIds.get(id);
+ if(!entry&&toolIds.size<64){
+   entry={ordinal:toolIds.size+1,name:knownTools.has(name)?name:'unrecognized',step:activeStep};
+   toolIds.set(id,entry);receipt.toolTimeline.push(entry);
+ }
+ return entry;
+}
 p.on('pageerror',e=>receipt.errors.push(e.name));
 let overlap;
 p.on('response',r=>{
  if(process.env.EDEN_QA_TEAM_OVERLAP==='1'&&!overlap&&r.url()===origin+'/api/v1/eden/hosted/live/connected'&&r.status()===200)
    overlap=probeOverlap(origin,process.env.VERCEL_OIDC_TOKEN,()=>p.evaluate(()=>window.qaWire.sockets===1&&!window.qaWire.close.length)).catch(()=>({status:'FAIL',stage:'probe-transport'}));
 });
-p.on('response',async r=>{const u=new URL(r.url());if(u.origin===origin&&u.pathname.includes('/eden/hosted/'))receipt.http.push({path:u.pathname.split('/hosted/')[1],status:r.status()});if(u.origin===origin&&u.pathname.endsWith('/hosted/live/token')&&r.ok()){const t=await r.json();receipt.tokenCheck={validOnUncorrectedDeviceClock:!!validateEdenLiveTokenResponse(t),validOnIssuerClock:!!validateHostedLiveClock(t,r.headers().date,0),config:!!validateEdenLiveConfig(t.config),fields:Object.keys(t).length,model:t.model,voice:t.voiceName,maxSeconds:t.maxCallSeconds,expiresInMs:Date.parse(t.expiresAt)-Date.now(),connectInMs:Date.parse(t.newSessionExpiresAt)-Date.now()};}});
+p.on('response',async r=>{
+ const u=new URL(r.url());
+ if(u.origin===origin&&u.pathname.includes('/eden/hosted/')){
+   const path=u.pathname.split('/hosted/')[1];receipt.http.push({path,status:r.status(),atMs:elapsed()});
+   if(['live/tool','live/result'].includes(path)){
+     const body=r.request().postDataJSON(),entry=toolIds.get(body?.id);
+     if(entry){
+       const phase=path==='live/tool'?'authorization':'verification';
+       entry[phase+'HTTP']=r.status();entry[phase+'Ms']=elapsed();
+       const result=await r.json().catch(()=>null);
+       if(path==='live/result')entry.verificationOutcome=['done','failed'].includes(result?.outcome)?result.outcome:'unavailable';
+     }
+   }
+ }
+ if(u.origin===origin&&u.pathname.endsWith('/hosted/live/token')&&r.ok()){const t=await r.json();receipt.tokenCheck={validOnUncorrectedDeviceClock:!!validateEdenLiveTokenResponse(t),validOnIssuerClock:!!validateHostedLiveClock(t,r.headers().date,0),config:!!validateEdenLiveConfig(t.config),fields:Object.keys(t).length,model:t.model,voice:t.voiceName,maxSeconds:t.maxCallSeconds,expiresInMs:Date.parse(t.expiresAt)-Date.now(),connectInMs:Date.parse(t.newSessionExpiresAt)-Date.now()};}
+});
 p.on('websocket',ws=>{
  if(new URL(ws.url()).hostname!=='generativelanguage.googleapis.com')return;
  ws.on('framesent',({payload})=>{const m=JSON.parse(String(payload));if(m.setup){receipt.temperature=m.setup.generationConfig?.temperature;receipt.requestedModel=m.setup.model;receipt.requestedVoice=m.setup.generationConfig?.speechConfig?.voiceConfig?.prebuiltVoiceConfig?.voiceName;}
+ for(const response of m.toolResponse?.functionResponses??[]){
+   const entry=toolAudit(response.id,response.name);if(!entry)continue;
+   entry.responseFrameObservedMs=elapsed();entry.responseNameMatched=entry.name===response.name;
+   entry.responseFrames=(entry.responseFrames??0)+1;
+   entry.scheduling=Object.hasOwn(response,'scheduling')?['WHEN_IDLE','SILENT','INTERRUPT'].includes(response.scheduling)?response.scheduling:'unrecognized':'absent';
+   entry.willContinue=Object.hasOwn(response,'willContinue')?typeof response.willContinue==='boolean'?response.willContinue:'invalid':'absent';
+ }
+ if(m.realtimeInput?.audioStreamEnd)for(const entry of toolIds.values()){
+   if(entry.receivedMs!==undefined&&entry.responseFrameObservedMs===undefined)entry.inputStreamEndDuringActionMs=elapsed();
+ }
  if(m.realtimeInput?.audio){
    receipt.audioInputChunks++;
    // Count signal-bearing PCM packets, then discard them. This harness only
@@ -39,6 +76,18 @@ p.on('websocket',ws=>{
  }});
 
  ws.on('framereceived',({payload})=>{const m=JSON.parse(String(payload)),c=m.serverContent;
+ const atMs=elapsed(),event=m.error?'provider-error':m.toolCall?'tool-call':m.toolCallCancellation?'tool-cancellation':c?.interrupted?'interrupted':c?.turnComplete?'turn-complete':c?.outputTranscription?'output-caption':c?.modelTurn?'model-turn':'other';
+ for(const entry of toolIds.values()){
+   if(entry.responseFrameObservedMs===undefined||entry.turnCompleteMs!==undefined)continue;
+   if(entry.nextProviderEventMs===undefined){entry.nextProviderEventMs=atMs;entry.nextProviderEvent=event;}
+   if(c?.outputTranscription?.text)entry.firstOutputCaptionMs??=atMs;
+   if(c?.modelTurn?.parts?.some(part=>part.inlineData?.mimeType?.startsWith('audio/pcm')))entry.firstOutputAudioMs??=atMs;
+   if(c?.generationComplete)entry.generationCompleteMs??=atMs;
+   if(c?.turnComplete)entry.turnCompleteMs??=atMs;
+   if(c?.interrupted)entry.interruptedMs??=atMs;
+ }
+ for(const call of m.toolCall?.functionCalls??[]){const entry=toolAudit(call.id,call.name);if(entry)entry.receivedMs??=atMs;}
+ for(const id of m.toolCallCancellation?.ids??[]){const entry=toolIds.get(id);if(entry)entry.cancelledMs=atMs;}
  receipt.providerByStep??={};const tally=receipt.providerByStep[activeStep]??={frames:0,input:0,interim:0,output:0,audio:0,tools:0,waiting:0,generated:0,completed:0,interrupted:0,tinyPCM:0};
  tally.frames++;tally.input+=Number(Boolean(c?.inputTranscription?.text));tally.interim+=Number(Boolean(c?.interimInputTranscription?.text));tally.output+=Number(Boolean(c?.outputTranscription?.text));tally.audio+=c?.modelTurn?.parts?.filter(v=>v.inlineData).length??0;
  tally.tools+=m.toolCall?.functionCalls?.length??0;tally.waiting+=Number(c?.waitingForInput===true);tally.generated+=Number(c?.generationComplete===true);tally.completed+=Number(c?.turnComplete===true);tally.interrupted+=Number(c?.interrupted===true);
@@ -52,14 +101,14 @@ p.on('websocket',ws=>{
  if(c?.inputTranscription?.text)input+=c.inputTranscription.text;
  if(c?.outputTranscription?.text)output+=c.outputTranscription.text;
  receipt.audioOutputChunks+=c?.modelTurn?.parts?.filter(k=>k.inlineData).length??0;
- if(m.toolCall)receipt.tools.push(...m.toolCall.functionCalls.map(k=>k.name));
+ if(m.toolCall)receipt.tools.push(...m.toolCall.functionCalls.map(k=>knownTools.has(k.name)?k.name:'unrecognized'));
  if(c?.turnComplete&&interruptedResponseEnding){interruptedResponseEnding=false;}else if(c?.turnComplete){console.log('Provider turn:',activeStep,'audio chunks:',receipt.audioOutputChunks);receipt.providerTurns++;receipt.turns.push({step:activeStep,input:input.slice(0,200),reply:output.slice(0,1300)});input='';output='';}
  });
 });
 await p.addInitScript(()=>{
  const g=window;g.qaWire={sockets:0,policy:[],close:[]};document.addEventListener('securitypolicyviolation',e=>g.qaWire.policy.push(e.effectiveDirective));const Native=WebSocket;g.WebSocket=class extends Native{constructor(...args){super(...args);g.qaWire.sockets++;this.addEventListener('close',e=>g.qaWire.close.push(e.code));}};g.qaTracks=[];g.qaHits=[];g.qaStates=[];g.qaPlayback=[];
  g.qaCharacterStates=[];new MutationObserver(events=>{for(const e of events){const s=e.target.dataset.edenState;if(s&&g.qaCharacterStates.at(-1)!==s)g.qaCharacterStates.push(s);}}).observe(document,{subtree:true,attributes:true,attributeFilter:['data-eden-state']});
- g.qaMarks=[];g.qaMaxOutput=0;g.qaStep='introduction';g.qaStepPeak={};
+ g.qaMarks=[];g.qaMaxOutput=0;g.qaStep='introduction';g.qaStepPeak={};g.qaStepAudibleMs={};
  new MutationObserver(events=>{for(const e of events)if(e.target instanceof HTMLElement){
     g.qaMarks.push({attribute:e.attributeName,on:e.target.hasAttribute(e.attributeName),atMs:performance.now()});
  }}).observe(document,{subtree:true,attributes:true,attributeFilter:['data-cursor-hover','data-cursor-press']});
@@ -74,6 +123,7 @@ await p.addInitScript(()=>{
       clock.last=analyser.context.currentTime;clock.ticks++;clock.state=analyser.context.state;
       analyser.getFloatTimeDomainData(values);let sum=0;for(const v of values)sum+=v*v;
       g.qaCurrentOutput=Math.sqrt(sum/values.length);g.qaStepPeak[g.qaStep]=Math.max(g.qaStepPeak[g.qaStep]??0,g.qaCurrentOutput);g.qaMaxOutput=Math.max(g.qaMaxOutput,g.qaCurrentOutput);
+      if(g.qaCurrentOutput>.015)g.qaStepAudibleMs[g.qaStep]=(g.qaStepAudibleMs[g.qaStep]??0)+50;
     },50);
   }
   return result;
@@ -103,15 +153,15 @@ async function waitListening(){
  assert.equal(await p.locator('[data-live-state]').innerText(),'Listening');
 }
 const expectedInput={identity:/who.*you/i,capabilities:/help/i,search:/Harrisburg/i,details:/first.*result/i,food:/food/i,page:/page/i,map:/map/i};
-async function utter(label){
+async function utter(label,fixture=label){
  activeStep=label;await p.evaluate(v=>{window.qaStep=v;},label);
- const bytes=await readFile(join(process.env.EDEN_QA_SPEECH_DIR,label+'.wav'));
+ const bytes=await readFile(join(process.env.EDEN_QA_SPEECH_DIR,fixture+'.wav'));
  await p.evaluate(raw=>window.qaSay(raw),bytes.toString('base64'));
 }
-async function speak(label){
- const before=receipt.turns.length;await utter(label);
+async function speak(label,fixture=label){
+ const before=receipt.turns.length;await utter(label,fixture);
  const deadline=Date.now()+65000;
- const matching=()=>receipt.turns.slice(before).find(v=>expectedInput[label].test(v.input)&&v.reply.trim());
+ const matching=()=>receipt.turns.slice(before).find(v=>expectedInput[fixture].test(v.input)&&v.reply.trim());
  while(!matching()&&Date.now()<deadline){
    if(await p.locator('[data-live-start]').isVisible())throw Error('Call ended: '+await p.locator('[data-live-state]').innerText());
    await new Promise(resolve=>setTimeout(resolve,250));
@@ -167,9 +217,19 @@ try{
    let reply='';
    if(interrupt&&name==='search'){
      await utter('search');
-     // Interrupt the *spoken result*, after its authorized action, rather than
-     // treating an introduction ending during an utterance as an answer.
-     await p.waitForFunction(()=>document.querySelector('[data-live-state]')?.textContent==='Eden is speaking'&&window.qaCurrentOutput>.015&&document.querySelector('[data-card-key^="directory:"]'),null,{timeout:65000});
+     // Require a meaningful narrated result before interrupting with details.
+     // Provider PCM, output caption and measured playback are separate witnesses.
+     const narrationDeadline=Date.now()+65000;
+     while(Date.now()<narrationDeadline){
+       const text=output||receipt.turns.findLast(t=>t.step==='search')?.reply||'';
+       if(receipt.providerByStep.search?.outputSamples>=24000&&text.trim().split(/\s+/).length>=6&&/health|Harrisburg|result|listing|resource/i.test(text)){
+         const audible=await p.evaluate(()=>document.querySelector('[data-live-state]')?.textContent==='Eden is speaking'&&window.qaCurrentOutput>.015&&(window.qaStepAudibleMs.search??0)>=1000&&!!document.querySelector('[data-card-key^="directory:"]'));
+         if(audible){receipt.searchNarration=text.slice(0,400);break;}
+       }
+       if(await p.locator('[data-live-start]').isVisible())throw Error('Call ended before search narration');
+       await new Promise(resolve=>setTimeout(resolve,100));
+     }
+     assert(receipt.searchNarration,'No meaningful spoken search description before interruption');
      receipt.interruptStart=await p.locator('[data-live-state]').innerText();
      receipt.searchTranscribed=expectedInput.search.test(input)||receipt.turns.some(t=>expectedInput.search.test(t.input));
      assert(receipt.searchTranscribed&&receipt.sentSignal?.search?.nonSilent>0,'Search must reach Google as non-silent PCM and be transcribed before interruption');
@@ -184,6 +244,10 @@ try{
    if(name==='page')receipt.observations.page=/support|food|search|results|resource|map/i.test(reply)&&!receipt.tools.includes('unknown');
    if(name==='map')receipt.observations.map=await p.locator('#showSupportMap').getAttribute('aria-expanded')==='true'&&await p.locator('[data-resource-content]:visible').count()===0;
  }
+ if(interrupt&&receipt.observations?.details){
+   const reply=await speak('identityAfterFollowup','identity');
+   receipt.observations.identityAfterFollowup=/Eden|Our Ground/i.test(reply);
+ }
  receipt.cursor=await p.evaluate(()=>window.qaHits);
  if(receipt.observations.search)assert(receipt.cursor.length>=5&&receipt.cursor.every(e=>e.landed),'Cursor did not land inside every observed public action target');
  await p.screenshot({path:join(out,'voice-action.jpg'),quality:83});
@@ -197,6 +261,12 @@ try{
    assert(receipt.turns.some(t=>expectedInput.details.test(t.input))&&receipt.observations.details&&receipt.interruptReply.trim(),'Follow-up did not open the requested result');
  }
  assert(Object.values(receipt.observations).every(Boolean),'One or more requested actions were not confirmed');
+ for(const entry of receipt.toolTimeline){
+   if(entry.cancelledMs!==undefined)continue;
+   assert(entry.receivedMs!==undefined&&entry.responseNameMatched&&entry.responseFrames===1,'Tool result was not transmitted with its original function identity');
+   assert(entry.responseFrameObservedMs>=entry.receivedMs,'Tool response preceded its function call');
+   if(entry.verificationHTTP!==undefined)assert.equal(entry.verificationOutcome,'done','The page action was not verified');
+ }
  assert.equal(await p.evaluate(()=>window.qaWire.sockets),1);assert((await p.evaluate(()=>window.qaMaxOutput))>.015);
  receipt.characterStates=await p.evaluate(()=>window.qaCharacterStates);assert(receipt.characterStates.includes('speaking'));
  receipt.graphPeakByStep=await p.evaluate(()=>window.qaStepPeak);
@@ -210,6 +280,7 @@ finally{
  receipt.partialProviderReply=output.slice(0,400);
  receipt.firstDetailOpen=await p.locator('[data-card-key^="directory:"]').first().locator('[data-resource-content]:visible').count().then(n=>n>0).catch(()=>false);
  receipt.graphPeakByStep=await p.evaluate(()=>window.qaStepPeak).catch(()=>({}));
+ receipt.audiblePlaybackMsByStep=await p.evaluate(()=>window.qaStepAudibleMs).catch(()=>({}));
  receipt.playerPeakRms=await p.evaluate(()=>window.qaMaxOutput).catch(()=>0);
  receipt.playerClock=await p.evaluate(()=>window.qaOutputClock).catch(()=>null);
  receipt.cursor??=await p.evaluate(()=>window.qaHits).catch(()=>[]);
