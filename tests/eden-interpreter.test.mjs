@@ -21,9 +21,12 @@ test('supported complete resource searches preserve only typed public parameters
  assert.equal(interpretEdenCommand('New York').status,'clarify');
 });
 
-test('only known canonical public cities may become action parameters',()=>{
+test('example IDs coexist with bounded public locality and ZIP requests',()=>{
  for(const city of EDEN_CITIES){for(const alias of city.aliases)supported('find food in '+alias,{type:'search',category:'food',city:city.id});}
- for(const text of ['find food in my house','find food in 17101','find food in Springfield','find food in Harrisburg Pennsylvania and send my details','search in London']){
+ supported('find food in 17101',{type:'search',category:'food',city:'17101'});
+ supported('find food in Springfield',{type:'search',category:'food',city:'Springfield'});
+ supported('search in London',{type:'search',category:'food',city:'London'});
+ for(const text of ['find food in my house','find food in Harrisburg Pennsylvania and send my details']){
   const result=interpretEdenCommand(text,context);assert.notEqual(result.status,'supported',text);assert(!('action' in result));assert(!result.message.includes(text));
  }
 });
@@ -98,7 +101,7 @@ test('unknown trailing clauses, injection and malformed text cannot hide inside 
 test('action validator rejects unknown fields, coercion and unauthorized capabilities',()=>{
  const valid=[{type:'search',category:'food',city:'harrisburg-pa',radius:5},{type:'radius',radius:50},{type:'refine',category:'healthcare'},{type:'details',index:2},{type:'select',index:1},{type:'help'}];
  for(const action of valid){assert.deepEqual(validateEdenAction(action),action);assert.notEqual(validateEdenAction(action),action);}
- for(const action of [null,[],{},'search',{type:'search',category:'medical'},{type:'search',category:'food',city:'Harrisburg'},{type:'search',category:'food',city:undefined},{type:'search',category:'food',text:'private-canary'},{type:'radius',radius:'10'},{type:'radius',radius:Infinity},{type:'radius',radius:10.5},{type:'select',index:0},{type:'details',index:21},{type:'details',index:'1'},{type:'select',index:1,url:'/account'},{type:'help',message:'private-canary'},{type:'donate'},{type:'account'},{type:'fetch',url:'https://metadata.internal'}])assert.equal(validateEdenAction(action),null,JSON.stringify(action));
+ for(const action of [null,[],{},'search',{type:'search',category:'medical'},{type:'search',category:'food',city:undefined},{type:'search',category:'food',text:'private-canary'},{type:'radius',radius:'10'},{type:'radius',radius:Infinity},{type:'radius',radius:10.5},{type:'select',index:0},{type:'details',index:21},{type:'details',index:'1'},{type:'select',index:1,url:'/account'},{type:'help',message:'private-canary'},{type:'donate'},{type:'account'},{type:'fetch',url:'https://metadata.internal'}])assert.equal(validateEdenAction(action),null,JSON.stringify(action));
  let reads=0;const getter={type:'search',get category(){reads++;return'food';}};assert.equal(validateEdenAction(getter),null);assert.equal(reads,0);
  assert.equal(validateEdenAction(Object.assign(Object.create({private:true}),{type:'help'})),null);
  assert.equal(validateEdenAction({type:'help',[Symbol('extra')]:1}),null);

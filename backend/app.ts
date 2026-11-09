@@ -1,5 +1,6 @@
 import {publicApiRoute} from './api-route.ts';
-import { EDEN_CITIES } from '../shared/eden-assistant.ts';
+import { normalizeEdenCityId } from '../shared/eden-assistant.ts';
+import {DirectoryLocationError} from './directory-city.ts';
 import type { DirectoryCityLookup } from './directory-city.ts';
 import type {createEdenService} from './eden-api.ts';
 import {EDEN_NOTICE_VERSION} from '../shared/eden-assistant.ts';
@@ -113,11 +114,12 @@ async function handleApiInternal(request: Request, deps: Dependencies,requestId:
     if (method === 'GET' && path === '/health') return json({ status: 'ok' });
     if (method === 'GET' && path === '/categories') return json({ items: [{ slug: 'food', name: 'Food assistance' }, { slug: 'healthcare', name: 'Healthcare' }, { slug: 'community', name: 'Community Support' }] });
     if (method === 'GET' && path === '/places/directory-city') {
-      const city = EDEN_CITIES.find(c => c.id === url.searchParams.get('city'));
-      if (!city) fail(422, 'VALIDATION_ERROR', 'Choose a supported directory city.');
+      const city=normalizeEdenCityId(url.searchParams.get('city'));
+      if(!city)fail(422,'VALIDATION_ERROR','Enter a U.S. locality and state or five-digit ZIP code.');
       await deps.publicProtection?.admit('location_reference', request);
       if (!deps.directoryCity) throw new UnavailableError('DIRECTORY_CITY_UNAVAILABLE', 'The directory city reference is not configured.');
-      return json({location: await deps.directoryCity(city!.id)});
+      try{return json({location:await deps.directoryCity(city!)});}
+      catch(error){if(error instanceof DirectoryLocationError)return json({resolution:error.resolution,error:{code:error.code,message:error.message}},422);throw error;}
     }
     if (method === 'GET' && path === '/places/resolve') {
       const q = (url.searchParams.get('q') ?? '').trim();

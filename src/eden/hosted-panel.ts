@@ -9,7 +9,7 @@ export function renderHostedPanel(panel: HTMLElement) {
     <div class="eden-page"><span data-context></span></div>
     <div class="eden-body" id="eden-conversation">
       <div data-history>
-        <p class="eden-welcome">What can I help you find?</p>
+        <p class="eden-welcome">Hi! I’m Eden. I can help you find food, healthcare, and community resources, and guide you around this page. What would you like to explore?</p>
         <div class="eden-log" role="log" aria-label="Conversation with Eden" aria-live="polite" aria-relevant="additions"></div>
         <div class="eden-consent" hidden>
           <h3>Before we chat</h3>

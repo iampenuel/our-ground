@@ -1,4 +1,6 @@
 import {liveCapacity} from './eden-live-capacity.ts';
+import {DirectoryLocationError} from './directory-city.ts';
+import {LocationSearchError} from './location-search.ts';
 import {EDEN_LIVE_MAX_CALL_SECONDS} from '../shared/eden-live.ts';
 import {createHostedLive} from './eden-hosted-live.ts';
 import {EdenLiveError} from './eden-live.ts';
@@ -160,6 +162,8 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
       }
       return response({error:{code:'EDEN_ROUTE_UNAVAILABLE',message:'Use the directory assistant.'}},404);
     }catch(error){
+      if(error instanceof DirectoryLocationError)return response({error:{code:error.code,message:error.message}},error.status);
+      if(error instanceof LocationSearchError)return response({error:{code:'EDEN_LOCATION_UNAVAILABLE',message:'Location resolution is temporarily unavailable. Check the place and state or ZIP code, or try again later.'}},error.status);
       if(error instanceof EdenProviderError){
         // A bounded error enum and model name only. SDK errors may contain keys or input.
         console.warn('eden.provider',JSON.stringify({code:error.code,model:textModel,status:error.status,correlationId}));

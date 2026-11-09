@@ -73,7 +73,7 @@ test('rich public presentation stays local and provider context remains a detach
   assert.equal(browserState.outbound(), 0);
 });
 
-test('only completed non-synthetic canonical searches persist finite tab context for fifteen minutes', t => {
+test('only completed non-synthetic resolved searches persist coarse tab context for fifteen minutes', t => {
   const { values, writes, outbound } = browser(t);
   let synthetic = false;
   adapter(t, () => ({ ...base, synthetic }), () => ({ cityId: 'harrisburg-pa', results: [{ title: 'synthetic-title-canary', kind: 'directory', selected: false }], rawQuery: 'synthetic-query-canary', longitude: -76.123456 }));
@@ -117,7 +117,7 @@ test('cross-page navigation restores only safe broad context and keeps giving in
 test('an active unsupported location cannot silently reuse the previously remembered city', t => {
   const { values, writes } = browser(t);
   values.set(key, JSON.stringify(remembered()));
-  adapter(t, () => ({ ...base }), () => ({ cityId: 'synthetic-unsupported-city-canary' }));
+  adapter(t, () => ({ ...base }), () => ({ cityId: '123 Private Street Apt 4' }));
   assert.equal(edenLocalPageContext().cityId, undefined);
   assert.equal(edenPageContext().category, 'food');
   publishEdenApplication({ type: 'search-completed', requestId: 'unsupported-city' });
@@ -129,7 +129,7 @@ test('expired, extended, malformed or extra-field tab context is rejected before
   const { values } = browser(t, '/organizations');
   const valid = remembered();
   for (const invalid of [
-    null, [], {}, { ...valid, cityId: 'Unknown City' }, { ...valid, category: 'private' },
+    null, [], {}, { ...valid, cityId: '123 Private Street Apt 4' }, { ...valid, category: 'private' },
     { ...valid, radius: '25' }, { ...valid, radius: 7 }, { ...valid, expiresAt: clock },
     { ...valid, expiresAt: clock - 1 }, { ...valid, expiresAt: clock + 900_001 },
     { ...valid, expiresAt: String(clock + 1000) }, { ...valid, rawQuery: 'synthetic-private-canary' },
@@ -169,4 +169,21 @@ test('storage failures and bounded malformed presentation do not break the page 
   assert.doesNotThrow(clearEdenRememberedSearch);
   assert.deepEqual(edenPageContext(), base);
   assert.equal(outbound(), 0);
+});
+
+
+test('resolved towns and ZIPs retain coarse cross-page context without coordinates or private addresses',async t=>{
+  const state=browser(t);
+  for(const cityId of ['Lanham, MD','Berkeley, CA','20706','Snoqualmie Pass, WA']){
+    clearEdenRememberedSearch();state.location.pathname='/support';
+    const dispose=registerEdenPage({context:()=>({...base}),presentation:()=>({cityId,loading:'ready'}),execute:async()=>({status:'done',message:'Done.'})});
+    assert.equal(edenLocalPageContext().cityId,cityId);
+    publishEdenApplication({type:'search-completed',requestId:'dynamic-area'});
+    const stored=JSON.parse(state.values.get(key));assert.equal(stored.cityId,cityId);
+    assert.deepEqual(Object.keys(stored).sort(),['category','cityId','expiresAt','radius']);
+    dispose();state.location.pathname='/give';
+    assert.equal(edenLocalPageContext().cityId,cityId);
+    await executeEdenAction({type:'navigate-support'},edenPageRevision(),new AbortController().signal);
+    assert.equal(new URL(state.navigation.at(-1),'https://example.invalid').searchParams.get('location'),cityId);
+  }
 });

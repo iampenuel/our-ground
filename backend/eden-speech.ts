@@ -1,7 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import {googleSpeechQuota,type SpeechQuota} from './eden-speech-quota.ts';
 import { isEdenHostedRuntime } from './eden-provider.ts';
-import { EDEN_SPEECH_PHRASES, EDEN_SPEECH_VOICE, EDEN_SPEECH_MAX_BYTES, inspectEdenWav, isEdenSpeechPhrase } from '../shared/eden-speech.ts';
+import { EDEN_NAME_PRONUNCIATION, EDEN_SPEECH_PHRASES, EDEN_SPEECH_VOICE, EDEN_SPEECH_MAX_BYTES, inspectEdenWav, isEdenSpeechPhrase } from '../shared/eden-speech.ts';
 import type { EdenSpeechPhrase } from '../shared/eden-speech.ts';
 
 export const EDEN_TTS_MODELS = ['gemini-3.8-flash-lite-tts', 'gemini-3.8-flash-tts'] as const;
@@ -67,7 +67,7 @@ export async function synthesizePublicSpeech(text:string, model:EdenTtsModel, se
   combined.throwIfAborted();
   const payload: EdenSpeechModelRequest = {
     model,
-    input: [{ type: 'user_input', content: [{ type: 'text', text, annotations: [{ type: 'speech_metadata', style: 'warm, welcoming, lightly cheerful and professional; speak clearly at a natural conversational pace' }] }] }],
+    input: [{ type: 'user_input', content: [{ type: 'text', text, annotations: [{ type: 'speech_metadata', style: 'warm, welcoming, lightly cheerful and professional; speak clearly at a natural conversational pace. '+EDEN_NAME_PRONUNCIATION }] }] }],
     response_format: { type: 'audio', mime_type: 'audio/wav', sample_rate: 24000 },
     generation_config: { speech_config: [{ voice: EDEN_SPEECH_VOICE }] },
     store: false,

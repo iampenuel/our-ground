@@ -1,5 +1,6 @@
-import { EDEN_CITIES, EDEN_MAX_COMMAND_LENGTH, EDEN_NOTICE_VERSION, interpretEdenCommand, validateEdenAction, validateEdenPageContext } from './eden-assistant.ts';
+import { EDEN_CITIES, edenCityQuery, normalizeEdenCityId, validateEdenCityId, EDEN_MAX_COMMAND_LENGTH, EDEN_NOTICE_VERSION, interpretEdenCommand, validateEdenAction, validateEdenPageContext } from './eden-assistant.ts';
 import type { EdenAction, EdenCategory, EdenCityId, EdenPageContext, EdenRadius } from './eden-assistant.ts';
+import {stateCode,parseLocationQuery} from './us-location.ts';
 import { isEdenSpeechPhrase } from './eden-speech.ts';
 import type { EdenSpeechPhrase } from './eden-speech.ts';
 import {publicPageHeading,isEdenPublicDestination} from './eden-public-pages.ts';
@@ -55,7 +56,7 @@ function object(value: unknown): Record<string, unknown> | null {
   } catch { return null; }
 }
 const only = (value: Record<string, unknown>, keys: string[]) => Object.keys(value).every(key => keys.includes(key));
-const city = (value: unknown): value is EdenCityId => EDEN_CITIES.some(item => item.id === value);
+const city = validateEdenCityId;
 const category = (value: unknown): value is EdenCategory => value === 'food' || value === 'healthcare' || value === 'community';
 const radius = (value: unknown): value is EdenRadius => [5, 10, 25, 50].includes(value as number) && typeof value === 'number';
 export function validateEdenAgentResourceIds(value: unknown, directory = false): EdenAgentResourceId[] | null {
@@ -88,14 +89,14 @@ export function validateEdenAgentContext(value: unknown): EdenAgentContext | nul
     || Object.hasOwn(input,'selectedIndex')&&(!Number.isInteger(input.selectedIndex)||Number(input.selectedIndex)<1||Number(input.selectedIndex)>safe.resultCount)
     || Object.hasOwn(input,'searchState')&&(typeof input.searchState!=='string'||!['idle','loading','ready','error'].includes(input.searchState))
     || Object.hasOwn(input,'mapState')&&(typeof input.mapState!=='string'||!['not-shown','loading','ready','unavailable'].includes(input.mapState))) return null;
-  return { ...safe, ...(heading?{heading}:{}), ...(input.filtered===true?{filtered:true as const}:{}), ...(input.view==='map'||input.view==='list'?{view:input.view}:{}), ...(Number.isInteger(input.mappedCount)?{mappedCount:Number(input.mappedCount)}:{}), ...(directory ? { directory: 'public' as const } : {}), ...(city(input.cityId) ? { cityId: input.cityId } : {}), resourceIds,...(Object.hasOwn(input,'selectedIndex')?{selectedIndex:Number(input.selectedIndex)}:{}),...(Object.hasOwn(input,'searchState')?{searchState:input.searchState as EdenAgentContext['searchState']}:{}),...(Object.hasOwn(input,'mapState')?{mapState:input.mapState as EdenAgentContext['mapState']}:{}) };
+  return { ...safe, ...(heading?{heading}:{}), ...(input.filtered===true?{filtered:true as const}:{}), ...(input.view==='map'||input.view==='list'?{view:input.view}:{}), ...(Number.isInteger(input.mappedCount)?{mappedCount:Number(input.mappedCount)}:{}), ...(directory ? { directory: 'public' as const } : {}), ...(city(input.cityId) ? { cityId: normalizeEdenCityId(input.cityId)! } : {}), resourceIds,...(Object.hasOwn(input,'selectedIndex')?{selectedIndex:Number(input.selectedIndex)}:{}),...(Object.hasOwn(input,'searchState')?{searchState:input.searchState as EdenAgentContext['searchState']}:{}),...(Object.hasOwn(input,'mapState')?{mapState:input.mapState as EdenAgentContext['mapState']}:{}) };
 }
 export function validateEdenAgentIntent(value: unknown): EdenAgentIntent | null {
   const input = object(value);
   if (!input) return null;
   switch (input.goal) {
     case 'find-resources': return only(input, ['goal', 'category', 'cityId', 'radius']) && category(input.category) && city(input.cityId)
-      && (!Object.hasOwn(input, 'radius') || radius(input.radius)) ? { goal: input.goal, category: input.category, cityId: input.cityId, ...(radius(input.radius) ? { radius: input.radius } : {}) } : null;
+      && (!Object.hasOwn(input, 'radius') || radius(input.radius)) ? { goal: input.goal, category: input.category, cityId: normalizeEdenCityId(input.cityId)!, ...(radius(input.radius) ? { radius: input.radius } : {}) } : null;
     case 'adjust-distance': return only(input, ['goal', 'radius']) && radius(input.radius) ? { goal: input.goal, radius: input.radius } : null;
     case 'inspect-resource': return only(input, ['goal', 'ordinal', 'view']) && Number.isInteger(input.ordinal) && Number(input.ordinal) >= 1 && Number(input.ordinal) <= 20
       && (input.view === 'details' || input.view === 'map') ? { goal: input.goal, ordinal: Number(input.ordinal), view: input.view } : null;
@@ -107,7 +108,7 @@ export function validateEdenAgentIntent(value: unknown): EdenAgentIntent | null 
     case 'check-open-now':return only(input,['goal','ordinal'])&&Number.isInteger(input.ordinal)&&Number(input.ordinal)>=1&&Number(input.ordinal)<=20?{goal:'check-open-now',ordinal:Number(input.ordinal)}:null;
     case 'clarify-search':
       if (input.missing === 'city' && only(input, ['goal', 'missing', 'category']) && category(input.category)) return { goal: input.goal, missing: 'city', category: input.category };
-      if (input.missing === 'category' && only(input, ['goal', 'missing', 'cityId']) && city(input.cityId)) return { goal: input.goal, missing: 'category', cityId: input.cityId };
+      if (input.missing === 'category' && only(input, ['goal', 'missing', 'cityId']) && city(input.cityId)) return { goal: input.goal, missing: 'category', cityId: normalizeEdenCityId(input.cityId)! };
       if (input.missing === 'city-and-category' && only(input, ['goal', 'missing', 'area']) && input.area === 'pennsylvania') return { goal: input.goal, missing: 'city-and-category', area: 'pennsylvania' };
       return null;
     case 'clear-filters': case 'read-results': case 'navigate-support': case 'help': return only(input, ['goal']) ? { goal: input.goal } : null;
@@ -167,9 +168,9 @@ function cityCorrection(text:string, category:EdenCategory|undefined, radius:Ede
   // Recognize which clause affirms the city before removing unknown words.
   // "Berkley, not Harrisburg" must never turn into a Harrisburg search.
   const clarify:CityCorrection={status:'clarify',localOnly:true,message:'Which city and state should I search? Please enter just the place you want.'};
-  const prefix=/^(?:no[, ]+)?i (?:mean|meant)\s+/;
+  const prefix=/^(?:(?:actually|sorry)[, ]+)?(?:no[, ]+)?i (?:mean|meant)\s+/;
   const cityKey=(phrase:string)=>phrase.toLowerCase().replace(/[.,]/g,' ').replace(/\s+/g,' ').trim();
-  const known=(phrase:string)=>EDEN_CITIES.find(city=>[city.label,city.query,...city.aliases].some(alias=>cityKey(alias)===cityKey(phrase)));
+  const known=(phrase:string)=>{if(/\b(?:introduc(?:e|ing|tion)|intro|yourself|your self|yourslef|who|what|your|capabilities|assistant|map|list|listing|result|page|give|giving|donor|donation|organization|healthcare|food|radius|miles)\b/.test(phrase))return;const id=normalizeEdenCityId(phrase);return id?{id}:undefined;};
   if(!prefix.test(text)){
     // A lone negation or a reversed correction is not a request for the
     // recognized city. Ask for one affirmative choice.
@@ -178,6 +179,7 @@ function cityCorrection(text:string, category:EdenCategory|undefined, radius:Ede
   }
   const [affirmed,excluded,...extra]=text.replace(prefix,'').split(/(?:,?\s+|,)not\s+/);
   const city=known(affirmed);
+  if(city&&!EDEN_CITIES.some(item=>item.id===city.id)&&parseLocationQuery(edenCityQuery(city.id))?.kind==='city'&&!edenCityQuery(city.id).includes(','))return clarify;
   // "I meant" also corrects the subject, category, listing or page. Only
   // unmatched place-like choices should trigger the city/state question.
   if(!city && /\b(?:introduc(?:e|ing|tion)|intro|yourself|your self|yourslef|who (?:you are|are you)|what you can do|your (?:name|role|purpose)|capabilities|assistant|map|list|listing|result|page|give|giving|donor|donation|organization|healthcare|food|radius|miles)\b/.test(affirmed))return;
@@ -195,7 +197,7 @@ export function reduceEdenAgentInput(raw: unknown, context: EdenAgentContext, pe
   const safe = validateEdenAgentContext(context);
   if (!safe || typeof raw !== 'string' || raw.length > EDEN_MAX_COMMAND_LENGTH || /[\u0000-\u001f\u007f\p{Cf}]/u.test(raw)) return { status: 'unsupported', message: 'This request cannot be processed safely. Please use a resource category, city, distance or numbered result.' };
   const checkedPending = pending === undefined ? undefined : validateEdenAgentIntent(pending);
-  if (pending !== undefined && checkedPending?.goal !== 'clarify-search') return { status: 'unsupported', message: 'Please send a complete resource request.' };
+  if (pending !== undefined && checkedPending?.goal !== 'clarify-search'&&checkedPending?.goal!=='find-resources') return { status: 'unsupported', message: 'Please send a complete resource request.' };
   // Clarification memory contributes only already validated public enums to
   // reduction. It never fabricates the actual page context sent to the server.
   const { category: _category, cityId: _actualCity, ...rest } = safe;
@@ -207,6 +209,11 @@ export function reduceEdenAgentInput(raw: unknown, context: EdenAgentContext, pe
   const interpreted = interpretEdenCommand(raw, page);
   if (interpreted.status === 'sensitive') return interpreted;
   const normalized = raw.normalize('NFC').replace(/’/g, "'").trim().toLowerCase().replace(/\s+/g, ' ').replace(/^(?:hey )?eden(?:,|:)?\s+/, '').replace(/^please\s+/, '').replace(/[.!?]$/, '').trim();
+  if(/^(?:continue|continue where we left off|where were we|resume)[?!.]?$/.test(normalized))return{status:'supported',intent:{goal:'explain-page'}};
+  if(checkedPending?.goal==='find-resources'){
+    const region=stateCode(raw),prior=parseLocationQuery(edenCityQuery(checkedPending.cityId));
+    if(region&&prior?.kind==='city'&&!prior.state){const cityId=normalizeEdenCityId(prior.city+', '+region);if(cityId)return{status:'supported',intent:{...checkedPending,cityId}};}
+  }
   const correction=cityCorrection(normalized,reduction.category,safe.radius);
   if(correction)return correction;
   if(/^(?:i want to give(?: support)?|i(?:'d| would) like to give(?: support)?|how can i give(?: support)?)$/.test(normalized))return{status:'supported',intent:{goal:'giving-guidance'}};

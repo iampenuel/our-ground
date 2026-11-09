@@ -77,7 +77,7 @@ export function productionDependencies(): Dependencies {
   if (mode === 'disabled') return { eden:createEdenService(process.env), publicProtection, locations, allowedOrigins, repo: disabledRepo, verifyToken: async () => { throw new UnavailableError('AUTH_NOT_CONFIGURED','Account actions are not enabled. You can still search for support.'); }, resolvePlace: disabled, allowDemo: false, geoapify: createGeoapifyProvider({env:process.env}) };
   if (mode === 'demo' && process.env.ALLOW_DEMO_DATA !== 'true') throw new Error('Demo mode requires ALLOW_DEMO_DATA=true');
   const repo=mode==='demo'?new DemoRepository(process.env.DEMO_EDITOR_USER_ID):new PostgresRepository();
-  const directoryCity=reference?createDirectoryCityLookup(reference):undefined;
+  const directoryCity=reference?createDirectoryCityLookup(reference,Date.now,locations):undefined;
   const eden=createEdenService(process.env,{agentRepository:repo,directoryCity});
   const auth = createOrganizationAuth(process.env), store = new PostgresOrganizationStore();
   const organizations: OrganizationDependencies = {

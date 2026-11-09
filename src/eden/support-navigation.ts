@@ -1,4 +1,4 @@
-import { EDEN_CITIES, validateEdenAction } from '../../shared/eden-assistant.ts';
+import { edenCityQuery, validateEdenAction } from '../../shared/eden-assistant.ts';
 import type { EdenAction } from '../../shared/eden-assistant.ts';
 import type { SupportPageOptions } from '../support-page.ts';
 import { edenPublicPagePolicy } from './public-page-policy.ts';
@@ -18,14 +18,13 @@ export type EdenSupportNavigationOptions = {
 const reused: EdenSupportNavigationResult = { mounted: false, initialSearch: false };
 const loopback = (hostname: string) => ['127.0.0.1', 'localhost', '[::1]'].includes(hostname);
 
-/** Only application-owned city/radius/category values enter this URL. */
+/** Only validated coarse locality and finite radius/category values enter this URL. */
 export function edenSupportNavigationUrl(value: unknown, evaluationData = false): string {
   const action = validateEdenAction(value), query = new URLSearchParams();
   if (!action || !['search', 'navigate-support'].includes(action.type)) throw new Error('Choose a supported search before opening Find Support.');
   if (action.type === 'search') {
-    const city = EDEN_CITIES.find(item => item.id === action.city);
-    if (!city) throw new Error('Choose a supported city before opening Find Support.');
-    query.set('location', city.query); query.set('category', action.category); query.set('radius_miles', String(action.radius ?? 10));
+    if (!action.city) throw new Error('Choose a location before opening Find Support.');
+    query.set('location', edenCityQuery(action.city)); query.set('category', action.category); query.set('radius_miles', String(action.radius ?? 10));
   }
   if (evaluationData) query.set('mode', 'demo');
   return '/support' + (query.size ? '?' + query : '');

@@ -603,3 +603,62 @@ test('a cancelled tool waits boundedly for provider idle and ignores its late ac
     assert.equal(h.requests.length,1);
   }finally{globalThis.setTimeout=original;h.cleanup();}
 });
+
+
+test('Live pronunciation and continuation instructions preserve spelling and verified action boundaries',()=>{
+  const config=buildEdenLiveConfig({directory:true}),text=config.systemInstruction.parts[0].text;
+  assert.equal(config.speechConfig.voiceConfig.prebuiltVoiceConfig.voiceName,'Aoede');
+  assert.match(text,/EE-den/);assert.match(text,/long E of Eve/);assert.match(text,/Keep the written spelling Eden/);
+  assert.match(text,/continue or where were we/);assert.match(text,/without restarting/);assert.match(text,/Never repeat a completed search/);
+});
+
+test('interruption retains the same authorized session and supplies numeric playback context on the next tool reply',async()=>{
+  const h=harness({options:{allowSpokenInterruption:true,onToolCall:async()=>({context,facts:[]})}});try{
+    await h.intro();h.speech();h.audio();h.message({serverContent:{outputTranscription:{text:'Public result description.'}}});
+    h.message({serverContent:{interrupted:true,turnComplete:true}});await settle();
+    h.message({toolCall:{functionCalls:[{id:'resume-context',name:'read_public_page_context',args:{}}]}});await settle();
+    const response=h.connections[0].sent.flatMap(x=>x.toolResponse?.functionResponses??[]).at(-1).response;
+    assert.deepEqual(response.context,context);assert.equal(response.playback.interrupted,true);assert.equal(response.playback.wordPosition,'unknown');
+    assert.doesNotMatch(JSON.stringify(response.playback),/Public result|description/);
+    h.audio();await h.finish();assert.equal(h.controller.snapshot.phase,'listening');assert.equal(h.requests.length,1);
+    h.speech();h.message({toolCall:{functionCalls:[{id:'later-context',name:'read_public_page_context',args:{}}]}});await settle();
+    const later=h.connections[0].sent.flatMap(x=>x.toolResponse?.functionResponses??[]).at(-1).response;
+    assert.equal(later.playback,undefined,'a completed replacement reply clears the old interruption hint');
+  }finally{h.cleanup();}
+});
+
+test('an interrupted deferred action advances the user turn and queues a replacement until the old turn ends',async()=>{
+  for(const separateEnd of [true,false]){
+    let resolveOld;
+    const executed=[];
+    const h=harness({options:{allowSpokenInterruption:true,onToolCall:(call,signal,turn)=>{
+      executed.push({id:call.id,signal,turn});
+      return call.id==='old-search'?new Promise(resolve=>{resolveOld=resolve;}):Promise.resolve({outcome:'done',context});
+    }}});
+    try{
+      await h.intro();h.speech();
+      const old={id:'old-search',name:'read_public_page_context',args:{}},replacement={...old,id:'new-search'};
+      h.message({toolCall:{functionCalls:[old]}});await settle();
+      const before=h.controller.snapshot.diagnostic.turnComplete;
+      h.message({serverContent:{interrupted:true,...(!separateEnd?{turnComplete:true}:{})}});
+      h.message({toolCall:{functionCalls:[replacement]}});await settle();
+      if(separateEnd){
+        assert.equal(executed.length,1,'replacement waits for the interrupted provider turn to end');
+        h.message({toolCall:{functionCalls:[{...old,id:'cancelled-replacement'}]}});
+        h.message({toolCallCancellation:{ids:['cancelled-replacement']}});
+        h.message({serverContent:{turnComplete:true}});await settle();
+      }
+      assert.equal(h.controller.snapshot.diagnostic.failure,'none');
+      assert.deepEqual(executed.map(x=>x.id),['old-search','new-search']);
+      assert(executed[0].signal.aborted);
+      assert(executed[1].turn>executed[0].turn,'new user intent has its own deduplication epoch');
+      resolveOld({outcome:'done',context});await settle();
+      const responses=h.connections[0].sent.flatMap(x=>x.toolResponse?.functionResponses??[]);
+      assert.deepEqual(responses.map(x=>x.id),['new-search'],'the canceled action result is never replayed');
+      assert.equal(h.controller.snapshot.diagnostic.turnComplete,before,'the abandoned provider turn is not counted as speech');
+      h.audio();await h.finish();
+      assert.equal(h.controller.snapshot.phase,'listening');
+      assert.equal(h.requests.length,1);
+    }finally{h.cleanup();}
+  }
+});

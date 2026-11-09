@@ -37,7 +37,9 @@ test('PCM player schedules ordered 24k buffers and reports only actual audible a
     context.currentTime=.03;tick();assert.ok(levels.at(-1)>.3);assert.equal(activity.at(-1),true);
     player.setMuted(true);tick();assert.equal(levels.at(-1),0);player.setMuted(false);
     let drained=false;const drain=player.drain(new AbortController().signal).then(()=>{drained=true;});sources[0].onended();await Promise.resolve();assert.equal(drained,false);sources[1].onended();await drain;assert.equal(drained,true);
-    player.enqueue(pcm,'audio/pcm');const oldEnd=sources[2].onended;player.stop();player.enqueue(pcm,'audio/pcm');oldEnd();
+    const observed={scheduled:0,ended:0,graphPeakRms:0,renderedMs:0,cancelledMs:0};
+    player.enqueue(pcm,'audio/pcm',undefined,observed);const oldEnd=sources[2].onended;context.currentTime=sources[2].at+.04;player.stop();
+    assert(Math.abs(observed.renderedMs-40)<.01);assert(Math.abs(observed.cancelledMs-60)<.01);assert.equal(observed.ended,0,'canceled remainder never counts as a naturally ended source');player.enqueue(pcm,'audio/pcm');oldEnd();
     let newDrained=false;const next=player.drain(new AbortController().signal).then(()=>{newDrained=true;});await Promise.resolve();assert.equal(newDrained,false,'stale ended callback cannot drain a new generation');sources[3].onended();await next;
     context.state='suspended';context.onstatechange();assert.equal(states.at(-1),'suspended');assert.equal(player.contextState,'suspended');assert.throws(()=>player.enqueue(pcm,'audio/pcm'));
     player.close();assert.equal(levels.at(-1),0);assert.equal(context.state,'closed');assert.equal(context.onstatechange,null,'cleanup removes the context observer before closing');

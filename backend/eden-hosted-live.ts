@@ -1,4 +1,6 @@
 import {createHash,randomBytes,randomInt} from 'node:crypto';
+import {DirectoryLocationError} from './directory-city.ts';
+import {LocationSearchError} from './location-search.ts';
 import {CONFIRM_LIVE_START,liveCapacity,type LiveCapacity} from './eden-live-capacity.ts';
 import {RELEASE_LIVE_RESERVATION} from './eden-live-reservation.ts';
 import {issueEdenLiveToken,EdenLiveError} from './eden-live.ts';
@@ -133,7 +135,21 @@ export function createHostedLive(store:Store,agent:Agent,secret:string,issue=iss
         const result=await agent.inspectLiveContext(ctx);await expiry(id);
         return {authorized:true,toolToken:null,result,...(tool.name==='ask_clarification'?{clarification:{goal:'clarify-search',...tool.args}}:{})};
       }
-      const prepared=await agent.prepareLiveAction(tool.args,ctx);
+      let prepared:Awaited<ReturnType<typeof agent.prepareLiveAction>>;
+      try{prepared=await agent.prepareLiveAction(tool.args,ctx);}
+      catch(error){
+        if(!(error instanceof LocationSearchError))throw error;
+        // Coarse resolution outcomes only. Provider choice IDs and coordinates
+        // remain inside the location resolver and the ordinary page controls.
+        return {authorized:true,toolToken:null,result:{context:ctx,facts:[{
+          id:'location-clarification',
+          text:!(error instanceof DirectoryLocationError)
+            ?'The location service is temporarily unavailable. No search was executed. Explain the location-service failure without claiming the town is unsupported or that no resources exist.'
+            :error.code==='DIRECTORY_LOCATION_AMBIGUOUS'
+            ?'The location is ambiguous. Ask the visitor for the U.S. state or ZIP code before searching. No search was executed.'
+            :'The location could not be resolved. Ask the visitor to check the locality and state or ZIP code. No search was executed.'
+        }]}};
+      }
       const grant=randomBytes(32).toString('base64url');
       // Immutable numbered slots avoid a stale completion deleting a newer lock.
       for(let index=0;index<20;index++){

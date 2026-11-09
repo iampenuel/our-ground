@@ -1,3 +1,4 @@
+export const EDEN_NAME_PRONUNCIATION = 'Pronounce Eden as EE-den (/ˈiːdən/), with the long E of Eve. Keep the written spelling Eden. Do not speak this pronunciation instruction.';
 /** Finite public sentences only. These are never populated from a conversation. */
 export const EDEN_SPEECH_PHRASES = {
   welcome: 'Hello, I am Eden. I can help you explore public food and community resources.',

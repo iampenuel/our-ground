@@ -1,13 +1,15 @@
 // Only application-owned symbols cross the text privacy boundary. Preserve their
 // order (including corrections and negations) without sending unrecognized words.
-import { EDEN_CITIES, EDEN_MAX_COMMAND_LENGTH, interpretEdenCommand } from './eden-assistant.ts';
+import { EDEN_CITIES, edenCityQuery, normalizeEdenCityId, validateEdenCityId, EDEN_MAX_COMMAND_LENGTH, interpretEdenCommand } from './eden-assistant.ts';
 import type { EdenCategory, EdenRadius } from './eden-assistant.ts';
-import { validateEdenAgentIntent } from './eden-agent.ts';
+import { validateEdenAgentIntent, reduceEdenAgentInput } from './eden-agent.ts';
 import type { EdenAgentContext, EdenAgentIntent } from './eden-agent.ts';
+import {stateCode,parseLocationQuery} from './us-location.ts';
 import { EDEN_PUBLIC_DESTINATIONS } from './eden-public-pages.ts';
 
 const vocabulary = {
   identity:['who are you','who you are','who are u','who r u','who exactly are you','who is eden','what are you','what is your role','your role','your purpose','who am i talking to','tell me about eden','tell me about yourself','tell me about you','introduce yourself','introduce your self','introduce yourslef','introduce youself','introduce yoursef','introduce urself','introduse yourself','your name'],
+  continuation:['continue','where were we','where we left off','resume'],
   intro:['intro','introduction'], capabilities:['what can you do','what you can do','what do you do','what are you here for','what can you help me do','what can you actually help me do','how can you help','what are you able to do','your capabilities','what else can you do'],
   request:['give me','give us'], inspect:['show me','show the','show its','view','open details'], sequence:['and then','and','then'],
   back:['go back','return to','back to','go back to'], more:['else','more'],
@@ -40,12 +42,20 @@ const lookup=new Map(terms.map(item=>[item.word,item.symbol]));
 const words=new RegExp('\\b(?:'+terms.map(item=>escape(item.word)).join('|')+')\\b','gi');
 const approved=new Set<string>([...Object.keys(vocabulary),...EDEN_CITIES.map(c=>c.id)]);
 export function validSymbols(value:unknown): value is string[] {
-  return Array.isArray(value)&&value.length<=36&&value.every(v=>typeof v==='string'&&approved.has(v));
+  return Array.isArray(value)&&value.length<=36&&value.every(v=>typeof v==='string'&&(approved.has(v)||v.startsWith('place:')&&validateEdenCityId(v.slice(6))||v.startsWith('region:')&&stateCode(v.slice(7))===v.slice(7)));
 }
 export function projectPublicRequest(raw:string): string[] | null {
   if (!raw.trim() || raw.length>EDEN_MAX_COMMAND_LENGTH || /[\p{Cc}\p{Cf}<>@]/u.test(raw) || interpretEdenCommand(raw).status==='sensitive') return null;
+  const region=stateCode(raw.trim());
+  if(region&&!['hi','in','or','me','ok'].includes(raw.trim().toLowerCase()))return ['region:'+region];
   const normalized=raw.normalize('NFC').toLowerCase().replaceAll('’',"'");
-  return [...normalized.matchAll(words)].slice(0,36).map(m=>lookup.get(m[0])!);
+  const matches=[...normalized.matchAll(words)].map(m=>({at:m.index!,symbol:lookup.get(m[0])!}));
+  const interpreted=interpretEdenCommand(raw);
+  const correction=/^(?:(?:actually|sorry)[, ]+)?(?:no[, ]+)?i (?:mean|meant)\s+(.+?)(?:,?\s+not\s+.+)?[.!?]?$/.exec(normalized);
+  const location=interpreted.status==='supported'&&interpreted.action.type==='search'?interpreted.action.city:
+    correction?(()=>{const reduced=reduceEdenAgentInput(raw,{page:'home',synthetic:false,directory:'public',resultCount:0,resourceIds:[]});return reduced.status==='supported'&&'cityId' in reduced.intent?reduced.intent.cityId:undefined;})():undefined;
+  if(location&&!EDEN_CITIES.some(c=>c.id===location))matches.push({at:correction?normalized.indexOf(correction[1]):normalized.lastIndexOf(' in ')+4,symbol:'place:'+location});
+  return matches.sort((a,b)=>a.at-b.at).slice(0,36).map(m=>m.symbol);
 }
 // Offer a correction without executing a search or disclosing the misspelling.
 export function suggestedCity(text:string) {
@@ -98,6 +108,13 @@ export function conversationChoices(symbols:string[], context:EdenAgentContext, 
   const choices:PublicDecision[]=[{kind:'message',key:'clarify'}];
   const add=(intent:EdenAgentIntent)=>{if(validateEdenAgentIntent(intent))choices.push({kind:'intent',intent});};
   const has=(...values:string[])=>values.some(v=>symbols.includes(v));
+  if(has('continuation')){add({goal:'explain-page'});return choices;}
+  const region=symbols.find(s=>s.startsWith('region:'))?.slice(7);
+  if(region&&previous&&'cityId' in previous){
+    const prior=parseLocationQuery(edenCityQuery(previous.cityId));
+    const cityId=prior?.kind==='city'&&!prior.state?normalizeEdenCityId(prior.city+', '+region):undefined;
+    if(cityId&&'category' in previous){add({goal:'find-resources',cityId,category:previous.category,...('radius'in previous&&previous.radius?{radius:previous.radius}:{})});return choices;}
+  }
   if(has('restricted'))return [{kind:'message',key:'boundary'}];
   // A request verb ("give me") is not giving support. Preserve the subject
   // of a correction and distinguish an affirmative topic from a negated one.
@@ -144,7 +161,7 @@ export function conversationChoices(symbols:string[], context:EdenAgentContext, 
     add({goal:'inspect-resource',ordinal:index,view:'details'});
     if(has('hours'))add({goal:'check-open-now',ordinal:index});
   }
-  const cities=EDEN_CITIES.filter(c=>affirmative(c.id)).map(c=>c.id);
+  const cities=[...new Set([...EDEN_CITIES.filter(c=>affirmative(c.id)).map(c=>c.id),...symbols.filter(s=>s.startsWith('place:')&&affirmative(s)).map(s=>normalizeEdenCityId(s.slice(6))!).filter(Boolean)])];
   const categories=(['food','healthcare','community'] as EdenCategory[]).filter(c=>affirmative(c));
   const radiusKey=symbols.find(v=>['five','ten','twentyfive','fifty'].includes(v));
   const radius=radiusKey?({five:5,ten:10,twentyfive:25,fifty:50} as Record<string,EdenRadius>)[radiusKey]:undefined;

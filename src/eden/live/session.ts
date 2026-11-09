@@ -44,7 +44,7 @@ export type EdenLiveOptions = {
   releaseToken?(callId: string): void | Promise<void>;
   getContext(): EdenLiveContext;
   getPendingTask?(): unknown;
-  onToolCall(call: EdenLiveToolCall, signal: AbortSignal): Promise<Record<string, unknown>>;
+  onToolCall(call: EdenLiveToolCall, signal: AbortSignal, turn: number): Promise<Record<string, unknown>>;
   onState(snapshot: EdenLiveSnapshot): void;
   onUnplayedCaption?(text:string):void;
   onTranscript(transcript: EdenLiveTranscript): void;
@@ -105,6 +105,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
   let onsetVoicedMs = 0, onsetGapMs = 0;
   let previousOutputSettled=false,responseBegun=false,interruptedTurnEnding=false,playbackActive=false;
   let inputText = '', outputText = '';
+  let interruptedPlayback:{interrupted:true;renderedMs:number;cancelledMs:number;wordPosition:"unknown"}|undefined;
   let reply=newReply(0), replyHistory=[reply], silentTimer:ReturnType<typeof setTimeout>|undefined;
   function nextReply(){cancelTimer(silentTimer);silentTimer=undefined;reply=newReply(turn);replyHistory.push(reply);if(replyHistory.length>6)replyHistory.shift();}
   function missingVoice(){
@@ -123,6 +124,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
   const encoder = new LiveMicrophoneEncoder();
   const ledger = new Map<string, ToolEntry>();
   let actionQueue = Promise.resolve();
+  const deferredToolCalls:unknown[]=[];
   const active = () => Boolean(abort && !abort.signal.aborted && !disposed);
   // A network gap between adjacent PCM packets must not discard the middle of
   // a visitor's word. Keep capture open throughout an audible response.
@@ -158,7 +160,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     if(microphone?.info)diagnostic.device=microphone.info;silentTimer=undefined;interruptedTurnEnding=false;playbackActive=false;generation++; connectionEpoch++; drainGeneration++; abort?.abort(); abort = undefined; connectionAbort?.abort(); connectionAbort = undefined;
     for (const id of timers) clearTimeout(id); timers.clear(); responseTimer = undefined;
     microphone?.stop(); microphone = undefined; connection?.close(); connection = undefined; output?.close(); output = undefined;
-    encoder.clear(); onsetVoicedMs = 0; onsetGapMs = 0; ledger.clear(); pendingTools = 0; actionQueue = Promise.resolve(); resumeHandle = undefined; pendingResumeHandle = undefined;
+    encoder.clear(); interruptedPlayback=undefined;deferredToolCalls.length=0; onsetVoicedMs = 0; onsetGapMs = 0; ledger.clear(); pendingTools = 0; actionQueue = Promise.resolve(); resumeHandle = undefined; pendingResumeHandle = undefined;
     deps.document.removeEventListener('visibilitychange', visibility); window.removeEventListener('pagehide', pagehide);
     const callId = token?.callId; token = undefined; inputText = ''; outputText = ''; options.onAudioLevel(0); options.onInputLevel?.(0);
     if (callId) { try { void Promise.resolve(options.releaseToken?.(callId)).catch(() => {}); } catch { /* Local lease also expires independently. */ } }
@@ -278,6 +280,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
       }
       if (introducing) { introducing = false; introPlayed = true; }
       previousOutputSettled=true;
+      if(!discardOutput&&receivedAudio)interruptedPlayback=undefined;
       // Retain an early provider-issued handle, but it becomes eligible only
       // after this output turn and the real player have both completed.
       resumeHandle = pendingResumeHandle;
@@ -328,7 +331,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     if(entry.cancelled||!entry.response)return false;
     // The wrapper acknowledges local queue acceptance. Provider progress is
     // measured separately when subsequent inbound events arrive.
-    if(!send({toolResponse:{functionResponses:[{id,name,response:entry.response}]}})){
+    if(!send({toolResponse:{functionResponses:[{id,name,response:{...entry.response,...(interruptedPlayback?{playback:interruptedPlayback}:{})}}]}})){
       entry.handoff.sendRejectedAt=elapsed();
       fail('The page action finished, but its result could not be sent to the voice connection. You can continue by text.','tool-response');
       return false;
@@ -343,7 +346,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     const failed={ok:false,message:'The public page action could not be completed.'};
     try{
       return await Promise.race([
-        Promise.resolve().then(()=>{signal.throwIfAborted();return options.onToolCall(call,signal);}).catch(error=>{if(!done)serviceFailure(error);return failed;}),
+        Promise.resolve().then(()=>{signal.throwIfAborted();return options.onToolCall(call,signal,turn);}).catch(error=>{if(!done)serviceFailure(error);return failed;}),
         new Promise<Record<string,unknown>>(resolve=>{actionTimer=timer(()=>{trace('tool-timeout');resolve({ok:false,error:{code:'EDEN_LIVE_TOOL_TIMEOUT'}});entry.abort.abort();},20_000);}),
         new Promise<Record<string,unknown>>(resolve=>{const cancel=()=>resolve(failed);signal.addEventListener('abort',cancel,{once:true});removeAbort=()=>signal.removeEventListener('abort',cancel);if(signal.aborted)cancel();}),
       ]);
@@ -420,23 +423,34 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
       const oldComplete=complete;
       if(playbackActive)diagnostic.spokenInterruptions=(diagnostic.spokenInterruptions??0)+1;
       discardOutput=true;drainGeneration++;output?.stop();options.onAudioLevel(0);
-      if(options.allowSpokenInterruption&&!pendingTools){
+      interruptedPlayback={interrupted:true,renderedMs:Math.round(reply.renderedMs),cancelledMs:Math.round(reply.cancelledMs),wordPosition:'unknown'};
+      for(const entry of ledger.values())if(!entry.response&&!entry.cancelled){entry.cancelled=true;entry.handoff.cancelledAt=elapsed();entry.abort.abort();}
+      if(options.allowSpokenInterruption){
         // Gemini may finish the interrupted response in a separate frame.
         // Preserve the new utterance and its silence timer across both events.
         introducing=false;introPlayed=true;clearResponseTimer();
         if(!userActive&&!startUserTurn())return;
         interruptedTurnEnding=!oldComplete&&!content.turnComplete;discardOutput=interruptedTurnEnding;
         if(interruptedTurnEnding){const cut=reply;timer(()=>{if(active()&&cut===reply&&interruptedTurnEnding)fail('The interrupted voice turn did not close. You can start a new call or continue by text.','turn-timeout');},12000);}
-        userActive=true;silenceMs=0;complete=false;setPhase(micMuted?'muted':'listening');
+        userActive=true;silenceMs=0;complete=false;setPhase(pendingTools?'acting':micMuted?'muted':'listening');
         // No synthetic turn boundary. Keep input flowing if Google's old
         // interrupted turn ends in a later frame.
 
       }
     }
     const cancelled = record(value.toolCallCancellation)?.ids;
-    if (Array.isArray(cancelled)) for (const id of cancelled) if (typeof id === 'string') { const entry = ledger.get(id); if (entry) { entry.cancelled = true; entry.handoff.cancelledAt=elapsed(); entry.abort.abort(); } }
+    if (Array.isArray(cancelled)) for (const id of cancelled) if (typeof id === 'string') {
+      const deferred=deferredToolCalls.findIndex(call=>record(call)?.id===id);
+      if(deferred>=0)deferredToolCalls.splice(deferred,1);
+      const entry = ledger.get(id); if (entry) { entry.cancelled = true; entry.handoff.cancelledAt=elapsed(); entry.abort.abort(); }
+    }
     const calls = record(value.toolCall)?.functionCalls;
-    if (Array.isArray(calls)) { if (calls.length > 4) { fail(SAFE_FAILURE,'tool-limit'); return; } for (const call of calls) toolCall(call, epoch); }
+    if (Array.isArray(calls)) {
+      if(calls.length>4||interruptedTurnEnding&&deferredToolCalls.length+calls.length>4){fail(SAFE_FAILURE,'tool-limit');return;}
+      const currentCalls=calls.filter(call=>!Array.isArray(cancelled)||!cancelled.includes(record(call)?.id));
+      if(interruptedTurnEnding)deferredToolCalls.push(...currentCalls);
+      else for(const call of currentCalls)toolCall(call,epoch);
+    }
     const input = record(content?.inputTranscription), interim = record(content?.interimInputTranscription), spoken = record(content?.outputTranscription);
     // Input transcription is independent of model-turn ordering. In particular,
     // a late final must remain a caption, not restart processing or its timer.
@@ -471,6 +485,7 @@ export function createEdenLiveSession(options: EdenLiveOptions, injected: Partia
     }
     if(content?.turnComplete===true&&(interruptedTurnEnding||content.interrupted===true)){
       interruptedTurnEnding=false;discardOutput=false;receivedAudio=false;complete=false;
+      for(const call of deferredToolCalls.splice(0))toolCall(call,epoch);
     }else if (content?.turnComplete === true) {
       reply.completed=true;diagnostic.turnComplete++; diagnostic.lastEvent = 'turn-complete';
       trace('turn-complete');

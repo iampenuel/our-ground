@@ -4,7 +4,7 @@ import type { ResourceCard, ResourceDetail } from '../shared/contracts.ts';
 import {locationSearchScope} from '../shared/location-search.ts';
 import type { LocationSuggestion, LocationSuggestResponse, LocationRetrieveResponse, LocationSearchStatus, SelectedLocation, LocationResolveResponse, LocationInterpretation } from '../shared/location-search.ts';
 import { nationalFoodReferrals, foodCoverageMessage, nationalHealthcareReferrals, healthcareCoverageMessage, nationalCommunityReferrals, communityCoverageMessage } from '../shared/national-referrals.ts';
-import { parseLocationQuery } from '../shared/us-location.ts';
+import { parseLocationQuery,validPoint } from '../shared/us-location.ts';
 import { locationSearchMarkup, mountLocationCombobox } from './location-combobox';
 import { resolveTransientPoint } from './location-controller';
 import { locationQualityPresentation } from './location-quality';
@@ -27,7 +27,7 @@ import {supportSummary, sourceAvailability} from './support-summary';
 import type {MappedStatus} from './support-summary';
 import {performEdenVisibleAction} from './eden/visible-action.ts';
 import {registerEdenPage,publishEdenApplication} from './eden/application-bridge';
-import {EDEN_CITIES} from '../shared/eden-assistant.ts';
+import {EDEN_CITIES,normalizeEdenCityId,edenCityQuery,edenCityLabel} from '../shared/eden-assistant.ts';
 import type {EdenAction,EdenCityId} from '../shared/eden-assistant.ts';
 import {disposePublicPage,setPublicPageDisposer} from './public-page-lifecycle.ts';
 
@@ -49,9 +49,10 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
   let available=false, ready=false, disposed=false, locationAvailable=false, referenceOnly=false, mapPicking=false;
   let outcome:Outcome={phase:'idle'};
   let selectedLocation:SelectedLocation|null=null;
-  // Only reuse a center obtained from the finite directory-city lookup; a
+  // Only reuse a center obtained from the verified directory-city lookup; a
   // manually chosen suggestion can share the label but have another point.
   let confirmedDirectoryPoint:SelectedLocation|undefined;
+  let agentLocationIdentity:{cityId:EdenCityId;point:SelectedLocation}|undefined;
   let initialDirectoryCity=options.initialDirectoryCity;
   let restoredArea=state.mode==='real'&&Boolean(state.location);
   let directory:ResourceCard[]=[], geoapify:DiscoveredPlace[]=[], visible:SupportResult[]=[];
@@ -67,7 +68,7 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
   let center:SearchCenter|null=null, page=1, hasNext=false;
   let map:SupportMap|null=null, mapLoading=false, mapFailed=false, mapDirty=true;
   const searches=latestRequest(), pages=latestRequest(), resolutions=latestRequest();
-  let resolutionChoices:{query:string;sessionToken:string;choices:LocationSuggestion[];reason:string;directoryOnly:boolean;explicit:boolean}|null=null;
+  let resolutionChoices:{query:string;sessionToken:string;choices:LocationSuggestion[];reason:string;directoryOnly:boolean;explicit:boolean;agentCity?:EdenCityId}|null=null;
   let interpretation:LocationInterpretation|null=null,resolving=false,submitCooldownUntil=0,submitCooldownQuery:string|null=null,submitTimer:number|undefined;
   document.title=state.intent === 'give' ? 'Find ways to give — Our Ground' : 'Find support — Our Ground';
   root.innerHTML=`<div class="page-shell">${header('support')}<main id="main" tabindex="-1">
@@ -340,16 +341,24 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
     if(!ready||resolving||currentOutcome().phase==='loading')return;
     readForm();if(submissionCooldownActive(state.location)){outcome={phase:'limited',filters:currentFilters(),retryAt:submitCooldownUntil};publishEdenApplication();return;}if(explicit){restoredArea=false;resourceReveal.cancel();resourceLoads.cancel();activeResource=null;resourceLoading=false;resourceMessage='';state={...state,resource:undefined,invalidResource:false};renderResource();}
     if(state.mode==='demo'){await search(undefined,directoryOnly,explicit);return;}
-    if(directoryCity){
-      const city=EDEN_CITIES.find(item=>item.id===directoryCity);
-      if(!city||city.query!==state.location)return;
+    const knownDirectoryCity=EDEN_CITIES.find(item=>item.id===directoryCity);
+    if(knownDirectoryCity){
+      const city=knownDirectoryCity;
+      if(city.query!==state.location)return;
       if(selectedLocation && selectedLocation===confirmedDirectoryPoint && selectedLocation.publicQuery===city.query){await search(undefined,true,explicit);return;}
       const run=resolutions.start();resolving=true;submissionControls();reset();outcome={phase:'loading',filters:currentFilters()};interpretation=null;
       try{
         const {location:point}=await request<{location:SelectedLocation}>('places/directory-city?city='+city.id,{signal:AbortSignal.any([run.signal,AbortSignal.timeout(10000)])});
         if(!run.current()||disposed)return;
-        if(point.publicQuery!==city.query||point.quality?.kind!=='canonical_exact'||point.quality.source!=='reference')throw new Error('The directory city could not be confirmed.');
+        const quality=point.quality;
+        const referenceExact=quality?.kind==='canonical_exact'&&quality.source==='reference';
+        const providerExact=quality?.kind==='exact'&&quality.source==='geoapify'&&(quality.provider?.confidence??0)>=.8;
+        if(normalizeEdenCityId(point.publicQuery)!==city.id||point.country!=='US'||point.state!==city.query.slice(-2)||
+          !validPoint(point.latitude,point.longitude)||locationSearchScope(point)!=='city'||(!referenceExact&&!providerExact)){
+          throw new Error('The directory could not confirm the requested location.');
+        }
         confirmedDirectoryPoint=point;
+        agentLocationIdentity={cityId:city.id,point};
         await applyResolved(point,undefined,true,explicit);
       }catch(error){if(run.current()&&!disposed){directoryUnavailable=true;failSearch(error);renderReferrals();announce(errorText(error));}}
       finally{if(run.current()){resolving=false;submissionControls();publishEdenApplication();}}
@@ -364,10 +373,13 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
     try{
       const resolved=await request<LocationResolveResponse>('locations/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:query,sessionToken:snapshot.sessionToken,...(choices.length?{choices}:{})}),signal:AbortSignal.any([run.signal,AbortSignal.timeout(12000)])});
       if(!run.current()||disposed)return;
-      if(resolved.status==='resolved'){await applyResolved(resolved.location,resolved.interpretation,directoryOnly,explicit);return;}
+      if(resolved.status==='resolved'){
+        agentLocationIdentity=directoryCity?{cityId:directoryCity,point:resolved.location}:undefined;
+        await applyResolved(resolved.location,resolved.interpretation,directoryOnly,explicit);return;
+      }
       if(resolved.status==='narrow_location'){showNarrowing(resolved.location,resolved.notice);return;}
       if(resolved.status==='choose_location'){
-        outcome={phase:'choose-location',filters:currentFilters()};resolutionChoices={query,sessionToken:snapshot.sessionToken,choices:resolved.choices,reason:resolved.reason,directoryOnly,explicit};
+        outcome={phase:'choose-location',filters:currentFilters()};resolutionChoices={query,sessionToken:snapshot.sessionToken,choices:resolved.choices,reason:resolved.reason,directoryOnly,explicit,...(directoryCity?{agentCity:directoryCity}:{})};
         announce(resolved.notice);
         el('locationChoices').innerHTML=resolved.choices.map(choice=>'<button type="button" class="secondary-button" data-submit-choice="'+esc(choice.id)+'">'+esc(resolved.reason==='precision_change'?(choice.quality?.kind==='city_fallback'?'Search the city instead: ':'Search this approximate area: ')+choice.primary:choice.primary)+'<span class="location-option-secondary">'+esc(choice.secondary)+'</span></button>').join('');
         return;
@@ -409,7 +421,15 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
       const pending=resolutionChoices,choice=pending.choices.find(x=>x.id===selected.dataset.submitChoice);if(!choice)return;
       const run=resolutions.start();resolving=true;outcome={phase:'loading',filters:currentFilters()};submissionControls();publishEdenApplication();
       void request<LocationResolveResponse>('locations/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:pending.query,sessionToken:pending.sessionToken,choices:pending.choices.map(item=>({id:item.id,receipt:item.receipt})),selectedId:choice.id}),signal:AbortSignal.any([run.signal,AbortSignal.timeout(12000)])})
-        .then(async response=>{if(!run.current())return;resolutionChoices=null;if(response.status==='resolved')await applyResolved(response.location,response.interpretation,pending.directoryOnly,pending.explicit);else if(response.status==='narrow_location')showNarrowing(response.location,response.notice);else {outcome={phase:'choose-location',filters:currentFilters()};announce(response.notice);}})
+        .then(async response=>{
+          if(!run.current())return;
+          resolutionChoices=null;
+          if(response.status==='resolved'){
+            agentLocationIdentity=pending.agentCity?{cityId:pending.agentCity,point:response.location}:undefined;
+            await applyResolved(response.location,response.interpretation,pending.directoryOnly,pending.explicit);
+          }else if(response.status==='narrow_location')showNarrowing(response.location,response.notice);
+          else {outcome={phase:'choose-location',filters:currentFilters()};announce(response.notice);}
+        })
         .catch(error=>{if(run.current()){failSearch(error);const wait=(error as {retryAfterSeconds?:number})?.retryAfterSeconds;if(typeof wait==='number'&&Number.isSafeInteger(wait)&&wait>0&&wait<=2678400){submitCooldownUntil=Date.now()+wait*1000;submitCooldownQuery=(error as {code?:string})?.code==='LOCATION_SUBMISSION_LIMIT'?null:submissionQuery(pending.query);}announce(errorText(error));el('retrySearch').hidden=false;}})
         .finally(()=>{if(run.current()){resolving=false;submissionControls();publishEdenApplication();}});
       return;
@@ -506,7 +526,8 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
       const city=EDEN_CITIES.find(city=>[city.query,city.label,...city.aliases].some(value=>normalize(value)===normalize(state.location)));
       const current=currentOutcome(),items=current.phase==='complete'?visible:[];
       const selectedIndex=items.findIndex(item=>item.key===selection.current());
-      return{cityId:city?.id,loading:projectedState(current),hasFilter:Boolean(state.keyword.trim()),mapVisible:state.view==='map'&&!mapFailed,mapState:state.view!=='map'?'not-shown':mapFailed?'unavailable':mapLoading?'loading':map?'ready':'not-shown',selectedIndex:selectedIndex>=0?selectedIndex+1:undefined,results:items.slice(0,20).map((item,index)=>({index:index+1,...(item.kind==='directory'?{id:item.record.id}:{}),title:item.kind==='directory'?item.record.title:item.record.name,selected:item.key===selection.current(),kind:item.kind==='directory'?'directory':'mapped'}))};
+      const cityId=agentLocationIdentity?.point===selectedLocation?agentLocationIdentity.cityId:city?.id??normalizeEdenCityId(selectedLocation?.publicQuery);
+      return{cityId,loading:projectedState(current),hasFilter:Boolean(state.keyword.trim()),mapVisible:state.view==='map'&&!mapFailed,mapState:state.view!=='map'?'not-shown':mapFailed?'unavailable':mapLoading?'loading':map?'ready':'not-shown',selectedIndex:selectedIndex>=0?selectedIndex+1:undefined,results:items.slice(0,20).map((item,index)=>({index:index+1,...(item.kind==='directory'?{id:item.record.id}:{}),title:item.kind==='directory'?item.record.title:item.record.name,selected:item.key===selection.current(),kind:item.kind==='directory'?'directory':'mapped'}))};
     },
     back(signal:AbortSignal){signal.throwIfAborted();if(disposed||!state.resource)return{status:'unavailable',message:'No public listing details are open.'};closeResource();return{status:state.resource?'unavailable':'done',message:state.resource?'The details could not close.':'Returned to the matching results.'};},
     async execute(action:EdenAction,signal:AbortSignal){
@@ -536,15 +557,18 @@ export async function mountSupportPage(root:HTMLElement, options:SupportPageOpti
         return{status:'done',message:`Selected result ${action.index}. ${mapFailed?'The map is unavailable; use the selected list result.':mapLoading?'The map is loading.':map?'The map shows the same selection.':'The selected result is available in the list.'}`,synthetic:state.mode==='demo'};
       }
       if(action.type==='search'&&action.city){
-        const city=EDEN_CITIES.find(item=>item.id===action.city)!;
-        await performEdenVisibleAction('location','Apply '+city.label+' to the location field','press',signal,()=>{el<HTMLInputElement>('locationInput').value=city.query;locationControl.invalidate();selectedLocation=null;state.location=city.query;});
+        const query=edenCityQuery(action.city),label=edenCityLabel(action.city);
+        await performEdenVisibleAction('location','Apply '+label+' to the location field','press',signal,()=>{
+          el<HTMLInputElement>('locationInput').value=query;
+          locationControl.invalidate();selectedLocation=null;agentLocationIdentity=undefined;state.location=query;
+        });
       }
       if(!el<HTMLInputElement>('locationInput').value.trim())return{status:'clarify',message:'Choose a city first. Try “Find food in Harrisburg,” or use the location field.'};
       state={...state,intent:undefined};if(action.type==='search'||action.type==='clear-filters'){if(state.keyword){await performEdenVisibleAction('keyword','Clear the current results filter','press',signal,()=>{state.keyword='';el<HTMLInputElement>('keywordInput').value='';});}}
       if(action.type==='search'||action.type==='refine'){await performEdenVisibleAction({category:action.category},'Choose '+action.category+' support','press',signal,()=>{state.category=action.category;state.term=defaultTerm(action.category);categories();});}
       if(action.type==='radius'||(action.type==='search'&&action.radius))await performEdenVisibleAction('radius','Set the search distance','press',signal,()=>{el<HTMLSelectElement>('radiusInput').value=String(action.radius);});
       const cancel=()=>{searches.cancel();resolutions.cancel();outcome={phase:'idle'};results.removeAttribute('aria-busy');resolving=false;submissionControls();announce('Search interrupted. You can search again.');publishEdenApplication();};
-      const directoryCity=state.mode==='real'?EDEN_CITIES.find(c=>c.query===el<HTMLInputElement>('locationInput').value)?.id:undefined;
+      const directoryCity=state.mode==='real'?(action.type==='search'?action.city:EDEN_CITIES.find(c=>c.query===el<HTMLInputElement>('locationInput').value)?.id):undefined;
       await performEdenVisibleAction('submit','Search the public directory','press',signal,async stepSignal=>{
         stepSignal.addEventListener('abort',cancel,{once:true});
         try{await submitSearch(false,true,directoryCity);}finally{stepSignal.removeEventListener('abort',cancel);}

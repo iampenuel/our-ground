@@ -137,7 +137,7 @@
 .eden-hosted .eden-header-tools .eden-icon,.eden-hosted .eden-composer-actions .eden-icon,.eden-hosted .eden-send{min-width:44px;min-height:44px}
 .eden-hosted .eden-page{padding:.35rem 1rem;font-size:.74rem}
 .eden-hosted .eden-body{min-height:0;overflow-y:auto;padding:1rem 1.1rem}
-.eden-hosted .eden-welcome{margin:.1rem 0 .85rem;max-width:21ch;font-size:1.4rem}
+.eden-hosted .eden-welcome{margin:.1rem 0 .85rem;max-width:none;font:400 .95rem/1.55 var(--og-sans);letter-spacing:0}
 .eden-hosted .eden-consent{margin:.55rem 0;padding:.75rem .85rem;font-size:.84rem;line-height:1.45}
 .eden-hosted .eden-consent>label,.eden-hosted .eden-consent>label:first-of-type{display:flex;align-items:baseline;gap:.65rem;margin:.45rem 0;min-height:24px}
 .eden-hosted .eden-consent input{flex-shrink:0;width:1.05rem;height:1.05rem;margin:0;align-self:flex-start}

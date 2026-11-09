@@ -2,7 +2,7 @@
 // buffer only. A caption, a scheduled source and an audible graph are different.
 import {decodeLivePcm, LIVE_OUTPUT_RATE} from './audio.ts';
 export function newReply(turn:number) {
-  return {turn,caption:false,chunks:0,bytes:0,samples:0,nonzero:0,energy:0,peak:0,scheduled:0,ended:0,graphPeakRms:0,generated:false,completed:false,interrupted:false};
+  return {turn,caption:false,chunks:0,bytes:0,samples:0,nonzero:0,energy:0,peak:0,scheduled:0,ended:0,graphPeakRms:0,renderedMs:0,cancelledMs:0,generated:false,completed:false,interrupted:false};
 }
 export type ReplySignal=ReturnType<typeof newReply>;
 export function inspectChunk(r:ReplySignal,data:string,mime:string) {

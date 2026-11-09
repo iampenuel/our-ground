@@ -58,6 +58,7 @@ test('documented omitted zero-argument wire payload normalizes without relaxing 
 // of the runtime action validators; catches schema/validator contract drift.
 function schemaAccepts(schema,value){
   if(schema.enum&&!schema.enum.includes(value))return false;
+  if(typeof value==='string'&&(schema.minLength!==undefined&&value.length<schema.minLength||schema.maxLength!==undefined&&value.length>schema.maxLength||schema.pattern&&!new RegExp(schema.pattern,'u').test(value)))return false;
   if(schema.type==='string'&&typeof value!=='string'||schema.type==='integer'&&!Number.isInteger(value))return false;
   if(schema.minimum!==undefined&&value<schema.minimum||schema.maximum!==undefined&&value>schema.maximum)return false;
   if(schema.type==='object'){
@@ -72,12 +73,13 @@ test('tool schemas require all finite clarification slots and search fields befo
   const declarations=buildEdenLiveConfig().tools[0].functionDeclarations;
   const clarify=declarations.find(tool=>tool.name==='ask_clarification').parametersJsonSchema;
   const actionSchema=declarations.find(tool=>tool.name==='perform_public_resource_action').parametersJsonSchema;
+  assert.equal(validateEdenLiveToolCall({id:'private-place',name:'perform_public_resource_action',args:{type:'search',category:'food',city:'private address',radius:10}}),null,'server city validation remains authoritative for private location prose');
   for(const args of [{missing:'city',category:'food'},{missing:'city',category:'healthcare'},{missing:'category',cityId:'harrisburg-pa'},{missing:'city-and-category',area:'pennsylvania'}]){assert(schemaAccepts(clarify,args));assert(validateEdenLiveToolCall({id:'valid',name:'ask_clarification',args}));}
   for(const args of [{missing:'city'},{missing:'category'},{missing:'city-and-category'},{missing:'city',cityId:'harrisburg-pa'},{missing:'category',category:'food'},{missing:'city',category:'food',area:'pennsylvania'},{missing:'city-and-category',area:'new-york'},{missing:'city',category:'private'}])assert.equal(schemaAccepts(clarify,args),false,JSON.stringify(args));
   const search={type:'search',category:'food',city:'harrisburg-pa',radius:10};assert(schemaAccepts(actionSchema,search));
   for(const key of ['type','category','city','radius']){const missing={...search};delete missing[key];assert.equal(schemaAccepts(actionSchema,missing),false,key);}
   for(const args of [{type:'radius',radius:5},{type:'refine',category:'healthcare'},{type:'details',index:1},{type:'select',index:20},{type:'help'},{type:'navigate-support'},{type:'read-results'},{type:'clear-filters'},{type:'read-page'},{type:'show-map'},{type:'read-hours',index:1},{type:'navigate-public',page:'give'}]){assert(schemaAccepts(actionSchema,args));assert(validateEdenLiveToolCall({id:'valid',name:'perform_public_resource_action',args}));}
-  for(const args of [{...search,index:1},{...search,radius:13},{...search,city:'private address'},{type:'radius'},{type:'details',index:0},{type:'help',category:'food'},{type:'refine',category:'food',radius:5},{type:'navigate-public',page:'account'},{type:'navigate-public',page:'https://evil.invalid'},{type:'read-hours',index:21}])assert.equal(schemaAccepts(actionSchema,args),false,JSON.stringify(args));
+  for(const args of [{...search,index:1},{...search,radius:13},{type:'radius'},{type:'details',index:0},{type:'help',category:'food'},{type:'refine',category:'food',radius:5},{type:'navigate-public',page:'account'},{type:'navigate-public',page:'https://evil.invalid'},{type:'read-hours',index:21}])assert.equal(schemaAccepts(actionSchema,args),false,JSON.stringify(args));
 });
 
 test('hosted Live preserves actual remaining authority when device and issuer clocks differ',()=>{

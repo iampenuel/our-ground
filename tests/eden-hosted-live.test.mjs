@@ -1,4 +1,6 @@
 import test from 'node:test';
+import {DirectoryLocationError} from '../backend/directory-city.ts';
+import {LocationSearchError} from '../backend/location-search.ts';
 import assert from 'node:assert/strict';
 import {randomBytes} from 'node:crypto';
 import {createHostedLive} from '../backend/eden-hosted-live.ts';
@@ -14,7 +16,8 @@ test('shared call reservations survive instance changes and bind one-use actions
     if(op==='SET'){if(entries.has(a[0]))return null;entries.set(a[0],a[1]);return 'OK';}
     const v=entries.get(a[0]);if(op==='GETDEL'||op==='DEL')entries.delete(a[0]);return v??null;
   };
-  const agent={inspectLiveContext:async context=>({context,facts:[]}),prepareLiveAction:async action=>({action}),
+  let locationError;
+  const agent={inspectLiveContext:async context=>({context,facts:[]}),prepareLiveAction:async action=>{if(locationError)throw locationError;return{action};},
     reconcileLiveAction:async (_a,_b,outcome,context)=>({context,outcome,facts:[]})};
   let failMint=false;
   const issue=async (_secret,callId,deadline)=>{if(failMint)throw Error('Temporary provider failure');return {callId,deadline};};
@@ -27,6 +30,14 @@ test('shared call reservations survive instance changes and bind one-use actions
   const issued=await use('live/token',body);
   assert(issued.deadline>Date.now()+599000);await assert.rejects(use('live/token',{...body,nonce:nonce()},'second'),{code:'EDEN_LIVE_CALL_ACTIVE'});
   await use('live/connected',{callId:issued.callId,noticeVersion});
+  for(const [index,error]of [new DirectoryLocationError({status:'choose_location',choices:[{id:'private-choice-coordinate-canary'}]}),new DirectoryLocationError({status:'not_found',choices:[]}),new LocationSearchError(503,'LOCATION_SEARCH_UNAVAILABLE','private-provider-canary')].entries()){
+    locationError=error;
+    const result=await use('live/tool',{callId:issued.callId,id:'location-'+index,noticeVersion,context,name:'perform_public_resource_action',args:{type:'search',city:'Berkeley',category:'healthcare',radius:10}});
+    assert.equal(result.authorized,true);assert.equal(result.toolToken,null);assert.deepEqual(result.result.context,context);
+    assert.doesNotMatch(JSON.stringify(result),/private-|coordinate|unsupported city/);
+    assert.match(result.result.facts[0].text,index===0?/ambiguous/:index===1?/could not be resolved/:/temporarily unavailable/);
+  }
+  locationError=undefined;
   const tool={callId:issued.callId,id:'one',noticeVersion,context,name:'perform_public_resource_action',args:{type:'read-page'}};
   await assert.rejects(use('live/tool',tool,'other'),{code:'EDEN_LIVE_CALL_EXPIRED'});
   const grant=await use('live/tool',tool);

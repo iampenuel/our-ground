@@ -10,7 +10,7 @@ export interface LiveOutput {
   close(): void;
   readonly contextState?: LiveAudioContextState;
 }
-export type PlaybackObservation={scheduled:number;ended:number;graphPeakRms:number};
+export type PlaybackObservation={scheduled:number;ended:number;graphPeakRms:number;renderedMs?:number;cancelledMs?:number};
 type Scheduled = {source: AudioBufferSourceNode; start: number; end: number; observed?:PlaybackObservation};
 /** Ordered PCM playback; audible activity comes from the actual output graph. */
 export class LivePcmOutput implements LiveOutput {
@@ -49,7 +49,7 @@ export class LivePcmOutput implements LiveOutput {
     source.onended = () => {
       source.disconnect();
       if (generation !== this.generation) return;
-      if(observed)observed.ended++; this.sources.delete(scheduled); this.resolveDrain();
+      if(observed){observed.ended++;observed.renderedMs=(observed.renderedMs??0)+(end-start)*1000;} this.sources.delete(scheduled); this.resolveDrain();
     };
     this.sources.add(scheduled); this.next = end;
     try { source.start(start); if(observed)observed.scheduled++; } catch (error) { this.sources.delete(scheduled); source.disconnect(); throw error; }
@@ -90,7 +90,13 @@ export class LivePcmOutput implements LiveOutput {
   setMuted(muted: boolean) { this.muted = muted; if (this.gain) this.gain.gain.value = muted ? 0 : 1; if (muted) { this.active = false; this.onActivity(false); this.onLevel(0); } }
   stop() {
     this.generation++;this.lastSignal=-Infinity;
-    for (const {source} of this.sources) { source.onended = null; try { source.stop(); } catch { /* Already ended. */ } source.disconnect(); }
+    for (const {source,start,end,observed} of this.sources) {
+      if(observed){
+        const rendered=Math.max(0,Math.min(end,this.context?.currentTime??0)-start);
+        observed.renderedMs=(observed.renderedMs??0)+rendered*1000;
+        observed.cancelledMs=(observed.cancelledMs??0)+(end-start-rendered)*1000;
+      }
+      source.onended = null; try { source.stop(); } catch { /* Already ended. */ } source.disconnect(); }
     this.sources.clear(); this.next = 0;
     for (const waiter of [...this.waiters]) waiter.reject();
     if (this.frame !== undefined) cancelAnimationFrame(this.frame); this.frame = undefined;

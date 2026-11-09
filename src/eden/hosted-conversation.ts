@@ -159,7 +159,12 @@ export function createHostedConversation(){
         return say(result.message,result.status==='done'?'confirmed':'unavailable');
       }
       const url=location.href;onStatus('Thinking…');
-      const raw=await remote('plan',{intent:step,context:view,noticeVersion:EDEN_NOTICE_VERSION});
+      let raw:Awaited<ReturnType<typeof remote>>;
+      try{raw=await remote('plan',{intent:step,context:view,noticeVersion:EDEN_NOTICE_VERSION});}
+      catch(error){
+        if(error instanceof Error&&'code'in error&&error.code==='DIRECTORY_LOCATION_AMBIGUOUS')previous=step;
+        throw error;
+      }
       const {speechTicket:clarificationTicket,...response}=raw;
       const plan=validateEdenAgentActionResponse(response,step,view);
       if(!plan)throw Error('Eden could not verify the proposed action.');

@@ -8,7 +8,7 @@ const identity=[{id:'eden',name:'EDEN',color:'#171717',textColor:'#ffffff',start
 export function createEdenPointerView(){
   const host=document.createElement('div');host.id='eden-action-pointer';host.setAttribute('aria-hidden','true');document.body.append(host);
   const ref=createRef<ShowcasePointerHandle>(),root=createRoot(host);
-  flushSync(()=>root.render(<ShowcasePointer ref={ref} cursors={identity} loop={false} playing speed={0.7} idleDrift={0} trail={0} labelLag={0.15} labelAnimation="none" motion={{reachTime:160,reachScale:105,maxReach:700,curvature:0.75,overshoot:0,landingSpread:0}} className="eden-operation-pointer" height="100dvh"/>));
+  flushSync(()=>root.render(<ShowcasePointer ref={ref} cursors={identity} loop={false} clickEffect={false} playing speed={0.7} idleDrift={0} trail={0} labelLag={0.15} labelAnimation="none" motion={{reachTime:160,reachScale:105,maxReach:700,curvature:0.75,overshoot:0,landingSpread:0}} className="eden-operation-pointer" height="100dvh"/>));
   return {
     async move(target:HTMLElement,kind:'press'|'focus'|'scroll',signal:AbortSignal){
       host.hidden=false;signal.throwIfAborted();

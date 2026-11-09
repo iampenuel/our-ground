@@ -3,6 +3,7 @@ import {resolveEdenUiTarget,edenTargetUsable,type EdenUiTarget} from './action-t
 import type {EdenPublicDestination} from '../../shared/eden-public-pages.ts';
 type View=ReturnType<typeof import('./action-pointer-view')['createEdenPointerView']>;
 let renderer:Promise<View>|undefined,status:HTMLElement|undefined,hideTimer:ReturnType<typeof setTimeout>|undefined,idleTimer:ReturnType<typeof setTimeout>|undefined;
+let activeVisual:AbortController|undefined;
 const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 function announce(label:string){if(!status){status=document.createElement('div');status.className='eden-action-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');document.body.append(status);}status.textContent='Eden: '+label;status.hidden=false;}
 function clean(){if(status)status.hidden=true;document.querySelectorAll('[data-cursor-hover="eden"],[data-cursor-press="eden"],[data-cursor-selected="eden"]').forEach(el=>{for(const key of ['data-cursor-hover','data-cursor-press','data-cursor-selected'])el.removeAttribute(key);});const pending=renderer;void pending?.then(v=>v.hide()).catch(()=>{});clearTimeout(idleTimer);if(pending)idleTimer=setTimeout(()=>{if(renderer===pending&&status?.hidden){renderer=undefined;void pending.then(v=>v.destroy()).catch(()=>{});}},1800);}
@@ -16,6 +17,8 @@ export async function performEdenVisibleAction<T>(target:EdenUiTarget,label:stri
   const emit=(phase:string,node?:HTMLElement)=>{const rect=node?.getBoundingClientRect();document.dispatchEvent(new CustomEvent('eden:visible-action',{detail:{operationId,correlationId:activeEdenTurnCorrelationId(),phase,target:structuredClone(target),...(rect?{rect:{x:rect.x,y:rect.y,width:rect.width,height:rect.height}}:{})}}));};
   const element=resolveEdenUiTarget(target);if(!element)throw Error('That interface control is unavailable. Please use the current page.');
   const interrupt=new AbortController(),combined=AbortSignal.any([signal,interrupt.signal]);
+  const previous=activeVisual;activeVisual=interrupt;
+  previous?.abort(Error('A newer page action replaced this animation.'));
   const onInput=(event:Event)=>{if(event.isTrusted)interrupt.abort(Error('The page action was interrupted by your input.'));};
   const onHidden=()=>{if(document.hidden)interrupt.abort(Error('The page action was interrupted.'));};
   const onAbort=()=>{emit('cancelled');clean();};
@@ -35,13 +38,11 @@ export async function performEdenVisibleAction<T>(target:EdenUiTarget,label:stri
       });
     };
     if(view&&kind!=='scroll'){
-      for(let attempt=0;attempt<2;attempt++){
-        const before=element.getBoundingClientRect();
-        try{await move(view,element,kind);}catch(error){combined.throwIfAborted();view.hide();view=undefined;break;}
-        combined.throwIfAborted();
-        const after=element.getBoundingClientRect();if(Math.abs(before.x-after.x)+Math.abs(before.y-after.y)<8)break;
-        if(attempt===1)throw Error('The interface moved. Please try again.');
-      }
+      const before=element.getBoundingClientRect();
+      try{await move(view,element,kind);}catch(error){combined.throwIfAborted();view.hide();view=undefined;}
+      combined.throwIfAborted();
+      const after=element.getBoundingClientRect();
+      if(Math.abs(before.x-after.x)+Math.abs(before.y-after.y)>=8)throw Error('The interface moved. Please try again.');
     }
     if(resolveEdenUiTarget(target)!==element||!edenTargetUsable(element))throw Error('That interface control changed. Please try again.');
     combined.throwIfAborted();emit('execute',element);const result=await operate(combined);combined.throwIfAborted();
@@ -52,7 +53,7 @@ export async function performEdenVisibleAction<T>(target:EdenUiTarget,label:stri
   }catch(error){if(!combined.aborted)emit('failed');throw error;}finally{
     for(const name of ['pointerdown','keydown','wheel','touchstart'])document.removeEventListener(name,onInput,true);
     document.removeEventListener('visibilitychange',onHidden);combined.removeEventListener('abort',onAbort);
-    hideTimer=setTimeout(clean,150);
+    if(activeVisual===interrupt){activeVisual=undefined;hideTimer=setTimeout(clean,150);}
   }
 }
 export async function presentEdenNavigation<T>(page:EdenPublicDestination,signal:AbortSignal,navigate:(signal:AbortSignal)=>T|Promise<T>){

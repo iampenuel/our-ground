@@ -132,9 +132,9 @@ export function mountHostedLive(host:HTMLElement,o:Options){
       if(confirmed?.connected!==true)throw new EdenLiveServiceError('application',503,'EDEN_LIVE_SETUP_EXPIRED');
     },
     releaseToken:release,
-    async onToolCall(tool,signal){
+    async onToolCall(tool,signal,turn){
       if(!executor)throw Error('Call ended.');
-      const result=await executor(tool,signal);
+      const result=await executor(tool,signal,turn);
       return {...result,context:edenLiveModelContext(result.context)};
     },
     onState:update,onTranscript(){},

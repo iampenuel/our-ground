@@ -2,7 +2,7 @@ import { createEdenDirectory, directoryModelFacts } from './eden-directory.ts';
 import type { DirectoryCityLookup } from './directory-city.ts';
 import { GoogleGenAI } from '@google/genai';
 import { createHash, randomBytes } from 'node:crypto';
-import { EDEN_CITIES, validateEdenAction } from '../shared/eden-assistant.ts';
+import { edenCityLabel, validateEdenAction } from '../shared/eden-assistant.ts';
 import type { EdenAction, EdenCategory, EdenCityId, EdenRadius } from '../shared/eden-assistant.ts';
 import { EDEN_AGENT_CLARIFICATION_QUESTIONS, validateEdenAgentAction, validateEdenAgentRequest, validateEdenAgentResultRequest, validateEdenAgentActionResponse, validateEdenAgentContext } from '../shared/eden-agent.ts';
 import type { EdenAgentPlanResponse, EdenAgentContext, EdenAgentReplyResponse, EdenAgentRequest, EdenAgentResourceId, EdenAgentResultRequest } from '../shared/eden-agent.ts';
@@ -196,7 +196,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
   const modeMatches = (context:EdenAgentContext) => Boolean(directory) === (context.directory === 'public');
   const dataFact = () => ({ id: 'data-kind', text: directory ? 'These are public directory listings, not independently verified operating services.' : 'These records are fictional demonstration data, not real services.' });
   const hoursFact = () => ({ id:'hours-unverified',text:directory ? 'Published hours do not establish whether this service is open now. Confirm hours and eligibility with the provider.' : 'These fictional listing hours cannot establish whether a real service is open now. Confirm current hours, time zone and availability directly with the provider.' });
-  const countFact = (n:number,query:Query) => ({id:'result-count',text:directory ? `${n} matching ${query.category} listing${n===1?'':'s'} within ${query.radius} miles of ${EDEN_CITIES.find(city=>city.id===query.cityId)!.label}.${n>20?' The first 20 are shown.':n===0?' This does not mean local support is unavailable.':''}` : `The current search returned ${n} resource${n===1?'':'s'}.`});
+  const countFact = (n:number,query:Query) => ({id:'result-count',text:directory ? `${n} matching ${query.category} listing${n===1?'':'s'} within ${query.radius} miles of ${(directory?.label(query.cityId)??edenCityLabel(query.cityId))}.${n>20?' The first 20 are shown.':n===0?' This does not mean local support is unavailable.':''}` : `The current search returned ${n} resource${n===1?'':'s'}.`});
   const purge = () => { for (const [key, item] of pending) if (item.expiresAt <= now()) pending.delete(key); };
   let cooldownUntil = 0;
   async function recordFacts(id: EdenAgentResourceId, position: number): Promise<Fact[]> {
@@ -326,7 +326,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       if (!same(actual, context.resourceIds)) throw new EdenProviderError('EDEN_AGENT_CONTEXT_CHANGED', 409);
       const facts: Fact[] = [...contextFacts(context),dataFact(),
         ...(query?[countFact(total,query)]:[])];
-      if (query) facts.push({ id: 'search-area', text: `The search area is ${EDEN_CITIES.find(city => city.id === query.cityId)!.label}.` },
+      if (query) facts.push({ id: 'search-area', text: `The search area is ${(directory?.label(query.cityId)??edenCityLabel(query.cityId))}.` },
         { id: 'search-radius', text: `The search distance is ${query.radius} miles.` });
       for (let index = 0; index < actual.length; index++) if(featured(index,context.selectedIndex)) facts.push(...await recordFacts(actual[index], index + 1));
       return { context, facts:directory ? directoryModelFacts(facts) : facts };
@@ -340,6 +340,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
         || ((action.type === 'details' || action.type === 'select'||action.type==='read-hours') && action.index > context.resultCount)) throw new EdenProviderError('EDEN_LIVE_INVALID_ACTION', 422);
       const beforeQuery = displayedQuery(context);
       if (action.type !== 'clear-filters' && !same(await idsFor(beforeQuery), context.resourceIds)) throw new EdenProviderError('EDEN_AGENT_CONTEXT_CHANGED', 409);
+      if(directory&&action.type==='search')await options.directoryCity!(action.city!);
       if (!directory) await idsFor(queryFor(action, context));
       return { action, context };
     },
@@ -354,7 +355,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       if (outcome === 'done' && (!same(actual, context.resourceIds) || (query && (context.cityId !== query.cityId || context.category !== query.category || context.radius !== query.radius)))) throw new EdenProviderError('EDEN_AGENT_RESULT_UNCONFIRMED', 409);
       const facts: Fact[] = [{ id: 'outcome', text: outcomeMessages[action.type] }, ...contextFacts(context),dataFact(),
         ...(query?[countFact(total,query)]:[])];
-      if (query) facts.push({ id: 'search-area', text: `The search area is ${EDEN_CITIES.find(city => city.id === query.cityId)!.label}.` }, { id: 'search-radius', text: `The search distance is ${query.radius} miles.` });
+      if (query) facts.push({ id: 'search-area', text: `The search area is ${(directory?.label(query.cityId)??edenCityLabel(query.cityId))}.` }, { id: 'search-radius', text: `The search distance is ${query.radius} miles.` });
       const selected = action.type === 'details' || action.type === 'select'||action.type==='read-hours' ? action.index : undefined;
       for (let index = 0; index < actual.length; index++) if (featured(index,selected)) facts.push(...await recordFacts(actual[index], index + 1));
       if(action.type==='read-hours')facts.push(hoursFact());
@@ -385,6 +386,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
         if (!validated || !('clarification' in validated)) throw new EdenProviderError('EDEN_INVALID_AGENT_CLARIFICATION', 502);
         return validated;
       }
+      if(directory&&request.intent.goal==='find-resources')await options.directoryCity!(request.intent.cityId);
       const contextQuery = displayedQuery(request.context);
       // Clearing a local text filter can legitimately start with a filtered
       // subset (including zero rows). Validate the fresh target query below;
@@ -440,7 +442,7 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
           dataFact(),
           ...(item.query?[countFact(total,item.query)]:[])];
       if (!failed && item.query) {
-        facts.push({ id: 'search-area', text: `The search area is ${EDEN_CITIES.find(city => city.id === item.query!.cityId)!.label}.` },
+        facts.push({ id: 'search-area', text: `The search area is ${(directory?.label(item.query!.cityId)??edenCityLabel(item.query!.cityId))}.` },
           { id: 'search-radius', text: `The search distance is ${item.query.radius} miles.` });
         const selected = item.action.type === 'details' || item.action.type === 'select' || item.action.type==='read-hours' ? item.action.index : undefined;
         for (let index = 0; index < currentIds.length; index++) if (featured(index,selected)) facts.push(...await recordFacts(currentIds[index], index + 1));

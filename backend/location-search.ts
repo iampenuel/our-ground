@@ -127,7 +127,8 @@ export function createLocationSearch(options:{env:Record<string,string|undefined
  function selected(raw:unknown):SelectedLocation|null{
   const p=object(raw),state=jurisdiction(p);if(!state||!validPoint(p.lat,p.lon))return null;
   const label=text(p.formatted)||[text(p.address_line1)||text(p.name),text(p.city),state,text(p.postcode)].filter(Boolean).join(', ');if(!label)return null;
-  const locality=text(p.city)||text(p.town)||text(p.village)||text(p.municipality);return{label,latitude:p.lat as number,longitude:p.lon as number,state,country:'US',source:'provider',provider:'geoapify',publicQuery:locality?locality+', '+state:state,attribution:fallbackCredit};
+  const neighborhood=p.result_type==='suburb'?(text(p.suburb)||text(p.neighbourhood)||text(p.quarter)||text(p.name)):'';
+  const locality=neighborhood||text(p.city)||text(p.town)||text(p.village)||text(p.municipality);return{label,latitude:p.lat as number,longitude:p.lon as number,state,country:'US',source:'provider',provider:'geoapify',publicQuery:locality?locality+', '+state:state,attribution:fallbackCredit};
  }
  async function forwardExact(query:string,signal?:AbortSignal,client?:string):Promise<LocationRetrieveResponse>{
    // Only an exact two-letter code restores a state-only coarse URL; city names

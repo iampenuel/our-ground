@@ -30,6 +30,7 @@ export type LocationResolveResponse =
 export function locationSearchScope(location:SelectedLocation):LocationInterpretation['scope'] {
  const quality=location.quality,type=quality?.provider?.resultType;
  if(quality?.precision==='state'||type==='state')return 'state';
+ if(type==='suburb'&&quality?.kind==='exact'&&(quality.provider?.confidence??0)>=.8)return 'city';
  if(['county','district','suburb'].includes(type??''))return 'area';
  if(quality?.precision==='city')return 'city';
  if(quality?.precision==='unknown')return 'area';

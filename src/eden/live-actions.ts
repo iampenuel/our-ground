@@ -51,6 +51,7 @@ export type EdenLiveToolExecutorOptions = {
 export function createEdenLiveToolExecutor(options:EdenLiveToolExecutorOptions){
   if(!isEdenLiveCallId(options.callId))throw new Error('Invalid Live call.');
   const calls=new Map<string,{call:EdenLiveToolCall;result:Promise<EdenLiveToolResult>}>();
+  const actions=new Map<string,Promise<EdenLiveToolResult>>();
   function context(){const value=validateEdenLiveContext(options.getContext());if(!value)throw new Error('Public page context is unavailable.');return value;}
   async function run(call:EdenLiveToolCall,signal:AbortSignal):Promise<EdenLiveToolResult>{
     signal.throwIfAborted();
@@ -74,13 +75,23 @@ export function createEdenLiveToolExecutor(options:EdenLiveToolExecutorOptions){
     if(!result||result.outcome!==outcome||afterRevision!==edenPageRevision()||!edenLiveValuesEqual(after,context())||!edenLiveValuesEqual(after,result.context))throw new Error('The action result could not be verified.');
     return result satisfies EdenLiveToolCompletion;
   }
-  return async function executeEdenLiveTool(value:unknown,signal:AbortSignal):Promise<EdenLiveToolResult>{
+  return async function executeEdenLiveTool(value:unknown,signal:AbortSignal,turn?:number):Promise<EdenLiveToolResult>{
     signal.throwIfAborted();
     const call=validateEdenLiveToolCall(value);if(!call)throw new Error('This Live tool is unavailable.');
     const existing=calls.get(call.id);
     if(existing){if(!edenLiveValuesEqual(existing.call,call))throw new Error('This Live tool identifier was already used.');const result=await existing.result;if(!edenLiveValuesEqual(result.context,context()))throw new Error('This Live result is no longer current.');return structuredClone(result);}
     if(calls.size>=32)throw new Error('This call reached its action limit.');
-    const result=run(call,signal).catch(error=>{signal.throwIfAborted();if(error instanceof EdenLiveServiceError)throw error;throw new Error('This Live tool could not be verified.');});
+    // Provider retries may use a new function ID for the same user-turn action.
+    // Reuse only that turn's verified result while the page still matches it.
+    const actionKey=Number.isSafeInteger(turn)&&call.name==='perform_public_resource_action'
+      ? JSON.stringify([turn,call.name,Object.entries(call.args).sort(([a],[b])=>a.localeCompare(b))]):undefined;
+    const previous=actionKey?actions.get(actionKey):undefined;
+    const result=(previous??run(call,signal)).then(value=>{
+      signal.throwIfAborted();
+      if(!edenLiveValuesEqual(value.context,context()))throw Error('This Live result is no longer current.');
+      return value;
+    }).catch(error=>{signal.throwIfAborted();if(error instanceof EdenLiveServiceError)throw error;throw new Error('This Live tool could not be verified.');});
+    if(actionKey&&!previous)actions.set(actionKey,result);
     calls.set(call.id,{call,result});return structuredClone(await result);
   };
 }
