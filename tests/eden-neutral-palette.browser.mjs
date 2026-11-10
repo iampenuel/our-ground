@@ -148,12 +148,12 @@ try{
  for(let i=0;i<8&&!await p.locator('header .og-brand').evaluate(e=>e===document.activeElement);i++)await p.keyboard.press('Tab');
  report.keyboardFocus=await p.locator('header .og-brand').evaluate(e=>{const s=getComputedStyle(e);return {visible:e===document.activeElement&&e.matches(':focus-visible')&&s.outlineStyle!=='none',color:s.outlineColor,width:s.outlineWidth};});
  assert(report.keyboardFocus.visible);await p.locator('header .og-brand').press('Enter');await p.locator('#home-title').waitFor();report.keyboardHome=new URL(p.url()).pathname==='/';assert(report.keyboardHome);
- // The separate age gate has its own stylesheet and must use the same neutral canvas.
+ // The separate age gate has its own stylesheet and keeps the neutral palette on its readable panel.
  const gateContext=await browser.newContext({viewport:{width:1440,height:900},reducedMotion:'reduce',serviceWorkers:'block'});
  await protectRecoveryOrigin(gateContext,origin,process.env.VERCEL_OIDC_TOKEN);
  const gate=await gateContext.newPage();await gate.goto(origin+'/eligibility');
- report.eligibility=await gate.evaluate(()=>({background:getComputedStyle(document.body).backgroundColor,color:getComputedStyle(document.body).color}));
- if(phase==='after'){assert.equal(report.eligibility.background,'rgb(252, 252, 250)');assert.equal(report.eligibility.color,'rgb(37, 42, 40)');}
+ report.eligibility=await gate.locator(phase==='after'?'.panel':'body').evaluate(el=>({background:getComputedStyle(el).backgroundColor,color:getComputedStyle(el).color}));
+ if(phase==='after'){assert.match(report.eligibility.background,/^rgba?\(252, 252, 250(?:, 0\.98[0-9]*)?\)$/);assert.equal(report.eligibility.color,'rgb(37, 42, 40)');}
  await gate.screenshot({path:join(out,'desktop-eligibility.jpg'),quality:85});await gateContext.close();
  assert.equal(report.forbiddenProviderRequests.length,0,'Palette verification must not consume Gemini quota');
  report.status='PASS';

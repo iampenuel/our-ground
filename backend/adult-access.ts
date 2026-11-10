@@ -1,3 +1,5 @@
+import {gate, page, previewPhotos} from './age-page.ts';
+import {agePageStyle} from './age-page-style.ts';
 import {publicApiRoute} from './api-route.ts';
 // A host-bound signed session records a self-declared age threshold only.
 const cookieName='__Host-og-audience';
@@ -40,14 +42,9 @@ async function mint(origin:string,decision:Decision,config:Config){
   const mac=url64(await crypto.subtle.sign('HMAC',await signingKey(config),payload(origin,token)));
   return `${cookieName}=${token}.${mac}; Path=/; HttpOnly; Secure; SameSite=Strict`;
 }
-const esc=(s:string)=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 function safePath(s:string|null){return s&&s.startsWith('/')&&!s.startsWith('//')&&!/[\\\u0000-\u001f]/.test(s)?s:'/';}
 const privacy='Our Ground uses a signed browser session cookie to remember your age acknowledgment. We do not collect a birth date, identity document or selfie. EDEN’s voice commands use on-device English recognition where supported. Text chat sends approved directory commands and published facts. If you consent to Talk to Eden, microphone audio streams directly to Google for the duration of your call. Google’s unpaid service may use those inputs and outputs for product improvement and human review. Private reports go to the sole directory operator. Leave out identifying or sensitive information.';
 const terms='Our Ground is a directory demo for people aged 19 and older. You may search for yourself or for someone else. Published information can change. Confirm hours, availability and eligibility directly with the listed organization. EDEN provides resource navigation and does not provide medical advice.';
-function page(title:string,content:string,status=200){
-  return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="strict-origin"><title>${title} · Our Ground</title><link rel="stylesheet" href="/eligibility.css"></head><body><main><p>Our Ground</p><h1>${title}</h1>${content}<nav aria-label="Site policies"><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></nav></main></body></html>`,{status,headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'private, no-store','Referrer-Policy':'strict-origin','X-Robots-Tag':'noindex'}});
-}
-const gate=(back:string)=>page('For adults 19 and older',`<p>You can search for yourself or on someone else’s behalf. Are you 19 or older?</p><form method="post" action="/eligibility"><input type="hidden" name="return" value="${esc(back)}"><button name="age" value="19plus">Yes, I am 19 or older</button> <button name="age" value="under19">I am under 19</button></form><p>Your choice is remembered for this browser session.</p>`);
 const under=()=>page('Our Ground is for adults 19 and older','<p>You cannot enter this demo. An adult can search on your behalf.</p>',403);
 const deny=(status:number)=>Response.json({error:{code:status===403?'AGE_ACKNOWLEDGMENT_REQUIRED':'AGE_CHECK_UNAVAILABLE'}},{status,headers:{'Cache-Control':'private, no-store'}});
 async function form(request:Request){
@@ -65,7 +62,10 @@ export async function adultGate(request:Request,config:Config):Promise<Response|
   const json=request.headers.get('accept')?.includes('application/json');
   try{
     if(publicSite&&!protectedFeature&&!['/eligibility','/eligibility.css','/terms'].includes(url.pathname))return null;
-    if(url.pathname==='/eligibility.css')return new Response(':root{--og-paper:#fcfcfa;--og-white:#fff;--og-ink:#252a28;--og-green-deep:#1c332c;--og-blue:#254f5b}body{margin:0;background:var(--og-paper);color:var(--og-ink);font:1.125rem/1.55 system-ui}main{max-width:34rem;margin:8vh auto;padding:1.5rem}h1{font:2.5rem Georgia,serif}button{font:inherit;color:var(--og-white);background:var(--og-green-deep);border:0;border-radius:.3em;padding:.7em;margin:.3em .3em .3em 0}a{color:inherit}button:focus-visible,a:focus-visible{outline:3px solid var(--og-blue);outline-offset:4px}',{headers:{'Content-Type':'text/css','Cache-Control':'public,max-age=3600'}});
+    // Only the two static photographs may pass through to Vercel before signing.
+    if((request.method==='GET'||request.method==='HEAD') && !url.search &&
+       (url.pathname===previewPhotos.desktop||url.pathname===previewPhotos.mobile))return null;
+    if(url.pathname==='/eligibility.css')return new Response(agePageStyle,{headers:{'Content-Type':'text/css; charset=utf-8','Cache-Control':'public,max-age=3600'}});
     const current=(await decisionFor(request,config))?.decision;
     if(request.method==='GET' && url.pathname==='/eligibility' && json)return policyReply({eligible:current==='19plus',denied:current==='under19'});
     if(request.method==='GET' && url.pathname==='/terms')return page('Terms',`<p>${publicSite?'The public directory is available without an Eden session. Eden and private correction reports are for people aged 19 and older. Confirm listing details with the provider.':terms}</p><a href="/">Return to Our Ground</a>`);
