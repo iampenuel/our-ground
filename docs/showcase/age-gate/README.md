@@ -1,10 +1,14 @@
 # Demonstrate the 19+ age acknowledgment
 
-Use Node 24.x and Google Chrome. Install the repository’s dependencies with `npm ci`, then run from an interactive terminal.
+Use Node 24.x and Google Chrome. From an interactive terminal in the repository, run:
 
 ```sh
+nvm use
+npm ci
 npm run demo:age-gate
 ```
+
+If the command reports an unsupported Node version, run `nvm use` again in the repository and check that `node --version` starts with `v24.`.
 
 The command builds a temporary copy of the existing app, starts a server on a free loopback port and opens visible Chrome. Use Tab and Enter to operate the site, and Enter in the terminal to advance.
 
