@@ -1,4 +1,4 @@
-import {gate, page, previewPhotos} from './age-page.ts';
+import {deniedEntrance, gate, page, policyPage, previewPhotos} from './age-page.ts';
 import {agePageStyle} from './age-page-style.ts';
 import {publicApiRoute} from './api-route.ts';
 // A host-bound signed session records a self-declared age threshold only.
@@ -45,7 +45,6 @@ async function mint(origin:string,decision:Decision,config:Config){
 function safePath(s:string|null){return s&&s.startsWith('/')&&!s.startsWith('//')&&!/[\\\u0000-\u001f]/.test(s)?s:'/';}
 const privacy='Our Ground uses a signed browser session cookie to remember your age acknowledgment. We do not collect a birth date, identity document or selfie. EDEN’s voice commands use on-device English recognition where supported. Text chat sends approved directory commands and published facts. If you consent to Talk to Eden, microphone audio streams directly to Google for the duration of your call. Google’s unpaid service may use those inputs and outputs for product improvement and human review. Private reports go to the sole directory operator. Leave out identifying or sensitive information.';
 const terms='Our Ground is a directory demo for people aged 19 and older. You may search for yourself or for someone else. Published information can change. Confirm hours, availability and eligibility directly with the listed organization. EDEN provides resource navigation and does not provide medical advice.';
-const under=()=>page('Our Ground is for adults 19 and older','<p>You cannot enter this demo. An adult can search on your behalf.</p>',403);
 const deny=(status:number)=>Response.json({error:{code:status===403?'AGE_ACKNOWLEDGMENT_REQUIRED':'AGE_CHECK_UNAVAILABLE'}},{status,headers:{'Cache-Control':'private, no-store'}});
 async function form(request:Request){
   const reader=request.body?.getReader();if(!reader)return null;
@@ -68,14 +67,14 @@ export async function adultGate(request:Request,config:Config):Promise<Response|
     if(url.pathname==='/eligibility.css')return new Response(agePageStyle,{headers:{'Content-Type':'text/css; charset=utf-8','Cache-Control':'public,max-age=3600'}});
     const current=(await decisionFor(request,config))?.decision;
     if(request.method==='GET' && url.pathname==='/eligibility' && json)return policyReply({eligible:current==='19plus',denied:current==='under19'});
-    if(request.method==='GET' && url.pathname==='/terms')return page('Terms',`<p>${publicSite?'The public directory is available without an Eden session. Eden and private correction reports are for people aged 19 and older. Confirm listing details with the provider.':terms}</p><a href="/">Return to Our Ground</a>`);
-    if(request.method==='GET' && url.pathname==='/privacy' && current!=='19plus')return page('Privacy',`<p>${privacy}</p><a href="/">Return to Our Ground</a>`);
+    if(request.method==='GET' && url.pathname==='/terms')return policyPage('Terms',publicSite?'The public directory is available without an Eden session. Eden and private correction reports are for people aged 19 and older. Confirm listing details with the provider.':terms,current!=='19plus');
+    if(request.method==='GET' && url.pathname==='/privacy' && current!=='19plus')return policyPage('Privacy',privacy,true);
     if(url.pathname==='/eligibility' && request.method==='POST'){
       if(request.headers.get('origin')!==url.origin||!request.headers.get('content-type')?.startsWith('application/x-www-form-urlencoded'))return deny(403);
-      if(current==='under19')return json?policyReply({eligible:false,denied:true},403):under();
+      if(current==='under19')return json?policyReply({eligible:false,denied:true},403):deniedEntrance();
       const fields=await form(request),age=fields?.get('age');
       if(age!=='19plus'&&age!=='under19')return deny(403);
-      const response=json?policyReply({eligible:age==='19plus',denied:age==='under19'},age==='19plus'?200:403):age==='under19'?under():new Response(null,{status:303,headers:{Location:new URL(safePath(fields?.get('return')??null),url.origin).href,'Cache-Control':'private,no-store'}});
+      const response=json?policyReply({eligible:age==='19plus',denied:age==='under19'},age==='19plus'?200:403):age==='under19'?deniedEntrance():new Response(null,{status:303,headers:{Location:new URL(safePath(fields?.get('return')??null),url.origin).href,'Cache-Control':'private,no-store'}});
       if(current!==age)response.headers.set('Set-Cookie',await mint(url.origin,age,config));return response;
     }
     const signInRoute=config.VERCEL_ENV==='production'&&config.VERCEL_PROJECT_ID==='prj_4li6QnqulPgPbJpxMW2L9hczDNrS'&&config.ACCOUNT_RELEASE_MODE==='signin_only'
@@ -83,6 +82,6 @@ export async function adultGate(request:Request,config:Config):Promise<Response|
     if(current==='19plus' && !signInRoute && /^\/(account|auth|staff)(\/|$)/.test(url.pathname))return page('Directory demo','<p>Organization account access is closed. <a href="/support">Find support</a>.</p>',404);
     if(current==='19plus')return url.pathname==='/eligibility'?new Response(null,{status:303,headers:{Location:'/', 'Cache-Control':'private,no-store'}}):null;
     if(url.pathname.startsWith('/api/')||!['GET','HEAD'].includes(request.method))return deny(403);
-    return current==='under19'?under():gate(safePath(url.pathname+url.search));
+    return current==='under19'?deniedEntrance():gate(safePath(url.pathname+url.search));
   }catch{return url.pathname.startsWith('/api/')?deny(503):page('Age check unavailable','<p>Please try again later.</p>',503);}
 }
