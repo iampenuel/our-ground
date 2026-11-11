@@ -98,3 +98,38 @@ test('a correctly signed acknowledgment no longer opens the application after ei
  t.mock.timers.tick(8*3600*1000+1000);
  assert.match(await (await adultGate(req('/',{headers:{cookie}}),config)).text(),/<h1>Age confirmation<\/h1>/);
 });
+
+test('entrance policies are readable before entry without rewriting an age decision',async()=>{
+ const post=age=>adultGate(req('/eligibility',{method:'POST',headers:{origin},body:new URLSearchParams({age})}),config);
+ const denied=await post('under19'),eligible=await post('19plus');
+ assert.equal(denied.status,403);
+ const deniedHtml=await denied.text();
+ assert.match(deniedHtml,/<main class="entrance"><div class="panel">/);
+ assert.match(deniedHtml,/<h1>Our Ground is for adults 19 and older<\/h1>/);
+ assert.doesNotMatch(deniedHtml,/<form\b/);
+ const deniedCookie=denied.headers.get('set-cookie').split(';')[0];
+ const eligibleCookie=eligible.headers.get('set-cookie').split(';')[0];
+ for(const cookie of ['',deniedCookie]){
+  for(const path of ['/terms','/privacy']){
+   const response=await adultGate(req(path,{headers:{cookie}}),config);
+   assert.equal(response.status,200);
+   assert.equal(response.headers.get('cache-control'),'private, no-store');
+   assert.equal(response.headers.get('referrer-policy'),'strict-origin');
+   assert(!response.headers.has('set-cookie'));
+   const html=await response.text();
+   assert.match(html,/<div class="preview" inert aria-hidden="true">/);
+   assert.match(html,/<main class="entrance"><div class="panel panel--policy">/);
+   assert.match(html,/<a href="\/">Return to Our Ground<\/a>/);
+   assert.doesNotMatch(html,/<form\b/);
+  }
+ }
+ const revisit=await adultGate(req('/',{headers:{cookie:deniedCookie}}),config);
+ assert.equal(revisit.status,403);
+ assert.equal(await revisit.text(),deniedHtml);
+ const authorized={headers:{cookie:eligibleCookie}};
+ assert.equal(await adultGate(req('/privacy',authorized),config),null);
+ assert.match(await (await adultGate(req('/terms',authorized),config)).text(),/<main class="policy">/);
+ const stage={...config,VERCEL_ENV:'preview',VERCEL_PROJECT_ID:'prj_eU9xRSetSQYTbkAce2cYIR5zx8c2'};
+ assert.equal(await adultGate(req('/privacy'),stage),null);
+ assert.match(await (await adultGate(req('/terms'),stage)).text(),/The public directory is available without an Eden session\./);
+});
