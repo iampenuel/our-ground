@@ -1,28 +1,19 @@
 // Exercise native form navigation: fabricating an Origin in an HTTP client
 // would miss a referrer policy that breaks Chrome's POST or leaks a code.
 import assert from 'node:assert/strict';
-import {randomBytes} from 'node:crypto';
-import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {chromium} from 'playwright-core';
-import {adultGate} from '../backend/adult-access.ts';
 import {isPrivateDocumentPath, privateDocumentHeaders} from '../shared/security-headers.ts';
 import {previewPhotos} from '../backend/age-page.ts';
-const config={ADULT_SESSION_SECRET:randomBytes(32).toString('base64url'),VERCEL_ENV:'production',VERCEL_PROJECT_ID:'prj_4li6QnqulPgPbJpxMW2L9hczDNrS',ACCOUNT_RELEASE_MODE:'signin_only'};
-const photos=Object.values(previewPhotos),requests=[];
-let origin;
-const server=createServer(async(req,res)=>{
- const chunks=[];for await(const chunk of req)chunks.push(chunk);
- requests.push({path:req.url,origin:req.headers.origin,referer:req.headers.referer,method:req.method});
- const request=new Request(origin+req.url,{method:req.method,headers:req.headers,...(chunks.length?{body:Buffer.concat(chunks)}:{})});
- let response=await adultGate(request,config);
- if(!response)response=photos.includes(req.url)
-   ? new Response(await readFile(new URL('../public'+req.url,import.meta.url)),{headers:{'Content-Type':'image/webp'}})
-   : new Response('Eligible application route',{headers:isPrivateDocumentPath(new URL(request.url).pathname)?privateDocumentHeaders:{}});
- res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));
-});
-await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));origin='http://127.0.0.1:'+server.address().port;
+import {startAgeGateServer} from './support/age-gate-server.mjs';
 const axe=process.env.AGE_AXE?await readFile(process.env.AGE_AXE,'utf8'):null;
+const requests=[];
+const server=await startAgeGateServer({
+ signInOnly:true,
+ onRequest(req){requests.push({path:req.url,origin:req.headers.origin,referer:req.headers.referer,method:req.method});},
+ app(request){return new Response('Eligible application route',{headers:isPrivateDocumentPath(new URL(request.url).pathname)?privateDocumentHeaders:{}});},
+});
+const {origin}=server;
 const ageTitle='Age confirmation',denialTitle='Our Ground is for adults 19 and older';
 async function checkEntrance(page,title,actions){
  await page.getByRole('heading',{level:1,name:title,exact:true}).waitFor();
@@ -110,6 +101,14 @@ try {
   assert.equal(await p.locator('form').count(),0);
  }
  await denied.close();
+ const forced=await browser.newContext({forcedColors:'active',reducedMotion:'reduce',viewport:{width:390,height:300}});
+ const highContrast=await forced.newPage();await highContrast.goto(origin);
+ await highContrast.getByRole('heading',{name:ageTitle,exact:true}).waitFor();
+ assert(await highContrast.locator('.preview').isHidden());
+ await highContrast.keyboard.press('Tab');
+ assert.equal(await highContrast.locator(':focus').innerText(),"I'm 19 or older");
+ assert(await highContrast.locator(':focus').evaluate(el=>getComputedStyle(el).outlineStyle!=='none'&&document.documentElement.scrollWidth<=innerWidth));
+ await forced.close();
  const policyVisit=await browser.newContext({javaScriptEnabled:false});
  const callback=await policyVisit.newPage(),start=requests.length;
  await callback.goto(origin+'/auth/callback?code=synthetic-policy-canary');
@@ -120,5 +119,5 @@ try {
  assert.equal(await callback.locator('input[name=return]').getAttribute('value'),'/');
  assert(requests.slice(start).every(request=>!request.referer?.includes('synthetic-policy-canary')));
  await policyVisit.close();
- console.log('PASS: four entrance states, seven viewport sizes, native no-JS flows, policy navigation, denial persistence, callback privacy, WebP and keyboard checks.');
-}finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}
+ console.log('PASS: four entrance states, seven viewport sizes, native no-JS flows, policy navigation, denial persistence, callback privacy, WebP, forced colors and keyboard checks.');
+}finally{await browser?.close();await server.close();}
