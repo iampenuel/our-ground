@@ -7,7 +7,7 @@ const origin='https://protected.example';
 const req=(path,init={})=>new Request(origin+path,init);
 test('anonymous and fabricated visitors cannot load a directory, reach a provider, or post a correction',async()=>{
  const page=await adultGate(req('/support?resource=listed'),config);
- assert.match(await page.text(),/For adults 19 and older/);
+ assert.match(await page.text(),/<h1>Age confirmation<\/h1>/);
  for(const endpoint of ['status','session','speech','live/token','live/tool']){
    const res=await adultGate(req('/api/v1/eden/'+endpoint,{method:'POST',headers:{cookie:'__Host-og-adult=true'}}),config);
    assert.equal(res.status,403);
@@ -41,7 +41,7 @@ test('protected staging serves discovery and OAuth independently of Eden; privat
  const cookie=pass.headers.get('set-cookie').split(';')[0];
  assert.deepEqual(await (await adultGate(req('/eligibility',{headers:{...headers,cookie}}),stage)).json(),{eligible:true,denied:false});
  assert.equal(await adultGate(req('/api/index?path=eden/hosted/session',{headers:{cookie}}),stage),null);
- for(const cfg of [{...stage,VERCEL_ENV:'production'},{...stage,VERCEL_PROJECT_ID:'unknown'}])assert.match(await (await adultGate(req('/support'),cfg)).text(),/For adults 19 and older/);
+ for(const cfg of [{...stage,VERCEL_ENV:'production'},{...stage,VERCEL_PROJECT_ID:'unknown'}])assert.match(await (await adultGate(req('/support'),cfg)).text(),/<h1>Age confirmation<\/h1>/);
 });
 test('a conflicting path parameter cannot disguise a private API route',async()=>{
  const {publicApiRoute}=await import('../backend/api-route.ts');
@@ -64,4 +64,37 @@ test('production sign-in preserves an OAuth deep link behind the age gate withou
  for(const c of [{...prod,ACCOUNT_RELEASE_MODE:undefined},{...prod,VERCEL_PROJECT_ID:'wrong'}])assert.equal((await adultGate(get(path),c)).status,404);
  const denied=(await decide('under19')).headers.get('set-cookie').split(';')[0];
  assert.equal((await adultGate(req(path,{headers:{cookie:denied}}),prod)).status,403);
+});
+
+test('the pre-entry photo exemption is exact, read-only, and never opens adjacent assets',async()=>{
+ for(const name of ['desktop','800']){
+   const path='/images/our-ground/hero-courtyard-realistic-'+name+'.webp';
+   for(const method of ['GET','HEAD'])assert.equal(await adultGate(req(path,{method}),config),null);
+   for(const extra of ['?path=eden','/suffix','.js'])assert.match(await (await adultGate(req(path+extra),config)).text(),/<h1>Age confirmation<\/h1>/);
+   assert.equal((await adultGate(req(path,{method:'POST'}),config)).status,403);
+ }
+ for(const path of ['/assets/application.js','/images/our-ground/flowers-search.webp','/account','/ourground-build-evidence.json']){
+   const denied=await adultGate(req(path),config);
+   assert.match(denied.headers.get('Cache-Control'),/no-store/);
+   assert.match(await denied.text(),/<h1>Age confirmation<\/h1>/);
+ }
+});
+
+test('malformed or oversized input cannot sign a session and unsafe returns stay on site',async()=>{
+ const post=(body,headers={})=>adultGate(req('/eligibility',{method:'POST',headers:{origin,'content-type':'application/x-www-form-urlencoded',...headers},body}),config);
+ for(const res of [await post('age=19'),await post('age=19plus&padding='+'x'.repeat(2048)),await post('age=19plus',{'content-type':'text/plain'})]){
+   assert.equal(res.status,403);assert(!res.headers.has('Set-Cookie'));
+ }
+ for(const target of ['//outside.example','https://outside.example','/\\outside.example','/\n/outside.example']){
+   assert.equal((await post(new URLSearchParams({age:'19plus',return:target}))).headers.get('Location'),origin+'/');
+ }
+});
+
+test('a correctly signed acknowledgment no longer opens the application after eight hours',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date('2026-01-01T12:00:00Z')});
+ const pass=await adultGate(req('/eligibility',{method:'POST',headers:{origin},body:new URLSearchParams({age:'19plus'})}),config);
+ const cookie=pass.headers.get('Set-Cookie').split(';')[0];
+ assert.equal(await adultGate(req('/',{headers:{cookie}}),config),null);
+ t.mock.timers.tick(8*3600*1000+1000);
+ assert.match(await (await adultGate(req('/',{headers:{cookie}}),config)).text(),/<h1>Age confirmation<\/h1>/);
 });
