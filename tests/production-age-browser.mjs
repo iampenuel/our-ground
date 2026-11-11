@@ -34,7 +34,7 @@ try {
   assert(await p.locator('.preview').evaluate(n=>n.inert&&n.getAttribute('aria-hidden')==='true'));
   const photo=width<=800?previewPhotos.mobile:previewPhotos.desktop;
   assert.equal(await p.locator('img').evaluate(i=>new URL(i.currentSrc).pathname),photo);
-  assert(outbound.every(url=>[origin+'/',origin+'/eligibility.css?v=2',origin+photo].includes(url)));
+  assert(outbound.every(url=>[origin+'/',origin+'/eligibility.css?v=3',origin+photo].includes(url)));
   const image=await ctx.request.get(origin+photo),bytes=await image.body();
   assert.equal(image.headers()['content-type'],'image/webp');assert.equal(bytes.toString('ascii',0,4),'RIFF');assert.equal(bytes.toString('ascii',8,12),'WEBP');
   await p.mouse.click(2,2);await p.keyboard.press('Escape');

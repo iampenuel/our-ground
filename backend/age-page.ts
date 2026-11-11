@@ -22,7 +22,7 @@ const escapeAttribute = (s:string) => s.replace(/&/g,'&amp;').replace(/"/g,'&quo
 
 function documentResponse(title:string, body:string, status:number) {
   // strict-origin preserves Chrome's native POST Origin without disclosing a callback query.
-  return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="referrer" content="strict-origin"><title>${title} · Our Ground</title><link rel="stylesheet" href="/eligibility.css?v=2"></head><body>${body}</body></html>`, {
+  return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="referrer" content="strict-origin"><title>${title} · Our Ground</title><link rel="stylesheet" href="/eligibility.css?v=3"></head><body>${body}</body></html>`, {
     status, headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'private, no-store','Referrer-Policy':'strict-origin','X-Robots-Tag':'noindex'},
   });
 }
