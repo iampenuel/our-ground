@@ -6,6 +6,8 @@ import {mountHostedPortrait} from './runtime/hosted-portrait.ts';
 import {renderHostedPanel} from './hosted-panel.ts';
 import {HostedVoiceError,readHostedReply} from './hosted-playback.ts';
 import {mountEdenIntroduction} from './runtime/introduction.ts';
+import {HostedTurnError,hostedResponseError,textEndpoint,transportError} from './hosted-errors.ts';
+import {startTurnTrace} from './turn-diagnostic.ts';
 
 const noticeKey='og.eden.notice',voiceKey='og.eden.deviceVoice';
 const pageNames={home:'Our Ground',support:'Find Support',give:'Give Support',organizations:'For Organizations',about:'About',privacy:'Privacy',discover:'Discovery',resource:'Resource details'};
@@ -28,7 +30,8 @@ export function mountHostedEden(host:HTMLElement) {
   let session:string|undefined,expires=0,generation=0,eligibilityRevision=0;
   let eligible=false,denied=false,privacyAccepted=false,navigationOnly=false,expanded=false,inertApp:HTMLElement|undefined,priorInert=false;
   let live:ReturnType<typeof import('./hosted-live')['mountHostedLive']>|undefined,liveActive=false,liveLoading=false;
-  let pending:'send'|'dictate'|'live'|undefined,accepting=false,showingSettings=false,retry=false;
+  let pending:'send'|'dictate'|'live'|undefined,accepting=false,showingSettings=false;
+  let retryDraft:{row:HTMLElement;retryAt?:number}|undefined;
   let turn:AbortController|undefined,dictation:AbortController|undefined,playback:AbortController|undefined;
   let lastReply:{reply:string;speechTicket?:string}|undefined;
   let forgetTimer:ReturnType<typeof setTimeout>|undefined;
@@ -50,7 +53,7 @@ export function mountHostedEden(host:HTMLElement) {
     get('[data-preview]').textContent=playback?'Stop preview':'Preview device voice';
     get('[data-stop]').hidden=!turn&&!playback;get('[data-stop]').setAttribute('aria-label',playback?'Stop speaking':'Stop response');
     get('[data-speak]').hidden=!lastReply||Boolean(turn||playback||dictation||pending||liveActive||liveLoading);
-    get('[data-retry]').hidden=!retry||Boolean(turn||playback||pending);
+    get('[data-retry]').hidden=!retryDraft||Boolean(turn||playback||pending);
     consent.hidden=!pending;get('[data-age-row]').hidden=eligible;get('[data-privacy-row]').hidden=privacyAccepted;
     get<HTMLButtonElement>('[data-continue]').disabled=accepting||(!eligible&&!age.checked)||(!privacyAccepted&&!privacy.checked);
   }
@@ -59,6 +62,7 @@ export function mountHostedEden(host:HTMLElement) {
     const row=document.createElement('div'),p=document.createElement('p');row.className='eden-message'+(user?' command':'');row.setAttribute('aria-label',user?'You':'Eden');
     p.textContent=text;row.append(p);log.append(row);while(log.childElementCount>16)log.firstElementChild?.remove();
     controls();if(user||follow)body.scrollTop=body.scrollHeight;
+    return row;
   }
   function context(){const route=edenLocalPageContext().route;get('[data-context]').textContent=pageNames[route];introduction.setPageAllowed(route==='home');}
   function showSettings(value:boolean){
@@ -91,7 +95,7 @@ export function mountHostedEden(host:HTMLElement) {
   function needConsent(action:'send'|'dictate'|'live'){
     if(denied){notify('Eden is for adults 19 or older. The directory is available to everyone.');return true;}
     if(eligible&&privacyAccepted)return false;
-    pending=action;retry=false;notify();controls();consent.scrollIntoView({block:'nearest'});
+    pending=action;notify();controls();consent.scrollIntoView({block:'nearest'});
     (eligible?privacy:age).focus({preventScroll:true});return true;
   }
   function cancelConsent(){
@@ -120,28 +124,34 @@ export function mountHostedEden(host:HTMLElement) {
   async function request(path:string,data:unknown,signal?:AbortSignal,correlationId?:string){
     const headers:Record<string,string>={'Content-Type':'application/json'};if(session)headers.Authorization='Bearer '+session;
     if(correlationId)headers['x-eden-correlation-id']=correlationId;
-    const res=await fetch('/api/v1/eden/hosted/'+path,{method:'POST',credentials:'same-origin',cache:'no-store',referrerPolicy:'no-referrer',headers,body:JSON.stringify(data),signal:AbortSignal.any([AbortSignal.timeout(26000),...(signal?[signal]:[])])});
+    const endpoint=textEndpoint(path);
+    let res:Response;
+    try{
+      res=await fetch('/api/v1/eden/hosted/'+path,{method:'POST',credentials:'same-origin',cache:'no-store',referrerPolicy:'no-referrer',headers,body:JSON.stringify(data),signal:AbortSignal.any([AbortSignal.timeout(26000),...(signal?[signal]:[])])});
+    }catch(error){if(endpoint&&!signal?.aborted)throw transportError(error,endpoint);throw error;}
+    const returnedId=res.headers.get('x-eden-correlation-id');
+    if(endpoint&&correlationId&&returnedId!==null&&returnedId!==correlationId)
+      throw new HostedTurnError('Eden couldn’t match the response to this request. You can try again.',{stage:'decision',endpoint,httpStatus:res.status});
     if(!res.ok){
       const code=(await (path==='speech'||path.startsWith('live/')?res.clone():res).json().catch(()=>null))?.error?.code;
       if(res.status===401){session=undefined;expires=0;}
       if(code==='AGE_ACKNOWLEDGMENT_REQUIRED'){eligible=false;privacyAccepted=false;store(noticeKey,'');age.checked=false;privacy.checked=false;}
       if(path.startsWith('live/'))return res;
       if(path==='speech')return res; // The voice player handles speech limits independently of text/actions.
-      if(code==='EDEN_LOCATION_UNAVAILABLE')throw Error('Location resolution is temporarily unavailable. Check the place and state or ZIP code, or try again later.');
-      if(code==='DIRECTORY_LOCATION_AMBIGUOUS')throw Object.assign(Error('Which U.S. state or ZIP code should I use for that place?'),{code});
-      if(code==='DIRECTORY_LOCATION_UNRESOLVED')throw Object.assign(Error('I could not resolve that place. Check the locality and state or ZIP code.'),{code});
       if(code==='EDEN_REGION_UNAVAILABLE'||code==='EDEN_DISABLED'||code==='EDEN_SESSION_UNAVAILABLE')navigationOnly=true;
-      throw Error(res.status===429?'Gemini is busy. Please wait a moment, then try again.':code==='AGE_ACKNOWLEDGMENT_REQUIRED'?'Adult access expired. Try again to renew it.':navigationOnly?'AI chat is unavailable. You can still use page commands.':'Eden could not complete that request. You can try again or use the page controls.');
+      throw hostedResponseError(res,endpoint,code);
     }
     return res;
   }
-  async function startSession(signal:AbortSignal){
+  async function startSession(signal:AbortSignal,correlationId?:string){
     if(session&&Date.now()<expires)return true;
     session=undefined;navigationOnly=false;
     try{
-      const res=await (await request('session',{noticeVersion:EDEN_NOTICE_VERSION,acknowledged:true},signal)).json();
-      const expiry=Date.parse(res.expiresAt);
-      if(!/^[A-Za-z0-9_-]{43}$/.test(res.sessionToken)||!Number.isFinite(expiry)||Date.now()>=expiry)throw Error('Eden could not start a verified session.');
+      const response=await request('session',{noticeVersion:EDEN_NOTICE_VERSION,acknowledged:true},signal,correlationId);
+      const res=await response.json().catch(()=>null);
+      const expiry=typeof res?.expiresAt==='string'?Date.parse(res.expiresAt):NaN;
+      if(typeof res?.sessionToken!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(res.sessionToken)||!Number.isFinite(expiry)||Date.now()>=expiry)
+        throw new HostedTurnError('Eden couldn’t start a verified session. You can try again.',{stage:'session',endpoint:'session',httpStatus:response.status});
       signal.throwIfAborted();session=res.sessionToken;expires=expiry;return true;
     }catch(e){signal.throwIfAborted();if(navigationOnly)return false;throw e;}
   }
@@ -154,25 +164,40 @@ export function mountHostedEden(host:HTMLElement) {
   function stopPlayback(){playback?.abort();playback=undefined;portrait.playbackEnded();controls();}
   function stopTurn(){if(turn){turn.abort();turn=undefined;generation++;endSession();portrait.state('idle');}controls();}
   function forget(){
-    clearTimeout(forgetTimer);generation++;eligibilityRevision++;cancelConsent();retry=false;
+    clearTimeout(forgetTimer);generation++;eligibilityRevision++;cancelConsent();retryDraft=undefined;
     live?.end();stopDictation();stopPlayback();stopTurn();endSession();conversation.clear();clearEdenRememberedSearch();
     log.replaceChildren();input.value='';lastReply=undefined;get('.eden-unread').hidden=true;portrait.state('idle');notify();controls();
   }
   function touch(){clearTimeout(forgetTimer);forgetTimer=setTimeout(forget,15*60_000);}
   async function send(){
     const text=input.value.trim();if(!text||turn||dictation||accepting||pending||liveActive||liveLoading)return;
+    const retry=retryDraft?.row.textContent===text?retryDraft:undefined;
+    if(retry?.retryAt&&Date.now()<retry.retryAt){
+      notify('Please wait '+Math.ceil((retry.retryAt-Date.now())/1000)+' seconds before trying again.');return;
+    }
     touch();stopPlayback();if(needConsent('send'))return;
-    const controller=new AbortController();turn=controller;retry=false;const id=++generation;
+    const controller=new AbortController();turn=controller;retryDraft=undefined;const id=++generation;
+    const trace=startTurnTrace();
+    input.value='';
+    const row=retry?.row.isConnected?retry.row:message(text,true);
+    let actionStarted=false;
     portrait.state('thinking');notify('Connecting…');controls();
     try{
-      const aiAvailable=await startSession(controller.signal);controller.signal.throwIfAborted();
-      message(text,true);input.value='';notify(aiAvailable?'Thinking…':'AI chat is unavailable. Checking page commands…');
-      const result=await conversation.run({text,signal:controller.signal,request,onStatus:(label:string)=>{if(id!==generation)return;if(label==='Using the page control…'){portrait.state('searching');if(mobile.matches&&!panel.hidden)show(false);}notify(label);},aiAvailable});
+      const aiAvailable=await startSession(controller.signal,trace.diagnostic.correlationId);controller.signal.throwIfAborted();
+      notify(aiAvailable?'Thinking…':'AI chat is unavailable. Checking page commands…');
+      const result=await conversation.run({text,signal:controller.signal,request,onStatus:(label:string)=>{if(id!==generation)return;if(label==='Using the page control…'){portrait.state('searching');if(mobile.matches&&!panel.hidden)show(false);}notify(label);},onAction:()=>{actionStarted=true;},aiAvailable},trace);
       if(id!==generation)return;portrait.state(result.outcome==='confirmed'?'success':result.outcome==='clarification'?'clarifying':'unable');lastReply=result;message(result.reply);if(panel.hidden)get('.eden-unread').hidden=false;notify(aiAvailable?'':'AI chat is unavailable. Page commands still work.');
     }catch(e){
+      const error=transportError(e);
+      const cancelled=controller.signal.aborted||error.failure.stage==='cancelled';
+      trace.fail(error,cancelled);
       if(id===generation&&!controller.signal.aborted){
-        portrait.state('unable');if(!input.value)input.value=text;retry=true;
-        notify(e instanceof Error&&e.constructor===Error?e.message:'Eden could not connect. Your draft is ready to retry.');
+        portrait.state(cancelled?'idle':'unable');
+        if(!input.value&&!actionStarted&&!cancelled){
+          input.value=text;
+          retryDraft={row,retryAt:error.retryAt};
+        }
+        notify(error.message+(actionStarted&&!cancelled?' Check the current page before sending another request.':''));
       }
     }finally{if(turn===controller){turn=undefined;controls();}}
   }
@@ -192,6 +217,7 @@ export function mountHostedEden(host:HTMLElement) {
       const words=await hearOneCommand(ctor,controller.signal,interim=>{if(dictation===controller)notify(interim?'Listening: '+interim:'Listening…');},()=>{if(dictation===controller){portrait.state('listening');notify('Listening…');}});
       controller.signal.throwIfAborted();
       if(words){
+        retryDraft=undefined;
         input.value=[input.value.trim(),words].filter(Boolean).join(' ').slice(0,input.maxLength);
         notify('Review your draft, then send.');input.focus({preventScroll:true});
       }else notify('No speech heard. Tap the microphone to try again or type a message.');
@@ -272,7 +298,7 @@ export function mountHostedEden(host:HTMLElement) {
   get('[data-preview]').addEventListener('click',()=>{if(playback){stopPlayback();notify();}else void read(true);});
   get('[data-stop]').addEventListener('click',()=>{stopTurn();stopPlayback();notify('Stopped.');});
   get('[data-retry]').addEventListener('click',()=>void send());
-  input.addEventListener('input',()=>{retry=false;touch();controls();});
+  input.addEventListener('input',()=>{retryDraft=undefined;touch();controls();});
   get<HTMLFormElement>('.eden-composer').addEventListener('submit',e=>{e.preventDefault();void send();});
   input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();void send();}});
   panel.addEventListener('keydown',keydown);mobile.addEventListener('change',layout);window.visualViewport?.addEventListener('resize',layout);window.visualViewport?.addEventListener('scroll',layout);

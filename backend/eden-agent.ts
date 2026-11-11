@@ -11,7 +11,7 @@ import { createEdenProvider, EdenProviderError } from './eden-provider.ts';
 import type { EdenModelRequest, EdenTextModel } from './eden-provider.ts';
 import type { Repository } from './app.ts';
 import { EDEN_LIVE_TOOL_DEFINITIONS } from '../shared/eden-live.ts';
-import { conversationChoices, profileFacts, profileReply, validateConversationMemory, socialWords, validSocialText, validSymbols, isEdenSurface, type EdenSurface } from '../shared/eden-conversation.ts';
+import { clarificationReply, conversationChoices, profileFacts, profileReply, socialClauses, validateConversationMemory, validSocialText, validSymbols, isEdenSurface, type EdenSurface } from '../shared/eden-conversation.ts';
 import { edenPublicPageFacts } from '../shared/eden-public-pages.ts';
 
 export type EdenAgentRepository = Pick<Repository, 'search' | 'detail'>;
@@ -253,11 +253,12 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
   async function invoke(input: unknown, instruction: string, toolName: string, parameters: Record<string, unknown>, signal?: AbortSignal): Promise<unknown> {
     const eligibility = providerStatus();
     if (!status().available || !eligibility.model) throw new EdenProviderError('EDEN_DISABLED', 403);
-    if(now()<cooldownUntil)throw new EdenProviderError('EDEN_PROVIDER_QUOTA',429);
+    if(now()<cooldownUntil)throw new EdenProviderError('EDEN_PROVIDER_QUOTA',429,'provider');
     const combined = AbortSignal.any([AbortSignal.timeout(15_000), ...(signal ? [signal] : [])]);
     const payload: EdenModelRequest = { model: eligibility.model, input: JSON.stringify(input), system_instruction: instruction,
       tools: [{ type: 'function', name: toolName, description: toolName === EDEN_AGENT_ACTION_TOOL ? 'Choose a public resource application action from a semantic request.'
-        : toolName === EDEN_AGENT_CLARIFICATION_TOOL ? 'Ask one approved question for the missing public search field.' : 'Compose a grounded natural reply using exact verified extracts.', parameters }],
+        : toolName === EDEN_AGENT_CLARIFICATION_TOOL ? 'Ask one approved question for the missing public search field.' : toolName === 'choose_public_step' ? 'Choose one approved public decision. For a greeting or thanks, compose a short reply from the approved clauses.'
+        : 'Compose a grounded natural reply using exact verified extracts.', parameters }],
       generation_config: { max_output_tokens: 1024, thinking_level: 'low', thinking_summaries: 'none', tool_choice: { allowed_tools: { mode: 'any', tools: [toolName] } } },
       store: false, automatic_continuation: false };
     let response: unknown;
@@ -283,15 +284,16 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       if (signal?.aborted) throw new EdenProviderError('EDEN_AGENT_CANCELLED', 409);
       const errorBody = object(error), code = Number(errorBody?.status ?? errorBody?.code);
       if (code===429) cooldownUntil=now()+30_000;
-      const reason=code===429?'EDEN_PROVIDER_QUOTA':code===401||code===403?'EDEN_PROVIDER_AUTH':code===404?'EDEN_PROVIDER_MODEL':code===400?'EDEN_PROVIDER_SCHEMA':combined.aborted?'EDEN_PROVIDER_TIMEOUT':'EDEN_PROVIDER_UNAVAILABLE';
-      throw new EdenProviderError(reason,code===429?429:503);
+      const timedOut=combined.aborted||code===408||code===504||errorBody?.name==='TimeoutError';
+      const reason=code===429?'EDEN_PROVIDER_QUOTA':code===401||code===403?'EDEN_PROVIDER_AUTH':code===404?'EDEN_PROVIDER_MODEL':code===400?'EDEN_PROVIDER_SCHEMA':timedOut?'EDEN_PROVIDER_TIMEOUT':'EDEN_PROVIDER_UNAVAILABLE';
+      throw new EdenProviderError(reason,code===429?429:503,'provider');
     } finally { removeAbort(); }
     const body = object(response);
-    if (!body || !['completed', 'requires_action'].includes(String(body.status)) || !Array.isArray(body.steps) || body.steps.length < 1 || body.steps.length > 8) throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT', 502);
+    if (!body || !['completed', 'requires_action'].includes(String(body.status)) || !Array.isArray(body.steps) || body.steps.length < 1 || body.steps.length > 8) throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT', 502, 'response-shape');
     const steps = body.steps.map(object);
-    if (steps.some(step => !step || !['function_call', 'thought'].includes(String(step.type)))) throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT', 502);
+    if (steps.some(step => !step || !['function_call', 'thought'].includes(String(step.type)))) throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT', 502, 'response-shape');
     const calls = steps.filter(step => step?.type === 'function_call');
-    if (calls.length !== 1 || calls[0]?.name !== toolName) throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT', 502);
+    if (calls.length !== 1 || calls[0]?.name !== toolName) throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT', 502, 'tool-call');
     return calls[0].arguments;
   }
   function operation(binding: string, signal?: AbortSignal) {
@@ -313,25 +315,26 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       const choices=conversationChoices(symbols,context,controls as EdenSurface[],previous);
       const {resourceIds:_ids,...publicContext}=context;
       const keys=choices.map((_,index)=>'choice-'+index);
-      const args=object(await invoke({signals:symbols, previous_public_intent:previous, page:publicContext, available_controls:controls, social_words:socialWords, assistant_profile:profileFacts, choices:choices.map((choice,i)=>({id:keys[i],...choice}))},
-        'You are Eden, the Our Ground guide. Interpret the visitor’s ordered public concepts in context. A correction replaces the old city: use the named intended city, not a city following negation. Distinguish a request to introduce yourself (identity) or explain your own capabilities from a donor request. A request verb is not a donation. A correction about Eden’s identity is not a city question. Choose search-and-open when the visitor explicitly requests both the search and a numbered result; the website will independently confirm both. Back then map from a resource detail uses back-to-map, not an arbitrary history destination. Respect map versus list and scroll versus opening a listing. Prefer a conversational greeting or thanks for small talk. For joining as an organization, choose the organizations page. Choose clarify when intent or city is ambiguous. Do not invent facts. Choose exactly one listed id. This is only a proposal. The app validates and executes actions and confirms their result. When choosing a greet or thanks message, write a short friendly greeting or reply in social_text (max 220 characters). Use only social_words and plain punctuation, e.g. Hi there! How can I help you today? Do not describe a service as available or promise anything. The clarify choice opens an application-owned clarifying question. Identity and capabilities use the verified assistant_profile. Select the listed profile choice with the most helpful focus (search, tour or limits). Return only the choice ID for profile answers.',
+      const hasSocialChoice=choices.some(choice=>choice.kind==='message'&&(choice.key==='greet'||choice.key==='thanks'));
+      const args=object(await invoke({signals:symbols, previous_public_intent:previous, page:publicContext, available_controls:controls,
+        ...(hasSocialChoice?{social_clauses:socialClauses}:{}), assistant_profile:profileFacts, choices:choices.map((choice,i)=>({id:keys[i],...choice}))},
+        'You are Eden, the Our Ground guide. Interpret the visitor’s ordered public concepts in context. A correction replaces the old city: use the named intended city, not a city following negation. Distinguish a request to introduce yourself (identity) or explain your own capabilities from a donor request. A request verb is not a donation. A correction about Eden’s identity is not a city question. Choose search-and-open when the visitor explicitly requests both the search and a numbered result; the website will independently confirm both. Back then map from a resource detail uses back-to-map, not an arbitrary history destination. Respect map versus list and scroll versus opening a listing. Prefer a conversational greeting or thanks for small talk. For joining as an organization, choose the organizations page. Choose clarify when intent or city is ambiguous. Do not invent facts. Choose exactly one listed id. This is only a proposal. The app validates and executes actions and confirms their result. For greet or thanks, compose a short social_text. Start with one exact clause from social_clauses for that choice. Optionally add one exact follow_up clause or, for thanks, one different thanks clause. Use normal capitalization, punctuation and a space between clauses. A simple acknowledgment is enough when someone thanks you; do not restart their search. Do not add claims about a listing or promise anything. The clarify choice opens an application-owned clarifying question. Identity and capabilities use the verified assistant_profile. Select the listed profile choice with the most helpful focus (search, tour or limits). Return only the choice ID for any non-social choice.',
         'choose_public_step',{type:'object',properties:{choice:{type:'string',enum:keys},social_text:{type:'string'}},additionalProperties:false,required:['choice']},signal));
-      if(!args || Object.keys(args).some(k=>k!=='choice'&&k!=='social_text') || typeof args.choice!=='string' || !keys.includes(args.choice))throw new EdenProviderError('EDEN_INVALID_AGENT_ACTION',502);
+      if(!args || Object.keys(args).some(k=>k!=='choice'&&k!=='social_text') || typeof args.choice!=='string' || !keys.includes(args.choice))throw new EdenProviderError('EDEN_INVALID_AGENT_ACTION',502,'choice');
       const choice=choices[keys.indexOf(args.choice)];
       if(choice.kind==='message'&&(choice.key==='identity'||choice.key==='capabilities')){
         const reply=profileReply(choice.key,choice.focus,symbols.includes('correction'));
-        if(!reply)throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT',502);
+        if(!reply)throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT',502,'grounded-output');
         return {engine:'gemini' as const,choice,reply};
       }
       if(choice.kind==='message'&&choice.key==='clarify'){
         // Gemini selected the clarification tool. Its question comes from the UI's
         // public vocabulary; arbitrary tool prose cannot disclose text or make claims.
-        const reply=symbols.includes('correction')||previous && 'goal' in previous && previous.goal==='clarify-search'&&previous.missing==='city'
-          ? 'Which city would you like to search?' : 'Would you like to find support, give support, or learn about organizations?';
+        const reply=clarificationReply(symbols,previous);
         return {engine:'gemini' as const,choice,reply};
       }
-      if(choice.kind==='message'&&choice.key!=='boundary'){
-        if(!validSocialText(args.social_text))throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT',502);
+      if(choice.kind==='message'&&(choice.key==='greet'||choice.key==='thanks')){
+        if(!validSocialText(args.social_text,choice.key))throw new EdenProviderError('EDEN_INVALID_AGENT_OUTPUT',502,'social-output');
         return {engine:'gemini' as const,choice,reply:args.social_text};
       }
       return {engine:'gemini' as const,choice};
@@ -423,9 +426,9 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
           // semantic-request validation after the real model chooses an action.
           action: structuredClone(EDEN_LIVE_TOOL_DEFINITIONS.find(tool => tool.name === EDEN_AGENT_ACTION_TOOL)!.parametersJsonSchema),
         } }, active.signal));
-      if (!args || Object.keys(args).length !== 1) throw new EdenProviderError('EDEN_INVALID_AGENT_ACTION', 502);
+      if (!args || Object.keys(args).length !== 1) throw new EdenProviderError('EDEN_INVALID_AGENT_ACTION', 502, 'choice');
       const action = validateEdenAgentAction(args.action, request.intent, request.context);
-      if (!action) throw new EdenProviderError('EDEN_INVALID_AGENT_ACTION', 502);
+      if (!action) throw new EdenProviderError('EDEN_INVALID_AGENT_ACTION', 502, 'choice');
       const query = queryFor(action, request.context), expectedIds = directory ? undefined : await idsFor(query);
       active.signal.throwIfAborted();
       const turnToken = randomBytes(32).toString('base64url');
@@ -497,14 +500,14 @@ export function createEdenAgent(environment: Record<string, string | undefined>,
       const connectives = connectivesFor(facts);
       const args = await invoke({ confirmed_outcome: result.outcome, semantic_request: item.request.intent, source_facts: directory ? directoryModelFacts(facts) : facts,
         connective_phrases: connectives, required_fact_ids: requirements.requiredFactIds, required_one_of_fact_ids: requirements.requiredOneOfFactIds },
-        'Compose Eden’s concise grounded answer by selecting and ordering segments. A fact segment references an exact source_facts ID; a connector segment references an exact connective_phrases ID. The website renders the selected immutable text, so return no prose or copied text. Include every required_fact_ids entry, and at least one entry from EACH required_one_of_fact_ids group. Select relevant listing facts for the user’s semantic request. Choose the fewest useful facts that satisfy the requirements, usually two or three; maximum six facts and two connectors. Never repeat a fact or a connector. Prefer no connectors to a repeated Also. For page explanations describe actual permitted capabilities; for missing hours say current status is not verified, without guessing. A brief fictional qualifier in a resource title is sufficient; do not repeat a long disclaimer. Order the facts and optional connectors into a readable answer. Never invent an ID, an availability claim, medical advice, or any additional action. If the confirmed outcome failed, select only its outcome fact and optional neutral connectors. Call compose_verified_reply with segments only.',
+        'Compose Eden’s concise grounded answer by selecting and ordering segments. A fact segment references an exact source_facts ID; a connector segment references an exact connective_phrases ID. The website renders the selected immutable text, so return no prose or copied text. Include every required_fact_ids entry, and at least one entry from EACH required_one_of_fact_ids group. Select relevant listing facts for the user’s semantic request. Choose the fewest useful facts that satisfy the requirements, usually two or three; maximum six facts and two connectors. Never repeat a fact or a connector. Lead with the useful verified answer, such as the count for a search or the name for a listing. Skip routine status announcements unless they are needed to explain what happened. Prefer no connectors to a repeated Also. For page explanations describe actual permitted capabilities; for missing hours say current status is not verified, without guessing. A brief fictional qualifier in a resource title is sufficient; do not repeat a long disclaimer. Order the facts and optional connectors into a readable answer. Never invent an ID, an availability claim, medical advice, or any additional action. If the confirmed outcome failed, select only its outcome fact and optional neutral connectors. Call compose_verified_reply with segments only.',
         EDEN_AGENT_REPLY_TOOL, { type: 'object', additionalProperties: false, required: ['segments'], properties: {
           segments: { type: 'array', minItems: 1, maxItems: 12, items: { type: 'object', additionalProperties: false, required: ['kind', 'id'], properties: {
             kind: { type: 'string', enum: ['fact', 'connector'] }, id: { type: 'string', enum: [...facts.map(fact => fact.id), ...connectives.map(item => item.id)] },
           } } },
         } }, active.signal);
       const composition = completeRequiredEdenComposition(args, facts, requirements);
-      if (!composition.ok) throw new EdenProviderError(composition.code, 502);
+      if (!composition.ok) throw new EdenProviderError(composition.code, 502, 'grounded-output');
       return { engine: 'gemini', reply: composition.reply, sources: composition.sources, phrase: phrase(item.action, failed) };
       } finally { active.finish(); }
     },

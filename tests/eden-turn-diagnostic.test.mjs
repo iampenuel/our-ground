@@ -21,7 +21,7 @@ test('a turn exposes only bounded provenance; stale, mismatched and cleared turn
     const result=JSON.parse(host.dataset.turnDiagnostic);
     assert.deepEqual(Object.keys(result).sort(),['correlationId','provider','model','output','proposedAction','outcome'].sort());
     assert.equal(result.provider,'gemini');assert.equal(result.model,'gemini-3.5-flash-lite');
-    assert.throws(()=>second.observe(new Response(null,{headers:{...headers,'x-eden-correlation-id':first.diagnostic.correlationId}})),/could not match/);
+    assert.throws(()=>second.observe(new Response(null,{headers:{...headers,'x-eden-correlation-id':first.diagnostic.correlationId}})),error=>error.failure?.stage==='decision');
     clearTurnTrace();first.update({outcome:'failed'});assert(!host.dataset.turnDiagnostic);
     assert(events.every(item=>Object.keys(item).every(key=>Object.keys(result).includes(key))));
   }finally{

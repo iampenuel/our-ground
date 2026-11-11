@@ -37,7 +37,7 @@ test('greeting and unknown questions use a real SDK-shaped function request; app
   for(const text of ['Hii','unknown harmless wording']){
     const reply=await agent.understand(projectPublicRequest(text),home,[],null,signal());
     assert.equal(reply.reply,text==='Hii'?'Hi! Would you like help finding support nearby?':'Would you like to find support, give support, or learn about organizations?');
-    assert(validSocialText(reply.reply));
+    if(text==='Hii')assert(validSocialText(reply.reply,'greet'));
     assert(!requests.at(-1).input.includes(text));
   }
   assert.equal(requests.length,2);
@@ -144,4 +144,63 @@ test('an open selection does not authorize reopening it for a page explanation o
   assert.deepEqual(choices('Actually, I meant food support.'),[{kind:'intent',intent:{goal:'change-category',category:'food'}}]);
   assert(choices('Show me the first result.').some(v=>v.intent?.goal==='inspect-resource'));
   assert(!choices('Actually, I meant healthcare, not food.').some(v=>v.intent?.goal==='change-category'&&v.intent.category==='food'));
+});
+
+test('pure courtesy after a public action offers only a conversational response',()=>{
+  const results={...home,page:'support',synthetic:false,directory:'public',category:'community',cityId:'new-york-ny',
+    radius:10,resultCount:2,resourceIds:['aaaaaaaa-1111-5111-8111-aaaaaaaaaaaa','aaaaaaaa-1111-5111-8111-bbbbbbbbbbbb'],selectedIndex:2};
+  for(const input of ['Thank you!','Thanks!','Thanks for helping!','Thanks for helping me find that.',"You're really helpful.",'You’re really helpful.']){
+    const signals=projectPublicRequest(input);
+    assert.deepEqual(signals,['thanks']);
+    for(const context of [results,{...results,page:'resource'},{...home,page:'give'}])
+      assert.deepEqual(conversationChoices(signals,context,['show-map'],{goal:'find-resources',category:'community',cityId:'new-york-ny'}),[{kind:'message',key:'thanks'}]);
+  }
+  for(const input of ['Hi!','Hey Eden!'])assert.deepEqual(conversationChoices(projectPublicRequest(input),results,[]),[{kind:'message',key:'greet'}]);
+  assert(conversationChoices(projectPublicRequest('Thanks, find food in Harrisburg.'),results,[]).some(choice=>choice.intent?.goal==='find-resources'));
+  assert.deepEqual(conversationChoices(projectPublicRequest('What about the second one?'),results,[]),[{kind:'intent',intent:{goal:'inspect-resource',ordinal:2,view:'details'}}]);
+  assert.deepEqual(conversationChoices(projectPublicRequest('What about the first?'),results,[]),[{kind:'intent',intent:{goal:'inspect-resource',ordinal:1,view:'details'}}]);
+  assert.deepEqual(conversationChoices(projectPublicRequest('Are they open now?'),results,[]),[{kind:'intent',intent:{goal:'check-open-now',ordinal:2}}]);
+  assert.deepEqual(conversationChoices(projectPublicRequest('Can you make that five miles?'),results,[]),[{kind:'intent',intent:{goal:'adjust-distance',radius:5}}]);
+  assert.deepEqual(conversationChoices(projectPublicRequest('What about the third one?'),results,[]),[{kind:'message',key:'clarify'}]);
+  assert.deepEqual(conversationChoices(projectPublicRequest('Can you book an appointment for me?'),results,[]),[{kind:'message',key:'boundary'}]);
+  assert(conversationChoices(projectPublicRequest('What else can you help me with?'),results,[]).every(choice=>choice.key==='capabilities'));
+});
+
+test('whole neutral clauses allow natural variation without accepting directory assertions',()=>{
+  for(const text of ["You're very welcome!",'You’re welcome! Glad I could help.','No problem!','Happy to help. Can I help with anything else?'])
+    assert(validSocialText(text,'thanks'),text);
+  for(const text of ['Hi there!','Hello. What can I help you find?'])
+    assert(validSocialText(text,'greet'),text);
+  for(const text of ['Our food resources are here today.','Food and healthcare are here for you.','No problem! That clinic is open today.',"You're welcome! Visit https://evil.invalid.",'Hi there!','No problem! No problem!'])
+    assert(!validSocialText(text,'thanks'),text);
+});
+
+test('the same courtesy can receive different verified Gemini compositions with one stateless call per turn',async()=>{
+  const replies=["You're very welcome!",'No problem!','You’re welcome! Glad I could help.'];
+  const requests=[];
+  const agent=createEdenAgent(development,{repository:new DemoRepository(),create:async payload=>{
+    requests.push(payload);
+    const {choices,signals}=JSON.parse(payload.input);
+    assert.deepEqual(signals,['thanks']);
+    assert.deepEqual(choices.map(({kind,key})=>({kind,key})),[{kind:'message',key:'thanks'}]);
+    return {status:'requires_action',steps:[{type:'function_call',name:'choose_public_step',arguments:{choice:choices[0].id,social_text:replies[requests.length-1]}}]};
+  }});
+  for(const reply of replies)assert.equal((await agent.understand(projectPublicRequest('Thank you!'),home,[],null,signal())).reply,reply);
+  assert.equal(requests.length,replies.length);
+  assert(requests.every(request=>request.store===false&&!Object.hasOwn(request,'previous_interaction_id')&&!request.input.includes('Thank you!')));
+});
+
+test('tool envelope, choice and provider failures retain bounded error stages',async()=>{
+  const fn=(name,args)=>({status:'requires_action',steps:[{type:'function_call',name,arguments:args}]});
+  const cases=[
+    [async()=>({status:'completed',steps:[{type:'thought'}]}),'EDEN_INVALID_AGENT_OUTPUT','tool-call'],
+    [async()=>fn('wrong_tool',{}),'EDEN_INVALID_AGENT_OUTPUT','tool-call'],
+    [async()=>fn('choose_public_step',{choice:'evil'}),'EDEN_INVALID_AGENT_ACTION','choice'],
+    [async payload=>fn('choose_public_step',{choice:JSON.parse(payload.input).choices[0].id,social_text:'Our food resources are here today.'}),'EDEN_INVALID_AGENT_OUTPUT','social-output'],
+    [async()=>{throw {status:504,message:'private canary'};},'EDEN_PROVIDER_TIMEOUT','provider'],
+  ];
+  for(const [create,code,stage] of cases){
+    const agent=createEdenAgent(development,{repository:new DemoRepository(),create});
+    await assert.rejects(agent.understand(['thanks'],home,[],null,signal()),{code,stage});
+  }
 });

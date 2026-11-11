@@ -48,5 +48,6 @@ jobs:
           node tests/production-age-browser.mjs
           node tests/location-filter-click.browser.mjs
           node tests/eden-recovery-browser.mjs
+          node tests/eden-conversation-reliability.browser.mjs
           node tests/eden-pointer-browser.mjs
           node tests/organization-oauth-browser.mjs

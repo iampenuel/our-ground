@@ -1,11 +1,13 @@
 import type { EdenAction } from '../../shared/eden-assistant.ts';
 import type { EdenSurface } from '../../shared/eden-conversation.ts';
+import {HostedTurnError,type TurnFailure} from './hosted-errors.ts';
 
 type Output='application'|'page-control-result'|'approved-clarification'|'model-text'|'model-approved-facts'|'tool-selection'|'verified-listing'|'unavailable';
 type Action=EdenAction['type']|EdenSurface|'identity'|'capabilities'|'search-and-open'|null;
 export type EdenTurnDiagnostic={
   correlationId:string;provider:'application'|'gemini'|'undetermined';model:string|null;output:Output;
   proposedAction:Action;outcome:'pending'|'confirmed'|'clarification'|'unavailable'|'cancelled'|'failed';
+  failure?:TurnFailure;
 };
 // Safe for the browser inspector, automated checks and a support report. Only
 // the latest event lives in memory. No network, storage or visitor text.
@@ -31,7 +33,8 @@ export function startTurnTrace() {
         if(settings){
           let view=settings.querySelector<HTMLOutputElement>('[data-eden-diagnostic-view]');
           if(!view){view=document.createElement('output');view.dataset.edenDiagnosticView='';settings.append(view);}
-          view.textContent=[diagnostic.provider,diagnostic.model,diagnostic.output,diagnostic.proposedAction,diagnostic.outcome,diagnostic.correlationId].filter(Boolean).join(' · ');
+          const {failure}=diagnostic;
+          view.textContent=[diagnostic.provider,diagnostic.model,diagnostic.output,diagnostic.proposedAction,diagnostic.outcome,failure?.stage,failure?.endpoint,failure?.httpStatus,failure?.code,failure?.validationStage,diagnostic.correlationId].filter(Boolean).join(' · ');
         }
       }
     }
@@ -39,9 +42,13 @@ export function startTurnTrace() {
   };
   const observe=(res:Response)=>{
     const id=res.headers.get('x-eden-correlation-id'),model=res.headers.get('x-eden-text-model');
-    if(id!==null&&id!==diagnostic.correlationId)throw Error('Eden could not match this response to the current turn.');
+    if(id!==null&&id!==diagnostic.correlationId)throw new HostedTurnError('Eden couldn’t match the response to this request. You can try again.',{stage:'decision'});
     update({provider:'gemini',model:model&&/^gemini-[a-z0-9.-]{1,64}$/.test(model)?model:null,output:'tool-selection'});
   };
+  const fail=(error:HostedTurnError,cancelled:boolean)=>{
+    if(cancelled){update({outcome:'cancelled',failure:{stage:'cancelled'}});return;}
+    update({output:'unavailable',outcome:'failed',failure:error.failure,...(error.model?{provider:'gemini',model:error.model}:{})});
+  };
   update({});
-  return {diagnostic,update,observe};
+  return {diagnostic,update,observe,fail};
 }

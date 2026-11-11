@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { validateEdenPageContext, validateEdenProviderAction } from '../shared/eden-assistant.ts';
 import type { EdenPageContext, EdenProviderAction } from '../shared/eden-assistant.ts';
+import type { EdenTextFailureStage } from '../shared/eden-conversation.ts';
 
 /** Reviewed against official Standard free-tier pricing on 2026-11-06. This
  * allowlist is not evidence that a particular operator account has no billing.
@@ -15,12 +16,14 @@ export type EdenProviderStatus = {
 export class EdenProviderError extends Error {
   code: string;
   status: number;
-  constructor(code: string, status: number) {
+  readonly stage?: EdenTextFailureStage;
+  constructor(code: string, status: number, stage?: EdenTextFailureStage) {
     super(code === 'EDEN_PLAN_PRIORITY_MISMATCH'
       ? 'The model’s sample choice did not match the scenario’s stated priorities. Review the sample options with the local controls.'
       : 'EDEN could not complete this request. Continue with the local text controls.');
     this.code = code;
     this.status = status;
+    this.stage = stage;
   }
 }
 export const EDEN_NAVIGATION_TOOL = 'propose_public_navigation';

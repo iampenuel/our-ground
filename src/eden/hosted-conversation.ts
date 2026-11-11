@@ -1,11 +1,12 @@
 import {publicPageHeading} from '../../shared/eden-public-pages.ts';
 import {EDEN_NOTICE_VERSION,type EdenAction} from '../../shared/eden-assistant.ts';
 import {reduceEdenAgentInput,sameDirectoryView,validateEdenAgentContext,validateEdenAgentActionResponse,validateAgentReplyResponse,type EdenAgentIntent} from '../../shared/eden-agent.ts';
-import {conversationChoices,projectPublicRequest,suggestedCity,socialReply,validSocialText,profileReply,type EdenConversationMemory,type PublicDecision,type EdenSurface} from '../../shared/eden-conversation.ts';
+import {clarificationReply,conversationChoices,isSocialTurn,projectPublicRequest,suggestedCity,socialReply,validSocialText,profileReply,type EdenConversationMemory,type PublicDecision,type EdenSurface} from '../../shared/eden-conversation.ts';
 import {edenLocalPageContext,edenPageContext,clearEdenRememberedSearch} from './application-bridge.ts';
 import {applyEdenPublicAction} from './live-actions.ts';
 import {applyPageControlResult,currentPageControls} from './page-controls.ts';
 import {clearTurnTrace,startTurnTrace,type EdenTurnDiagnostic} from './turn-diagnostic.ts';
+import {HostedTurnError} from './hosted-errors.ts';
 
 export function currentHostedContext(){
   const page=edenPageContext(),view=edenLocalPageContext();
@@ -21,7 +22,7 @@ export function currentHostedContext(){
 }
 
 type CommandOptions={
-  text:string;signal:AbortSignal;aiAvailable:boolean;onStatus:(message:string)=>void;
+  text:string;signal:AbortSignal;aiAvailable:boolean;onStatus:(message:string)=>void;onAction:()=>void;
   request:(path:string,body:unknown,signal?:AbortSignal,correlationId?:string)=>Promise<Response>;
 };
 export type CommandReply={reply:string;speechTicket?:string};
@@ -57,17 +58,20 @@ export function createHostedConversation(){
     previous=undefined;correction=undefined;clearEdenRememberedSearch();
     clearTurnTrace();
   }
-  async function run(options:CommandOptions):Promise<CommandReply & {outcome:EdenTurnDiagnostic['outcome']}>{
-    const trace=startTurnTrace();
-    try{const reply=await processTurn(options,trace);return {...reply,outcome:trace.diagnostic.outcome};}
-    catch(error){trace.update({output:'unavailable',outcome:options.signal.aborted?'cancelled':'failed'});throw error;}
+  async function run(options:CommandOptions,trace:ReturnType<typeof startTurnTrace>):Promise<CommandReply & {outcome:EdenTurnDiagnostic['outcome']}>{
+    const reply=await processTurn(options,trace);
+    return {...reply,outcome:trace.diagnostic.outcome};
   }
   async function processTurn(options:CommandOptions,trace:ReturnType<typeof startTurnTrace>):Promise<CommandReply>{
-    const {signal,request,onStatus,aiAvailable}=options;
-    const remote=async(path:string,body:unknown)=>{
+    const {signal,request,onStatus,onAction,aiAvailable}=options;
+    const remote=async(path:'understand'|'plan'|'result',body:unknown)=>{
       trace.update({provider:'undetermined',model:null,output:'tool-selection',outcome:'pending'});
       const res=await request(path,body,signal,trace.diagnostic.correlationId);
-      trace.observe(res);signal.throwIfAborted();return res.json();
+      trace.observe(res);signal.throwIfAborted();
+      const data=await res.json().catch(()=>null);
+      signal.throwIfAborted();
+      if(!data||typeof data!=='object'||Array.isArray(data))throw new HostedTurnError('Eden couldn’t verify the response.',{stage:path==='result'?'reply':'decision',endpoint:path,httpStatus:res.status});
+      return data;
     };
     const say=(reply:string,outcome:'confirmed'|'clarification'|'unavailable'='clarification')=>{
       trace.update({outcome});return {reply};
@@ -77,7 +81,11 @@ export function createHostedConversation(){
       onStatus('Using the page control…');
       const available=currentPageControls().includes(control);
       if(!available)return say('That control is unavailable on this page.','unavailable');
-      const result=await applyPageControlResult(control,signal);
+      onAction();
+      const result=await applyPageControlResult(control,signal).catch(()=>{
+        signal.throwIfAborted();
+        throw new HostedTurnError('Eden couldn’t complete that page action.',{stage:'page-action'});
+      });
       signal.throwIfAborted();
       return say(result.message,result.status==='done'?'confirmed':result.status==='clarify'?'clarification':'unavailable');
     };
@@ -87,7 +95,7 @@ export function createHostedConversation(){
     correction=undefined;
     if(accepted)text=accepted.category?'find '+accepted.category+' near '+accepted.city:accepted.city;
     const before=currentHostedContext();
-    if(!before)throw Error('Eden needs a public page with a current directory view.');
+    if(!before)throw new HostedTurnError('Eden needs a public page with a current directory view.',{stage:'context'});
     const symbols=projectPublicRequest(text);
     if(!symbols)return say('Please use a public city, resource category or page request. Leave out personal or medical details.');
     const local=directControl(text);
@@ -101,14 +109,14 @@ export function createHostedConversation(){
       correction={city:uncertain.query,category:symbols.includes('food')?'food':symbols.includes('healthcare')?'healthcare':before.category};
       return say('Did you mean '+uncertain.label+'? Reply yes or enter the city and state.');
     }
-    const changed=()=>{throw Error('The page or selection changed. Please ask again using the current view.');};
+    const changed=()=>{throw new HostedTurnError('The page or selection changed. Please ask again using the current view.',{stage:'context'});};
     const check=(url:string,view:NonNullable<typeof before>,includeMap=false)=>{
       signal.throwIfAborted();if(location.href!==url||!sameDirectoryView(view,currentHostedContext(),includeMap))changed();
     };
     const controls=currentPageControls();
     const choices=conversationChoices(symbols,before,controls,previous);
     let followUp:number|undefined;
-    if(!intent||intent.goal==='help'||choices.some(c=>c.kind==='search-and-open')){
+    if(isSocialTurn(symbols)||!intent||intent.goal==='help'||choices.some(c=>c.kind==='search-and-open')){
       let chosen:PublicDecision|undefined;
       let replyText,speechTicket;
       if(aiAvailable){
@@ -117,7 +125,7 @@ export function createHostedConversation(){
         const decision=await remote('understand',{symbols,context:before,controls,previous:previous??null,noticeVersion:EDEN_NOTICE_VERSION});
         check(url,before);
         chosen=choices.find(candidate=>JSON.stringify(candidate)===JSON.stringify(decision?.choice));
-        if(decision?.engine!=='gemini'||!chosen)throw Error('Eden could not verify the proposed action. Please try again.');
+        if(decision?.engine!=='gemini'||!chosen)throw new HostedTurnError('Eden couldn’t verify the proposed action. You can try again.',{stage:'decision',endpoint:'understand'});
         ({reply:replyText,speechTicket}=decision);
       }else{
         // Public profile facts and explicit page controls also work without AI.
@@ -129,13 +137,19 @@ export function createHostedConversation(){
         if(chosen.key==='boundary')return say(socialReply.boundary);
         if(chosen.key==='identity'||chosen.key==='capabilities'){
           const grounded=profileReply(chosen.key,chosen.focus,symbols.includes('correction'));
-          if(!grounded||(aiAvailable&&replyText!==grounded))throw Error('Eden could not verify its introduction.');
+          if(!grounded||(aiAvailable&&replyText!==grounded))throw new HostedTurnError('Eden couldn’t verify its introduction.',{stage:'reply',endpoint:'understand'});
           previous={topic:chosen.key};
           trace.update({output:aiAvailable?'model-approved-facts':'application',proposedAction:chosen.key,outcome:'confirmed'});
           return {reply:grounded,...ticketFrom(speechTicket)};
         }
-        if(!validSocialText(replyText))throw Error('Eden could not verify its reply. Please try again.');
-        trace.update({output:chosen.key==='clarify'?'approved-clarification':'model-text',outcome:chosen.key==='clarify'?'clarification':'confirmed'});
+        if(chosen.key==='clarify'){
+          const expected=clarificationReply(symbols,previous);
+          if(replyText!==expected)throw new HostedTurnError('Eden couldn’t verify the clarification.',{stage:'reply',endpoint:'understand'});
+          trace.update({output:'approved-clarification'});
+          return {...say(expected),...ticketFrom(speechTicket)};
+        }
+        if(!validSocialText(replyText,chosen.key))throw new HostedTurnError('Eden couldn’t verify that reply. You can try again.',{stage:'reply',endpoint:'understand'});
+        trace.update({output:'model-text',outcome:'confirmed'});
         return {reply:replyText,...ticketFrom(speechTicket)};
       }
       if(chosen.kind==='search-and-open'){followUp=chosen.ordinal;trace.update({proposedAction:'search-and-open'});}
@@ -144,10 +158,12 @@ export function createHostedConversation(){
     const apply=async(action:EdenAction)=>{
       if(action.type==='details'||action.type==='select'||action.type==='read-hours'){
         const id=currentHostedContext()?.resourceIds[action.index-1],index=edenLocalPageContext().results.findIndex(r=>r.id===id);
-        if(!id||index<0)throw Error('That listing is no longer in the results.');
+        if(!id||index<0)throw new HostedTurnError('That listing is no longer in the results.',{stage:'context'});
         action={...action,index:index+1};
       }
-      return applyEdenPublicAction(action,{publicDirectory:true,signal});
+      onAction();
+      try{return await applyEdenPublicAction(action,{publicDirectory:true,signal});}
+      catch{signal.throwIfAborted();throw new HostedTurnError('Eden couldn’t complete that page action.',{stage:'page-action'});}
     };
     async function perform(step:EdenAgentIntent,view:NonNullable<typeof before>){
       if(!aiAvailable){
@@ -162,12 +178,12 @@ export function createHostedConversation(){
       let raw:Awaited<ReturnType<typeof remote>>;
       try{raw=await remote('plan',{intent:step,context:view,noticeVersion:EDEN_NOTICE_VERSION});}
       catch(error){
-        if(error instanceof Error&&'code'in error&&error.code==='DIRECTORY_LOCATION_AMBIGUOUS')previous=step;
+        if(error instanceof HostedTurnError&&error.failure.code==='DIRECTORY_LOCATION_AMBIGUOUS')previous=step;
         throw error;
       }
       const {speechTicket:clarificationTicket,...response}=raw;
       const plan=validateEdenAgentActionResponse(response,step,view);
-      if(!plan)throw Error('Eden could not verify the proposed action.');
+      if(!plan)throw new HostedTurnError('Eden couldn’t verify the proposed action.',{stage:'decision',endpoint:'plan'});
       check(url,view);
       if('clarification'in plan){previous=step;trace.update({output:'approved-clarification',outcome:'clarification'});return {reply:plan.clarification.question,...ticketFrom(clarificationTicket)};}
       trace.update({proposedAction:plan.action.type});onStatus('Using the page control…');
@@ -178,9 +194,11 @@ export function createHostedConversation(){
       check(confirmedURL,after,step.goal==='explain-page');
       const {speechTicket,...answer}=data;
       const confirmed=validateAgentReplyResponse(answer);
-      if(!confirmed)throw Error('Eden could not verify the listing information.');
+      if(!confirmed)throw new HostedTurnError('Eden couldn’t verify the listing information.',{stage:'reply',endpoint:'result'});
       if(result.status==='done')previous=step;
-      trace.update({output:plan.action.type==='read-hours'?'verified-listing':'model-approved-facts',outcome:result.status==='done'?'confirmed':'unavailable'});
+      trace.update(result.status==='done'
+        ? {output:plan.action.type==='read-hours'?'verified-listing':'model-approved-facts',outcome:'confirmed'}
+        : {output:'unavailable',outcome:'unavailable',failure:{stage:'page-action'}});
       return {reply:confirmed.reply,...ticketFrom(speechTicket)};
     }
     const answer=await perform(intent,before);
@@ -190,7 +208,12 @@ export function createHostedConversation(){
     const after=currentHostedContext();
     if(!after||after.searchState!=='ready'||!after.resourceIds[followUp-1])return answer;
     try{return await perform({goal:'inspect-resource',ordinal:followUp,view:'details'},after);}
-    catch{signal.throwIfAborted();throw Error('The search finished, but Eden could not confirm opening the requested listing. Please try again or use the results list.');}
+    catch(error){
+      signal.throwIfAborted();
+      const message='The search finished, but Eden couldn’t confirm opening the requested listing. You can use the results list.';
+      if(error instanceof HostedTurnError)throw new HostedTurnError(message,error.failure,error.retryAt,error.model);
+      throw new HostedTurnError(message,{stage:'page-action'});
+    }
   }
   return {run,clear};
 }
