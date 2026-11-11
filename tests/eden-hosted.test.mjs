@@ -4,6 +4,7 @@ import {createHash,randomBytes} from 'node:crypto';
 import {adultGate} from '../backend/adult-access.ts';
 import {createHostedEden} from '../backend/eden-hosted.ts';
 import {EDEN_NOTICE_VERSION as noticeVersion} from '../shared/eden-assistant.ts';
+import {projectPublicRequest} from '../shared/eden-conversation.ts';
 import {reduceEdenAgentInput,sameDirectoryView} from '../shared/eden-agent.ts';
 
 test('map readiness preserves a listing answer while a manual pin change invalidates it',()=>{
@@ -245,4 +246,64 @@ test('a public mint cannot evade a network throttle by creating a new adult sess
  const noLimits=createHostedEden(deps,{...prod,EDEN_LIVE_PROVIDER_SEATS:undefined},{store:base});
  const status=await noLimits(new Request(origin+'/api/v1/eden/hosted/status',{headers:{cookie:age,'x-vercel-ip-country':'US'}}),'status');
  assert.equal((await status.json()).liveTokensAvailable,false);
+});
+
+test('hosted courtesy stays one inference after verified search and selection, and never returns a ticket for a fabricated claim',async()=>{
+  const ids=rows.map(row=>row.id),captured=[],spoken=[];
+  const communityRows=rows.map(row=>({...row,category_slugs:['community']}));
+  const directory={...deps,repo:{search:async()=>({items:communityRows,total:2}),detail:async id=>communityRows.find(row=>row.id===id)}};
+  const handle=createHostedEden(directory,env,{store:memory(),create:async payload=>{
+    const input=JSON.parse(payload.input),name=payload.tools[0].name;
+    captured.push({payload,input,name});
+    let args;
+    if(name==='choose_public_step'){
+      const choice=input.choices.find(option=>option.key==='thanks');
+      const count=captured.filter(call=>call.name==='choose_public_step').length;
+      args={choice:choice.id,social_text:["You're very welcome!",'Our food resources are here today.','No problem!'][count-1]};
+    }else if(name==='perform_public_resource_action'){
+      args={action:input.semantic_request.goal==='find-resources'
+        ?{type:'search',city:'new-york-ny',category:'community',radius:10}
+        :{type:'details',index:1}};
+    }else{
+      const facts=[...input.required_fact_ids,...input.required_one_of_fact_ids.map(group=>group[0])];
+      args={segments:[...new Set(facts)].map(id=>({kind:'fact',id}))};
+    }
+    return {status:'requires_action',steps:[{type:'function_call',name,arguments:args}]};
+  },speech:async text=>{spoken.push(text);return{data:new Uint8Array([1,2]),mimeType:'audio/wav'};}});
+  const headers={cookie:await cookie()};
+  const session=await handle(req('session',{noticeVersion,acknowledged:true},{headers}),'session');
+  assert.equal(session.status,200);headers.Authorization='Bearer '+(await session.json()).sessionToken;
+  const call=(path,body)=>handle(req(path,{noticeVersion,...body},{headers} ),path);
+  const home={page:'home',directory:'public',synthetic:false,resultCount:0,resourceIds:[]};
+  const results={page:'support',directory:'public',synthetic:false,cityId:'new-york-ny',category:'community',radius:10,resultCount:2,resourceIds:ids,searchState:'ready'};
+  const previous={goal:'find-resources',cityId:'new-york-ny',category:'community',radius:10};
+  const plan=await call('plan',{intent:previous,context:home});
+  assert.equal(plan.status,200);
+  const done=await call('result',{turnToken:(await plan.json()).turnToken,context:results,outcome:'done'});
+  assert.equal(done.status,200);assert.match((await done.json()).reply,/matching community listings/);
+  const courtesy=context=>call('understand',{symbols:projectPublicRequest('Thanks for helping me find that.'),context,controls:[],previous});
+  const first=await courtesy(results);
+  assert.equal(first.status,200);assert.equal(first.headers.get('x-eden-text-model'),'gemini-3.5-flash-lite');
+  const {reply,speechTicket}=await first.json();assert.equal(reply,"You're very welcome!");assert.match(speechTicket,/^[A-Za-z0-9_-]{43}$/);
+  const details=await call('plan',{intent:{goal:'inspect-resource',ordinal:1,view:'details'},context:results});
+  assert.equal(details.status,200);
+  const selected={...results,page:'resource',selectedIndex:1};
+  const inspected=await call('result',{turnToken:(await details.json()).turnToken,context:selected,outcome:'done'});
+  assert.equal(inspected.status,200);assert.match((await inspected.json()).reply,/Unit health clinic A/);
+  headers['x-eden-correlation-id']='e5a9597a-6c52-4c43-8b25-f773c38cdd1f';
+  const rejected=await courtesy(selected);
+  assert.equal(rejected.status,502);
+  assert.equal(rejected.headers.get('x-eden-correlation-id'),headers['x-eden-correlation-id']);
+  assert.equal(rejected.headers.get('x-eden-error-stage'),'social-output');
+  const body=await rejected.json();
+  assert.equal(body.error.code,'EDEN_INVALID_AGENT_OUTPUT');assert(!body.speechTicket);assert(!JSON.stringify(body).includes('food resources'));
+  const recovered=await courtesy(selected);
+  assert.equal(recovered.status,200);assert.equal((await recovered.json()).reply,'No problem!');
+  assert.equal(captured.length,7);
+  const social=captured.filter(call=>call.name==='choose_public_step');
+  assert.equal(social.length,3);
+  assert(social.every(({payload,input})=>payload.store===false&&!Object.hasOwn(payload,'previous_interaction_id')&&input.choices.length===1&&!ids.some(id=>payload.input.includes(id))&&!payload.input.includes('Thanks for helping')));
+  const voice=await handle(req('speech',{speechTicket},{headers}),'speech');
+  assert.equal(voice.status,200);assert.deepEqual(spoken,[reply]);
+  assert.equal(voice.headers.get('x-eden-speech-voice'),'Aoede');
 });

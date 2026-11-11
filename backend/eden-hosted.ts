@@ -182,8 +182,14 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
       if(error instanceof LocationSearchError)return response({error:{code:'EDEN_LOCATION_UNAVAILABLE',message:'Location resolution is temporarily unavailable. Check the place and state or ZIP code, or try again later.'}},error.status);
       if(error instanceof EdenProviderError){
         // A bounded error enum and model name only. SDK errors may contain keys or input.
-        console.warn('eden.provider',JSON.stringify({code:error.code,model:textModel,status:error.status,correlationId}));
+        const textEndpoint=path==='understand'||path==='plan'||path==='result'?path:undefined;
+        const stage=textEndpoint?error.stage:undefined;
+        console.warn('eden.provider',JSON.stringify({code:error.code,model:textModel,status:error.status,correlationId,endpoint:textEndpoint,stage}));
         const result=response({error:{code:error.code,message:error.status===429?'Gemini is temporarily busy. Try again in a moment.':'Gemini could not complete this request. The public page controls are available.'}},error.status);
+        if(stage){
+          result.headers.set('X-Eden-Error-Stage',stage);
+          if(textModel)result.headers.set('X-Eden-Text-Model',textModel);
+        }
         if(error.status===429) result.headers.set('Retry-After','30');
         return result;
       }
