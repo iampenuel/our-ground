@@ -12,3 +12,7 @@ tests/eden-directory-browser.*
 docs
 *.log
 .DS_Store
+
+# Local age-gate presentation tooling.
+scripts/demo-age-gate.mjs
+tests/support/age-gate-server.mjs
