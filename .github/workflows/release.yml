@@ -46,6 +46,7 @@ jobs:
           for i in {1..30}; do curl -fsS 127.0.0.1:4199 -o /dev/null && break; sleep 1; done
           node tests/release-browser.mjs
           node tests/production-age-browser.mjs
+          node tests/adult-help-demo.browser.mjs
           npm run demo:age-gate -- --verify
           node tests/location-filter-click.browser.mjs
           node tests/eden-recovery-browser.mjs

@@ -17,12 +17,14 @@ const preview = `<div class="preview" inert aria-hidden="true">
   </div>
 </div>`;
 
-const policies = '<nav aria-label="Site policies"><a href="/terms">Terms</a> <span aria-hidden="true">·</span> <a href="/privacy">Privacy</a></nav>';
-const escapeAttribute = (s:string) => s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+export const adultHelpDemoPath = '/adult-help-demo';
 
-function documentResponse(title:string, body:string, status:number) {
+const policies = '<nav aria-label="Site policies"><a href="/terms">Terms</a> <span aria-hidden="true">·</span> <a href="/privacy">Privacy</a></nav>';
+export const escapeAttribute = (s:string) => s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+
+function documentResponse(title:string, body:string, status:number, stylesheetVersion=4) {
   // strict-origin preserves Chrome's native POST Origin without disclosing a callback query.
-  return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="referrer" content="strict-origin"><title>${title} · Our Ground</title><link rel="stylesheet" href="/eligibility.css?v=4"></head><body>${body}</body></html>`, {
+  return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="referrer" content="strict-origin"><title>${title} · Our Ground</title><link rel="stylesheet" href="/eligibility.css?v=${stylesheetVersion}"></head><body>${body}</body></html>`, {
     status, headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'private, no-store','Referrer-Policy':'strict-origin','X-Robots-Tag':'noindex'},
   });
 }
@@ -31,17 +33,29 @@ export function page(title:string, content:string, status=200) {
   return documentResponse(title,`<main class="policy"><p>Our Ground</p><h1>${title}</h1>${content}${policies}</main>`,status);
 }
 
-function entrance(title:string, content:string, {status=200, policy=false} = {}) {
-  return documentResponse(title,`${preview}<main class="entrance"><div class="panel${policy?' panel--policy':''}">
+function entrance(title:string, content:string, {status=200, policy=false, demo=false, stylesheetVersion=4} = {}) {
+  return documentResponse(title,`${preview}<main class="entrance"><div class="panel${policy?' panel--policy':''}${demo?' panel--demo':''}">
     <p class="brand">Our Ground</p>
     <h1>${title}</h1>
     ${content}
     ${policies}
-  </div></main>`,status);
+  </div></main>`,status,stylesheetVersion);
 }
 
 export function deniedEntrance() {
-  return entrance('Our Ground is for adults 19 and older','<p>You cannot enter this demo. An adult can search on your behalf.</p>',{status:403});
+  return entrance('Our Ground is for adults 19 and older',
+    '<p>An adult can help you find support. Explore a demonstration of how an adult handoff could work.</p>' +
+    '<a class="demo-entry" href="' + adultHelpDemoPath + '">See how an adult can help</a>',
+    {status:403, stylesheetVersion:5});
+}
+
+export function demoEntrance(title:string, content:string, status=200) {
+  const response = entrance(title,
+    '<p class="demo-notice">DEMO MODE — Age verification is simulated. No identity has been checked.</p>' + content,
+    {status, demo:true, stylesheetVersion:5});
+  response.headers.set('Content-Security-Policy',
+    "default-src 'none'; style-src 'self'; img-src 'self'; form-action 'none'; base-uri 'none'; frame-ancestors 'none'");
+  return response;
 }
 
 export function policyPage(title:'Terms'|'Privacy', copy:string, preEntry:boolean) {

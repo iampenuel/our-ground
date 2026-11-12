@@ -65,7 +65,7 @@ try {
   const refusal=p.waitForResponse(response=>response.request().method()==='POST');
   await p.getByRole('button',{name:"I'm under 19"}).click();
   assert.equal((await refusal).status(),403);
-  await checkEntrance(p,denialTitle,['Terms','Privacy']);
+  await checkEntrance(p,denialTitle,['See how an adult can help','Terms','Privacy']);
   assert.equal((await p.locator('.panel').boundingBox()).width,confirmationWidth);
   await ctx.close();
  }
@@ -84,6 +84,7 @@ try {
  const refusal=p.waitForResponse(response=>response.request().method()==='POST');
  await p.getByRole('button',{name:"I'm under 19"}).click();
  assert.equal((await refusal).status(),403);
+ await p.getByRole('heading',{name:denialTitle,exact:true}).waitFor();
  assert.equal((await p.reload()).status(),403);
  for(const path of ['/','/support','/give','/organizations','/account','/auth/callback','/resources/synthetic']){
   assert.equal((await p.goto(origin+path)).status(),403);

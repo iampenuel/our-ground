@@ -1,5 +1,6 @@
 import {deniedEntrance, gate, page, policyPage, previewPhotos} from './age-page.ts';
 import {agePageStyle} from './age-page-style.ts';
+import {adultHelpDemo} from './adult-help-demo.ts';
 import {publicApiRoute} from './api-route.ts';
 // A host-bound signed session records a self-declared age threshold only.
 const cookieName='__Host-og-audience';
@@ -60,6 +61,8 @@ export async function adultGate(request:Request,config:Config):Promise<Response|
   const policyReply=(value:object,status=200)=>Response.json(value,{status,headers:{'Cache-Control':'private, no-store','Vary':'Accept','Referrer-Policy':'no-referrer'}});
   const json=request.headers.get('accept')?.includes('application/json');
   try{
+    const demo=adultHelpDemo(request.method,url.pathname);
+    if(demo)return demo;
     if(publicSite&&!protectedFeature&&!['/eligibility','/eligibility.css','/terms'].includes(url.pathname))return null;
     // Only the two static photographs may pass through to Vercel before signing.
     if((request.method==='GET'||request.method==='HEAD') && !url.search &&
