@@ -18,7 +18,7 @@ const preview = `<div class="preview" inert aria-hidden="true">
 </div>`;
 
 const policies = '<nav aria-label="Site policies"><a href="/terms">Terms</a> <span aria-hidden="true">·</span> <a href="/privacy">Privacy</a></nav>';
-const escapeAttribute = (s:string) => s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+export const escapeAttribute = (s:string) => s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 
 function documentResponse(title:string, body:string, status:number) {
   // strict-origin preserves Chrome's native POST Origin without disclosing a callback query.
@@ -31,8 +31,8 @@ export function page(title:string, content:string, status=200) {
   return documentResponse(title,`<main class="policy"><p>Our Ground</p><h1>${title}</h1>${content}${policies}</main>`,status);
 }
 
-function entrance(title:string, content:string, {status=200, policy=false} = {}) {
-  return documentResponse(title,`${preview}<main class="entrance"><div class="panel${policy?' panel--policy':''}">
+function entrance(title:string, content:string, {status=200, policy=false, handoff=false} = {}) {
+  return documentResponse(title,`${preview}<main class="entrance"><div class="panel${policy?' panel--policy':''}${handoff?' panel--handoff':''}">
     <p class="brand">Our Ground</p>
     <h1>${title}</h1>
     ${content}
@@ -40,8 +40,13 @@ function entrance(title:string, content:string, {status=200, policy=false} = {})
   </div></main>`,status);
 }
 
-export function deniedEntrance() {
-  return entrance('Our Ground is for adults 19 and older','<p>You cannot enter this demo. An adult can search on your behalf.</p>',{status:403});
+export function deniedEntrance(handoff?: string) {
+  return entrance('Our Ground is for adults 19 and older','<p>You cannot enter this demo. An adult can search on your behalf.</p>' +
+    (handoff ? '<p class="handoff-option"><a href="' + escapeAttribute(handoff) + '">Verify as an adult</a></p>' : ''),{status:403});
+}
+
+export function handoffEntrance(title: string, body: string, status = 200) {
+  return entrance(title, body, {status, handoff: true});
 }
 
 export function policyPage(title:'Terms'|'Privacy', copy:string, preEntry:boolean) {

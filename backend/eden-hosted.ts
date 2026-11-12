@@ -7,7 +7,7 @@ import {createHostedLive} from './eden-hosted-live.ts';
 import {EdenLiveError} from './eden-live.ts';
 import {createHash,createHmac,randomBytes,randomUUID} from 'node:crypto';
 import type {Dependencies} from './app.ts';
-import {adultSessionNonce} from './adult-access.ts';
+import {adultSession} from './adult-access.ts';
 import {stagingProjectId} from './staging-limiter.ts';
 import {redis} from './hosted-store.ts';
 import {publicAdmissionScript} from './anonymous-protection.ts';
@@ -80,11 +80,13 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
     };
     try{
       // Vercel overwrites x-vercel-ip-country. Only the verified deployment runtime may serve these routes.
-      const nonce=await adultSessionNonce(request,env);
-      if(!nonce)reject(403,'AGE_ACKNOWLEDGMENT_REQUIRED','Acknowledge the age requirement to continue.');
+      const audience=await adultSession(request,env);
+      if(!audience)reject(403,'AGE_ACKNOWLEDGMENT_REQUIRED','Acknowledge the age requirement to continue.');
       if(request.headers.get('x-vercel-ip-country')!=='US')reject(403,'EDEN_REGION_UNAVAILABLE','EDEN is available to adults using this demo in the United States.');
       if(!ready())reject(403,'EDEN_DISABLED','Hosted EDEN is unavailable.');
-      if(path==='status'&&request.method==='GET')return response({available:true,engine:'gemini',agentAvailable:true,speechAvailable:Boolean(speechModel),voice:EDEN_SPEECH_VOICE,speechModel:speechModel??null,rawAudioAccepted:false,liveTokensAvailable:liveEnabled,...(liveEnabled?{liveTestLimits:{...policy,maxCallSeconds:EDEN_LIVE_MAX_CALL_SECONDS,scope:'signed-tester-browser'}}:{}),noticeVersion:EDEN_NOTICE_VERSION});
+      const nonce=audience!.nonce;
+      const canCall=liveEnabled&&!audience!.verified;
+      if(path==='status'&&request.method==='GET')return response({available:true,engine:'gemini',agentAvailable:true,speechAvailable:Boolean(speechModel),voice:EDEN_SPEECH_VOICE,speechModel:speechModel??null,rawAudioAccepted:false,liveTokensAvailable:canCall,...(canCall?{liveTestLimits:{...policy,maxCallSeconds:EDEN_LIVE_MAX_CALL_SECONDS,scope:'signed-tester-browser'}}:{}),noticeVersion:EDEN_NOTICE_VERSION});
       const origin=new URL(request.url).origin;
       if(request.method!=='POST'||request.headers.get('origin')!==origin)reject(403,'EDEN_ORIGIN_REQUIRED','Use the assistant on this site.');
       const binding=hash(origin+'|'+nonce);
@@ -103,7 +105,7 @@ export function createHostedEden(deps:Dependencies,env:Environment,options:Optio
       const storedBinding=await store(['GET',sessionKey]);
       if(typeof storedBinding!=='string'||storedBinding.split('|')[0]!==binding)reject(401,'EDEN_SESSION_EXPIRED','Start an EDEN session.');
       if(path.startsWith('live/')){
-        if(!liveEnabled)reject(403,'EDEN_LIVE_DISABLED','Calls are unavailable here.');
+        if(!canCall)reject(403,'EDEN_LIVE_DISABLED','Calls are unavailable here.');
         if(path==='live/token' && env.VERCEL_ENV==='production'){
           // A new signed age cookie must not reset the public mint burst limit.
           // Only a short-lived keyed digest reaches Redis.

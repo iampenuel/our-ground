@@ -36,6 +36,8 @@ a { color:inherit; }
 .panel--policy { width:min(100%,35rem); }
 .panel--policy > a { display:inline-flex; align-items:center; min-height:44px; margin-top:.75rem; text-underline-offset:.18em; }
 .panel p { margin:0; }
+.panel p + p, .panel .handoff-option { margin-top:.75rem; }
+.panel .handoff-option a, .panel--handoff > a { display:inline-flex; align-items:center; min-height:44px; text-underline-offset:.18em; }
 .panel .brand { font-size:.9375rem; letter-spacing:-.02em; }
 .panel h1 {
   margin:.625rem 0 .5rem;

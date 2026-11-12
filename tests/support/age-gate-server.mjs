@@ -4,11 +4,12 @@ import { createServer } from 'node:http';
 import { Readable } from 'node:stream';
 import { adultGate } from '../../backend/adult-access.ts';
 import { previewPhotos } from '../../backend/age-page.ts';
+import { browserSecurityHeaders } from '../../shared/security-headers.ts';
 
 const photos = new Map(Object.values(previewPhotos).map(path => [path, new URL('../../public' + path, import.meta.url)]));
 
 // Tests and the presenter use this adapter outside the deployed application.
-export async function startAgeGateServer({ app, onRequest, signInOnly = false }) {
+export async function startAgeGateServer({ app, onRequest, signInOnly = false, handoff, productionHeaders = false }) {
   const config = {
     ADULT_SESSION_SECRET: randomBytes(32).toString('base64url'),
     ...(signInOnly ? {
@@ -16,6 +17,7 @@ export async function startAgeGateServer({ app, onRequest, signInOnly = false })
       ACCOUNT_RELEASE_MODE: 'signin_only',
     } : {}),
   };
+  const securityHeaders = productionHeaders ? browserSecurityHeaders() : {};
   let origin, host;
   const server = createServer({ requestTimeout: 10000 }, async (incoming, outgoing) => {
     try {
@@ -30,14 +32,14 @@ export async function startAgeGateServer({ app, onRequest, signInOnly = false })
         method, headers: incoming.headers,
         ...(method === 'GET' || method === 'HEAD' ? {} : { body: Readable.toWeb(incoming), duplex: 'half' }),
       });
-      let response = await adultGate(request, config);
+      let response = await adultGate(request, config, handoff);
       if (!response) {
         const photo = photos.get(url.pathname);
         response = photo
           ? new Response(await readFile(photo), { headers: { 'Content-Type': 'image/webp' } })
           : await app(request);
       }
-      outgoing.writeHead(response.status, Object.fromEntries(response.headers));
+      outgoing.writeHead(response.status, {...securityHeaders, ...Object.fromEntries(response.headers)});
       outgoing.end(method === 'HEAD' ? undefined : Buffer.from(await response.arrayBuffer()));
     } catch {
       if (outgoing.headersSent) outgoing.destroy();
