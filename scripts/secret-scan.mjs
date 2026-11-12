@@ -65,7 +65,7 @@ export function scanRepository(cwd, {staged=false,build=false,knownSecrets=[],al
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
   try {
     const cwd=process.cwd(),env={...loadEnv('production',cwd,''),...process.env};
-    const names=['ADULT_SESSION_SECRET','STAGING_RATE_LIMIT_SECRET','DATABASE_URL','MIGRATION_DATABASE_URL','SUPABASE_SECRET_KEY','SUPABASE_SERVICE_ROLE_KEY','SUPABASE_SERVICE_ROLE','GOOGLE_CLIENT_SECRET','GOOGLE_OAUTH_CLIENT_SECRET','GEOAPIFY_SERVER_API_KEY','GOOGLE_PLACES_API_KEY','GOOGLE_GEOCODING_API_KEY','GEMINI_API_KEY','UPSTASH_REDIS_REST_TOKEN','YOTI_AVS_API_KEY','INTEGRATION_STAFF_ACCESS_TOKEN','INTEGRATION_OUTSIDER_ACCESS_TOKEN'];
+    const names=['ADULT_SESSION_SECRET','STAGING_RATE_LIMIT_SECRET','DATABASE_URL','MIGRATION_DATABASE_URL','SUPABASE_SECRET_KEY','SUPABASE_SERVICE_ROLE_KEY','SUPABASE_SERVICE_ROLE','GOOGLE_CLIENT_SECRET','GOOGLE_OAUTH_CLIENT_SECRET','GEOAPIFY_SERVER_API_KEY','GOOGLE_PLACES_API_KEY','GOOGLE_GEOCODING_API_KEY','GEMINI_API_KEY','UPSTASH_REDIS_REST_TOKEN','INTEGRATION_STAFF_ACCESS_TOKEN','INTEGRATION_OUTSIDER_ACCESS_TOKEN'];
     const result=scanRepository(cwd,{staged:process.argv.includes('--staged'),build:process.argv.includes('--build'),knownSecrets:names.map(k=>env[k]).filter(Boolean),allowedPublicValues:[env.VITE_GOOGLE_MAPS_API_KEY].filter(Boolean)});
     console.log(JSON.stringify({status:result.findings.length?'FAIL':'PASS',files:result.files,findings:result.findings}));
     if(result.findings.length)process.exitCode=1;

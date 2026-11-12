@@ -36,8 +36,63 @@ a { color:inherit; }
 .panel--policy { width:min(100%,35rem); }
 .panel--policy > a { display:inline-flex; align-items:center; min-height:44px; margin-top:.75rem; text-underline-offset:.18em; }
 .panel p { margin:0; }
-.panel p + p, .panel .handoff-option { margin-top:.75rem; }
-.panel .handoff-option a, .panel--handoff > a { display:inline-flex; align-items:center; min-height:44px; text-underline-offset:.18em; }
+.demo-entry, .panel--demo > a {
+  display:inline-flex;
+  align-items:center;
+  min-height:44px;
+  margin-top:.5rem;
+  color:#1c332c;
+  font-weight:600;
+  text-underline-offset:.18em;
+}
+.panel--demo { width:min(100%,35rem); }
+.panel .demo-notice {
+  margin:.875rem 0;
+  padding:.75rem 1rem;
+  border:1px solid #b3c3b4;
+  border-radius:6px;
+  background:#edf2e9;
+  color:#1c332c;
+  font-weight:600;
+}
+.panel--demo .demo-note { font-weight:600; }
+.panel--demo .demo-note + p { margin-top:.5rem; }
+.panel--demo .demo-actions {
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+  margin:.875rem 0 .5rem;
+}
+.demo-actions a {
+  display:flex;
+  flex:1 1 10em;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  padding:.625em .75em;
+  border:1px solid #1c332c;
+  border-radius:6px;
+  background:#1c332c;
+  color:white;
+  text-align:center;
+  font:600 .875rem/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  text-decoration:none;
+}
+.demo-actions a:hover { background:#29483d; text-decoration:underline; }
+.panel--demo .demo-card {
+  margin:.75rem 0;
+  padding:.875rem;
+  border:1px solid #d6d8d1;
+  border-radius:6px;
+}
+.demo-card h2 { margin:0 0 .25rem; font-size:1rem; }
+.panel--demo .demo-card .demo-actions { margin-bottom:0; }
+.demo-actions a[href="/"], .demo-actions a[href$="/success"]:only-child {
+  border-color:#757e78;
+  background:#fcfcfa;
+  color:#252a28;
+}
+.demo-actions a[href="/"]:hover, .demo-actions a[href$="/success"]:only-child:hover { background:#edeeea; }
 .panel .brand { font-size:.9375rem; letter-spacing:-.02em; }
 .panel h1 {
   margin:.625rem 0 .5rem;

@@ -9,7 +9,6 @@ if (redirect) {
   window.location.replace(redirect);
 } else {
   initializeSiteNavigation();
-  if (assistant) void import('./adult-handoff').then(({ showAdultSession }) => showAdultSession());
   // Public information pages share the floating agent. Account, staff and
   // authentication workflows never mount the assistant.
   if (path === '/') {
